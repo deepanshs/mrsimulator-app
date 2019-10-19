@@ -1,7 +1,8 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__/*
 *.py[cod]
 *$py.class
+.vscode/*
 
 # C extensions
 *.so
@@ -9,21 +10,18 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+.vscode/*
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
-parts/
 sdist/
-var/
 wheels/
 *.egg-info/
 .installed.cfg
+cython_debug/**
 *.egg
-MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -33,7 +31,6 @@ MANIFEST
 
 # Installer logs
 pip-log.txt
-pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -66,6 +63,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Doxygen output
+docs/xml/
+
 # PyBuilder
 target/
 
@@ -74,12 +74,6 @@ target/
 
 # pyenv
 .python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
 
 # Environments
 .env
@@ -94,11 +88,40 @@ venv.bak/
 .spyderproject
 .spyproject
 
-# Rope project settings
-.ropeproject
-
 # mkdocs documentation
 /site
 
 # mypy
 .mypy_cache/
+
+# mac folder
+.DS_Store
+
+# build
+*.DSYM/**
+
+# folders
+src/c_lib/test_c/**
+tests/simpson/quad/**
+
+# files
+class-diagram*
+*.out
+*.prof
+*.ipynb
+*.mp4
+*.html
+*.temp
+test_os.py
+note.txt
+simulate_lineshape.py
+main.c
+*.code-workspace
+jquery.js
+__config__.json
+test_dash.py
+
+# cython generated files
+test.c
+nmr_methods.c
+sandbox.c

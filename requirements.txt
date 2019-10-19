@@ -1,0 +1,8 @@
+
+
+flask>=1.1.0
+plotly>=3.6
+dash>=0.40
+dash_bootstrap_components
+matplotlib>=3.0.2
+gunicorn
