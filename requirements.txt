@@ -6,3 +6,5 @@ dash>=0.40
 dash_bootstrap_components
 matplotlib>=3.0.2
 gunicorn
+mrsimulator>=0.1.2
+csdmpy>=0.1.2
