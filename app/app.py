@@ -61,14 +61,6 @@ app = Dash(
 app.config.suppress_callback_exceptions = True
 # app.title = "mrsimulator"
 
-app.index_string = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{mrsimulator}</title>
-    </head>
-</html>
-"""
 
 sim = Simulator()
 sim.x = np.asarray([-1.0, 1.0])

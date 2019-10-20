@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import dash_html_components as html
-from mrsimulator.app.dimension import dimension_body
-from mrsimulator.app.graph import spectrum_body
 import dash_bootstrap_components as dbc
+
+from .dimension import dimension_body
+from .graph import spectrum_body
 
 
 __author__ = "Deepansh J. Srivastava"

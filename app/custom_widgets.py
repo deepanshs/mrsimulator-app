@@ -2,7 +2,7 @@
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
-from mrsimulator.app.app import app
+from .app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]

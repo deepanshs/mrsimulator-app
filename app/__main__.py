@@ -20,9 +20,9 @@ from mrsimulator.methods import one_d_spectrum
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from mrsimulator.app.app import app, sim
-from mrsimulator.app import navbar, sidebar
-from mrsimulator.app.widgets import main_body
+from .app import app, sim
+from . import navbar, sidebar
+from .widgets import main_body
 
 # from mrsimulator.app.post_simulation import line_broadening
 

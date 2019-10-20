@@ -3,9 +3,11 @@
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from mrsimulator.app.app import app
+
 from dash.dependencies import Input
 from dash.dependencies import Output
+
+from .app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]

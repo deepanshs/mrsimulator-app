@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from mrsimulator.app.app import app
+
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
-from mrsimulator.app.model_01 import model_01
 
+from .model_01 import model_01
+from .app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
