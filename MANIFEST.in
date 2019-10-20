@@ -1,0 +1,4 @@
+include README.md
+
+include app/resource/mrsimulator-dark-featured.png
+include app/assets/custom.css
