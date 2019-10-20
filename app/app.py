@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from mrsimulator import Simulator, Dimension
 import numpy as np
 
+
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
@@ -55,9 +56,19 @@ app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     external_scripts=external_scripts,
-    meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+    meta_tags=[{"title": "mrsimulator", "content": "width=device-width"}],
 )
 app.config.suppress_callback_exceptions = True
+# app.title = "mrsimulator"
+
+app.index_string = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{mrsimulator}</title>
+    </head>
+</html>
+"""
 
 sim = Simulator()
 sim.x = np.asarray([-1.0, 1.0])

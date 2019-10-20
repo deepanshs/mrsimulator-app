@@ -52,6 +52,7 @@ app.layout = dbc.Container(
     style={"max-width": "1400px"},
     className="flex-display",
 )
+
 server = app.server
 
 
@@ -468,4 +469,4 @@ def parse_contents(contents, filename, date):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)

@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import base64
-from os.path import join, split
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
-
-folder = split(__file__)[0]
-mrsimulator_logo = join(folder, "resource/mrsimulator-dark-featured.png")
-encoded_image = base64.b64encode(open(mrsimulator_logo, "rb").read())
 
 search_bar = dbc.Row(
     [
@@ -42,10 +37,7 @@ navbar_top = dbc.Navbar(
     [
         html.Div(
             [
-                html.Img(
-                    src="data:image/png;base64,{}".format(encoded_image.decode()),
-                    height="70px",
-                ),
+                html.Img(src="/assets/mrsimulator-dark-featured.png", height="70px"),
                 html.H5(
                     "A plotly-dash app",
                     style={"color": "white", "float": "center", "font-size": 16},
