@@ -223,6 +223,7 @@ def update_data(
         "reference_offset": str(reference_offset) + " kHz",
         "nt": averaging_quality,
     }
+    print(spectrum)
 
     if not sim.spectrum_previous == spectrum or sim.new:
         sim.new = False
@@ -245,6 +246,8 @@ def update_data(
 
         sim.x = sim.x.value
         sim.y = sim.original
+    print(sim.x)
+    print(sim.y)
     # remove the following line and add post simulation function as
     # sim.y = post_simulation(line_broadening, sigma=broadening)
 
