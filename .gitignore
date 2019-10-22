@@ -13,7 +13,6 @@ build/
 .vscode/*
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 sdist/
@@ -63,9 +62,6 @@ instance/
 # Sphinx documentation
 docs/_build/
 
-# Doxygen output
-docs/xml/
-
 # PyBuilder
 target/
 
@@ -84,16 +80,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-
 # mac folder
 .DS_Store
 
@@ -101,28 +87,17 @@ venv.bak/
 *.DSYM/**
 
 # folders
-src/c_lib/test_c/**
-tests/simpson/quad/**
-downloads/**
+
 
 # files
 class-diagram*
+*.csdf
 *.out
 *.prof
 *.ipynb
 *.mp4
 *.html
 *.temp
-test_os.py
 note.txt
-simulate_lineshape.py
-main.c
 *.code-workspace
-jquery.js
-__config__.json
 test_dash.py
-
-# cython generated files
-test.c
-nmr_methods.c
-sandbox.c
