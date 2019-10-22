@@ -103,6 +103,7 @@ venv.bak/
 # folders
 src/c_lib/test_c/**
 tests/simpson/quad/**
+downloads/**
 
 # files
 class-diagram*

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_html_components as html
 import dash_core_components as dcc
-from .custom_widgets import custom_slider, custom_input_group
+import dash_html_components as html
+
+from .custom_widgets import custom_input_group
+from .custom_widgets import custom_slider
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -60,7 +63,10 @@ def sub_group(text, id, children=None, hide=True):
                 # style={"padding-bottom": 10},
             ),
         ],
-        # style={"border-bottom": "1px solid rgb(214, 214, 214)"},
+        style={
+            "border-bottom": "1px solid rgb(214, 214, 214)",
+            # "background": "#fdfdfd54",
+        },
     )
 
 
@@ -79,6 +85,10 @@ def coordinate_grid_subgroup(i):
         id=f"number_of_points-{i}",
     )
 
+    # @app.callback([Input(f"number_of_points-{i}", "value")])
+    # def set_number_of_points(value):
+    #     sim.spectrum[i].number_of_points = 2 ** value
+
     # spectral width
     spectral_width = custom_input_group(
         prepend_label="Spectral width",
@@ -88,6 +98,11 @@ def coordinate_grid_subgroup(i):
         id=f"spectral_width-{i}",
     )
 
+    # @app.callback([Input(f"spectral_width-{i}", "value")])
+    # def set_spectral_width(value):
+    #     if value not in [None, 0, "", ".", "-"]:
+    #         sim.spectrum[i].spectral_width = value * 1000.0
+
     # reference offset
     reference_offset = custom_input_group(
         prepend_label="Reference offset",
@@ -95,6 +110,11 @@ def coordinate_grid_subgroup(i):
         value=0.0,
         id=f"reference_offset-{i}",
     )
+
+    # @app.callback([Input(f"reference_offset-{i}", "value")])
+    # def set_reference_offset(value):
+    #     if value not in [None, 0, "", ".", "-"]:
+    #         sim.spectrum[i].reference_offset = value * 1000.0
 
     return [number_of_points, html.Br(), spectral_width, reference_offset]
 
@@ -143,7 +163,7 @@ def environment(i):
         value=0.0,
         id=f"rotor_frequency-{i}",
         min=0.0,
-        list=["0", "54.7356", "30", "60", "90"],
+        # list=["0", "54.7356", "30", "60", "90"],
     )
 
     # rotor angle
@@ -169,7 +189,9 @@ def environment(i):
                 dbc.FormGroup(
                     [
                         dbc.Label("Isotope", color="dark"),
-                        dcc.Dropdown(id=f"isotope_id-{i}"),
+                        dcc.Dropdown(
+                            id=f"isotope_id-{i}", searchable=False, clearable=False
+                        ),
                     ]
                 )
             ),

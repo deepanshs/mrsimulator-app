@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 
-from .model_01 import model_01
 from .app import app
+from .model_01 import model_01
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -48,18 +48,19 @@ decompose_button = custom_toolbar_buttons(
 
 # decompose button callback method
 @app.callback(
-    [Output("decompose", "active")],
+    Output("decompose", "active"),
     [Input("decompose", "n_clicks")],
     [State("decompose", "active")],
 )
 def toggle_decompose_button(n1, status):
     "Toggle decompose button."
-    if n1 is not None:
-        new_status = True
-        if bool(status):
-            new_status = False
-        return [new_status]
-    return [False]
+    if n1 is None:
+        raise PreventUpdate
+
+    new_status = True
+    if bool(status):
+        new_status = False
+    return new_status
 
 
 # Button group 1 -------------------------------------------------------------------- #
@@ -78,16 +79,15 @@ csdm_button = custom_toolbar_buttons(
 
 # download buttons callback method
 @app.callback(
-    [Output("download_csdm_button", "disabled")],
+    Output("download_csdm_button", "disabled"),
     [Input("nmr_spectrum", "figure")],
     [State("filename_dataset", "children")],
 )
 def toggle_download_buttons(value, filename_dataset):
     """Toggle download buttons."""
     if filename_dataset in [None, ""]:
-        return [True]
-    else:
-        return [False]
+        return True
+    return False
 
 
 # Button group 1 -------------------------------------------------------------------- #

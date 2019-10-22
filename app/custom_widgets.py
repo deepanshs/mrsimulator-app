@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+import dash_core_components as dcc
+from dash.dependencies import Input
+from dash.dependencies import Output
+
 from .app import app
 
 __author__ = "Deepansh J. Srivastava"
@@ -59,7 +61,12 @@ def custom_input_group(prepend_label="", append_label="", **kwargs):
     return dbc.InputGroup(
         [
             dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
-            dbc.Input(pattern="^[-+]?[0-9]*\\.?[0-9]+$", inputMode="numeric", **kwargs),
+            dbc.Input(
+                pattern="^[-+]?[0-9]*\\.?[0-9]+$",
+                inputMode="numeric",
+                # type="number",
+                **kwargs,
+            ),
             dbc.InputGroupAddon(append_label, addon_type="append"),
         ],
         # size="sm",

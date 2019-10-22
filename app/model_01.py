@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Model page layout and callbacks"""
-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-
 from dash.dependencies import Input
 from dash.dependencies import Output
+from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 
 from .app import app
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -60,9 +61,9 @@ model_line_2 = dbc.Row(
                 options=[
                     {"label": "Octant", "value": 0},
                     {"label": "Hemisphere", "value": 1},
-                    {"label": "Sphere", "value": 2},
+                    # {"label": "Sphere", "value": 2},
                 ],
-                value=1,
+                value=0,
                 clearable=False,
             )
         ),
@@ -91,6 +92,20 @@ model_01 = dbc.Modal(
     # modalClassName="modal-dialog",
     className="modal-dialog",
 )
+
+
+@app.callback(
+    Output("modal_setting", "is_open"),
+    [Input("advance_setting", "n_clicks"), Input("close_setting", "n_clicks")],
+    [State("modal_setting", "is_open")],
+)
+def toggle_modal_setting(n1, n2, is_open):
+    """Model window for advance input."""
+    if n1 is None and n2 is None:
+        raise PreventUpdate
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 
 # end of modal page for advance setting
