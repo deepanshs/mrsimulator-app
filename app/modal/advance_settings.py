@@ -7,16 +7,14 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from .app import app
+from app.app import app
 
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
-
-# Line 1 ----------------------------------------------------------------------
 # number of orientation used in averaging
-model_line_1 = dbc.Row(
+model_line_integration_density = dbc.Row(
     [
         dbc.Col(dbc.Label("Integration density")),
         dbc.Col(
@@ -27,37 +25,19 @@ model_line_1 = dbc.Row(
                 min=0,
                 max=4096,
                 step=1,
-                id="averaging_quality",
+                id="integration_density",
             )
         ),
     ]
 )
-model_line_1_info = dbc.Label(
-    size="sm", id="number_of_averaging_points", style={"color": "#566573"}
-)
 
-
-@app.callback(
-    Output("number_of_averaging_points", "children"),
-    [Input("averaging_quality", "value")],
-)
-def update_number_of_orientations(value):
-    """
-    Update the number of orientation for powder averaging.
-    Option for advance modal.
-    """
-    ori = 2 * (value + 1) * (value + 2)
-    return f"Averaging over {ori} orientations.".format(value)
-
-
-# Line 2 ----------------------------------------------------------------------
 # integration volume. Options are Octant, Hemisphere, Sphere
-model_line_2 = dbc.Row(
+model_line_integration_volume = dbc.Row(
     [
         dbc.Col(dbc.Label("Integration volume")),
         dbc.Col(
             dcc.Dropdown(
-                id="n_octants",
+                id="integration_volume",
                 options=[
                     {"label": "Octant", "value": 0},
                     {"label": "Hemisphere", "value": 1},
@@ -71,12 +51,43 @@ model_line_2 = dbc.Row(
 )
 
 
+# information on the total number of averaging points
+model_line_integration_info = dbc.FormText(
+    id="total_integration_points", style={"color": "#566573"}
+)
+
+
+# callback for calculating total number of integration points
+@app.callback(
+    Output("total_integration_points", "children"),
+    [Input("integration_density", "value"), Input("integration_volume", "value")],
+)
+def update_number_of_orientations(integration_density, integration_volume):
+    """
+    Update the number of orientation for powder averaging.
+    Option for advance modal.
+    """
+    ori = int((integration_density + 1) * (integration_density + 2) / 2)
+    if integration_volume == 0:
+        return f"Averaging over {ori} orientations."
+    if integration_volume == 1:
+        return f"Averaging over {4*ori} orientations."
+
+
 # Layout ----------------------------------------------------------------------
 # model user-interface
-model_01 = dbc.Modal(
+advance_settings = dbc.Modal(
     [
         dbc.ModalHeader("Advance setting"),
-        dbc.ModalBody(dbc.FormGroup([model_line_1, model_line_1_info, model_line_2])),
+        dbc.ModalBody(
+            dbc.FormGroup(
+                [
+                    model_line_integration_density,
+                    model_line_integration_volume,
+                    model_line_integration_info,
+                ]
+            )
+        ),
         dbc.ModalFooter(
             dbc.Button(
                 "Close",

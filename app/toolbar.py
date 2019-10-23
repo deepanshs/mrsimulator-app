@@ -7,10 +7,10 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from .app import app
-from .model_01 import model_01
+from .modal.advance_settings import advance_settings
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
 
 # tooltips provide additional information.
@@ -65,7 +65,7 @@ def toggle_decompose_button(n1, status):
 
 # Button group 1 -------------------------------------------------------------------- #
 group_1_buttons = dbc.ButtonGroup(
-    [decompose_button, info_button, setting_button, model_01],
+    [decompose_button, info_button, setting_button, advance_settings],
     className="btn-group mr-2",
 )
 
@@ -95,4 +95,26 @@ group2_buttons = dbc.ButtonGroup([html.A(csdm_button, href="", id="download_csdm
 
 
 # toolbar icons --------------------------------------------------------------------- #
-toolbar = dbc.Col([group_1_buttons, group2_buttons])
+toolbar = dbc.Navbar(
+    [
+        dbc.NavbarToggler(id="toolbar-toggler"),
+        dbc.Collapse(
+            [group_1_buttons, group2_buttons], id="toolbar-collapse", navbar=True
+        ),
+    ],
+    expand="md",
+    light=True,
+    # fixed="top",
+)
+
+
+# add callback for toggling the collapse on small screens
+@app.callback(
+    Output("toolbar-collapse", "is_open"),
+    [Input("toolbar-toggler", "n_clicks")],
+    [State("toolbar-collapse", "is_open")],
+)
+def toggle_toolbar_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open

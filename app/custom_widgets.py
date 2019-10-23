@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
 
 from .app import app
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
 
 def custom_slider(label="", return_function=None, **kwargs):
@@ -70,4 +71,49 @@ def custom_input_group(prepend_label="", append_label="", **kwargs):
             dbc.InputGroupAddon(append_label, addon_type="append"),
         ],
         # size="sm",
+    )
+
+
+def custom_collapsible(text, id, children=None, hide=True):
+    if hide:
+        classname = "filter-content collapse hide"
+    else:
+        classname = "filter-content collapse show"
+
+    return html.Div(
+        [
+            html.Div(
+                html.A(
+                    [
+                        html.H6(
+                            [text, html.I(className="icon-action fas fa-chevron-down")]
+                        )
+                    ],
+                    href="#",
+                    **{
+                        "data-toggle": "collapse",
+                        "data-target": f"#{id}",
+                        "aria-expanded": True,
+                    },
+                    style={"color": "black"},
+                ),
+                className="my-subcard",
+                style={
+                    "padding-top": 4,
+                    "padding-bottom": 1,
+                    "padding-left": 10,
+                    "padding-right": 6,
+                },
+            ),
+            html.Div(
+                className=classname,
+                id=id,
+                children=html.Div([*children, html.P()]),
+                # style={"padding-bottom": 10},
+            ),
+        ],
+        style={
+            "border-bottom": "1px solid rgb(214, 214, 214)",
+            # "background": "#fdfdfd54",
+        },
     )

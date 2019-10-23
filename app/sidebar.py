@@ -5,7 +5,7 @@ import dash_html_components as html
 
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
 
 colors = {"background": "#e2e2e2", "text": "#585858"}

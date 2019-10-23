@@ -21,7 +21,7 @@ from mrsimulator.methods import one_d_spectrum
 from app import navbar
 from app import sidebar
 from app.app import app
-from app.widgets import main_body
+from app.body import main_body
 
 # from mrsimulator.app.post_simulation import line_broadening
 
@@ -72,7 +72,7 @@ server = app.server
 @app.server.route("/downloads/<path:path>")
 def serve_static(path):
     root_dir = os.getcwd()
-    print(os.path.join(root_dir, "downloads", path))
+    # print(os.path.join(root_dir, "downloads", path))
     return flask.send_from_directory(
         os.path.join(root_dir, "downloads"), path, as_attachment=True
     )
@@ -89,7 +89,10 @@ def file_download_link(figure, data, temp_state_file):
     if data is None:
         return [None, "#"]
     if temp_state_file is not None:
-        os.remove(temp_state_file)
+        try:
+            os.remove(temp_state_file)
+        except:
+            pass
     relative_filename = os.path.join("downloads", f"{uuid.uuid1()}.csdf")
     csdm = cp.loads(data)
     csdm.save(relative_filename)
@@ -111,8 +114,8 @@ def file_download_link(figure, data, temp_state_file):
         Input("close_setting", "n_clicks"),
     ],
     [
-        State("averaging_quality", "value"),
-        State("n_octants", "value"),
+        State("integration_density", "value"),
+        State("integration_volume", "value"),
         State("local-metadata", "data"),
     ],
 )
@@ -128,8 +131,8 @@ def update_data(
     close_setting_model,
     # broadening,
     # state
-    averaging_quality,
-    n_octants,
+    integration_density,
+    integration_volume,
     local_metadata,
 ):
     """Evaluate the spectrum and update the plot."""
@@ -191,7 +194,7 @@ def update_data(
         "number_of_points": 2 ** number_of_points,
         "spectral_width": str(spectral_width) + " kHz",
         "reference_offset": str(reference_offset) + " kHz",
-        "nt": averaging_quality,
+        "nt": integration_density,
     }
     sim.spectrum = [Dimension.parse_dict_with_units(dim)]
     metadata = json.loads(local_metadata)
@@ -201,9 +204,9 @@ def update_data(
 
     sim.run(
         one_d_spectrum,
-        geodesic_polyhedron_frequency=averaging_quality,
+        geodesic_polyhedron_frequency=integration_density,
         individual_spectrum=True,
-        averaging=n_octants,
+        averaging=integration_volume,
     )
     local_computed_data = sim.as_csdm_object().dumps()
     return local_computed_data

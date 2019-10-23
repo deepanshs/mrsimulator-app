@@ -1,15 +1,14 @@
-body {
-    /* max-width: 1536px; */
-    background-color: rgb(255, 255, 255);
-    /* font: 0.01 1em 'Lato', Verdana, Helvetica, sans-serif; */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* container property */
 .container {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    /* margin-top: 10px; */
+    /* margin-bottom: 10px; */
     box-shadow: 0 5px 5px rgb(192, 192, 192);
-    padding:0 10px 0 10px;
 }
 
 /* navigation bar property */
@@ -18,6 +17,31 @@ body {
 }
 .nav-link:hover {
     color: white;
+}
+
+@media only screen and (max-width: 1020px) {
+    .navbar{
+        position: relative;
+    }
+    #nmr_spectrum {
+        /* width: max-width; */
+        height: 250px;
+    }
+    #spectrum_card {
+        scale: 0.5;
+        position:top;
+        z-index: 1;
+        /* z-index: 1; */
+    /*not work if the screen ratio is below 16/9*/
+        /* width: 100%;  */
+        /* height: '80vh'; */
+    }
+}
+
+@media screen and (min-width: 1024px){
+    #nmr_spectrum{
+        height: 500px;
+    }
 }
 
 /* tab properties */
@@ -44,37 +68,36 @@ body {
 
 /* card properties */
 .card {
-    font-size: 1em;
+    /* font-size: 1em; */
     overflow: hidden;
     padding: 0;
     border: none;
-    border-radius: .28571429rem;
+    border-radius: 1rem;
     box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 }
 
 
 .my-card {
-    font-size: 1em;
     overflow: hidden;
     padding: 0;
     margin: 0 auto;
     border: none;
     border-radius: 0em;
-    border-right: 1px solid rgb(214, 214, 214);
-    border-bottom: 1px solid rgb(214, 214, 214);
+    border: 1px solid rgb(214, 214, 214);
+    /* border-right: 1px solid rgb(214, 214, 214);
+    border-bottom: 1px solid rgb(214, 214, 214); */
     /* border-color: #ffffff; */
     background: linear-gradient(to bottom, #f6f6f6 0%, #fcfcfc 100%);
     box-shadow: 0 0px 0px 0 #d4d4d5, 0 0 0 0px #d4d4d5;
 }
 .my-card-2 {
-    font-size: 1em;
     overflow: hidden;
     padding: 0 auto;
     margin: 0 auto;
     border: none;
-    border-radius: 0em;
-    border-left: 1px solid rgb(214, 214, 214);
-    border-top: 1px solid rgb(214, 214, 214);
+    border-radius: 1em;
+    border: 1px solid rgb(214, 214, 214);
+    /* border-top: 1px solid rgb(214, 214, 214); */
     background: linear-gradient(to bottom, #f6f6f6 0%, #fcfcfc 100%);
     box-shadow: 0 0px 0px 0 #d4d4d5, 0 0 0 0px #d4d4d5;
 }
@@ -121,7 +144,7 @@ body {
     border-radius: 0.1em;
     border-right: 1px solid rgb(214, 214, 214);
     border-left: 1px solid rgb(214, 214, 214);
-    /* border-bottom: 1px solid rgb(177, 177, 177); */
+    border-bottom: 1px solid rgb(214, 214, 214);
     /* border-color: #ffffff; */
     /* background-color: rgba(0, 0, 0, 0); */
     /* box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 0px #d4d4d5; */

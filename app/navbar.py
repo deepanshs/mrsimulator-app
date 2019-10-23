@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
 
+from .app import app
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
 
 search_bar = dbc.Row(
@@ -23,11 +27,12 @@ nav_items = dbc.Row(
         dbc.NavLink(
             "Documentation",
             href="https://mrsimulator.readthedocs.io/en/stable/",
-            className="navbar-light expand-lg",
+            # className="navbar-light expand-lg",
         ),
         dbc.NavLink(
             children=[html.I(className="fab fa-github-square"), "Github"],
             href="https://github.com/DeepanshS/mrsimulator",
+            # className="navbar-light expand-lg",
         ),
     ],
     className="ml-auto",  # mt-3 mt-md-0 flex-nowrap
@@ -51,7 +56,7 @@ navbar_top = dbc.Navbar(
     sticky="top",
     fixed="top",
     dark=True,
-    className="navbar navbar-expand-lg navbar-dark bg-dark",
+    # className="navbar navbar-expand-lg navbar-dark bg-dark",
 )
 
 navbar_bottom = dbc.Navbar(
@@ -65,3 +70,15 @@ navbar_bottom = dbc.Navbar(
     dark=True,
     # className="navbar navbar-expand-lg navbar-dark bg-dark",
 )
+
+
+# add callback for toggling the collapse on small screens
+@app.callback(
+    Output("navbar-collapse", "is_open"),
+    [Input("navbar-toggler", "n_clicks")],
+    [State("navbar-collapse", "is_open")],
+)
+def toggle_navbar_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open

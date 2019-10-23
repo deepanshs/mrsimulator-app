@@ -4,7 +4,7 @@ from dash import Dash
 
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+__email__ = ["deepansh2012@gmail.com"]
 
 
 external_scripts = [
@@ -54,7 +54,7 @@ app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     external_scripts=external_scripts,
-    meta_tags=[{"title": "mrsimulator", "content": "width=device-width"}],
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 app.config.suppress_callback_exceptions = True
 # app.title = "mrsimulator"
