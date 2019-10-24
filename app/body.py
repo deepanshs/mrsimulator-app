@@ -16,9 +16,9 @@ colors = {"background": "#e2e2e2", "text": "#585858"}
 main_body = dbc.Row(
     [
         dbc.Col([html.Br(), spectrum_body], xs=12, sm=12, md=12, lg=7, xl=7),
-        dcc.Store(id="local-metadata", storage_type="session"),
-        dcc.Store(id="local-computed-data", storage_type="session"),
-        dcc.Store(id="temp-state-file", storage_type="session"),
+        dcc.Store(id="local-metadata", storage_type="memory"),
+        dcc.Store(id="local-computed-data", storage_type="memory"),
+        dcc.Store(id="temp-state-file", storage_type="memory"),
         dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=5, xl=5),
     ]
 )

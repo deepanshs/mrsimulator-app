@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import uuid
+from urllib.request import urlopen
 
 import csdmpy as cp
 import dash_bootstrap_components as dbc
@@ -41,7 +42,7 @@ default_computed_data = cp.csdm.CSDM(
             "components": [[0, 0, 0]],
         }
     ],
-)
+).to_dict()
 
 app.layout = dbc.Container(
     [
@@ -72,7 +73,6 @@ server = app.server
 @app.server.route("/downloads/<path:path>")
 def serve_static(path):
     root_dir = os.getcwd()
-    # print(os.path.join(root_dir, "downloads", path))
     return flask.send_from_directory(
         os.path.join(root_dir, "downloads"), path, as_attachment=True
     )
@@ -84,9 +84,11 @@ def serve_static(path):
     [Input("nmr_spectrum", "figure")],
     [State("local-computed-data", "data"), State("temp-state-file", "data")],
 )
-def file_download_link(figure, data, temp_state_file):
+def file_download_link(figure, local_computed_data, temp_state_file):
     """Update the link to the downloadable file."""
-    if data is None:
+    # print(figure["layout"])
+    # print(figure["data"])
+    if local_computed_data is None:
         return [None, "#"]
     if temp_state_file is not None:
         try:
@@ -94,8 +96,8 @@ def file_download_link(figure, data, temp_state_file):
         except:
             pass
     relative_filename = os.path.join("downloads", f"{uuid.uuid1()}.csdf")
-    csdm = cp.loads(data)
-    csdm.save(relative_filename)
+    with open(relative_filename, "w") as f:
+        json.dump(local_computed_data, f)
     return ["/{}".format(relative_filename), "./{}".format(relative_filename)]
 
 
@@ -136,7 +138,7 @@ def update_data(
     local_metadata,
 ):
     """Evaluate the spectrum and update the plot."""
-    local_computed_data = default_computed_data.dumps()
+    local_computed_data = default_computed_data
 
     if spectral_width in [None, 0, "", ".", "-"]:
         return local_computed_data
@@ -197,9 +199,9 @@ def update_data(
         "nt": integration_density,
     }
     sim.spectrum = [Dimension.parse_dict_with_units(dim)]
-    metadata = json.loads(local_metadata)
+    # metadata = json.loads(local_metadata)
     sim.isotopomers = [
-        Isotopomer.parse_dict_with_units(item) for item in metadata["isotopomers"]
+        Isotopomer.parse_dict_with_units(item) for item in local_metadata["isotopomers"]
     ]
 
     sim.run(
@@ -208,7 +210,7 @@ def update_data(
         individual_spectrum=True,
         averaging=integration_volume,
     )
-    local_computed_data = sim.as_csdm_object().dumps()
+    local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
     return local_computed_data
 
 
@@ -221,8 +223,8 @@ def plot_1D(time_of_computation, decompose, local_computed_data, isotope_id):
     """Generate and return a one-dimensional plot instance."""
     if local_computed_data is None:
         raise PreventUpdate
-    else:
-        local_computed_data = cp.loads(local_computed_data)
+    # else:
+    local_computed_data = cp.parse_dict(local_computed_data)
 
     data = []
     if isotope_id is None:
@@ -291,6 +293,9 @@ def plot_1D(time_of_computation, decompose, local_computed_data, isotope_id):
             margin={"l": 50, "b": 40, "t": 5, "r": 5},
             legend={"x": 0, "y": 1},
             hovermode="closest",
+            # paper_bgcolor="rgba(255,255,255,4)",
+            # plot_bgcolor="rgba(0,0,0,0)",
+            # template="plotly_dark",
         ),
     }
     return data_object
@@ -327,27 +332,41 @@ def plot_1D(time_of_computation, decompose, local_computed_data, isotope_id):
         Output("isotope_id-0", "options"),
         Output("isotope_id-0", "value"),
     ],
-    [Input("upload_data", "contents")],
+    [Input("upload_data", "contents"), Input("mrsim-examples", "value")],
     [State("upload_data", "filename"), State("upload_data", "last_modified")],
 )
-def update_isotopomers(content, filename, date):
+def update_isotopomers(content, url, filename, date):
     """Update the local isotopomers when a new file is imported."""
-    data = parse_contents(content, filename, date)
-    if data["success"]:
+    if url is not None:
+        response = urlopen(url)
+        data = json.loads(response.read())
+        data["message"] = "Select a JSON serialized .isotopomers file."
         sim_m = Simulator()
         sim_m.isotopomers = [
-            Isotopomer.parse_dict_with_units(item)
-            for item in data["data"]["isotopomers"]
+            Isotopomer.parse_dict_with_units(item) for item in data["isotopomers"]
         ]
+        filename = os.path.split(url)[-1]
         isotope_list = [
             {"label": site_iso, "value": site_iso} for site_iso in sim_m.get_isotopes()
         ]
         isotope = isotope_list[0]["value"]
     else:
-        isotope_list = []
-        isotope = None
+        data = parse_contents(content, filename, date)
+        if data["success"]:
+            sim_m = Simulator()
+            sim_m.isotopomers = [
+                Isotopomer.parse_dict_with_units(item) for item in data["isotopomers"]
+            ]
+            isotope_list = [
+                {"label": site_iso, "value": site_iso}
+                for site_iso in sim_m.get_isotopes()
+            ]
+            isotope = isotope_list[0]["value"]
+        else:
+            isotope_list = []
+            isotope = None
     return [
-        json.dumps(data["data"]),
+        data,
         data["name"],
         data["description"],
         data["message"],
@@ -358,12 +377,7 @@ def update_isotopomers(content, filename, date):
 
 def parse_contents(contents, filename, date):
     """Parse contents from the isotopomers file."""
-    default_data = {
-        "success": False,
-        "data": {"isotopomers": []},
-        "name": "",
-        "description": "",
-    }
+    default_data = {"success": False, "isotopomers": [], "name": "", "description": ""}
 
     if filename is None:
         return {
@@ -376,21 +390,15 @@ def parse_contents(contents, filename, date):
             decoded = base64.b64decode(content_string)
             data = json.loads(str(decoded, encoding="UTF-8"))
 
-            name = filename
-            if "name" in data.keys():
-                name = data["name"]
-                if name == "":
-                    name = filename
+            if "name" not in data.keys():
+                data["name"] = filename
 
-            description = ""
-            if "description" in data.keys():
-                description = data["description"]
+            if "description" not in data.keys():
+                data["description"] = ""
 
             return {
                 "success": True,
-                "data": data,
-                "name": name,
-                "description": description,
+                **data,
                 "message": "Select a JSON serialized .isotopomers file.",
             }
 

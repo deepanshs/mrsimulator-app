@@ -78,5 +78,5 @@ dimension_body = dbc.Card(
             className="w-100",
         )
     ],
-    className="h-100 my-card-2",
+    className="h-100 my-card",
 )

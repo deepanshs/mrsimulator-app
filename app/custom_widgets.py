@@ -59,13 +59,15 @@ def custom_input_group(prepend_label="", append_label="", **kwargs):
             append_label: String to append
             kwargs: keyward arguments for dash bootstrap component Input
     """
+    if "step" not in kwargs.keys():
+        kwargs["step"] = 1e-5
     return dbc.InputGroup(
         [
             dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
             dbc.Input(
-                pattern="^[-+]?[0-9]*\\.?[0-9]+$",
-                inputMode="numeric",
-                # type="number",
+                # inputMode="latin",
+                type="number",
+                # pattern="?[0-9]*\\.?[0-9]",
                 **kwargs,
             ),
             dbc.InputGroupAddon(append_label, addon_type="append"),
