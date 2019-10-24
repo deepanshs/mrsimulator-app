@@ -6,4 +6,4 @@ dash>=0.40
 dash_bootstrap_components
 gunicorn
 mrsimulator>=0.1.3
-csdmpy>=0.1.3
+csdmpy>=0.1.4
