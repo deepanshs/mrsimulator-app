@@ -21,7 +21,9 @@ def make_dimension(i):
             [
                 dbc.Col(
                     custom_collapsible(
-                        "Environment", f"environment_id-{i}", environment(i), hide=False
+                        text="Environment",
+                        identity=f"environment_id-{i}",
+                        children=environment(i),
                     ),
                     xs=12,
                     sm=12,
@@ -31,10 +33,9 @@ def make_dimension(i):
                 ),
                 dbc.Col(
                     custom_collapsible(
-                        "Coordinate grid",
-                        f"coordinate_grid_id-{i}",
-                        coordinate_grid(i),
-                        hide=False,
+                        text="Coordinate grid",
+                        identity=f"coordinate_grid_id-{i}",
+                        children=coordinate_grid(i),
                     )
                 ),
                 # sub_group(
@@ -68,15 +69,23 @@ def make_dimension(i):
 # )
 
 
-dimension_body = dbc.Card(
-    [
-        dbc.CardBody(
-            [
-                dbc.Row(dbc.Col(html.H4("Dimensions", className="card-title"))),
-                dbc.Tabs([make_dimension(i) for i in range(1)]),
-            ],
-            className="w-100",
-        )
+# dimension_body = dbc.Card(
+#     [
+#         dbc.CardBody(
+#             [
+#                 html.H6("Dimensions", className="card-title"),
+#                 dbc.Tabs([make_dimension(i) for i in range(1)]),
+#             ],
+#             className="w-100",
+#         )
+#     ],
+#     className="h-100 my-card",
+# )
+
+dimension_body = html.Div(
+    className="v-100 my-card",
+    children=[
+        dbc.NavbarSimple(brand="Dimensions", expand="xs", light=True, fluid=True),
+        dbc.Tabs([make_dimension(i) for i in range(1)]),
     ],
-    className="h-100 my-card",
 )

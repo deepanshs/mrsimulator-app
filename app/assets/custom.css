@@ -1,135 +1,110 @@
-* {
+body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overflow-x: hidden;
+}
+
+.wrapper {
+    overflow-x: hidden;
+    position: relative;
+    overflow-y: scroll;
+}
+
+button {
+    user-select: none;
 }
 
 
+/* button contents */
 
-/* container property */
-.container {
-    /* margin-top: 10px; */
-    /* margin-bottom: 10px; */
-    box-shadow: 0 5px 5px rgb(192, 192, 192);
+.button .no-round {
+    border-radius: 0;
 }
 
-/* navigation bar property */
-.navbar-dark .nav-link {
-    color: silver;
-}
-.nav-link:hover {
-    color: white;
+
+/* formtest contents */
+
+.formtext {
+    font-size: 0.9rem;
+    color: #bed5fa;
+    /* margin-top: 3px; */
+    padding: 0 none;
 }
 
-/* tab properties */
-#tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active, .nav-tabs .nav-item .nav-link:hover {
-    color: #ffffff;
-    background-color: #343e3f;
-    border: 1px solid #000000ce;
-    border-bottom: 1px solid #000000ce !important;
-    font-weight: bold;
-}
-#tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-item{
-    color: #343e3f;
-    background-color: #343e3f34;
-    border-radius: 0.25em;
-    /* border: 1px solid #000000ce; */
-    font-weight: bold;
-}
-
-.tab-content{
-    background: #ffffff00;
-    line-height: 25px;
-    border-top:1px solid #1c2020;
-    padding:0px 0px;
-}
 
 /* card properties */
+
+
 /* .card {
-    overflow: hidden;
-    padding: 0;
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+overflow: hidden;
+padding: 0;
+border: none;
+border-radius: 1rem;
+box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 } */
 
+.drawer-card {
+    position: relative;
+    z-index: 1;
+    background: #343942;
+    border-radius: 0em;
+    border: 0px solid #343942;
+    border-top: 1px solid #343942;
+    /* border-bottom: 1px solid #bed5fa; */
+    /* box-shadow: 0 10px 10px 0 #707070, 0 0 0 1.5px #616161; */
+}
 
 .my-card {
     overflow: hidden;
-    padding: 0 auto;
-    margin: 0 auto;
-    border: none;
-    border-radius: 1em;
+    border-radius: 0.5em;
     border: 1px solid rgb(214, 214, 214);
-    /* border-right: 1px solid rgb(214, 214, 214);
-    border-bottom: 1px solid rgb(214, 214, 214); */
-    /* border-color: #ffffff; */
-    background: linear-gradient(to bottom, #f6f6f6 0%, #fcfcfc 100%);
-    box-shadow: 0 0px 0px 0 #d4d4d5, 0 0 0 0px #d4d4d5;
+    background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
 }
 
 .my-card-sidebar {
-    position: relative!important;
+    position: relative !important;
     overflow: hidden;
-    padding: 0 auto;
-    margin: 0 auto;
-    border: none;
-    border-radius: 1em;
+    border-radius: 0.5em;
     border-top-right-radius: 0;
     border-top-left-radius: 0;
-    border: 1px solid rgb(214, 214, 214);
-    /* border-top: 1px solid rgb(214, 214, 214); */
-    background: linear-gradient(to bottom, #f6f6f6 0%, #fcfcfc 100%);
-    box-shadow: 0 0px 0px 0 #d4d4d5, 0 0 0 0px #d4d4d5;
+    background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
 }
 
+
 /* dash slider properties */
-.rc-slider-track{
+
+.rc-slider-track {
     background-color: #3c676bd7;
 }
+
 .rc-slider-dot-active {
     /* border-color: red; */
     border: solid 2px #5c7a7e;
 }
+
 .rc-slider-handle {
     border-color: #63aeb8;
     background-color: #0f5d63;
 }
 
 
+/* collapsible group handle */
 
-.fa-spin:hover {
-  -webkit-animation: spin 2s infinite linear;
-  -moz-animation: spin 2s infinite linear;
-  -o-animation: spin 2s infinite linear;
-  animation: spin 2s infinite linear;
-}
-/* .fa-spin:hover {
-    -webkit-animation: spin 2s infinite linear;
-    -moz-animation: spin 2s infinite linear;
-    -o-animation: spin 2s infinite linear;
-    animation: spin 2s infinite linear;
-  } */
-
-.icon-action {
-    margin-top: 5px;
-    float: right;
-    font-size: 100%;
-}
-
-/* collapsible group header */
-.my-subcard {
+.collapsible-handle {
     border-radius: 0.1em;
-    border-right: 1px solid rgb(214, 214, 214);
-    border-left: 1px solid rgb(214, 214, 214);
     border-bottom: 1px solid rgb(214, 214, 214);
     background: linear-gradient(to bottom, #eeeff3 0%, #eaecec 100%);
 }
 
+.collapsible-body-control {
+    padding-right: 15px;
+    padding-left: 15px;
+}
 
-
-
-@media only screen{
+@media only screen {
     input[type="number"] {
         -moz-appearance: textfield;
     }
@@ -140,47 +115,74 @@
     }
 }
 
-/* phones */
-@media only screen and (max-width: 1020px) {
-    .navbar{
+@media only screen and (max-width: 950px) {
+    body {
+        -webkit-user-select: none;
+    }
+    .navbar {
         position: relative;
     }
     #nmr_spectrum {
         height: 250px;
     }
-    #spectrum_card {
-        /* scale: 0.5; */
-        position:top!important;
-        z-index: 1;
-        /* z-index: 1; */
+    body {
+        background-color: black;
+    }
+    /* #spectrum_card { */
+    /* scale: 0.5; */
+    /* position: fixed !important; */
+    /* top: 0; */
+    /* z-index: 9999; */
+    /* z-index: 1; */
     /*not work if the screen ratio is below 16/9*/
-        /* width: 100%;  */
-        /* height: '80vh'; */
+    /* width: 100%; */
+    /* height: '80vh'; */
+    /* } */
+    .master-padding {
+        padding-right: 0px;
+        padding-left: 0px;
     }
 }
 
-@media screen and (min-width: 1024px){
-    #nmr_spectrum{
-        height: 500px;
+@media only screen and (min-width: 950px) {
+    #nmr_spectrum {
+        height: 550px;
     }
-    .my-card-sidebar {
-        radius: 0;
-    }
+    /* body {
+        background-color: blue;
+    } */
 }
 
-/* .item {color:#000;padding:0px 0;margin:1%;border-radius:2px;flex:1 250px;height:auto;text-align:center;background:linear-gradient(0deg, #efefef, #ffffff);}
 
-.item{position:relative;}
-.overlay {
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
-   background-color: rgba(0,0,0,0);
-   -webkit-transition: opacity 1s ease-in-out;
-   -moz-transition: opacity 1s ease-in-out;
-   -o-transition: opacity 1s ease-in-out;
-   transition: opacity 1s ease-in-out;
-} */
-/* .overlay:hover {
-  opacity: 1;
-  background-color: rgba(0,0,0,1);
-} */
+/* dash-bootstrap customize */
+
+.dash-bootstrap .is-open>.Select-control {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 1em;
+    /* color: #000000; */
+}
+
+.append-first {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.append-addon {
+    border-radius: 0;
+}
+
+.append-last {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.affix {
+    top: 0;
+    width: 100%;
+    z-index: 9999 !important;
+}
+
+.affix~.container-fluid {
+    position: relative;
+    top: 50px;
+}

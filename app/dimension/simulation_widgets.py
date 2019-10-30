@@ -18,6 +18,14 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 def coordinate_grid(i):
+    """
+        Return a list of widgets for describing the dimension coordinates along the
+        ith dimension. The widgets includes number of points, spectral width, and
+        reference offset.
+
+        Args:
+            i: An integer with the dimension index.
+    """
     # number of points
     range_num = [8, 10, 12, 14, 16]
     list_of_numbers = {i: f"{2 ** i}" for i in range_num}
@@ -53,6 +61,14 @@ def coordinate_grid(i):
 
 
 def environment(i):
+    """
+        Return a list of widgets for describing the site environment along the
+        ith dimension. The widgets includes isotope, spectrometer frequency, rotor
+        frequency, and rotor angle.
+
+        Args:
+            i: An integer with the dimension index.
+    """
     # spectrometer frequency
     field_strength = {
         2: "200 MHz",

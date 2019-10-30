@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Model page layout and callbacks"""
+"""Model page layout and callbacks for advance settings."""
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input
@@ -52,9 +52,7 @@ model_line_integration_volume = dbc.Row(
 
 
 # information on the total number of averaging points
-model_line_integration_info = dbc.FormText(
-    id="total_integration_points", style={"color": "#566573"}
-)
+model_line_integration_info = dbc.FormText(id="total_integration_points")
 
 
 # callback for calculating total number of integration points

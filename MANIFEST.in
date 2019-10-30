@@ -4,7 +4,9 @@ include LICENSE
 include Procfile
 include runtime.txt
 include app.json
-include downloads/empty
+include downloads/.empty
+include manifest.json
 
-include app/assets/mrsimulator-dark-featured.png
-include app/assets/custom.css
+recursive-include config *
+recursive-include static *
+recursive-include app/assets *

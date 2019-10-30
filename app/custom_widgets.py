@@ -4,35 +4,124 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
+from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 
-from .app import app
+from app.app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
+tooltip_format = {"placement": "bottom", "delay": {"show": 250, "hide": 10}}
+# button_format = {"size": "md"}
+
+
+def label_with_help_button(label="", help_text="", id=None):
+    return html.Div(
+        [
+            dbc.Label(label, className="formtext"),
+            custom_hover_help(message=help_text, id=f"upload-{id}-url-help"),
+        ],
+        className="d-flex justify-content-start",
+    )
+
+
+def custom_hover_help(message="", id=None):
+    button = html.Div(
+        [
+            html.I(className="fas fa-question-circle", style={"color": "white"}),
+            dbc.Tooltip(message, target=id, **tooltip_format),
+        ],
+        id=id,
+        className="align-self-start light",
+    )
+    return button
+
+
+def custom_button(text="", icon="", id=None, tooltip=None, **kwargs):
+    """A custom dash bootstrap component button with added tooltip and icon option.
+
+    Args:
+        text: A string text displayed on the button.
+        icon: A string given as the className, for example, "fas fa-download".
+                See https://fontawesome.com for strings.
+        id: A string with button id.
+        tooltip: A string with tooltip, diplayed when cursor hovers over the button.
+        kwargs: additional keyward arguments for dash-bootstrap-component button.
+    """
+    if icon == "":
+        label = html.Span(text, className="d-flex justify-content-between")
+    else:
+        if isinstance(text, list):
+            label = html.Span(
+                [html.I(className=icon), *text],
+                className="d-flex justify-content-between",
+            )
+        else:
+            label = html.Span(
+                [html.I(className=icon), text],
+                className="d-flex justify-content-between",
+            )
+
+    if tooltip is not None:
+        return dbc.Button(
+            [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
+        )
+    else:
+        return dbc.Button(label, id=id, **kwargs)
+
+
+def custom_switch(text="", icon="", id=None, tooltip=None, **kwargs):
+    """A custom dash bootstrap component boolean button with added tooltip and icon option.
+
+    Args:
+        text: A string text displayed on the button.
+        icon: A string given as the className, for example, "fas fa-download".
+                See https://fontawesome.com for strings.
+        id: A string with button id.
+        tooltip: A string with tooltip, diplayed when cursor hovers over the button.
+        kwargs: additional keyward arguments for dash-bootstrap-component button.
+    """
+    button = custom_button(text=text, icon=icon, id=id, tooltip=tooltip, **kwargs)
+
+    # decompose button callback method
+    @app.callback(
+        Output(f"{id}", "active"),
+        [Input(f"{id}", "n_clicks")],
+        [State(f"{id}", "active")],
+    )
+    def toggle_boolean_button(n, status):
+        """Toggle decompose button."""
+        if n is None:
+            raise PreventUpdate
+
+        new_status = True
+        if bool(status):
+            new_status = False
+        return new_status
+
+    return button
+
+
 def custom_slider(label="", return_function=None, **kwargs):
-    """Custom slider consists of three block -
-        1) A label for the slider
-        2) Slider bar
-        3) A label reflecting the current value of the slider position
+    """
+        A custom dash bootstrap component slider with added components-
+        slider-label, slider-bar, and a slider-text reflecting the current value
+        of the slider.
 
         Args:
-            label: String with label
+            label: A string with the label.
             return_function: This function will be applied to the current
-                slider value before updating the label.
-            kwargs: keyward arguments for dash bootstrap component Input
+                value of the slider before updating the slider-text.
+            kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
     id_label = kwargs["id"] + "_label"
-    slider = dbc.FormGroup(
+    slider = html.Div(
         [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Label(label, color="dark", style={"float": "left"}), width=9
-                    ),
-                    dbc.Col(dbc.FormText(id=id_label, style={"float": "right"})),
-                ]
+            html.Div(
+                [label, dbc.FormText(id=id_label)],
+                className="d-flex justify-content-between",
             ),
             dcc.Slider(**kwargs),
         ]
@@ -48,74 +137,89 @@ def custom_slider(label="", return_function=None, **kwargs):
     return slider
 
 
-def custom_input_group(prepend_label="", append_label="", **kwargs):
-    """Custom input group consists of three block -
-        1) A prepend label
-        2) An Input box
-        3) A append label
+def custom_input_group(prepend_label="", append_label="", className="", **kwargs):
+    """
+        A custom dash bootstrap component input-group widget with a prepend-label,
+        followed by an Input box, and an append-label.
 
         Args:
-            prepend_label: String to prepend
-            append_label: String to append
-            kwargs: keyward arguments for dash bootstrap component Input
+            prepend_label: A string to prepend dash-bootstrap-component Input widget.
+            append_label: A string to append dash-bootstrap-component Input widget.
+            kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
     if "step" not in kwargs.keys():
         kwargs["step"] = 1e-5
-    return dbc.InputGroup(
-        [
-            dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
-            dbc.Input(
-                # inputMode="latin",
-                type="number",
-                # pattern="?[0-9]*\\.?[0-9]",
-                **kwargs,
-            ),
-            dbc.InputGroupAddon(append_label, addon_type="append"),
-        ],
-        # size="sm",
-    )
 
-
-def custom_collapsible(text, id, children=None, hide=True):
-    if hide:
-        classname = "filter-content collapse hide"
+    group = [
+        dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
+        dbc.Input(
+            # inputMode="latin",
+            type="text",
+            # pattern="?[0-9]*\\.?[0-9]",
+            **kwargs,
+        ),
+    ]
+    if append_label != "":
+        return dbc.InputGroup(
+            [*group, dbc.InputGroupAddon(append_label, addon_type="append")],
+            className=className,
+        )
     else:
-        classname = "filter-content collapse show"
+        return dbc.InputGroup([*group], className=className)
 
-    return html.Div(
-        [
-            html.Div(
-                html.A(
-                    [
-                        html.H6(
-                            [text, html.I(className="icon-action fas fa-chevron-down")]
-                        )
-                    ],
-                    href="#",
-                    **{
-                        "data-toggle": "collapse",
-                        "data-target": f"#{id}",
-                        "aria-expanded": True,
-                    },
-                    style={"color": "black"},
-                ),
-                className="my-subcard",
-                style={
-                    "padding-top": 4,
-                    "padding-bottom": 1,
-                    "padding-left": 10,
-                    "padding-right": 6,
-                },
-            ),
-            html.Div(
-                className=classname,
-                id=id,
-                children=html.Div([*children, html.P()]),
-                # style={"padding-bottom": 10},
-            ),
-        ],
-        style={
-            "border-bottom": "1px solid rgb(214, 214, 214)",
-            # "background": "#fdfdfd54",
-        },
+
+def custom_collapsible(
+    text="",
+    tooltip=None,
+    # icon="",
+    identity=None,
+    children=None,
+    is_open=True,
+    size="md",
+    button_classname="collapsible-handle",
+    collapse_classname="collapsible-body-control",
+    **kwargs,
+):
+    """
+        A custom collapsible widget with a title and a carret dropdown icon.
+
+        Args:
+            text: A string with the title of the collapsible widget.
+            identity: An id for the widget.
+            children: A dash-bootstrap componets or a list of components.
+            is_open: Boolean. If false, the widget is collapsed on initial render.
+            size: String, "sm, md, lg".
+            button_classname: String. css classnames for button toggler.
+            collapse_classname: String. css classnames for collapsible.
+    """
+    layout = [
+        custom_button(
+            text=[text, html.I(className="icon-action fas fa-chevron-down")],
+            tooltip=tooltip,
+            # icon=icon,
+            color="link",
+            size=size,
+            id=f"{identity}-button",
+            block=True,
+            style={"color": "black"},
+            className=button_classname,
+        ),
+        dbc.Collapse(
+            id=f"{identity}-collapse",
+            children=[*children, html.P()],
+            is_open=is_open,
+            className=collapse_classname,
+        ),
+    ]
+
+    @app.callback(
+        Output(f"{identity}-collapse", "is_open"),
+        [Input(f"{identity}-button", "n_clicks")],
+        [State(f"{identity}-collapse", "is_open")],
     )
+    def toggle_frame(n, is_open):
+        if n:
+            return not is_open
+        return is_open
+
+    return html.Div(layout)

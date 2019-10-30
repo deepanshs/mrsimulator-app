@@ -18,6 +18,8 @@ plotly_graph = dcc.Graph(
         "responsive": True,
         "scrollZoom": False,
         "showLink": False,
+        # "autosizable": True,
+        # "fillFrame": True,
         "modeBarButtonsToRemove": [
             # "zoom2d"
             # "pan2d",
@@ -36,33 +38,17 @@ plotly_graph = dcc.Graph(
     },
 )
 
-# <div class="item ">
-#       <img src="http://placehold.it/600x350">
-#       <h2>Title</h2>
-#       <p> Text</p>
-#       <div class="overlay"> </div>
-#    < / div >
-
-graph_item = html.Div(
-    className="item", children=[plotly_graph, html.Div(className="overlay")]
-)
+# graph_item = html.Div(
+#     className="item", children=[plotly_graph]
+# )
 
 spectrum_body = html.Div(
     id="spectrum_card",
-    className="v-100 my-card",
+    className="v-100 my-card affix",
     children=[
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.H4("Spectrum", style={"padding-top": 12, "padding-left": 20})
-                ),
-                html.Div(
-                    toolbar,
-                    style={"padding-top": 0, "padding-right": 10, "padding-left": 10},
-                ),
-            ]
+        dbc.NavbarSimple(
+            brand="Spectrum", children=toolbar, expand="sm", light=True, fluid=True
         ),
-        graph_item,
+        plotly_graph,
     ],
-    style={"width": "100%"},
 )

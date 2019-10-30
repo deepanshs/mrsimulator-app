@@ -1,11 +1,10 @@
 {
     "addons": [],
-    "buildpacks": [
-        {
-            "url": "heroku/python"
-        }
-    ],
-    "description": "Mrsimulator app is an open-source plotly-dast python application for real-time solid-state magnetic resonance line-shape simulation.",
+    "authenticationMethod": "none",
+    "buildpacks": [{
+        "url": "heroku/python"
+    }],
+    "description": "Mrsimulator app is an open-source plotly-dash python application for real-time solid-state magnetic resonance line-shape simulation.",
     "env": {},
     "formation": {
         "web": {

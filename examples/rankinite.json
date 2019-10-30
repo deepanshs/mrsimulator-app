@@ -1,0 +1,34 @@
+{
+    "name": "Rankinite (Ca3Si2O7)",
+    "description": "A high-temperature calcium-silicate.",
+    "isotopomers": [
+        {
+            "name": "Q1 Si(1)",
+            "description": "Q1 site in rankinite",
+            "sites": [
+                {
+                    "isotope": "29Si",
+                    "isotropic_chemical_shift": "-74.5 ppm",
+                    "shielding_symmetric": {
+                        "zeta": "-55.3 ppm",
+                        "eta": 0.0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Q1 Si(2)",
+            "description": "Q1 site in rankinite",
+            "sites": [
+                {
+                    "isotope": "29Si",
+                    "isotropic_chemical_shift": "-75.9 ppm",
+                    "shielding_symmetric": {
+                        "zeta": "-40.5 ppm",
+                        "eta": 0.0
+                    }
+                }
+            ]
+        }
+    ]
+}
