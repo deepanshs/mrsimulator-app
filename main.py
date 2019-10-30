@@ -23,6 +23,9 @@ from app import navbar
 from app import sidebar
 from app.app import app
 from app.body import main_body
+from app.methods.post_simulation_functions import line_broadening
+from app.methods.post_simulation_functions import post_simulation
+
 
 # from mrsimulator.app.post_simulation import line_broadening
 
@@ -124,7 +127,8 @@ def file_download_link(figure, local_computed_data, temp_state_file):
         Input("reference_offset-0", "value"),
         Input("spectrometer_frequency-0", "value"),
         Input("isotope_id-0", "value"),
-        # Input("broadening_points-0", "value"),
+        Input("broadening_points-0", "value"),
+        # Input("Apodizing_function-0", "value")
         Input("close_setting", "n_clicks"),
     ],
     [
@@ -142,8 +146,9 @@ def update_data(
     reference_offset,
     spectrometer_frequency,
     isotope_id,
+    broadening,
+    # apodization,
     close_setting_model,
-    # broadening,
     # state
     integration_density,
     integration_volume,
@@ -247,7 +252,15 @@ def update_data(
         averaging=integration_volume,
     )
     print(sim.spectrum[0].rotor_frequency)
-    local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
+    
+    csdm_object = sim.as_csdm_object()
+
+    csdm_object_appodized = post_simulation(
+        line_broadening, csdm_object=csdm_object, sigma=broadening, broadType="Lorentz"
+    )
+
+    local_computed_data = csdm_object_appodized.to_dict(update_timestamp=True)
+
     return local_computed_data
 
 

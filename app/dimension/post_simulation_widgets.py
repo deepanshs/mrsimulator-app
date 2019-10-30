@@ -12,7 +12,7 @@ __email__ = ["venetos.5@buckeyemail.osu.edu"]
 
 
 def gaussian_linebroadening_widget(i):
-    broaden_range = {0: "0", 2: "2", 4: "4", 6: "6", 8: "8", 10: "10"}
+    broaden_range = {0: "0", 200: "200", 400: "400", 600: "600", 800: "800", 1000: "1000"}
 
     broadeningFunction = dcc.RadioItems(
         options=[
@@ -26,7 +26,7 @@ def gaussian_linebroadening_widget(i):
 
     line_broadening = custom_slider(
         label="Line Broadening",
-        return_function=lambda x: f"{x}",
+        return_function=lambda x: f"\u03BB = {x/1000} kHz",
         # if broadeningFunction.value == 'Lorentz':
         min=0,
         max=1000,
@@ -36,7 +36,7 @@ def gaussian_linebroadening_widget(i):
         # max=10,
         # step=1,
         value=0,
-        # marks=broaden_range,
+        marks=broaden_range,
         id=f"broadening_points-{i}",
     )
 

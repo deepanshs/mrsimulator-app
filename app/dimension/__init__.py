@@ -2,6 +2,7 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
+from .post_simulation_widgets import gaussian_linebroadening_widget
 from .simulation_widgets import coordinate_grid
 from .simulation_widgets import environment
 from app.custom_widgets import custom_collapsible
@@ -17,7 +18,7 @@ def make_dimension(i):
     # dimension parameters
     dimension_contents = dbc.Tab(
         label=f"Index-{i}",
-        children=dbc.Row(
+        children=[dbc.Row(
             [
                 dbc.Col(
                     custom_collapsible(
@@ -42,14 +43,26 @@ def make_dimension(i):
                 #     "Post simulation", f"post_simulation_id-{i}",
                 #      post_simulation_widgets(i)
                 # ),
-            ],
+            ],),
+            dbc.Row([dbc.Col(
+                    custom_collapsible(
+                        text="Line broadening",
+                        identity=f"post_simulation_id-{i}",
+                        children=gaussian_linebroadening_widget(i),
+                        hide=False,
+                    ),
+                    xs=12,
+                    sm=12,
+                    md=6,
+                    lg=12,
+                    xl=12,
+                ),])]
             # style={
             #     "min-height": "65vh",
             #     "max-height": "65vh",
             #     "overflow-y": "scroll",
             #     "overflow-x": "hidden",
             # },
-        ),
     )
     return dimension_contents
 
