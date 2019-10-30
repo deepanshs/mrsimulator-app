@@ -87,7 +87,8 @@ venv.bak/
 *.DSYM/**
 
 # folders
-
+splashscreens/
+resource/
 
 # files
 class-diagram*
@@ -101,3 +102,7 @@ class-diagram*
 note.txt
 *.code-workspace
 test_dash.py
+*.ai
+*.storyboard
+launch.png
+test.*

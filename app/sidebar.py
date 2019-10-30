@@ -1,51 +1,76 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 import dash_html_components as html
 
-
-__author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
-
+from .modal.file_info import file_info
 
 colors = {"background": "#e2e2e2", "text": "#585858"}
 
 filename_datetime = html.Div(
     [
-        html.H5(id="filename_dataset"),
+        dbc.Row(
+            [
+                dbc.Col(html.H5(id="filename_dataset")),
+                # dbc.Col(
+                #     custom_button(
+                #         text="",
+                #         icon="fas fa-edit",
+                #         id="json-file-editor-toggler",
+                #         tooltip="Edit the isotopomer file.",
+                #         active=False,
+                #         outline=True,
+                #         style={"float": "right"},
+                #     )
+                # ),
+            ]
+        ),
+        file_info,
         html.H6(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
     ]
 )
 
-upload_data = html.Div(
-    [
-        dcc.Upload(
-            id="upload_data",
-            children=html.Div(
-                [
-                    "Drag and drop, or ",
-                    html.A([html.I(className="fas fa-upload"), " select"], href="#"),
-                ]
-            ),
-            style={
-                "lineHeight": "60px",
-                "borderWidth": "0.75px",
-                "borderStyle": "dashed",
-                "borderRadius": "7px",
-                "textAlign": "center",
-            },
-            # Allow multiple files to be uploaded
-            multiple=False,
-            className="control-upload",
-        ),
-        dbc.FormText(id="error_message"),
-    ]
-)
+# text_area = (
+#     dbc.Textarea(
+#         className="mb-3",
+#         id="json-file-editor",
+#         placeholder="A Textarea",
+#         draggable="False",
+#         contentEditable="False",
+#         bs_size="sm",
+#         rows=10,
+#         value="",
+#     ),
+# )
 
-input_file = [html.Br(), upload_data, html.Hr(), filename_datetime]
+# text_area_collapsible = dbc.Collapse(text_area, id="json-file-editor-collapse")
+
+
+# @app.callback(
+#     Output("json-file-editor-collapse", "is_open"),
+#     [Input("json-file-editor-toggler", "n_clicks")],
+#     [State("json-file-editor-collapse", "is_open")],
+# )
+# def toggle_json_file_editor_collapse(n, is_open):
+#     """Callback for toggling collapsible json editor."""
+#     if n:
+#         return not is_open
+#     return is_open
+
+
+# @app.callback(Output("json-file-editor", "value"), [Input("local-metadata", "data")])
+# def update_json_editor_contents(data):
+#     """Update JSON editor contents when a file is loaded."""
+#     if data is None:
+#         return ""
+#     return json.dumps(data["isotopomers"], indent=2, ensure_ascii=True)
+
 
 sidebar = dbc.Card(
-    dbc.CardBody(html.Div(input_file)), className="h-100 my-card", inverse=False
+    dbc.CardBody([filename_datetime]),
+    # text_area_collapsible]),
+    # slide_from_left]),
+    className="h-100 my-card-sidebar",
+    inverse=False,
 )

@@ -1,0 +1,13 @@
+[{
+        "name": "viewport",
+        "content": "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+    },
+    {
+        "name": "description",
+        "content": "A fast online solid-state NMR lineshape simulator. Supports chemical shift anisotropy (CSA) and quadrupolar ssNMR lineshape under static, magic-angle spinning (MAS) and variable-angle spinning (VAS) conditions."
+    },
+    {
+        "name": "theme-color",
+        "content": "#2F3BA2"
+    }
+]
