@@ -1,6 +1,6 @@
 include README.md
 include LICENSE
-
+include requirements.txt
 include Procfile
 include runtime.txt
 include app.json
@@ -8,5 +8,5 @@ include downloads/.empty
 include manifest.json
 
 recursive-include config *
-recursive-include static *
+recursive-include examples *
 recursive-include app/assets *

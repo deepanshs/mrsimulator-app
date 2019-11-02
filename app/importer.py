@@ -56,6 +56,8 @@ select_examples_dropdown = [
     [Input("mrsimulator-examples-dropbox", "value")],
 )
 def example_timestamp(value):
+    if value is None:
+        raise PreventUpdate
     return time.time()
 
 
@@ -147,7 +149,9 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         Output(f"upload-{prepend_id}-local-timestamp", "data"),
         [Input(f"upload-{prepend_id}-local", "contents")],
     )
-    def upload_isotopomer_timestamp(value):
+    def upload_isotopomer_timestamp(contents):
+        if contents is None:
+            raise PreventUpdate
         return time.time()
 
     # Layout for the url and upload-a-file input methods. Each input method is wrapped
@@ -317,7 +321,7 @@ def update_isotopomers(
     """Update the local isotopomers when a new file is imported."""
     print(t_upload, t_url, t_example)  # , t_editor)
     # calculate
-    if t_upload is None and t_example is None and t_url is None:  # == t_editor
+    if all(_ is None for _ in [t_upload, t_example, t_url]):
         print("---prevented isotopomers update---")
         raise PreventUpdate
 
@@ -411,8 +415,5 @@ def update_csdm_file(time_of_upload_trigger, csdm_upload_content, csdm_filename)
     content_string = csdm_upload_content.split(",")[1]
     decoded = base64.b64decode(content_string)
     data = json.loads(str(decoded, encoding="UTF-8"))
-    # data = cp.parse_dict(data)
-    # for datum in data.dependent_variables:
-    #     datum.components = datum.components/datum.components.max().
     print("---update spectrum---")
     return data

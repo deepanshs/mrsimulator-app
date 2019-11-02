@@ -32,11 +32,6 @@ import_menu = dbc.DropdownMenu(
     # className="navbar-dark",
 )
 
-# The import button activates the collapsible import menu.
-# import_button = dbc.Button(
-#     "Import", color="link", id="import-file-toggler", className="navbar-dark nav-link"
-# )
-
 # The show example button activates the collapsible example menu.
 show_example_button = dbc.NavItem(
     dbc.Button(
@@ -146,6 +141,7 @@ toggler_and_brand_logo_layout = dbc.Nav(
                     src="/assets/mrsimulator-dark-featured.png",
                     height="50px",
                     alt="Mrsimulator",
+                    className="image-hover",
                 ),
                 # html.H5(
                 #     "A plotly-dash app",
@@ -153,8 +149,11 @@ toggler_and_brand_logo_layout = dbc.Nav(
                 # ),
             ]
         ),
-        # import_menu,
-        dbc.Row([dbc.Col(import_menu), dbc.Col(show_example_button)]),
+        dbc.Row(
+            [dbc.Col(import_menu), dbc.Col(show_example_button)],
+            id="import-navbar",
+            className="d-flex justify-content-center",
+        ),
     ],
     navbar=True,
 )
@@ -167,7 +166,8 @@ navbar_top = dbc.Navbar(
     fixed="top",
     dark=True,
     className="navbar justify-content-start",
-    expand="sm",
+    # expand="sm",
+    id="top-navbar",
 )
 
 # The navgation bar displayed at the bottom of the web app.
@@ -177,17 +177,6 @@ navbar_bottom = dbc.Navbar(
     sticky="bottom",
     dark=True,
     className="justify-content-start",
-    expand="sm",
+    # expand="sm",
+    id="bottom-navbar",
 )
-
-
-# @app.callback(
-#     Output("navbar-collapse", "is_open"),
-#     [Input("navbar-toggler", "n_clicks")],
-#     [State("navbar-collapse", "is_open")],
-# )
-# def toggle_navbar_collapse(n, is_open):
-#     """Callback for toggling the collapse of nav menu items on small screens."""
-#     if n:
-#         return not is_open
-#     return is_open

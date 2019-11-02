@@ -2,18 +2,29 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from .simulation_widgets import coordinate_grid
-from .simulation_widgets import environment
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
-
+from app.dimension.simulation_widgets import coordinate_grid
+from app.dimension.simulation_widgets import environment
+from app.modal.advance_settings import advance_settings
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
 
 
+# Advance settings ------------------------------------------------------------------ #
+advance_setting_button = custom_button(
+    icon="fas fa-cog",
+    id="advance_setting",
+    tooltip="Advance setting",
+    outline=True,
+    color="dark",
+)
+dimension_toolbar = dbc.Row([dbc.Col([advance_setting_button, advance_settings])])
+
+
 # dimension parameters
 def make_dimension(i):
-
     # dimension parameters
     dimension_contents = dbc.Tab(
         label=f"Index-{i}",
@@ -54,38 +65,19 @@ def make_dimension(i):
     return dimension_contents
 
 
-# submit_button = dbc.Button(
-#     "Submit",
-#     id="submit_query",
-#     outline=True,
-#     color="primary",
-#     className="mr-1",
-#     size="sm",
-# )
-
-
-# badge = dbc.Badge(
-#     " ", pill=True, color="success", className="mr-1", id="indicator_status"
-# )
-
-
-# dimension_body = dbc.Card(
-#     [
-#         dbc.CardBody(
-#             [
-#                 html.H6("Dimensions", className="card-title"),
-#                 dbc.Tabs([make_dimension(i) for i in range(1)]),
-#             ],
-#             className="w-100",
-#         )
-#     ],
-#     className="h-100 my-card",
-# )
-
+# dimension layout
 dimension_body = html.Div(
     className="v-100 my-card",
     children=[
-        dbc.NavbarSimple(brand="Dimensions", expand="xs", light=True, fluid=True),
+        dbc.NavbarSimple(
+            brand="Dimensions",
+            children=dimension_toolbar,
+            expand="xs",
+            # light=True,
+            fluid=True,
+            className="my-card-header",
+        ),
         dbc.Tabs([make_dimension(i) for i in range(1)]),
     ],
+    id="dimension-body",
 )

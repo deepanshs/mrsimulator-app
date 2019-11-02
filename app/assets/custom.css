@@ -7,10 +7,20 @@ body {
     overflow-x: hidden;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 .wrapper {
     overflow-x: hidden;
     position: relative;
     overflow-y: scroll;
+}
+
+.my-card-header {
+    /* color: rgb(255, 0, 43);
+    background: #00e1ff; */
+    height: 2.5em;
 }
 
 button {
@@ -30,21 +40,11 @@ button {
 .formtext {
     font-size: 0.9rem;
     color: #bed5fa;
-    /* margin-top: 3px; */
     padding: 0 none;
 }
 
 
 /* card properties */
-
-
-/* .card {
-overflow: hidden;
-padding: 0;
-border: none;
-border-radius: 1rem;
-box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
-} */
 
 .drawer-card {
     position: relative;
@@ -54,14 +54,14 @@ box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
     border: 0px solid #343942;
     border-top: 1px solid #343942;
     /* border-bottom: 1px solid #bed5fa; */
-    /* box-shadow: 0 10px 10px 0 #707070, 0 0 0 1.5px #616161; */
+    /* box-shadow: 0 2px 4px 2px #242424; */
 }
 
 .my-card {
     overflow: hidden;
     border-radius: 0.5em;
     border: 1px solid rgb(214, 214, 214);
-    background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
+    background: linear-gradient(to bottom, #fbfeff 0%, hsl(0, 0%, 100%) 100%);
 }
 
 .my-card-sidebar {
@@ -93,15 +93,56 @@ box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 
 /* collapsible group handle */
 
-.collapsible-handle {
+.collapsible-handle,
+.collapsible-handle:hover {
+    box-shadow: 0 0px 2px 0px #979797;
     border-radius: 0.1em;
+    background-color: rgb(241, 248, 255);
+    border-top: 1px solid rgb(104, 154, 201);
     border-bottom: 1px solid rgb(214, 214, 214);
-    background: linear-gradient(to bottom, #eeeff3 0%, #eaecec 100%);
+}
+
+.collapsible-handle:hover {
+    box-shadow: 0 0px 4px 0px #c4c4c4;
+}
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+}
+
+.ripple:after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient( circle, rgb(71, 158, 240) 10%, transparent 10.1%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 1s, opacity 1s;
+}
+
+.ripple:active:after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
 }
 
 .collapsible-body-control {
-    padding-right: 15px;
-    padding-left: 15px;
+    padding: 10px;
+    border-top-width: 0px;
+    border-radius: 0.5em;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    /* padding-right: 10px;
+    padding-left: 10px; */
 }
 
 @media only screen {
@@ -113,54 +154,79 @@ box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
         -webkit-appearance: none;
         margin: 0;
     }
-}
-
-@media only screen and (max-width: 950px) {
     body {
         -webkit-user-select: none;
+        /* -webkit-transform: translateZ(0); */
+        /* -webkit-transform: translate3d(0, 0, 0); */
+        /* -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000; */
     }
-    .navbar {
-        position: relative;
-    }
-    #nmr_spectrum {
-        height: 250px;
-    }
-    body {
-        background-color: black;
-    }
-    /* #spectrum_card { */
-    /* scale: 0.5; */
-    /* position: fixed !important; */
-    /* top: 0; */
-    /* z-index: 9999; */
-    /* z-index: 1; */
-    /*not work if the screen ratio is below 16/9*/
-    /* width: 100%; */
-    /* height: '80vh'; */
-    /* } */
     .master-padding {
         padding-right: 0px;
         padding-left: 0px;
     }
 }
 
-@media only screen and (min-width: 950px) {
-    #nmr_spectrum {
-        height: 550px;
+
+/* ipad layout landscape */
+
+@media only screen and (min-width: 400px) and (max-width: 992px) and (orientation: landscape) {
+    #dimension-body,
+    #spectrum-body {
+        min-height: 55vh;
     }
-    /* body {
-        background-color: blue;
-    } */
+    #nmr_spectrum {
+        height: 50vh;
+    }
+}
+
+
+/* ipad layout portrait */
+
+@media only screen and (min-width: 400px) and (max-width: 992px) and (orientation: portrait) {
+    #dimension-body {
+        min-height: 40vh;
+    }
+    #spectrum-body {
+        min-height: 40vh;
+    }
+    #nmr_spectrum {
+        height: 35vh;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    #spectrum-body {
+        height: 40vmax;
+    }
+    #nmr_spectrum {
+        height: 32vmax;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    #dimension-body,
+    #spectrum-body {
+        /* height: calc(bottom-navbar.height - top-navbar.height); */
+        min-height: 75vh;
+        /* max-height: 82vh; */
+        /* max-height: 80vh; */
+        /* height: auto !important; */
+        /* height: 100%; */
+    }
+    #nmr_spectrum {
+        min-height: 65vh;
+    }
 }
 
 
 /* dash-bootstrap customize */
 
-.dash-bootstrap .is-open>.Select-control {
+
+/* .dash-bootstrap .is-open>.Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 1em;
-    /* color: #000000; */
-}
+} */
 
 .append-first {
     border-top-right-radius: 0;
@@ -174,15 +240,4 @@ box-shadow: 0 1px 1px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 .append-last {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-}
-
-.affix {
-    top: 0;
-    width: 100%;
-    z-index: 9999 !important;
-}
-
-.affix~.container-fluid {
-    position: relative;
-    top: 50px;
 }

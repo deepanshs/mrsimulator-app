@@ -2,15 +2,30 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
+from .custom_widgets import custom_button
 from .modal.file_info import file_info
 
 colors = {"background": "#e2e2e2", "text": "#585858"}
+
+# Info ------------------------------------------------------------------------------ #
+isotopomers_info_button = custom_button(
+    icon="fas fa-info-circle",
+    id="indicator_status",
+    tooltip="Isotopomers info",
+    outline=True,
+    color="dark",
+)
 
 filename_datetime = html.Div(
     [
         dbc.Row(
             [
                 dbc.Col(html.H5(id="filename_dataset")),
+                # dbc.Col(
+                #     isotopomers_info_button,
+                #     width=3,
+                #     className="d-flex justify-content-end",
+                # )
                 # dbc.Col(
                 #     custom_button(
                 #         text="",
@@ -22,7 +37,8 @@ filename_datetime = html.Div(
                 #         style={"float": "right"},
                 #     )
                 # ),
-            ]
+            ],
+            className="d-flex justify-content-between",
         ),
         file_info,
         html.H6(
@@ -73,4 +89,5 @@ sidebar = dbc.Card(
     # slide_from_left]),
     className="h-100 my-card-sidebar",
     inverse=False,
+    id="sidebar",
 )

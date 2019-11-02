@@ -11,17 +11,11 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-# dropdown_menu_items_1 = [
-#     dbc.DropdownMenuItem("kHz", id="kHz_1"),
-#     dbc.DropdownMenuItem("ppm", id="ppm_1"),
-# ]
-
-
 def coordinate_grid(i):
     """
-        Return a list of widgets for describing the dimension coordinates along the
-        ith dimension. The widgets includes number of points, spectral width, and
-        reference offset.
+        Return a list of widgets whose entries are used in evaluating the dimension
+        coordinates along the i^th dimension. The widgets includes number of points,
+        spectral width, and reference offset.
 
         Args:
             i: An integer with the dimension index.
@@ -57,14 +51,17 @@ def coordinate_grid(i):
         id=f"reference_offset-{i}",
     )
 
-    return [number_of_points, html.Br(), spectral_width, reference_offset]
+    return dbc.Card(
+        [number_of_points, html.Br(), spectral_width, reference_offset],
+        className="collapsible-body-control",
+    )
 
 
 def environment(i):
     """
-        Return a list of widgets for describing the site environment along the
-        ith dimension. The widgets includes isotope, spectrometer frequency, rotor
-        frequency, and rotor angle.
+        Return a list of widgets whose entries are used for evaluating the sample
+        environment along the i^th dimension. The widgets includes isotope,
+        spectrometer frequency, rotor frequency, and rotor angle.
 
         Args:
             i: An integer with the dimension index.
@@ -108,41 +105,23 @@ def environment(i):
         min=0,
     )
 
-    # filter_spin = [
-    #     {"label": "1/2", "value": 0.5},
-    #     {"label": "1", "value": 1},
-    #     {"label": "3/2", "value": 1.5},
-    #     {"label": "5/2", "value": 2.5},
-    # ]
-
     isotope_and_filter = dbc.Row(
         [
+            dbc.Col("Isotope"),
             dbc.Col(
-                dbc.FormGroup(
-                    [
-                        dbc.Label("Isotope", color="dark"),
-                        dcc.Dropdown(
-                            id=f"isotope_id-{i}", searchable=False, clearable=False
-                        ),
-                    ]
-                )
+                dcc.Dropdown(id=f"isotope_id-{i}", searchable=False, clearable=False)
             ),
-            # dbc.Col(
-            #     dbc.FormGroup(
-            #         [
-            #             dbc.Label("Filter", className="mr-2"),
-            #             dcc.Dropdown(id="filter_spin", options=filter_spin,
-            #                          value=0.5),
-            #         ]
-            #     )
-            # ),
-        ]
+        ],
+        className="justify-items-stretch",
     )
 
-    return [
-        isotope_and_filter,
-        spectrometer_frequency,
-        html.Br(),
-        rotor_frequency,
-        rotor_angle,
-    ]
+    return dbc.Card(
+        [
+            isotope_and_filter,
+            spectrometer_frequency,
+            html.Br(),
+            rotor_frequency,
+            rotor_angle,
+        ],
+        className="collapsible-body-control",
+    )

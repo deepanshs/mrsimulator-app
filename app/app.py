@@ -17,9 +17,25 @@ with open(PATH + "external_scripts.json", "r") as f:
 with open(PATH + "apple_ios_tags.json", "r") as f:
     apple_meta_tags = json.load(f)
 
+# Get meta tags.
 with open(PATH + "meta_tags.json", "r") as f:
     meta_tags = json.load(f)
 
+# Get splash screens for mobile devices.
+with open(PATH + "splash_screen.json", "r") as f:
+    links = json.load(f)
+
+# Add splash screens to the page as <link \> in the header.
+html_links = ""
+for item in links:
+    if "media" in item.keys():
+        html_links += "<link rel='{0}' href='{1}' media='{2}'/>".format(
+            item["rel"], item["href"], item["media"]
+        )
+    else:
+        html_links += "<link rel='{0}' href='{1}'/>".format(item["rel"], item["href"])
+
+# Initialize dash app
 app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -29,7 +45,9 @@ app = Dash(
 app.config.suppress_callback_exceptions = True
 app.title = "Mrsimulator"
 
-app.index_string = """
+
+# Dash html layout string
+html_head = """
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,8 +55,8 @@ app.index_string = """
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
-        <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"/>
-        <link rel="apple-touch-startup-image" href="/assets/launch.png">
+"""
+body_tail = """
     </head>
     <body>
         {%app_entry%}
@@ -50,3 +68,4 @@ app.index_string = """
     </body>
 </html>
 """
+app.index_string = html_head + html_links + body_tail

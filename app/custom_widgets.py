@@ -153,7 +153,6 @@ def custom_input_group(prepend_label="", append_label="", className="", **kwargs
     group = [
         dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
         dbc.Input(
-            # inputMode="latin",
             type="text",
             # pattern="?[0-9]*\\.?[0-9]",
             **kwargs,
@@ -176,8 +175,8 @@ def custom_collapsible(
     children=None,
     is_open=True,
     size="md",
-    button_classname="collapsible-handle",
-    collapse_classname="collapsible-body-control",
+    button_classname="collapsible-handle ripple",
+    collapse_classname="",
     **kwargs,
 ):
     """
@@ -206,7 +205,7 @@ def custom_collapsible(
         ),
         dbc.Collapse(
             id=f"{identity}-collapse",
-            children=[*children, html.P()],
+            children=children,
             is_open=is_open,
             className=collapse_classname,
         ),
@@ -223,3 +222,23 @@ def custom_collapsible(
         return is_open
 
     return html.Div(layout)
+
+
+# def custom_dropdown():
+#     layout = html.Div(
+#         className="btn-group",
+#         children=[
+#             html.A(
+#                 type="button", color="primary",
+#                 className="dropdown-toggle waves-light"
+#             ),
+#             html.Div(
+#                 className="dropdown-menu dropdown-primary",
+#                 children=[
+#                     html.A("CSDM", className="dropdown-item", href="#"),
+#                     html.A("CSV", className="dropdown-item", href="#"),
+#                 ],
+#             ),
+#         ],
+#     )
+#     return layout
