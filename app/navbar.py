@@ -149,12 +149,13 @@ toggler_and_brand_logo_layout = dbc.Nav(
                 # ),
             ]
         ),
-        dbc.Row(
-            [dbc.Col(import_menu), dbc.Col(show_example_button)],
+        html.Div(
+            [import_menu, show_example_button],
             id="import-navbar",
-            className="d-flex justify-content-center",
+            className="d-flex justify-content-around",
         ),
     ],
+    className="d-flex justify-content-between",
     navbar=True,
 )
 
@@ -165,14 +166,16 @@ navbar_top = dbc.Navbar(
     sticky="top",
     fixed="top",
     dark=True,
-    className="navbar justify-content-start",
+    className="navbar d-flex-inline justify-content-between navbar-shadow",
     # expand="sm",
     id="top-navbar",
 )
 
 # The navgation bar displayed at the bottom of the web app.
 navbar_bottom = dbc.Navbar(
-    [dbc.Label("mrsimulator 2018-2019", color="light")],
+    html.Div(
+        [dbc.Label("mrsimulator 2018-2019", color="light")], id="bottom-navbar-content"
+    ),
     color="dark",
     sticky="bottom",
     dark=True,

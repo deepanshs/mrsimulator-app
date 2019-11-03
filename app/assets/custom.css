@@ -18,13 +18,11 @@ html {
 }
 
 .my-card-header {
-    /* color: rgb(255, 0, 43);
-    background: #00e1ff; */
+    background: linear-gradient(to bottom, #f5f5f5 0%, #f7f7f7 100%);
+    -webkit-box-shadow: 0 0px 5px 0px #a8a8a8;
+    box-shadow: 0 0px 5px 0px #a8a8a8;
     height: 2.5em;
-}
-
-button {
-    user-select: none;
+    z-index: 1;
 }
 
 
@@ -43,18 +41,27 @@ button {
     padding: 0 none;
 }
 
+.navbar-shadow {
+    box-shadow: 0 0px 50px 2px #3a3a3a;
+    z-index: 2;
+}
+
+#nmr_spectrum {
+    z-index: -1;
+}
+
 
 /* card properties */
 
 .drawer-card {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     background: #343942;
     border-radius: 0em;
     border: 0px solid #343942;
     border-top: 1px solid #343942;
     /* border-bottom: 1px solid #bed5fa; */
-    /* box-shadow: 0 2px 4px 2px #242424; */
+    box-shadow: 0 0px 50px 2px #3a3a3a;
 }
 
 .my-card {
@@ -96,6 +103,7 @@ button {
 .collapsible-handle,
 .collapsible-handle:hover {
     box-shadow: 0 0px 2px 0px #979797;
+    z-index: 0;
     border-radius: 0.1em;
     background-color: rgb(241, 248, 255);
     border-top: 1px solid rgb(104, 154, 201);
@@ -104,6 +112,7 @@ button {
 
 .collapsible-handle:hover {
     box-shadow: 0 0px 4px 0px #c4c4c4;
+    background-color: rgb(229, 239, 252);
 }
 
 .ripple {
@@ -141,8 +150,11 @@ button {
     border-radius: 0.5em;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
-    /* padding-right: 10px;
-    padding-left: 10px; */
+}
+
+.input-group-prepend,
+.input-group-append {
+    color: rgb(130, 151, 170);
 }
 
 @media only screen {
@@ -154,16 +166,63 @@ button {
         -webkit-appearance: none;
         margin: 0;
     }
-    body {
-        -webkit-user-select: none;
-        /* -webkit-transform: translateZ(0); */
-        /* -webkit-transform: translate3d(0, 0, 0); */
-        /* -webkit-backface-visibility: hidden;
-        -webkit-perspective: 1000; */
-    }
     .master-padding {
         padding-right: 0px;
         padding-left: 0px;
+    }
+}
+
+
+/* .fullscreen { */
+
+
+/* @media only screen and (max-width: 992px) and (orientation: landscape) {
+    #spectrum-body {
+        position: fixed !important;
+        top: 0px;
+        min-height: 100vh;
+        min-width: 100vw;
+        z-index: 1;
+    }
+    #nmr_spectrum {
+        min-height: 84vh;
+        min-width: 100vw;
+    }
+    #dimension-body,
+    #import-navbar,
+    #top-navbar,
+    #bottom-navbar {
+        display: none;
+    }
+} */
+
+
+/* } */
+
+
+/* All hand-held devices */
+
+@media only screen and (max-width: 992px) {
+    #import-navbar,
+    #drawers-import {
+        position: fixed !important;
+        z-index: 2;
+        background-color: #343942;
+        width: 100vw;
+        border-radius: 0px;
+    }
+    #bottom-navbar-content {
+        display: none;
+    }
+    #bottom-navbar,
+    #import-navbar {
+        bottom: 0;
+        left: 0;
+        height: 45px;
+        min-width: 100vw;
+    }
+    #drawers-import {
+        bottom: 45px;
     }
 }
 
@@ -177,6 +236,13 @@ button {
     }
     #nmr_spectrum {
         height: 50vh;
+    }
+    body {
+        -webkit-user-select: none;
+        /* -webkit-transform: translateZ(0); */
+        /* -webkit-transform: translate3d(0, 0, 0); */
+        /* -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000; */
     }
 }
 
@@ -193,14 +259,31 @@ button {
     #nmr_spectrum {
         height: 35vh;
     }
+    body {
+        -webkit-user-select: none;
+        /* -webkit-transform: translateZ(0); */
+        /* -webkit-transform: translate3d(0, 0, 0); */
+        /* -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000; */
+    }
 }
 
 @media only screen and (max-width: 400px) {
+    #dimension-body {
+        min-height: 40vh;
+    }
     #spectrum-body {
         height: 40vmax;
     }
     #nmr_spectrum {
         height: 32vmax;
+    }
+    body {
+        -webkit-user-select: none;
+        /* -webkit-transform: translateZ(0); */
+        /* -webkit-transform: translate3d(0, 0, 0); */
+        /* -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000; */
     }
 }
 
@@ -216,6 +299,9 @@ button {
     }
     #nmr_spectrum {
         min-height: 65vh;
+    }
+    .my-card-header {
+        height: 4em;
     }
 }
 

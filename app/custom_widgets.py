@@ -123,8 +123,11 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            dcc.Slider(**kwargs),
-        ]
+            html.Div(
+                [dcc.Slider(**kwargs), html.P()], style={"padding-bottom": "10px"}
+            ),
+        ],
+        className="my-auto d-flex flex-column",
     )
 
     @app.callback([Output(id_label, "children")], [Input(kwargs["id"], "value")])
@@ -137,7 +140,7 @@ def custom_slider(label="", return_function=None, **kwargs):
     return slider
 
 
-def custom_input_group(prepend_label="", append_label="", className="", **kwargs):
+def custom_input_group(prepend_label="", append_label="", **kwargs):
     """
         A custom dash bootstrap component input-group widget with a prepend-label,
         followed by an Input box, and an append-label.
@@ -147,24 +150,31 @@ def custom_input_group(prepend_label="", append_label="", className="", **kwargs
             append_label: A string to append dash-bootstrap-component Input widget.
             kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
-    if "step" not in kwargs.keys():
-        kwargs["step"] = 1e-5
-
     group = [
-        dbc.InputGroupAddon(prepend_label, addon_type="prepend"),
-        dbc.Input(
-            type="text",
+        html.Div(
+            html.Span(prepend_label, className="input-group-text"),
+            className="input-group-prepend",
+        ),
+        dcc.Input(
+            type="number",
             # pattern="?[0-9]*\\.?[0-9]",
+            className="form-control",
             **kwargs,
         ),
     ]
     if append_label != "":
-        return dbc.InputGroup(
-            [*group, dbc.InputGroupAddon(append_label, addon_type="append")],
-            className=className,
+        return html.Div(
+            [
+                *group,
+                html.Div(
+                    html.Span(append_label, className="input-group-text"),
+                    className="input-group-append",
+                ),
+            ],
+            className="input-group d-flex",
         )
     else:
-        return dbc.InputGroup([*group], className=className)
+        return html.Div(group, className="input-group p1 d-flex")
 
 
 def custom_collapsible(

@@ -52,7 +52,7 @@ def coordinate_grid(i):
     )
 
     return dbc.Card(
-        [number_of_points, html.Br(), spectral_width, reference_offset],
+        [number_of_points, spectral_width, reference_offset],
         className="collapsible-body-control",
     )
 
@@ -107,21 +107,20 @@ def environment(i):
 
     isotope_and_filter = dbc.Row(
         [
-            dbc.Col("Isotope"),
+            dbc.Col("Isotope", width=4),
             dbc.Col(
-                dcc.Dropdown(id=f"isotope_id-{i}", searchable=False, clearable=False)
+                dcc.Dropdown(
+                    id=f"isotope_id-{i}",
+                    searchable=False,
+                    clearable=False,
+                    placeholder="Select an isotope...",
+                )
             ),
         ],
-        className="justify-items-stretch",
+        className="p-1 justify-items-stretch",
     )
 
     return dbc.Card(
-        [
-            isotope_and_filter,
-            spectrometer_frequency,
-            html.Br(),
-            rotor_frequency,
-            rotor_angle,
-        ],
+        [isotope_and_filter, spectrometer_frequency, rotor_frequency, rotor_angle],
         className="collapsible-body-control",
     )

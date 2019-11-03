@@ -4,8 +4,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from .toolbar import collapsible_download_menu
-from .toolbar import toolbar
+from app.toolbar import collapsible_download_menu
+from app.toolbar import toolbar
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
