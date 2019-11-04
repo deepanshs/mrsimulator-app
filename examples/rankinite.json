@@ -1,6 +1,7 @@
 {
-    "name": "Rankinite (Ca3Si2O7)",
+    "name": "Rankinite (Ca₃Si₂O₇)",
     "description": "A high-temperature calcium-silicate.",
+    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
     "isotopomers": [
         {
             "name": "Q1 Si(1)",

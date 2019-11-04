@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 
 from .modal.file_info import file_info
@@ -27,6 +28,14 @@ filename_datetime = html.Div(
         file_info,
         html.H6(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
+        ),
+        html.H6(
+            html.A(
+                id="data_citation",
+                href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
+                target="_blank",
+            ),
+            style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
         ),
     ]
 )

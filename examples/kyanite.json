@@ -1,0 +1,34 @@
+{
+    "name": "Kyanite (Ca₃Si₂O₇)",
+    "description": "A sorosilicate.",
+    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "isotopomers" : [
+    {
+        "name": "Q0 (1)",
+        "sites": [
+            {
+                "isotope": "29Si",
+                "isotropic_chemical_shift": "-82.4 ppm",
+                "shielding_symmetric": {
+                    "zeta": "-19.7 ppm",
+                    "eta": 0.95
+                }
+            }
+        ],
+        "abundance": "100 %"
+    },
+    {   "name": "Q0 (2)",
+        "sites": [
+            {
+                "isotope": "29Si",
+                "isotropic_chemical_shift": "-83.3 ppm",
+                "shielding_symmetric": {
+                    "zeta": "-19.4 ppm",
+                    "eta": 0.99
+                }
+            }
+        ],
+    "abundance": "100 %"
+    }
+]
+}

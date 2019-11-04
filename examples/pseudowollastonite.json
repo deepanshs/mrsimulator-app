@@ -1,0 +1,21 @@
+{
+    "name": "pseudowollastonite (Ca₃Si₃O₉)",
+    "description": "A high-temperature calcium-silicate.",
+    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "isotopomers" : [
+    {
+        "name": "Q2",
+        "sites": [
+            {
+                "isotope": "29Si",
+                "isotropic_chemical_shift": "-83.6 ppm",
+                "shielding_symmetric": {
+                    "zeta": "-88.9 ppm",
+                    "eta": 0.55
+                }
+            }
+        ],
+        "abundance": "100 %"
+    }
+]
+}
