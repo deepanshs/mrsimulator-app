@@ -9,7 +9,7 @@ from app.app import app
 from app.custom_widgets import custom_input_group
 from app.custom_widgets import custom_slider
 
-__author__ = ["Maxwell Venetos"]
+__author__ = ["Maxwell C. Venetos"]
 __email__ = ["venetos.5@buckeyemail.osu.edu"]
 
 
