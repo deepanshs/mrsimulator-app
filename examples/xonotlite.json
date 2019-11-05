@@ -1,7 +1,6 @@
 {
     "name": "xonotlite (Ca₆Si₆O₁₇(OH)₂)",
-    "description": "A calcium-silicate.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "description": "A calcium-silicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q3",

@@ -1,7 +1,6 @@
 {
     "name": "Kyanite (Ca₃Si₂O₇)",
-    "description": "A sorosilicate.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "description": "A sorosilicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q0 (1)",

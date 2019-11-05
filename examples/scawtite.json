@@ -1,7 +1,6 @@
 {
     "name": "scawtite (Ca₇(Si₆O₁₈)CO₃-2H₂O)",
-    "description": "A hydrous calcium-silicate mineral with carbonate.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "description": "A hydrous calcium-silicate mineral with carbonate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q2 (1)",

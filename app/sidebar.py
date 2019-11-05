@@ -26,17 +26,17 @@ filename_datetime = html.Div(
             ]
         ),
         file_info,
-        html.H6(
+        dcc.Markdown(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
-        html.H6(
-            html.A(
-                id="data_citation",
-                href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
-                target="_blank",
-            ),
-            style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
-        ),
+        # html.H6(
+        #     html.A(
+        #         id="data_citation",
+        #         href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
+        #         target="_blank",
+        #     ),
+        #     style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
+        # ),
     ]
 )
 

@@ -1,7 +1,6 @@
 {
     "name": "Hillebrandite (Ca₂SiO₃(OH)₂)",
-    "description": "A high-temperature calcium-silicate.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "description": "A high-temperature calcium-silicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q2",

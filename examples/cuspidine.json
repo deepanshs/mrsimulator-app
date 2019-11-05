@@ -1,7 +1,6 @@
 {
     "name": "Cuspidine (Ca₄Si₂O₇F₂)",
-    "description": "A fluorine sorosilicate.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "description": "A fluorine sorosilicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q1",

@@ -1,7 +1,6 @@
 {
-    "name": "\u03B1 - Ca₂(SiO₃OH)OH",
-    "description": "A dicalcium silicate hydrate used in cement.",
-    "citation": "Hansen et al. DOI: 10.1021/ic020647f",
+    "name": "α-Ca₂(SiO₃OH)OH",
+    "description": "A dicalcium silicate hydrate used in cement. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
     "isotopomers" : [
     {
         "name": "Q0",
