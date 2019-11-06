@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 
 from app.custom_widgets import custom_button
@@ -41,9 +42,17 @@ filename_datetime = html.Div(
             className="d-flex justify-content-between",
         ),
         file_info,
-        html.H6(
+        dcc.Markdown(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
+        # html.H6(
+        #     html.A(
+        #         id="data_citation",
+        #         href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
+        #         target="_blank",
+        #     ),
+        #     style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
+        # ),
     ]
 )
 

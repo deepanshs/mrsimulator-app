@@ -288,6 +288,7 @@ spectrum_import_layout = upload_data(
         Output("local-metadata", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
+        # Output("data_citation", "children"),
     ],
     [
         Input("upload-isotopomer-local-timestamp", "modified_timestamp"),
@@ -337,7 +338,7 @@ def update_isotopomers(
             raise PreventUpdate
         response = urlopen(get_absolute_url_path(example_url, path))
         data = json.loads(response.read())
-        return [data, data["name"], data["description"]]
+        return [data, data["name"], data["description"]]  # , data["citation"]]
 
     if max_ == t_url:
         if isotopomer_url in ["", None]:
@@ -345,7 +346,7 @@ def update_isotopomers(
             raise PreventUpdate
         response = urlopen(isotopomer_url)
         data = json.loads(response.read())
-        return [data, data["name"], data["description"]]
+        return [data, data["name"], data["description"]]  # , data["citation"]]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
@@ -372,7 +373,11 @@ def update_isotopomers(
 
 def parse_contents(contents, filename):
     """Parse contents from the isotopomers file."""
-    default_data = {"isotopomers": [], "name": "", "description": ""}
+    default_data = {
+        "isotopomers": [],
+        "name": "",
+        "description": "",
+    }  # , "citation": ""}
     if filename is None:
         return default_data
     try:
@@ -386,6 +391,9 @@ def parse_contents(contents, filename):
 
             if "description" not in data.keys():
                 data["description"] = ""
+
+            # if "citation" not in data.keys():
+            #     data["citation"] = ""
 
             return data
 
