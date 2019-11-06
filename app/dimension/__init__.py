@@ -69,13 +69,12 @@ def make_dimension(i):
 dimension_body = html.Div(
     className="v-100 my-card",
     children=[
-        dbc.NavbarSimple(
-            brand="Dimensions",
-            children=dimension_toolbar,
-            expand="xs",
-            # light=True,
-            fluid=True,
-            className="my-card-header",
+        html.Div(
+            [
+                html.H4("Dimensions", style={"fontWeight": "normal"}, className="pl-2"),
+                dimension_toolbar,
+            ],
+            className="d-flex justify-content-between p-2",
         ),
         dbc.Tabs([make_dimension(i) for i in range(1)]),
     ],

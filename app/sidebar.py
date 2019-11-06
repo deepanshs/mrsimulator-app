@@ -2,8 +2,8 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from .custom_widgets import custom_button
-from .modal.file_info import file_info
+from app.custom_widgets import custom_button
+from app.modal.file_info import file_info
 
 colors = {"background": "#e2e2e2", "text": "#585858"}
 

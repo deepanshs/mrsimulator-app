@@ -9,5 +9,9 @@
     {
         "name": "theme-color",
         "content": "#2F3BA2"
+    },
+    {
+        "name": "mobile-web-app-capable",
+        "content": "yes"
     }
 ]

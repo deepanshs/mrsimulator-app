@@ -1,6 +1,6 @@
 [{
         "rel": "apple-touch-icon",
-        "href": "/assets/apple-touch-icon.png"
+        "href": "/assets/icon-256.png"
     },
     {
         "rel": "apple-touch-startup-image",

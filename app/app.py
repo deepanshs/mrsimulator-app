@@ -22,18 +22,34 @@ with open(PATH + "meta_tags.json", "r") as f:
     meta_tags = json.load(f)
 
 # Get splash screens for mobile devices.
-with open(PATH + "splash_screen.json", "r") as f:
-    links = json.load(f)
+with open(PATH + "splash_screen_links.json", "r") as f:
+    splash_screen_links = json.load(f)
 
-# Add splash screens to the page as <link \> in the header.
-html_links = ""
-for item in links:
-    if "media" in item.keys():
-        html_links += "<link rel='{0}' href='{1}' media='{2}'/>".format(
-            item["rel"], item["href"], item["media"]
-        )
-    else:
-        html_links += "<link rel='{0}' href='{1}'/>".format(item["rel"], item["href"])
+# Get external links for mobile devices.
+with open(PATH + "external_links.json", "r") as f:
+    external_links = json.load(f)
+
+
+def create_links(link_dict):
+    html_string = ""
+    for item in link_dict:
+        if "media" in item.keys():
+            html_string += "<link rel='{0}' href='{1}' media='{2}'/>".format(
+                item["rel"], item["href"], item["media"]
+            )
+        else:
+            html_string += "<link rel='{0}' href='{1}'/>".format(
+                item["rel"], item["href"]
+            )
+    return html_string
+
+
+html_link_str = ""
+# Add splash screen links to the page as <link \> in the header.
+html_link_str += create_links(splash_screen_links)
+
+# Add external links to the page as <link \> in the header.
+html_link_str += create_links(external_links)
 
 # Initialize dash app
 app = Dash(
@@ -68,4 +84,4 @@ body_tail = """
     </body>
 </html>
 """
-app.index_string = html_head + html_links + body_tail
+app.index_string = html_head + html_link_str + body_tail

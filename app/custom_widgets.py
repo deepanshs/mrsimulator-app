@@ -14,7 +14,6 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 tooltip_format = {"placement": "bottom", "delay": {"show": 250, "hide": 10}}
-# button_format = {"size": "md"}
 
 
 def label_with_help_button(label="", help_text="", id=None):
@@ -34,7 +33,7 @@ def custom_hover_help(message="", id=None):
             dbc.Tooltip(message, target=id, **tooltip_format),
         ],
         id=id,
-        className="align-self-start light",
+        className="align-self-start",
     )
     return button
 
@@ -123,9 +122,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            html.Div(
-                [dcc.Slider(**kwargs), html.P()], style={"padding-bottom": "10px"}
-            ),
+            html.Div([dcc.Slider(**kwargs), html.P()], style={"paddingBottom": "10px"}),
         ],
         className="my-auto d-flex flex-column",
     )

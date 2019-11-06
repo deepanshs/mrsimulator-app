@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 
@@ -51,7 +50,7 @@ def coordinate_grid(i):
         id=f"reference_offset-{i}",
     )
 
-    return dbc.Card(
+    return html.Div(
         [number_of_points, spectral_width, reference_offset],
         className="collapsible-body-control",
     )
@@ -105,22 +104,20 @@ def environment(i):
         min=0,
     )
 
-    isotope_and_filter = dbc.Row(
+    isotope_and_filter = html.Div(
         [
-            dbc.Col("Isotope", width=4),
-            dbc.Col(
-                dcc.Dropdown(
-                    id=f"isotope_id-{i}",
-                    searchable=False,
-                    clearable=False,
-                    placeholder="Select an isotope...",
-                )
+            "Isotope",
+            dcc.Dropdown(
+                id=f"isotope_id-{i}",
+                searchable=False,
+                clearable=False,
+                placeholder="Select an isotope...",
             ),
         ],
-        className="p-1 justify-items-stretch",
+        className="justify-items-stretch form-group",
     )
 
-    return dbc.Card(
+    return html.Div(
         [isotope_and_filter, spectrometer_frequency, rotor_frequency, rotor_angle],
-        className="collapsible-body-control",
+        className="collapsible-body-control form",
     )

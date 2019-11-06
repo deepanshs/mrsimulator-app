@@ -18,6 +18,7 @@ from app import navbar
 from app import sidebar
 from app.app import app
 from app.body import main_body
+from app.modal.about import about_modal
 
 # from mrsimulator.app.post_simulation import line_broadening
 
@@ -34,8 +35,9 @@ app.layout = html.Div(
     dbc.Container(
         [
             navbar.navbar_top,
+            navbar.import_options,
             html.Div(id="buffer", className="buffer"),
-            navbar.side_panel,
+            # navbar.side_panel,
             html.Div(
                 [
                     importer.isotopomer_import_layout,
@@ -62,6 +64,7 @@ app.layout = html.Div(
                     ]
                 )
             ),
+            about_modal,
             # test,
             # dbc.Jumbotron(),
             navbar.navbar_bottom,
@@ -114,6 +117,12 @@ def update_data(
     local_metadata,
 ):
     """Evaluate the spectrum and update the plot."""
+    # exit when the following conditions are True
+    if isotope_id in ["", None]:
+        print("---simulation prevented---")
+        print("isotope_id", isotope_id)
+        raise PreventUpdate
+
     if spectral_width in [None, 0, "", ".", "-"]:
         print("---simulation prevented---")
         print("spectral_width  up", spectral_width)
@@ -129,12 +138,6 @@ def update_data(
     if rotor_angle in [None, "", ".", "-"]:
         print("---simulation prevented---")
         print("rotor_angle  up", rotor_angle)
-        raise PreventUpdate
-
-    # exit when the following conditions are True
-    if isotope_id in ["", None]:
-        print("---simulation prevented---")
-        print("isotope_id", isotope_id)
         raise PreventUpdate
 
     # calculating spectral_width
@@ -242,7 +245,7 @@ def plot_1D(
 ):
     """Generate and return a one-dimensional plot instance."""
     if local_computed_data is None and local_csdm_data is None:
-        print("---prevented plot update---")
+        print("---plot update prevented---")
         raise PreventUpdate
 
     data = []
@@ -361,9 +364,7 @@ def plot_1D(
             margin={"l": 50, "b": 45, "t": 5, "r": 5},
             legend={"x": 0, "y": 1},
             hovermode="closest",
-            # paper_bgcolor="rgba(255,255,255,4)",
-            # plot_bgcolor="rgba(0,0,0,0)",
-            # template="plotly_dark",
+            template="none",
         ),
     }
     print("---update plot---")

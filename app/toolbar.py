@@ -12,12 +12,14 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from .app import app
-from .custom_widgets import custom_button
-from .custom_widgets import custom_switch
+from app.app import app
+from app.custom_widgets import custom_button
+from app.custom_widgets import custom_switch
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
+
 
 # Scale amplitude ------------------------------------------------------------------- #
 scale_amplitude_button = custom_switch(
@@ -85,12 +87,12 @@ download_layout = [
 def toggle_frame(n1, n2, n3, is_open):
     print(n1, n2, n3)
     if all(_ is None for _ in [n1, n2, n3]):
+        print("---Download prevented---")
         raise PreventUpdate
     max_ = max(i for i in [n1, n2, n3] if i is not None)
     if max_ == n1:
         return not is_open
     if max_ in [n2, n3]:
-        print("hide", is_open)
         return False
 
 
