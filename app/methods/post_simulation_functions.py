@@ -31,14 +31,14 @@ def line_broadening(x, amp, sigma, broadType):
     t = np.arange(x.count) - int(x.count / 2)
 
     time = t * 1 / (len(freq) * x.increment.to("Hz").value)
-    print("post_sim ", broadType)
+
+    # Lorentzian broadening:
     if broadType == 0 and sigma != 0:
-        broadSignal = np.exp(-sigma * np.abs(time))
+        broadSignal = np.exp(-sigma * np.pi * np.abs(time))
+    # Gaussian broadening:
     elif broadType == 1 and sigma != 0:
-        broadSignal = np.exp(
-            -((time * sigma * np.pi) ** 2) / 2
-        )  # / (np.sqrt(2 * np.pi) * (1/sigma))
-        print("here")
+        broadSignal = np.exp(-((time * sigma * np.pi) ** 2) * 2)
+    # No apodization
     else:
         broadSignal = 1
 
