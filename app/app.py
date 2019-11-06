@@ -17,9 +17,41 @@ with open(PATH + "external_scripts.json", "r") as f:
 with open(PATH + "apple_ios_tags.json", "r") as f:
     apple_meta_tags = json.load(f)
 
+# Get meta tags.
 with open(PATH + "meta_tags.json", "r") as f:
     meta_tags = json.load(f)
 
+# Get splash screens for mobile devices.
+with open(PATH + "splash_screen_links.json", "r") as f:
+    splash_screen_links = json.load(f)
+
+# Get external links for mobile devices.
+with open(PATH + "external_links.json", "r") as f:
+    external_links = json.load(f)
+
+
+def create_links(link_dict):
+    html_string = ""
+    for item in link_dict:
+        if "media" in item.keys():
+            html_string += "<link rel='{0}' href='{1}' media='{2}'/>".format(
+                item["rel"], item["href"], item["media"]
+            )
+        else:
+            html_string += "<link rel='{0}' href='{1}'/>".format(
+                item["rel"], item["href"]
+            )
+    return html_string
+
+
+html_link_str = ""
+# Add splash screen links to the page as <link \> in the header.
+html_link_str += create_links(splash_screen_links)
+
+# Add external links to the page as <link \> in the header.
+html_link_str += create_links(external_links)
+
+# Initialize dash app
 app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -29,7 +61,9 @@ app = Dash(
 app.config.suppress_callback_exceptions = True
 app.title = "Mrsimulator"
 
-app.index_string = """
+
+# Dash html layout string
+html_head = """
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,8 +71,8 @@ app.index_string = """
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
-        <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"/>
-        <link rel="apple-touch-startup-image" href="/assets/launch.png">
+"""
+body_tail = """
     </head>
     <body>
         {%app_entry%}
@@ -50,3 +84,4 @@ app.index_string = """
     </body>
 </html>
 """
+app.index_string = html_head + html_link_str + body_tail

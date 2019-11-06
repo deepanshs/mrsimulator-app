@@ -45,6 +45,7 @@ model_line_integration_volume = dbc.Row(
                 ],
                 value=0,
                 clearable=False,
+                searchable=False,
             )
         ),
     ]
@@ -98,7 +99,6 @@ advance_settings = dbc.Modal(
     ],
     id="modal_setting",
     role="document",
-    # modalClassName="modal-dialog",
     className="modal-dialog",
 )
 
@@ -115,6 +115,3 @@ def toggle_modal_setting(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
-
-
-# end of modal page for advance setting

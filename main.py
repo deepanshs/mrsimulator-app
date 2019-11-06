@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-import json
-import os
-import uuid
-
 import csdmpy as cp
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import flask
 import plotly.graph_objs as go
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -26,17 +21,13 @@ from app.body import main_body
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
+from app.modal.about import about_modal
 
 # from mrsimulator.app.post_simulation import line_broadening
 
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
-
-# Load default csdm compliant file.
-with open("static/default_file.json", "r") as f:
-    default_computed_data = json.load(f)
-
 
 test = html.Div(
     className="upload-btn-wrapper",
@@ -47,10 +38,17 @@ app.layout = html.Div(
     dbc.Container(
         [
             navbar.navbar_top,
-            navbar.side_panel,
-            importer.isotopomer_import_layout,
-            importer.spectrum_import_layout,
-            importer.example_drawer,
+            navbar.import_options,
+            html.Div(id="buffer", className="buffer"),
+            # navbar.side_panel,
+            html.Div(
+                [
+                    importer.isotopomer_import_layout,
+                    importer.spectrum_import_layout,
+                    importer.example_drawer,
+                ],
+                id="drawers-import",
+            ),
             html.Div(
                 dbc.Row(
                     [
@@ -69,6 +67,7 @@ app.layout = html.Div(
                     ]
                 )
             ),
+            about_modal,
             # test,
             # dbc.Jumbotron(),
             navbar.navbar_bottom,
@@ -82,38 +81,6 @@ app.layout = html.Div(
     **{"data-role": "page"},
 )
 server = app.server
-
-
-# # Serialize the computed spectrum and download the serialized file.
-@app.server.route("/downloads/<path:path>")
-def serve_static(path):
-    root_dir = os.getcwd()
-    return flask.send_from_directory(
-        os.path.join(root_dir, "downloads"), path, as_attachment=True
-    )
-
-
-# update the link to the downloadable serialized file.
-@app.callback(
-    [Output("download_csdm", "href"), Output("temp-state-file", "data")],
-    [Input("nmr_spectrum", "figure")],
-    [State("local-computed-data", "data"), State("temp-state-file", "data")],
-)
-def file_download_link(figure, local_computed_data, temp_state_file):
-    """Update the link to the downloadable file."""
-    # print(figure["layout"])
-    # print(figure["data"])
-    if local_computed_data is None:
-        return [None, "#"]
-    if temp_state_file is not None:
-        try:
-            os.remove(temp_state_file)
-        except:
-            pass
-    relative_filename = os.path.join("downloads", f"{uuid.uuid1()}.csdf")
-    with open(relative_filename, "w") as f:
-        json.dump(local_computed_data, f)
-    return ["/{}".format(relative_filename), "./{}".format(relative_filename)]
 
 
 # Main function. Evaluates the spectrum and update the plot.
@@ -155,75 +122,77 @@ def update_data(
     local_metadata,
 ):
     """Evaluate the spectrum and update the plot."""
-    local_computed_data = default_computed_data
-
-    if spectral_width in [None, 0, "", ".", "-"]:
-        # return local_computed_data
-        print("---simulation prevented---")
-        raise PreventUpdate
-    if reference_offset in [None, "", ".", "-"]:
-        # return local_computed_data
-        print("---simulation prevented---")
-        raise PreventUpdate
-    if rotor_frequency in [None, "", ".", "-"]:
-        # return local_computed_data
-        print("---simulation prevented---")
-        raise PreventUpdate
-
     # exit when the following conditions are True
     if isotope_id in ["", None]:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("isotope_id", isotope_id)
+        raise PreventUpdate
+
+    if spectral_width in [None, 0, "", ".", "-"]:
+        print("---simulation prevented---")
+        print("spectral_width  up", spectral_width)
+        raise PreventUpdate
+    if reference_offset in [None, "", ".", "-"]:
+        print("---simulation prevented---")
+        print("reference_offset  up", reference_offset)
+        raise PreventUpdate
+    if rotor_frequency in [None, "", ".", "-"]:
+        print("---simulation prevented---")
+        print("rotor_frequency up", rotor_frequency)
+        raise PreventUpdate
+    if rotor_angle in [None, "", ".", "-"]:
+        print("---simulation prevented---")
+        print("rotor_angle  up", rotor_angle)
         raise PreventUpdate
 
     # calculating spectral_width
     try:
         spectral_width = float(spectral_width)
     except ValueError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("spectral_width", spectral_width)
         raise PreventUpdate
 
     # calculating rotor_frequency
     try:
-        rotor_frequency = float(eval(str(rotor_frequency)))
+        rotor_frequency = float(rotor_frequency)
     except ValueError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("rotor_frequency", rotor_frequency)
         raise PreventUpdate
     except SyntaxError:
         try:
             rotor_frequency = float(rotor_frequency)
         except ValueError:
-            # return local_computed_data
             print("---simulation prevented---")
+            print("rotor_frequency", rotor_frequency)
             raise PreventUpdate
 
     # calculating reference_offset
     try:
         reference_offset = float(reference_offset)
     except ValueError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("reference_offset", reference_offset)
         raise PreventUpdate
 
     try:
         magnetic_flux_density = float(spectrometer_frequency) / 42.57747892
     except ValueError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("magnetic_flux_density", magnetic_flux_density)
         raise PreventUpdate
 
     # calculating rotor angle
     try:
-        rotor_angle = float(eval(str(rotor_angle)))  # 54.735
+        rotor_angle = float(rotor_angle)  # 54.735
     except ValueError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("rotor_angle", rotor_angle)
         raise PreventUpdate
     except SyntaxError:
-        # return local_computed_data
         print("---simulation prevented---")
+        print("rotor_angle", rotor_angle)
         raise PreventUpdate
 
     print("---simulate data---")
@@ -292,7 +261,7 @@ def plot_1D(
 ):
     """Generate and return a one-dimensional plot instance."""
     if local_computed_data is None and local_csdm_data is None:
-        print("---prevented plot update---")
+        print("---plot update prevented---")
         raise PreventUpdate
 
     data = []
@@ -307,9 +276,13 @@ def plot_1D(
         if origin_offset.value == 0.0:
             x = local_computed_data.dimensions[0].coordinates.to("kHz").value
         else:
-            x = (local_computed_data.dimensions[0].coordinates / origin_offset).to(
-                "ppm"
+            x = (
+                (local_computed_data.dimensions[0].coordinates / origin_offset)
+                .to("ppm")
+                .value
             )
+        x0 = x[0]
+        dx = x[1] - x[0]
         if decompose:
             maximum = 1.0
             if normalized:
@@ -323,7 +296,8 @@ def plot_1D(
                     name = None
                 data.append(
                     go.Scatter(
-                        x=x,
+                        x0=x0,
+                        dx=dx,
                         y=datum.components[0] / maximum,
                         mode="lines",
                         opacity=0.8,
@@ -341,11 +315,12 @@ def plot_1D(
                 y_data /= y_data.max()
             data.append(
                 go.Scatter(
-                    x=x,
+                    x0=x0,
+                    dx=dx,
                     y=y_data,
                     mode="lines",
                     line={"color": "black", "width": 1.2},
-                    name=f"spectrum",
+                    name=f"simulation",
                 )
             )
 
@@ -356,15 +331,20 @@ def plot_1D(
         if origin_offset.value == 0.0:
             x_spectrum = local_csdm_data.dimensions[0].coordinates.to("kHz").value
         else:
-            x_spectrum = (local_csdm_data.dimensions[0].coordinates / origin_offset).to(
-                "ppm"
+            x_spectrum = (
+                (local_csdm_data.dimensions[0].coordinates / origin_offset)
+                .to("ppm")
+                .value
             )
+        x0 = x_spectrum[0]
+        dx = x_spectrum[1] - x_spectrum[0]
         y_spectrum = local_csdm_data.dependent_variables[0].components[0]
         if normalized:
             y_spectrum /= y_spectrum.max()
         data.append(
             go.Scatter(
-                x=x_spectrum,
+                x0=x0,
+                dx=dx,
                 y=y_spectrum.real,
                 mode="lines",
                 line={"color": "grey", "width": 1.2},
@@ -397,12 +377,10 @@ def plot_1D(
                 "easing": "sin-out",
                 "ordering": "traces first",
             },
-            margin={"l": 50, "b": 40, "t": 5, "r": 5},
+            margin={"l": 50, "b": 45, "t": 5, "r": 5},
             legend={"x": 0, "y": 1},
             hovermode="closest",
-            paper_bgcolor="rgba(255,255,255,4)",
-            # plot_bgcolor="rgba(0,0,0,0)",
-            # template="plotly_dark",
+            template="none",
         ),
     }
     print("---update plot---")
@@ -453,4 +431,4 @@ def update_isotope_list(data):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, threaded=False)
+    app.run_server(debug=True, threaded=True)

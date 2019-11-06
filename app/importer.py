@@ -50,12 +50,14 @@ select_examples_dropdown = [
 ]
 
 
-# This function track the timestamp whenever the above dropdown is triggered.
+# This function tracks the timestamp whenever the above dropdown is triggered.
 @app.callback(
     Output("mrsimulator-examples", "data"),
     [Input("mrsimulator-examples-dropbox", "value")],
 )
 def example_timestamp(value):
+    if value is None:
+        raise PreventUpdate
     return time.time()
 
 
@@ -147,7 +149,9 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         Output(f"upload-{prepend_id}-local-timestamp", "data"),
         [Input(f"upload-{prepend_id}-local", "contents")],
     )
-    def upload_isotopomer_timestamp(value):
+    def upload_isotopomer_timestamp(contents):
+        if contents is None:
+            raise PreventUpdate
         return time.time()
 
     # Layout for the url and upload-a-file input methods. Each input method is wrapped
@@ -188,7 +192,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             )
         )
 
-    # Now wrapping for url and upload-a-file input layouts in a collapsible widget
+    # Now wrapping from-url and upload-a-file input layouts in a collapsible widget
     input_layout_0 = []
     for item in fields:
         id_ = item["id"]
@@ -318,13 +322,12 @@ def update_isotopomers(
     """Update the local isotopomers when a new file is imported."""
     print(t_upload, t_url, t_example)  # , t_editor)
     # calculate
-    if t_upload is None and t_example is None and t_url is None:  # == t_editor
+    if all(_ is None for _ in [t_upload, t_example, t_url]):
         print("---prevented isotopomers update---")
         raise PreventUpdate
 
     # calculate the latest trigger from timestamps
     max_ = max(i for i in [t_upload, t_url, t_example] if i is not None)
-    print(max_)
 
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
@@ -364,8 +367,8 @@ def update_isotopomers(
     #     data["description"] = data_info
     #     data["isotopomers"] = json.loads(editor_value)
 
-    print("---update isotopomers---")
-    return [data, data["name"], data["description"]]  # , data["citation"]]
+    print("---isotopomers updated---")
+    return [data, data["name"], data["description"]]
 
 
 def parse_contents(contents, filename):
@@ -419,8 +422,5 @@ def update_csdm_file(time_of_upload_trigger, csdm_upload_content, csdm_filename)
     content_string = csdm_upload_content.split(",")[1]
     decoded = base64.b64decode(content_string)
     data = json.loads(str(decoded, encoding="UTF-8"))
-    # data = cp.parse_dict(data)
-    # for datum in data.dependent_variables:
-    #     datum.components = datum.components/datum.components.max().
-    print("---update spectrum---")
+    print("---spectrum updated---")
     return data
