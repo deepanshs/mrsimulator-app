@@ -14,9 +14,9 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from .app import app
-from .custom_widgets import custom_button
-from .custom_widgets import label_with_help_button
+from app.app import app
+from app.custom_widgets import custom_button
+from app.custom_widgets import label_with_help_button
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -264,19 +264,31 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
 
 isotopomer_import_layout = upload_data(
     prepend_id="isotopomer",
-    message_for_URL=["Enter URL of an isotopomers file.", ""],
-    message_for_upload=["Upload an isotopomers file.", ""],
+    message_for_URL=[
+        "Enter URL of an isotopomers file.",
+        (
+            "Isotopomers file is a collection of sites and couplings ",
+            "used in simulating NMR linshapes.",
+        ),
+    ],
+    message_for_upload=[
+        "Upload an isotopomers file.",
+        (
+            "Isotopomers file is a collection of sites and couplings ",
+            "used in simulating NMR linshapes.",
+        ),
+    ],
 )
 
 spectrum_import_layout = upload_data(
     prepend_id="spectrum",
     message_for_URL=[
         "Enter URL of a CSDM compliant NMR data file.",
-        "The data should be a NMR spectrum.",
+        "Add an NMR spectrum to compare with the simulation.",
     ],
     message_for_upload=[
         "Upload a CSDM compliant NMR data file.",
-        "The data should be a NMR spectrum.",
+        "Add an NMR spectrum to compare with the simulation.",
     ],
 )
 
