@@ -39,11 +39,14 @@ def gaussian_linebroadening_widget(i):
         min=0,
         max=1000,
         step=25,
-        value=0,
+        value=25,
         marks=broaden_range,
         id=f"broadening_points-{i}",
     )
 
-    return [broadeningFunction, line_broadening, html.Br()]
+    return html.Div(
+        [broadeningFunction, line_broadening, html.Br()],
+        className="collapsible-body-control form",
+    )
 
     # return [line_broadening]
