@@ -1,0 +1,20 @@
+
+- Made more changes to the user interface.
+- Added drag and drop experimental data directly on to the simulation card.
+- Attached the reference offset and spectral width to the plot x-axis drag and zoom
+  handle. Users may now drag along the x-axis to set the reference-offset. Similarly,
+  zooming in or out along the x-axis with set the spectral width. Note, simultaneous
+  zooming along both axes will not trigger a reference-offset or spectral width update.
+- For security reasons, we have removed markdown rendering of external links from the
+  user input file. Users may still provide the link in the description of the isotopomer
+  file, which will be displayed as text.
+- Added isotopomers, spectrum, and decompose icons.
+- Isotopomers' example is no longer a separate display on the secondary navbar. The
+  isotopomers example is now a part of the isotopomers tab from the secondary navbar.
+
+===
+- Added Lorentzian and Gaussian line-broadening
+- Changes to the user-interface
+- Added options for underlaying the spectrum to compare with the simulation.
+===
+- Added dimension and environment interface

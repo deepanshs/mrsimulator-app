@@ -2,9 +2,9 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
+from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
 from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
 from app.modal.advance_settings import advance_settings
@@ -15,7 +15,7 @@ __email__ = ["deepansh2012@gmail.com"]
 
 # Advance settings ------------------------------------------------------------------ #
 advance_setting_button = custom_button(
-    icon="fas fa-cog",
+    icon_classname="fas fa-cog",
     id="advance_setting",
     tooltip="Advance setting",
     outline=True,
@@ -23,58 +23,45 @@ advance_setting_button = custom_button(
 )
 dimension_toolbar = dbc.Row([dbc.Col([advance_setting_button, advance_settings])])
 
+column_response = {"xs": "12", "sm": "12", "md": "6", "lg": "12", "xl": "12"}
+
 
 # dimension parameters
 def make_dimension(i):
-    # dimension parameters
-    dimension_contents = dbc.Tab(
-        label=f"Index-{i}",
-        children=[dbc.Row(
-            [
-                dbc.Col(
-                    custom_collapsible(
-                        text="Environment",
-                        identity=f"environment_id-{i}",
-                        children=environment(i),
-                    ),
-                    xs=12,
-                    sm=12,
-                    md=6,
-                    lg=12,
-                    xl=12,
+    row1 = dbc.Row(
+        [
+            dbc.Col(
+                custom_collapsible(
+                    text="Environment",
+                    identity=f"environment_id-{i}",
+                    children=environment(i),
                 ),
-                dbc.Col(
-                    custom_collapsible(
-                        text="Coordinate grid",
-                        identity=f"coordinate_grid_id-{i}",
-                        children=coordinate_grid(i),
-                    )
-                ),
-                # sub_group(
-                #     "Post simulation", f"post_simulation_id-{i}",
-                #      post_simulation_widgets(i)
-                # ),
-            ],),
-            dbc.Row([dbc.Col(
-                    custom_collapsible(
-                        text="Line broadening",
-                        identity=f"post_simulation_id-{i}",
-                        children=gaussian_linebroadening_widget(i),
-                        hide=False,
-                    ),
-                    xs=12,
-                    sm=12,
-                    md=6,
-                    lg=12,
-                    xl=12,
-                ),])]
-            # style={
-            #     "min-height": "65vh",
-            #     "max-height": "65vh",
-            #     "overflow-y": "scroll",
-            #     "overflow-x": "hidden",
-            # },
+                **column_response,
+            ),
+            dbc.Col(
+                custom_collapsible(
+                    text="Coordinate grid",
+                    identity=f"coordinate_grid_id-{i}",
+                    children=coordinate_grid(i),
+                )
+            ),
+        ]
     )
+    row2 = dbc.Row(
+        [
+            dbc.Col(
+                custom_collapsible(
+                    text="Line broadening",
+                    identity=f"post_simulation_id-{i}",
+                    children=gaussian_linebroadening_widget(i),
+                    hide=False,
+                ),
+                **column_response,
+            )
+        ]
+    )
+    dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1, row2])
+
     return dimension_contents
 
 

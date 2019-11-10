@@ -2,9 +2,9 @@
 import base64
 import json
 import os
-import time
 from urllib.request import urlopen
 
+import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -30,56 +30,6 @@ with open("examples/example_link.json", "r") as f:
     mrsimulator_examples = json.load(f)
 
 
-# populate the list as a dropdown menu.
-select_examples_dropdown = [
-    html.Div(
-        [
-            dbc.Label("Select an example isotopomer file.", className="formtext"),
-            dcc.Dropdown(
-                id="mrsimulator-examples-dropbox",
-                options=mrsimulator_examples,
-                value=None,
-                searchable=False,
-                clearable=True,
-                placeholder="Select an example ... ",
-            ),
-        ],
-        className="d-flex flex-column p-2",
-    ),
-    dcc.Store(id="mrsimulator-examples", storage_type="memory"),
-]
-
-
-# This function tracks the timestamp whenever the above dropdown is triggered.
-@app.callback(
-    Output("mrsimulator-examples", "data"),
-    [Input("mrsimulator-examples-dropbox", "value")],
-)
-def example_timestamp(value):
-    if value is None:
-        raise PreventUpdate
-    return time.time()
-
-
-# The example dropdown is wrapped in a collapsible widget. This collapsible widget
-# is activate from the navigation menubar.
-example_drawer = dbc.Collapse(
-    [
-        html.Div(
-            dbc.Button(
-                html.I(className="fas fa-times"),
-                id="example-panel-hide-button",
-                color="dark",
-                size="sm",
-            ),
-            className="d-flex justify-content-end",
-        ),
-        html.Div(select_examples_dropdown),
-    ],
-    className="drawer-card",
-    id="example-drawer-collapse",
-)
-
 # =====================================================================================
 
 
@@ -88,71 +38,91 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     Args:
         prepend_id: Prepends to the designated it.
     """
-    # Method 2. From URL address ------------------------------------------------------
-    data_from_url = [
-        label_with_help_button(*message_for_URL, id=f"upload-{prepend_id}-url-help"),
-        dbc.InputGroup(
-            [
-                dbc.Input(
-                    type="url",
-                    id=f"upload-{prepend_id}-url",
-                    value="",
-                    placeholder="Paste URL ...",
-                    className="form-control",
-                ),
-                dbc.Button(
-                    "Submit",
-                    id=f"upload-{prepend_id}-url-submit",
-                    className="append-last",
-                ),
-            ]
-        ),
-    ]
+
+    if prepend_id == "isotopomer":
+        options = mrsimulator_examples
+    else:
+        options = []
+
+    # Method 1: A dropdown menu list with example isotopomers.
+    # -------------------------------------------------------------------------
+    select_examples_dropdown = html.Div(
+        [
+            dbc.Label(f"Select an example {prepend_id}.", className="formtext"),
+            dcc.Dropdown(
+                id=f"example-{prepend_id}-dropbox",
+                options=options,
+                searchable=False,
+                clearable=True,
+                placeholder="Select an example ... ",
+                style={"zIndex": "10"},
+            ),
+        ],
+        className="d-flex flex-column grow",
+    )
+
+    # Method 2. From URL address
+    # -------------------------------------------------------------------------
+    data_from_url = html.Div(
+        [
+            label_with_help_button(
+                *message_for_URL, id=f"upload-{prepend_id}-url-help"
+            ),
+            dbc.InputGroup(
+                [
+                    dbc.Input(
+                        type="url",
+                        id=f"upload-{prepend_id}-url",
+                        value="",
+                        placeholder="Paste URL ...",
+                        className="form-control",
+                    ),
+                    dbc.Button(
+                        "Submit",
+                        id=f"upload-{prepend_id}-url-submit",
+                        className="append-last",
+                    ),
+                ]
+            ),
+        ],
+        className="d-flex flex-column pb-1",
+    )
 
     # Method 3. From a local file (Drag and drop). ------------------------------------
     # Using the dcc upload method.
-    upload_local_file_widget = [
-        label_with_help_button(
-            *message_for_upload, id=f"upload-{prepend_id}-local-help"
-        ),
-        dcc.Upload(
-            id=f"upload-{prepend_id}-local",
-            children=html.Div(
-                [
-                    "Drag and drop, or ",
-                    html.A(
-                        [html.I(className="fas fa-upload"), " select"],
-                        className="formtext",
-                        href="#",
-                    ),
-                ],
-                className="formtext",
+    upload_local_file_widget = html.Div(
+        [
+            label_with_help_button(
+                *message_for_upload, id=f"upload-{prepend_id}-local-help"
             ),
-            style={
-                "lineHeight": "40px",
-                "borderWidth": ".85px",
-                "borderStyle": "dashed",
-                "borderRadius": "7px",
-                "textAlign": "center",
-                "color": "silver",
-            },
-            # Allow multiple files to be uploaded
-            multiple=False,
-            className="control-upload",
-        ),
-        dcc.Store(id=f"upload-{prepend_id}-local-timestamp", storage_type="memory"),
-    ]
-
-    # This function tracks the timestamp whenever the above upload-a-file method
-    # is triggered.
-    @app.callback(
-        Output(f"upload-{prepend_id}-local-timestamp", "data"),
-        [Input(f"upload-{prepend_id}-local", "contents")],
+            dcc.Upload(
+                id=f"upload-{prepend_id}-local",
+                children=html.Div(
+                    [
+                        "Drag and drop, or ",
+                        html.A(
+                            [html.I(className="fas fa-upload"), " select"],
+                            className="formtext",
+                            href="#",
+                        ),
+                    ],
+                    className="formtext",
+                ),
+                style={
+                    "lineHeight": "55px",
+                    "borderWidth": ".85px",
+                    "borderStyle": "dashed",
+                    "borderRadius": "7px",
+                    "textAlign": "center",
+                    "color": "silver",
+                },
+                # Allow multiple files to be uploaded
+                multiple=False,
+                className="control-upload",
+            ),
+        ],
+        className="d-flex flex-column pb-1",
     )
-    def upload_isotopomer_timestamp(contents):
-        if contents is None:
-            raise PreventUpdate
-        return time.time()
 
     # Layout for the url and upload-a-file input methods. Each input method is wrapped
     # in a collapsible widget which is activated with the following buttons
@@ -160,18 +130,26 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     # presetting the fields for generating buttons
     fields = [
         {
+            "text": "Example",
+            "icon_classname": "fac fa-isotopomers",
+            "id": f"example-{prepend_id}-button",
+            "tooltip": "Select an example.",
+            "active": False,
+            "collapsable": select_examples_dropdown,
+        },
+        {
             "text": "Local",
-            "icon": "fas fa-hdd",
+            "icon_classname": "fas fa-hdd",
             "id": f"upload-{prepend_id}-local-button",
-            "tooltip": "Upload a local isotopomers file",
+            "tooltip": "Upload a local JSON file containing isotopomers.",
             "active": False,
             "collapsable": upload_local_file_widget,
         },
         {
             "text": "URL",
-            "icon": "fas fa-server",
+            "icon_classname": "fas fa-at",
             "id": f"upload-{prepend_id}-url-button",
-            "tooltip": "Get isotopomers file from url",
+            "tooltip": "Retrieve isotopomers from a remote JSON file.",
             "active": False,
             "collapsable": data_from_url,
         },
@@ -183,7 +161,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         input_buttons.append(
             custom_button(
                 text=item["text"],
-                icon=item["icon"],
+                icon_classname=item["icon_classname"],
                 id=item["id"],
                 tooltip=item["tooltip"],
                 active=item["active"],
@@ -200,6 +178,10 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
 
     # layout for the input panel. The two buttons are packed as vertical button group,
     # followed by the two collapsible widgets.
+    # if prepend_id == "isotopomer":
+    #     addon = [select_examples_dropdown]
+    # else:
+    #     addon = []
     input_layout = html.Div(
         [
             html.Div(
@@ -211,6 +193,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 ),
                 className="d-flex justify-content-end",
             ),
+            # *addon,
             html.Div(
                 [
                     dbc.ButtonGroup(
@@ -232,7 +215,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             ],
             *[Output(fields[j]["id"], "active") for j in range(len(fields))],
         ],
-        [Input(fields[j]["id"], "n_clicks_timestamp") for j in range(len(fields))],
+        [Input(fields[j]["id"], "n_clicks") for j in range(len(fields))],
         [
             *[
                 State(fields[j]["id"] + "-collapse", "is_open")
@@ -241,19 +224,29 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             *[State(fields[j]["id"], "active") for j in range(len(fields))],
         ],
     )
-    def toggle_collapsible_input(n1, n2, c1, c2, a1, a2):
+    def toggle_collapsible_input(n1, n2, n3, c1, c2, c3, a1, a2, a3):
         """Toggle collapsible widget form url and upload-a-file button fields."""
-        if n1 == n2 is None:
-            return [True, False, True, False]
-        max_ = max(i for i in [n1, n2] if i is not None)
-        if max_ == n1:
+        if n1 == n2 == n3 is None:
+            return [False, True, False, False, True, False]
+
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            raise PreventUpdate
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        if button_id == fields[0]["id"]:
             if not c1:
-                return [not c1, False, not a1, False]
-            return [c1, False, a1, False]
-        if max_ == n2:
+                return [not c1, False, False, not a1, False, False]
+            return [c1, False, False, a1, False, False]
+        if button_id == fields[1]["id"]:
             if not c2:
-                return [False, not c2, False, not a2]
-            return [False, c2, False, a2]
+                return [False, not c2, False, False, not a2, False]
+            return [False, c2, False, False, a2, False]
+        if button_id == fields[2]["id"]:
+            if not c3:
+                return [False, False, not c3, False, False, not a3]
+            return [False, False, c3, False, False, a3]
 
     # The input drawers are further wrapper as a collapsible. This collapsible widget
     # is activate from the navigation menu.
@@ -265,14 +258,14 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
 isotopomer_import_layout = upload_data(
     prepend_id="isotopomer",
     message_for_URL=[
-        "Enter URL of an isotopomers file.",
+        "Enter URL of a JSON file contaiing isotopomers.",
         (
             "Isotopomers file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
         ),
     ],
     message_for_upload=[
-        "Upload an isotopomers file.",
+        "Upload a JSON file containing isotopomers.",
         (
             "Isotopomers file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
@@ -297,90 +290,94 @@ spectrum_import_layout = upload_data(
 # Import or update the isotopomers.
 @app.callback(
     [
+        Output("alert-message-isotopomer", "children"),
+        Output("alert-message-isotopomer", "is_open"),
         Output("local-metadata", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
         # Output("data_citation", "children"),
     ],
     [
-        Input("upload-isotopomer-local-timestamp", "modified_timestamp"),
-        Input("upload-isotopomer-url-submit", "n_clicks_timestamp"),
-        Input("mrsimulator-examples", "modified_timestamp"),
+        Input("upload-isotopomer-local", "contents"),
+        Input("upload-isotopomer-url-submit", "n_clicks"),
+        Input("example-isotopomer-dropbox", "value"),
         # Input("json-file-editor", "n_blur_timestamp"),
     ],
     [
-        State("upload-isotopomer-local", "contents"),
         State("upload-isotopomer-url", "value"),
         State("upload-isotopomer-local", "filename"),
-        State("mrsimulator-examples-dropbox", "value"),
         # State("json-file-editor", "value"),
+        State("local-metadata", "data"),
         State("filename_dataset", "children"),
         State("data_description", "children"),
     ],
 )
 def update_isotopomers(
-    t_upload,
-    t_url,
-    t_example,
-    # time_of_editor_trigger,
     isotopomer_upload_content,
+    n_click,
+    example,
+    # time_of_editor_trigger,
+    # states
     isotopomer_url,
     isotopomer_filename,
-    example_url,
     # editor_value,
+    existing_data,
     data_title,
     data_info,
 ):
     """Update the local isotopomers when a new file is imported."""
-    print(t_upload, t_url, t_example)  # , t_editor)
-    # calculate
-    if all(_ is None for _ in [t_upload, t_example, t_url]):
-        print("---prevented isotopomers update---")
+    ctx = dash.callback_context
+    if not ctx.triggered:
         raise PreventUpdate
-
-    # calculate the latest trigger from timestamps
-    max_ = max(i for i in [t_upload, t_url, t_example] if i is not None)
+    else:
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
-    if max_ == t_example:
+    if trigger_id == "example-isotopomer-dropbox":
         path = os.path.split(__file__)[0]
-        if example_url in ["", None]:
-            print("---prevented isotopomers update---")
+        if example in ["", None]:
             raise PreventUpdate
-        response = urlopen(get_absolute_url_path(example_url, path))
+        response = urlopen(get_absolute_url_path(example, path))
         data = json.loads(response.read())
-        return [data, data["name"], data["description"]]  # , data["citation"]]
 
-    if max_ == t_url:
+    # The following section applies to when the isotopomers update is triggered from
+    # url-submit.
+    if trigger_id == "upload-isotopomer-url-submit":
         if isotopomer_url in ["", None]:
-            print("---prevented isotopomers update---")
             raise PreventUpdate
         response = urlopen(isotopomer_url)
-        data = json.loads(response.read())
-        return [data, data["name"], data["description"]]  # , data["citation"]]
+        try:
+            data = json.loads(response.read())
+        except Exception:
+            message = "Error reading isotopomers."
+            return [message, True, existing_data, data_title, data_info]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
-    if max_ == t_upload:
+    if trigger_id == "upload-isotopomer-local":
         if isotopomer_upload_content is None:
-            print("---prevented isotopomers update---")
             raise PreventUpdate
-        data = parse_contents(isotopomer_upload_content, isotopomer_filename)
-
+        try:
+            data = parse_contents(isotopomer_upload_content, isotopomer_filename)
+        except Exception:
+            message = "Error reading isotopomers."
+            return [message, True, existing_data, data_title, data_info]
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
     # if max_ == time_of_editor_trigger:
     #     if editor_value in ["", None]:
-    #         print("---prevented isotopomers update---")
     #         raise PreventUpdate
     #     data = {}
     #     data["name"] = data_title
     #     data["description"] = data_info
     #     data["isotopomers"] = json.loads(editor_value)
 
-    print("---isotopomers updated---")
-    return [data, data["name"], data["description"]]
+    if "name" not in data:
+        data["name"] = ""
+    if "description" not in data:
+        data["description"] = ""
+    return ["", False, data, data["name"], data["description"]]
 
 
 def parse_contents(contents, filename):
@@ -392,47 +389,65 @@ def parse_contents(contents, filename):
     }  # , "citation": ""}
     if filename is None:
         return default_data
-    try:
-        if "json" in filename:
-            content_string = contents.split(",")[1]
-            decoded = base64.b64decode(content_string)
-            data = json.loads(str(decoded, encoding="UTF-8"))
+    # try:
+    if "json" in filename:
+        content_string = contents.split(",")[1]
+        decoded = base64.b64decode(content_string)
+        data = json.loads(str(decoded, encoding="UTF-8"))
 
-            if "name" not in data.keys():
-                data["name"] = filename
+        if "name" not in data.keys():
+            data["name"] = filename
 
-            if "description" not in data.keys():
-                data["description"] = ""
+        if "description" not in data.keys():
+            data["description"] = ""
 
-            # if "citation" not in data.keys():
-            #     data["citation"] = ""
+        # if "citation" not in data.keys():
+        #     data["citation"] = ""
 
-            return data
+        return data
 
-        else:
-            return default_data
+    else:
+        raise Exception("File not recognized.")
 
-    except Exception:
-        return default_data
+    # except Exception:
+    #     return default_data
 
 
 # Upload a CSDM compliant NMR data file.
 @app.callback(
-    Output("local-csdm-data", "data"),
-    [Input("upload-spectrum-local-timestamp", "modified_timestamp")],
     [
-        State("upload-spectrum-local", "contents"),
-        State("upload-spectrum-local", "filename"),
+        Output("alert-message-spectrum", "children"),
+        Output("alert-message-spectrum", "is_open"),
+        Output("local-csdm-data", "data"),
     ],
+    [
+        Input("upload-spectrum-local", "contents"),
+        Input("upload-from-graph", "contents"),
+    ],
+    [State("local-csdm-data", "data")],
 )
-def update_csdm_file(time_of_upload_trigger, csdm_upload_content, csdm_filename):
+def update_csdm_file(csdm_upload_content, csdm_upload_content_graph, existing_data):
     """Update a local CSDM file."""
-    if csdm_upload_content is None:
-        print("---prevented spectrum update---")
+    ctx = dash.callback_context
+    # print(ctx.triggered)
+    if csdm_upload_content is None and csdm_upload_content_graph is None:
         raise PreventUpdate
 
-    content_string = csdm_upload_content.split(",")[1]
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "upload-spectrum-local":
+        content_string = csdm_upload_content
+    if trigger_id == "upload-from-graph":
+        content_string = csdm_upload_content_graph
+
+    content_string = content_string.split(",")[1]
     decoded = base64.b64decode(content_string)
-    data = json.loads(str(decoded, encoding="UTF-8"))
-    print("---spectrum updated---")
-    return data
+    try:
+        data = json.loads(str(decoded, encoding="UTF-8"))
+        return ["", False, data]
+    except Exception:
+        message = "Error reading CSDM file."
+        return [message, True, existing_data]

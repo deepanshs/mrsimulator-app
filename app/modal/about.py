@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Model page for about us."""
+"""
+    Model page with tabs containing
+    - App description
+    - How to report issues
+    - About contributors.
+"""
 import json
 
 import dash_bootstrap_components as dbc

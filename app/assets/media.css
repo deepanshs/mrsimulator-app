@@ -1,0 +1,195 @@
+@media only screen and (max-device-width: 992px) {
+  .master-padding {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  #dimension-body {
+    min-height: 50vh;
+  }
+  #top-navbar {
+    position: fixed;
+    z-index: 5;
+    height: 50px;
+    /* background-color: #343942; */
+    /* background-color: #0f5d63; */
+  }
+  .my-card {
+    border-radius: 0px;
+  }
+  .my-card-sidebar {
+    border-radius: 0px;
+  }
+  /* drawer and navbar imports */
+  #import-navbar,
+  #drawers-import {
+    position: fixed !important;
+    z-index: 5;
+    background-color: #343942;
+    width: 100vw;
+    border-radius: 0px;
+  }
+  #import-navbar {
+    bottom: 0;
+    height: 40px;
+  }
+  #drawers-import {
+    bottom: 40px;
+  }
+  .master-padding {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
+  .grow {
+    height: 262px;
+  }
+  #spectrum-body {
+    /* visibility: hidden; */
+    border-radius: 0px;
+    position: fixed !important;
+    top: 50px;
+    z-index: 4;
+    /*not work if the screen ratio is below 16/9*/
+    width: 100vw;
+    will-change: transform;
+    box-shadow: 0 4px 15px 0px #d6d6d6;
+  }
+  #bottom-navbar-content {
+    display: none;
+  }
+}
+/* .fullscreen { */
+
+/* @media only screen and (max-width: 992px) and (orientation: landscape) {
+      #spectrum-body {
+          position: fixed !important;
+          top: 0px;
+          min-height: 100vh;
+          min-width: 100vw;
+          z-index: 1;
+      }
+      #nmr_spectrum {
+          min-height: 84vh;
+          min-width: 100vw;
+      }
+      #dimension-body,
+      #import-navbar,
+      #top-navbar,
+      #bottom-navbar {
+          display: none;
+      }
+  } */
+
+/* } */
+
+/* All hand-held devices */
+
+/* @media only screen and (max-width: 992px) {
+      #import-navbar,
+      #drawers-import {
+          position: fixed !important;
+          z-index: 2;
+          background-color: #343942;
+          width: 100vw;
+          border-radius: 0px;
+      }
+      #bottom-navbar-content {
+          display: none;
+      }
+      #bottom-navbar,
+      #import-navbar {
+          bottom: 0;
+          left: 0;
+          height: 45px;
+          min-width: 100vw;
+      }
+      #drawers-import {
+          bottom: 45px;
+      }
+  } */
+
+/* ipad layout landscape */
+@media only screen and (min-device-width: 400px) and (max-device-width: 992px) and (orientation: landscape) {
+  #spectrum-body {
+    top: 0px;
+    height: 100vh;
+    width: 100vw;
+  }
+  #nmr_spectrum {
+    height: calc(100vh - 75px);
+  }
+  #dimension-body,
+  #top-navbar,
+  #drawers-import,
+  #bottom-navbar {
+    display: none;
+  }
+  #import-navbar {
+    visibility: hidden;
+    display: none;
+  }
+}
+
+/* ipad layout portrait */
+@media only screen and (min-device-width: 400px) and (max-device-width: 992px) and (orientation: portrait) {
+  #spectrum-body {
+    height: 42vh;
+  }
+  #nmr_spectrum {
+    height: calc(42vh - 55px);
+  }
+  .buffer {
+    height: calc(42vh + 50px);
+  }
+}
+
+@media only screen and (max-device-width: 400px) and (orientation: landscape) {
+  #spectrum-body {
+    top: 0px;
+    height: 100vh;
+    width: 100vw;
+  }
+  #nmr_spectrum {
+    height: calc(100vh - 75px);
+  }
+  #dimension-body,
+  #top-navbar,
+  #drawers-import,
+  #bottom-navbar {
+    display: none;
+  }
+  #import-navbar {
+    visibility: hidden;
+    display: none;
+  }
+}
+
+@media only screen and (max-device-width: 400px) and (orientation: portrait) {
+  #dimension-body {
+    min-height: 40vh;
+  }
+  #spectrum-body {
+    height: 42vh;
+  }
+  #nmr_spectrum {
+    height: calc(42vh - 55px);
+  }
+  .buffer {
+    height: calc(42vh + 50px);
+  }
+  body {
+    -webkit-user-select: none;
+    /* -webkit-transform: translateZ(0); */
+    /* -webkit-transform: translate3d(0, 0, 0); */
+    /* -webkit-backface-visibility: hidden;
+          -webkit-perspective: 1000; */
+  }
+}

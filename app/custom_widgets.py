@@ -17,16 +17,29 @@ tooltip_format = {"placement": "bottom", "delay": {"show": 250, "hide": 10}}
 
 
 def label_with_help_button(label="", help_text="", id=None):
+    """A custom label with a help icon.
+
+    Args:
+        label: A string label
+        help_text: A string message displayed as help message.
+        id: The id for the label.
+    """
     return html.Div(
         [
-            dbc.Label(label, className="formtext"),
+            dbc.Label(label, className="formtext pr-1"),
             custom_hover_help(message=help_text, id=f"upload-{id}-url-help"),
         ],
-        className="d-flex justify-content-start",
+        className="d-flex justify-content-start align-items-center",
     )
 
 
 def custom_hover_help(message="", id=None):
+    """A custom help button.
+
+    Args:
+        message: A string message displayed as help message.
+        id: The id for the label.
+    """
     button = html.Div(
         [
             html.I(className="fas fa-question-circle", style={"color": "white"}),
@@ -38,31 +51,24 @@ def custom_hover_help(message="", id=None):
     return button
 
 
-def custom_button(text="", icon="", id=None, tooltip=None, **kwargs):
+def custom_button(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     """A custom dash bootstrap component button with added tooltip and icon option.
 
     Args:
         text: A string text displayed on the button.
-        icon: A string given as the className, for example, "fas fa-download".
+        icon_classname: A string given as the className, for example, "fas fa-download".
                 See https://fontawesome.com for strings.
         id: A string with button id.
         tooltip: A string with tooltip, diplayed when cursor hovers over the button.
         kwargs: additional keyward arguments for dash-bootstrap-component button.
     """
-    if icon == "":
-        label = html.Span(text, className="d-flex justify-content-between")
-    else:
-        if isinstance(text, list):
-            label = html.Span(
-                [html.I(className=icon), *text],
-                className="d-flex justify-content-between",
-            )
-        else:
-            label = html.Span(
-                [html.I(className=icon), text],
-                className="d-flex justify-content-between",
-            )
 
+    label = html.Span(text, className="hide-label-sm pl-1")
+    if icon_classname != "":
+        label = html.Span(
+            [html.I(className=icon_classname), label],
+            className="d-flex align-items-center",
+        )
     if tooltip is not None:
         return dbc.Button(
             [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
@@ -71,20 +77,21 @@ def custom_button(text="", icon="", id=None, tooltip=None, **kwargs):
         return dbc.Button(label, id=id, **kwargs)
 
 
-def custom_switch(text="", icon="", id=None, tooltip=None, **kwargs):
+def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     """A custom dash bootstrap component boolean button with added tooltip and icon option.
 
     Args:
         text: A string text displayed on the button.
-        icon: A string given as the className, for example, "fas fa-download".
+        icon_classname: A string given as the className, for example, "fas fa-download".
                 See https://fontawesome.com for strings.
         id: A string with button id.
         tooltip: A string with tooltip, diplayed when cursor hovers over the button.
         kwargs: additional keyward arguments for dash-bootstrap-component button.
     """
-    button = custom_button(text=text, icon=icon, id=id, tooltip=tooltip, **kwargs)
+    button = custom_button(
+        text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
+    )
 
-    # decompose button callback method
     @app.callback(
         Output(f"{id}", "active"),
         [Input(f"{id}", "n_clicks")],
@@ -95,10 +102,7 @@ def custom_switch(text="", icon="", id=None, tooltip=None, **kwargs):
         if n is None:
             raise PreventUpdate
 
-        new_status = True
-        if bool(status):
-            new_status = False
-        return new_status
+        return not status
 
     return button
 
@@ -199,9 +203,12 @@ def custom_collapsible(
             collapse_classname: String. css classnames for collapsible.
     """
     layout = [
-        custom_button(
-            text=[text, html.I(className="icon-action fas fa-chevron-down")],
-            tooltip=tooltip,
+        dbc.Button(
+            html.Div(
+                [text, html.I(className="icon-action fas fa-chevron-down")],
+                className="d-flex justify-content-between align-items-center",
+            ),
+            # tooltip=tooltip,
             # icon=icon,
             color="link",
             size=size,

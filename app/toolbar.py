@@ -4,6 +4,7 @@ import os
 import uuid
 
 import csdmpy as cp
+import dash
 import dash_bootstrap_components as dbc
 import flask
 import numpy as np
@@ -23,7 +24,8 @@ __email__ = ["deepansh2012@gmail.com"]
 
 # Scale amplitude ------------------------------------------------------------------- #
 scale_amplitude_button = custom_switch(
-    icon="fas fa-arrows-alt-v",
+    text="Normalize",
+    icon_classname="fas fa-arrows-alt-v",
     id="normalize_amp",
     tooltip="Scale maximum amplitude to one.",
     outline=True,
@@ -33,8 +35,8 @@ scale_amplitude_button = custom_switch(
 
 # Show spectrum from individual isotopomers ----------------------------------------- #
 decompose_button = custom_switch(
-    # text="decompose",
-    icon="fas fa-chart-area",
+    text="Decompose",
+    icon_classname="fac fa-decompose",
     id="decompose",
     tooltip="Show simulation from individual isotopomers.",
     outline=True,
@@ -65,7 +67,7 @@ collapsible_download_menu = dbc.Collapse(
 # layout for the button
 download_layout = [
     custom_button(
-        icon="fas fa-download",
+        icon_classname="fas fa-download",
         id="download-button",
         tooltip="Download dataset",
         outline=True,
@@ -78,21 +80,24 @@ download_layout = [
 @app.callback(
     Output("download-collapse", "is_open"),
     [
-        Input("download-button", "n_clicks_timestamp"),
-        Input("download_csdm", "n_clicks_timestamp"),
-        Input("download_csv", "n_clicks_timestamp"),
+        Input("download-button", "n_clicks"),
+        Input("download_csdm", "n_clicks"),
+        Input("download_csv", "n_clicks"),
     ],
     [State("download-collapse", "is_open")],
 )
 def toggle_frame(n1, n2, n3, is_open):
-    print(n1, n2, n3)
-    if all(_ is None for _ in [n1, n2, n3]):
-        print("---Download prevented---")
+    if n1 is None:
         raise PreventUpdate
-    max_ = max(i for i in [n1, n2, n3] if i is not None)
-    if max_ == n1:
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "download-button":
         return not is_open
-    if max_ in [n2, n3]:
+    if button_id in ["download_csdm", "download_csv"]:
         return False
 
 
@@ -148,13 +153,13 @@ group_2_buttons = dbc.ButtonGroup(download_layout)
 toolbar = dbc.Row([dbc.Col(group_1_buttons), dbc.Col(group_2_buttons)])
 
 
-# add callback for toggling the collapse on small screens
-@app.callback(
-    Output("toolbar-collapse", "is_open"),
-    [Input("toolbar-toggler", "n_clicks")],
-    [State("toolbar-collapse", "is_open")],
-)
-def toggle_toolbar_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+# # add callback for toggling the collapse on small screens
+# @app.callback(
+#     Output("toolbar-collapse", "is_open"),
+#     [Input("toolbar-toggler", "n_clicks")],
+#     [State("toolbar-collapse", "is_open")],
+# )
+# def toggle_toolbar_collapse(n, is_open):
+#     if n:
+#         return not is_open
+#     return is_open

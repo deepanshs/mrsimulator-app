@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 import csdmpy as cp
 import numpy as np
-from numpy.fft import fft
-from numpy.fft import fftshift
-from numpy.fft import ifft
-from numpy.fft import ifftshift
 
 from app.methods.post_simulation_functions import line_broadening
-from app.methods.post_simulation_functions import post_simulation
 
 
 def test_1():

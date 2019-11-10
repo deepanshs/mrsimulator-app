@@ -1,10 +1,26 @@
 body {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  overflow-x: hidden;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#top-navbar {
+  z-index: 4;
+  background-color: #343942;
+}
+
+#bottom-navbar {
+  z-index: 0;
+  height: 40px;
+  background-color: #343942;
 }
 
 html {
@@ -39,6 +55,10 @@ html {
   border-radius: 0;
 }
 
+#example-spectrum-button,
+#example-spectrum-dropbox {
+  display: none;
+}
 /* formtest contents */
 
 .formtext {
@@ -66,7 +86,7 @@ html {
   border-radius: 0.8em;
   border: 1px solid rgb(214, 214, 214);
   /* box-shadow: 0 1px 2px 0px #b6b6b6; */
-  background: linear-gradient(to bottom, #f7f6f6bd 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%);
 }
 
 .my-card-sidebar {
@@ -148,145 +168,42 @@ html {
   border-top-right-radius: 0px;
 }
 
-@media only screen {
-  input[type="number"] {
-    -moz-appearance: textfield;
+@media only screen and (max-width: 992px) {
+  .hide-label {
+    display: none;
   }
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .master-padding {
-    padding-right: 0px;
-    padding-left: 0px;
-  }
-}
-
-/* .fullscreen { */
-
-/* @media only screen and (max-width: 992px) and (orientation: landscape) {
-    #spectrum-body {
-        position: fixed !important;
-        top: 0px;
-        min-height: 100vh;
-        min-width: 100vw;
-        z-index: 1;
-    }
-    #nmr_spectrum {
-        min-height: 84vh;
-        min-width: 100vw;
-    }
-    #dimension-body,
-    #import-navbar,
-    #top-navbar,
-    #bottom-navbar {
-        display: none;
-    }
-} */
-
-/* } */
-
-/* All hand-held devices */
-
-/* @media only screen and (max-width: 992px) {
-    #import-navbar,
-    #drawers-import {
-        position: fixed !important;
-        z-index: 2;
-        background-color: #343942;
-        width: 100vw;
-        border-radius: 0px;
-    }
-    #bottom-navbar-content {
-        display: none;
-    }
-    #bottom-navbar,
-    #import-navbar {
-        bottom: 0;
-        left: 0;
-        height: 45px;
-        min-width: 100vw;
-    }
-    #drawers-import {
-        bottom: 45px;
-    }
-} */
-
-/* ipad layout landscape */
-
-@media only screen and (min-width: 400px) and (max-width: 992px) and (orientation: landscape) {
-  #dimension-body,
   #spectrum-body {
-    min-height: 55vh;
-  }
-  #nmr_spectrum {
     height: 50vh;
   }
-  body {
-    -webkit-user-select: none;
-    /* -webkit-transform: translateZ(0); */
-    /* -webkit-transform: translate3d(0, 0, 0); */
-    /* -webkit-backface-visibility: hidden;
-        -webkit-perspective: 1000; */
-  }
-}
-
-/* ipad layout portrait */
-
-@media only screen and (min-width: 400px) and (max-width: 992px) and (orientation: portrait) {
-  #dimension-body {
-    min-height: 40vh;
-  }
-  #spectrum-body {
-    min-height: 45vh;
-  }
   #nmr_spectrum {
-    height: 35vh;
-  }
-  body {
-    -webkit-user-select: none;
-    /* -webkit-transform: translateZ(0); */
-    /* -webkit-transform: translate3d(0, 0, 0); */
-    /* -webkit-backface-visibility: hidden;
-        -webkit-perspective: 1000; */
-  }
-}
-
-@media only screen and (max-width: 400px) {
-  #dimension-body {
-    min-height: 40vh;
-  }
-  #spectrum-body {
-    height: 41vh;
-  }
-  #nmr_spectrum {
-    height: 32vh;
-  }
-  body {
-    -webkit-user-select: none;
-    /* -webkit-transform: translateZ(0); */
-    /* -webkit-transform: translate3d(0, 0, 0); */
-    /* -webkit-backface-visibility: hidden;
-        -webkit-perspective: 1000; */
+    height: calc(50vh - 55px);
   }
 }
 
 @media only screen and (min-width: 992px) {
   #dimension-body,
   #spectrum-body {
-    /* height: calc(bottom-navbar.height - top-navbar.height); */
     min-height: 75vh;
-    /* max-height: 82vh; */
-    /* max-height: 80vh; */
-    /* height: auto !important; */
-    /* height: 100%; */
   }
+  /* #tab-body {
+    height: 75vh;
+    overflow-y: scroll;
+  } */
   #nmr_spectrum {
-    min-height: 65vh;
+    height: calc(75vh - 55px);
   }
 }
 
+@media only screen and (max-width: 550px) {
+  .hide-label-sm {
+    display: none;
+  }
+}
+@media only screen and (max-width: 300px) {
+  .hide-label-xs {
+    display: none;
+  }
+}
 /* dash-bootstrap customize */
 
 /* .dash-bootstrap .is-open>.Select-control {

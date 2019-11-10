@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input
@@ -60,22 +61,32 @@ __email__ = ["deepansh2012@gmail.com"]
 #     return style
 
 
-documentation = dbc.NavLink(
-    [html.I(className="fas fa-book"), " ", "Documentation"],
+def place_icon_and_label(icon, label):
+    return html.Div(
+        [html.I(className=icon), html.Div(label, className="hide-label-sm pl-2")],
+        className="d-flex align-items-center",
+    )
+
+
+documentation = html.A(
+    place_icon_and_label("fas fa-book-open", "Documentation"),
     href="https://mrsimulator.readthedocs.io/en/stable/",
-    external_link=True,
-    className="navbar-dark",
+    className="navbar-dark nav-link",
+    target="_blank",
 )
 
-github_link = dbc.NavLink(
-    [html.I(className="fab fa-github"), " Github"],
+github_link = html.A(
+    place_icon_and_label("fab fa-github", "Github"),
     href="https://github.com/DeepanshS/mrsimulator",
-    external_link=True,
-    className="navbar-dark",
+    className="navbar-dark nav-link",
+    target="_blank",
 )
 
 about_us = dbc.Button(
-    "About", color="link", id="about_button", className="navbar-dark nav-link"
+    place_icon_and_label("fas fa-user-cog", "About"),
+    color="link",
+    id="about_button",
+    className="navbar-dark nav-link",
 )
 
 
@@ -84,7 +95,7 @@ navbar_top = dbc.Navbar(
     [
         dbc.NavbarBrand(
             html.Img(
-                src="/assets/mrsimulator-dark-featured.png",
+                src="/assets/mrsimulator-logo-dark.svg",
                 height="50px",
                 alt="Mrsimulator",
             )
@@ -98,7 +109,7 @@ navbar_top = dbc.Navbar(
     sticky="top",
     fixed="top",
     dark=True,
-    expand="sm",
+    expand="xs",
     id="top-navbar",
     className="drawer-card",
 )
@@ -130,7 +141,13 @@ navbar_bottom = dbc.Navbar(
 # secondary navbar ================================================================== #
 # The load isotopomer button activates the isotopomer collapsible menu.
 import_isotopomer_button = dbc.Button(
-    "Isotopomers",
+    html.Div(
+        [
+            html.I(className="fac fa-isotopomers-lg"),
+            html.Div("Isotopomers", className="hide-label-xs pl-3"),
+        ],
+        className="d-flex align-items-center justify-content-center",
+    ),
     color="link",
     id="import-isotopomer-toggler",
     className="flex-fill secondary-nav-link",
@@ -138,18 +155,23 @@ import_isotopomer_button = dbc.Button(
 
 # The load spectrum button activates the spectrum collapsible menu.
 import_spectrum_button = dbc.Button(
-    "Spectrum",
+    html.Div(
+        [
+            html.I(className="fac fa-spectrum"),
+            html.Div("Spectrum", className="hide-label-xs pl-3"),
+        ],
+        className="d-flex align-items-center justify-content-center",
+    ),
     color="link",
     id="import-spectrum-toggler",
     className="flex-fill secondary-nav-link",
 )
 
-# The show example button activates the collapsible example menu.
-show_example_button = dbc.Button(
-    "Examples",
-    color="link",
-    id="example-file-toggler",
-    className="flex-fill secondary-nav-link",
+# pack the buttons from secondary navbar in a div
+import_options = html.Div(
+    [import_isotopomer_button, import_spectrum_button],
+    id="import-navbar",
+    className="d-flex drawer-card",
 )
 
 
@@ -157,39 +179,35 @@ show_example_button = dbc.Button(
     [
         Output("upload-isotopomer-master-collapse", "is_open"),
         Output("upload-spectrum-master-collapse", "is_open"),
-        Output("example-drawer-collapse", "is_open"),
     ],
     [
-        Input("import-isotopomer-toggler", "n_clicks_timestamp"),
-        Input("import-spectrum-toggler", "n_clicks_timestamp"),
-        Input("example-file-toggler", "n_clicks_timestamp"),
-        Input("upload-isotopomer-panel-hide-button", "n_clicks_timestamp"),
-        Input("upload-spectrum-panel-hide-button", "n_clicks_timestamp"),
-        Input("example-panel-hide-button", "n_clicks_timestamp"),
+        Input("import-isotopomer-toggler", "n_clicks"),
+        Input("import-spectrum-toggler", "n_clicks"),
+        Input("upload-isotopomer-panel-hide-button", "n_clicks"),
+        Input("upload-spectrum-panel-hide-button", "n_clicks"),
     ],
     [
         State("upload-isotopomer-master-collapse", "is_open"),
         State("upload-spectrum-master-collapse", "is_open"),
-        State("example-drawer-collapse", "is_open"),
     ],
 )
-def toggle_import_file_collapse(n1, n2, n3, n4, n5, n6, c1, c2, c3):
+def toggle_import_file_collapse(n1, n2, n4, n5, c1, c2):
     """callback to toggle collapse import and example widgets with their
     respective buttons."""
-    if n1 == n2 == n3 == n4 == n5 == n6 is None:
+    if n1 == n2 == n4 == n5 is None:
         raise PreventUpdate
-    max_ = max(i for i in [n1, n2, n3, n4, n5, n6] if i is not None)
-    if max_ == n1 or max_ == n4:
-        return [not c1, False, False]
-    if max_ == n2 or max_ == n5:
-        return [False, not c2, False]
-    if max_ == n3 or max_ == n6:
-        return [False, False, not c3]
-    return [False, False, False]
 
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-import_options = html.Div(
-    [import_isotopomer_button, import_spectrum_button, show_example_button],
-    id="import-navbar",
-    className="d-flex drawer-card",
-)
+    if button_id in [
+        "import-isotopomer-toggler",
+        "upload-isotopomer-panel-hide-button",
+    ]:
+        return [not c1, False]
+    if button_id in ["import-spectrum-toggler", "upload-spectrum-panel-hide-button"]:
+        return [False, not c2]
+    return [False, False]

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import csdmpy as cp
-import dash_bootstrap_components as dbc
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 import plotly.graph_objs as go
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -13,15 +14,12 @@ from mrsimulator import Isotopomer
 from mrsimulator import Simulator
 from mrsimulator.methods import one_d_spectrum
 
-from app import importer
-from app import navbar
-from app import sidebar
 from app.app import app
-from app.body import main_body
+from app.body import app_1
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
-from app.modal.about import about_modal
+# from app.modal.about import about_modal
 
 # from mrsimulator.app.post_simulation import line_broadening
 
@@ -35,57 +33,15 @@ test = html.Div(
 )
 
 app.layout = html.Div(
-    dbc.Container(
-        [
-            navbar.navbar_top,
-            navbar.import_options,
-            html.Div(id="buffer", className="buffer"),
-            # navbar.side_panel,
-            html.Div(
-                [
-                    importer.isotopomer_import_layout,
-                    importer.spectrum_import_layout,
-                    importer.example_drawer,
-                ],
-                id="drawers-import",
-            ),
-            html.Div(
-                dbc.Row(
-                    [
-                        dbc.Col(sidebar.sidebar, xs=12, sm=12, md=12, lg=12, xl=3),
-                        dbc.Col(
-                            [
-                                html.Div(main_body),
-                                html.Div(id="isotopomer_computed_log"),
-                            ],
-                            xs=12,
-                            sm=12,
-                            md=12,
-                            lg=12,
-                            xl=9,
-                        ),
-                    ]
-                )
-            ),
-            about_modal,
-            # test,
-            # dbc.Jumbotron(),
-            navbar.navbar_bottom,
-        ],
-        fluid=True,
-        # style={"max-width": "1400px"},
-        className="master-padding",
-    ),
-    className="wrapper",
-    id="article1",
-    **{"data-role": "page"},
+    app_1, className="wrapper", id="article1", **{"data-role": "page"}
 )
+
 server = app.server
 
 
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
-    Output("local-computed-data", "data"),
+    [Output("local-computed-data", "data"), Output("larmor_frequency-0", "data")],
     [
         Input("rotor_frequency-0", "value"),
         Input("rotor_angle-0", "value"),
@@ -94,8 +50,6 @@ server = app.server
         Input("reference_offset-0", "value"),
         Input("spectrometer_frequency-0", "value"),
         Input("isotope_id-0", "value"),
-        Input("broadening_points-0", "value"),
-        Input("Apodizing_function-0", "value"),
         Input("close_setting", "n_clicks"),
     ],
     [
@@ -104,7 +58,7 @@ server = app.server
         State("local-metadata", "data"),
     ],
 )
-def update_data(
+def simulation(
     # input
     rotor_frequency,
     rotor_angle,
@@ -113,8 +67,6 @@ def update_data(
     reference_offset,
     spectrometer_frequency,
     isotope_id,
-    broadening,
-    apodization,
     close_setting_model,
     # state
     integration_density,
@@ -124,78 +76,28 @@ def update_data(
     """Evaluate the spectrum and update the plot."""
     # exit when the following conditions are True
     if isotope_id in ["", None]:
-        print("---simulation prevented---")
-        print("isotope_id", isotope_id)
         raise PreventUpdate
 
-    if spectral_width in [None, 0, "", ".", "-"]:
-        print("---simulation prevented---")
-        print("spectral_width  up", spectral_width)
+    ctx = dash.callback_context
+    print(ctx.triggered)
+    if not ctx.triggered:
         raise PreventUpdate
-    if reference_offset in [None, "", ".", "-"]:
-        print("---simulation prevented---")
-        print("reference_offset  up", reference_offset)
-        raise PreventUpdate
-    if rotor_frequency in [None, "", ".", "-"]:
-        print("---simulation prevented---")
-        print("rotor_frequency up", rotor_frequency)
-        raise PreventUpdate
-    if rotor_angle in [None, "", ".", "-"]:
-        print("---simulation prevented---")
-        print("rotor_angle  up", rotor_angle)
-        raise PreventUpdate
-
-    # calculating spectral_width
-    try:
-        spectral_width = float(spectral_width)
-    except ValueError:
-        print("---simulation prevented---")
-        print("spectral_width", spectral_width)
-        raise PreventUpdate
-
-    # calculating rotor_frequency
-    try:
-        rotor_frequency = float(rotor_frequency)
-    except ValueError:
-        print("---simulation prevented---")
-        print("rotor_frequency", rotor_frequency)
-        raise PreventUpdate
-    except SyntaxError:
-        try:
-            rotor_frequency = float(rotor_frequency)
-        except ValueError:
-            print("---simulation prevented---")
-            print("rotor_frequency", rotor_frequency)
+    else:
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        value = ctx.triggered[0]["value"]
+        if value in [None, "", ".", "-"]:
             raise PreventUpdate
+        if "isotope_id" not in button_id:
+            try:
+                float(value)
+            except ValueError:
+                raise PreventUpdate
 
-    # calculating reference_offset
-    try:
-        reference_offset = float(reference_offset)
-    except ValueError:
-        print("---simulation prevented---")
-        print("reference_offset", reference_offset)
+    if spectral_width == 0:
         raise PreventUpdate
 
-    try:
-        magnetic_flux_density = float(spectrometer_frequency) / 42.57747892
-    except ValueError:
-        print("---simulation prevented---")
-        print("magnetic_flux_density", magnetic_flux_density)
-        raise PreventUpdate
+    magnetic_flux_density = spectrometer_frequency / 42.57748
 
-    # calculating rotor angle
-    try:
-        rotor_angle = float(rotor_angle)  # 54.735
-    except ValueError:
-        print("---simulation prevented---")
-        print("rotor_angle", rotor_angle)
-        raise PreventUpdate
-    except SyntaxError:
-        print("---simulation prevented---")
-        print("rotor_angle", rotor_angle)
-        raise PreventUpdate
-
-    print("---simulate data---")
     sim = Simulator()
     dim = {
         "isotope": isotope_id,
@@ -208,32 +110,53 @@ def update_data(
         "nt": integration_density,
     }
     sim.spectrum = [Dimension.parse_dict_with_units(dim)]
-    # metadata = json.loads(local_metadata)
+    abs_larmor_freq = abs(sim.spectrum[0].larmor_frequency)
     sim.isotopomers = [
         Isotopomer.parse_dict_with_units(item) for item in local_metadata["isotopomers"]
     ]
 
-    print(sim.spectrum[0].rotor_frequency)
     sim.run(
         one_d_spectrum,
         geodesic_polyhedron_frequency=integration_density,
         individual_spectrum=True,
         averaging=integration_volume,
     )
-    print(sim.spectrum[0].rotor_frequency)
 
-    csdm_object = sim.as_csdm_object()
+    local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
+    return [local_computed_data, abs_larmor_freq]
 
-    csdm_object_appodized = post_simulation(
-        line_broadening,
-        csdm_object=csdm_object,
-        sigma=broadening,
-        broadType=apodization,
-    )
 
-    local_computed_data = csdm_object_appodized.to_dict(update_timestamp=True)
+@app.callback(
+    [Output("spectral_width-0", "value"), Output("reference_offset-0", "value")],
+    # Output("buffer", "className"),
+    [Input("nmr_spectrum", "relayoutData")],
+    [
+        State("larmor_frequency-0", "data"),
+        State("number_of_points-0", "value"),
+        State("spectral_width-0", "value"),
+    ],
+)
+def display_relayout_data(relayoutData, larmor_freq, npts, sw):
+    if relayoutData is None:
+        raise PreventUpdate
+    keys = relayoutData.keys()
+    if "xaxis.range[0]" not in keys:
+        raise PreventUpdate
+    if "yaxis.range[0]" in keys:
+        raise PreventUpdate
+    if None in [
+        relayoutData["xaxis.range[0]"],
+        relayoutData["xaxis.range[1]"],
+        larmor_freq,
+    ]:
+        raise PreventUpdate
 
-    return local_computed_data
+    x_min = relayoutData["xaxis.range[0]"] * larmor_freq
+    x_max = relayoutData["xaxis.range[1]"] * larmor_freq
+    increment = float(sw) * 1000 / (2 ** npts)
+    sw_ = x_min - x_max + increment
+    ref_offset = x_max + sw_ / 2.0
+    return ["{0:.5f}".format(sw_ / 1000.0), "{0:.5f}".format(ref_offset / 1000.0)]
 
 
 @app.callback(
@@ -243,11 +166,14 @@ def update_data(
         Input("decompose", "active"),
         Input("local-csdm-data", "modified_timestamp"),
         Input("normalize_amp", "active"),
+        Input("broadening_points-0", "value"),
+        Input("Apodizing_function-0", "value"),
     ],
     [
         State("local-computed-data", "data"),
         State("local-csdm-data", "data"),
         State("isotope_id-0", "value"),
+        State("nmr_spectrum", "figure"),
     ],
 )
 def plot_1D(
@@ -255,13 +181,15 @@ def plot_1D(
     decompose,
     csdm_upload_time,
     normalized,
+    broadening,
+    apodization,
     local_computed_data,
     local_csdm_data,
     isotope_id,
+    figure,
 ):
     """Generate and return a one-dimensional plot instance."""
     if local_computed_data is None and local_csdm_data is None:
-        print("---plot update prevented---")
         raise PreventUpdate
 
     data = []
@@ -271,6 +199,13 @@ def plot_1D(
     if local_computed_data is not None:
 
         local_computed_data = cp.parse_dict(local_computed_data)
+
+        local_computed_data = post_simulation(
+            line_broadening,
+            csdm_object=local_computed_data,
+            sigma=broadening,
+            broadType=apodization,
+        )
 
         origin_offset = local_computed_data.dimensions[0].origin_offset
         if origin_offset.value == 0.0:
@@ -340,7 +275,7 @@ def plot_1D(
         dx = x_spectrum[1] - x_spectrum[0]
         y_spectrum = local_csdm_data.dependent_variables[0].components[0]
         if normalized:
-            y_spectrum /= y_spectrum.max()
+            y_spectrum /= np.abs(y_spectrum.max())
         data.append(
             go.Scatter(
                 x0=x0,
@@ -352,38 +287,9 @@ def plot_1D(
             )
         )
 
-    x_label = str(isotope_id + f" frequency / ppm")
-
-    data_object = {
-        "data": data,
-        "layout": go.Layout(
-            xaxis=dict(
-                title=x_label,
-                ticks="outside",
-                showline=True,
-                autorange="reversed",
-                zeroline=False,
-            ),
-            yaxis=dict(
-                title="arbitrary unit",
-                ticks="outside",
-                showline=True,
-                zeroline=False,
-                rangemode="tozero",
-            ),
-            autosize=True,
-            transition={
-                "duration": 175,
-                "easing": "sin-out",
-                "ordering": "traces first",
-            },
-            margin={"l": 50, "b": 45, "t": 5, "r": 5},
-            legend={"x": 0, "y": 1},
-            hovermode="closest",
-            template="none",
-        ),
-    }
-    print("---update plot---")
+    layout = figure["layout"]
+    layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
+    data_object = {"data": data, "layout": go.Layout(**layout)}
     return data_object
 
 
@@ -398,14 +304,6 @@ def plot_1D(
 #             'quad-in-out', 'cubic-in-out', 'sin-in-out', 'exp-in-out',
 #             'circle-in-out', 'elastic-in-out', 'back-in-out',
 #             'bounce-in-out']
-
-
-# def post_simulation(function, **kwargs):
-#     return [
-#         function(datum, **kwargs)
-#         for datum in sim.original
-#         if not isinstance(datum, list)
-#     ]
 
 
 @app.callback(

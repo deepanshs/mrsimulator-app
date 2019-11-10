@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Model page layout and callbacks for advance settings."""
+"""
+    Model page layout and callbacks for advance settings.
+    Advance setting includes:
+        - Integration density: Number of triangles along the edge of octahedron.
+        - Integration volume: Enumeration with literals, 'octant', 'hemisphere'.
+        - Number of sidebands: Number of sidebands to evaluate.
+"""
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input
@@ -13,16 +19,16 @@ from app.app import app
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
-# number of orientation used in averaging
-model_line_integration_density = dbc.Row(
+# Number of triangles along the edge of octahedron.
+integration_density = dbc.Row(
     [
         dbc.Col(dbc.Label("Integration density")),
         dbc.Col(
             dbc.Input(
                 type="number",
-                value=70,
+                value=35,
                 # type="slider",
-                min=0,
+                min=1,
                 max=4096,
                 step=1,
                 id="integration_density",
@@ -31,8 +37,8 @@ model_line_integration_density = dbc.Row(
     ]
 )
 
-# integration volume. Options are Octant, Hemisphere, Sphere
-model_line_integration_volume = dbc.Row(
+# Integration volume. Options are Octant, Hemisphere
+integration_volume = dbc.Row(
     [
         dbc.Col(dbc.Label("Integration volume")),
         dbc.Col(
@@ -51,9 +57,8 @@ model_line_integration_volume = dbc.Row(
     ]
 )
 
-
-# information on the total number of averaging points
-model_line_integration_info = dbc.FormText(id="total_integration_points")
+# Field to hold information on the total number of averaging points.
+integration_info = dbc.FormText(id="total_integration_points")
 
 
 # callback for calculating total number of integration points
@@ -79,13 +84,7 @@ advance_settings = dbc.Modal(
     [
         dbc.ModalHeader("Advance setting"),
         dbc.ModalBody(
-            dbc.FormGroup(
-                [
-                    model_line_integration_density,
-                    model_line_integration_volume,
-                    model_line_integration_info,
-                ]
-            )
+            dbc.FormGroup([integration_density, integration_volume, integration_info])
         ),
         dbc.ModalFooter(
             dbc.Button(
@@ -103,6 +102,7 @@ advance_settings = dbc.Modal(
 )
 
 
+# callback to toggle advance setting modal.
 @app.callback(
     Output("modal_setting", "is_open"),
     [Input("advance_setting", "n_clicks"), Input("close_setting", "n_clicks")],

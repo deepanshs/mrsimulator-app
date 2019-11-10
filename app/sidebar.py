@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 import dash_html_components as html
 
 from app.custom_widgets import custom_button
@@ -10,7 +9,7 @@ colors = {"background": "#e2e2e2", "text": "#585858"}
 
 # Info ------------------------------------------------------------------------------ #
 isotopomers_info_button = custom_button(
-    icon="fas fa-info-circle",
+    icon_classname="fas fa-info-circle",
     id="indicator_status",
     tooltip="Isotopomers info",
     outline=True,
@@ -30,7 +29,7 @@ filename_datetime = html.Div(
                 # dbc.Col(
                 #     custom_button(
                 #         text="",
-                #         icon="fas fa-edit",
+                #         icon_classname="fas fa-edit",
                 #         id="json-file-editor-toggler",
                 #         tooltip="Edit the isotopomer file.",
                 #         active=False,
@@ -42,7 +41,7 @@ filename_datetime = html.Div(
             className="d-flex justify-content-between",
         ),
         file_info,
-        dcc.Markdown(
+        html.P(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
         # html.H6(

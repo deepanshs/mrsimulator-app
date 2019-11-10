@@ -17,32 +17,30 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
+def get_icon_with_description(icon, description):
+    return html.Div(
+        [html.I(className=icon), html.Div(description, className="pl-1 pr-2")],
+        className="d-flex align-items-start justify-content-start p-1",
+    )
+
+
 help_message = html.Div(
     [
-        html.Div(
-            [
-                html.I(className="fas fa-arrows-alt-v"),
-                "  Scale maximum amplitude to one.",
-            ]
+        get_icon_with_description(
+            "fas fa-arrows-alt-v", "Scale maximum amplitude to one."
         ),
-        html.Div(
-            [
-                html.I(className="fas fa-chart-area"),
-                "  Show spectrum from individual isotopomers.",
-            ]
+        get_icon_with_description(
+            "fac fa-decompose", "Show spectrum from individual isotopomers."
         ),
-        html.Div(
-            [
-                html.I(className="fas fa-download"),
-                "  Download dataset as `.csdf` or `.csv` format.",
-            ]
+        get_icon_with_description(
+            "fas fa-download", "Download dataset as `.csdf` or `.csv` format."
         ),
     ]
 )
 
 
-button = html.P(
-    html.I(className="fas fa-question-circle"), id="pop-up-simulation-button"
+button = html.Div(
+    html.I(className="fas fa-question-circle pl-1"), id="pop-up-simulation-button"
 )
 
 help_popup = dbc.Popover(
@@ -65,15 +63,6 @@ def toggle_popover(n, is_open):
     return is_open
 
 
-# help_popup = html.Div(
-#     [
-#         html.I(className="fas fa-question-circle"),
-#         dbc.Tooltip(help_message, target="pop-up-simulation-help"),
-#     ],
-#     id="pop-up-simulation-help",
-#     className="align-self-start",
-# )
-
 plotly_graph = dcc.Graph(
     id="nmr_spectrum",
     figure={
@@ -87,7 +76,7 @@ plotly_graph = dcc.Graph(
         ],
         "layout": go.Layout(
             xaxis=dict(
-                title="frequency",
+                title="frequency ratio / ppm",
                 ticks="outside",
                 showline=True,
                 autorange="reversed",
@@ -109,7 +98,10 @@ plotly_graph = dcc.Graph(
             margin={"l": 50, "b": 45, "t": 5, "r": 5},
             legend={"x": 0, "y": 1},
             hovermode="closest",
+            paper_bgcolor="rgba(255,255,255,0.1)",
+            plot_bgcolor="rgba(255,255,255,0.3)",
             template="none",
+            clickmode="event+select",
         ),
     },
     config={
@@ -121,13 +113,14 @@ plotly_graph = dcc.Graph(
         # "autosizable": True,
         # "fillFrame": True,
         "modeBarButtonsToRemove": [
+            "toImage",
             # "zoom2d"
             # "pan2d",
             "select2d",
             "lasso2d",
             "zoomIn2d",
             "zoomOut2d",
-            "autoScale2d",
+            # "autoScale2d",
             "resetScale2d",
             "hoverClosestCartesian",
             "hoverCompareCartesian",
@@ -138,20 +131,34 @@ plotly_graph = dcc.Graph(
     },
 )
 
-
+className = "d-flex align-items-center"
 spectrum_body = html.Div(
     id="spectrum-body",
     className="v-100 my-card",
-    children=[
-        html.Div(
-            [
-                html.H4("Simulation", style={"fontWeight": "normal"}, className="pl-2"),
-                toolbar,
-            ],
-            className="d-flex justify-content-between p-2",
-        ),
-        collapsible_download_menu,
-        html.Div(plotly_graph),
-        # help_popup,
-    ],
+    children=dcc.Upload(
+        [
+            html.Div(
+                [
+                    html.H4(
+                        ["Simulation", button],
+                        style={"fontWeight": "normal"},
+                        className=f"pl-2 {className} justify-content-center",
+                    ),
+                    toolbar,
+                ],
+                className=f"p-2 justify-content-between {className}",
+            ),
+            collapsible_download_menu,
+            html.Div(plotly_graph),
+            help_popup,
+        ],
+        id="upload-from-graph",
+        disable_click=True,
+        style_active={
+            "border": "1px solid rgb(78, 196, 78)",
+            "backgroundColor": "rgb(225, 255, 225)",
+            "opacity": "0.75",
+            "borderRadius": "0.8em",
+        },
+    ),
 )
