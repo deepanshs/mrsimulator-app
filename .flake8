@@ -1,5 +1,5 @@
 [flake8]
-exclude = .eggs,*.egg,build, src/mrsimulator/__init__.py
+exclude = .eggs,*.egg,build
 ignore = C901, E722
 filename = *.pyx,*.px*, *py
 max-line-length = 88

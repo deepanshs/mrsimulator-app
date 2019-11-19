@@ -154,11 +154,18 @@ spectrum_body = html.Div(
         ],
         id="upload-from-graph",
         disable_click=True,
+        # accept="application/json, text/plain, .csdf",
         style_active={
             "border": "1px solid rgb(78, 196, 78)",
             "backgroundColor": "rgb(225, 255, 225)",
             "opacity": "0.75",
             "borderRadius": "0.8em",
         },
+        # style_reject={
+        #     "border": "1px solid rgb(196, 78, 78)",
+        #     "backgroundColor": "rgb(255, 225, 225)",
+        #     "opacity": "0.75",
+        #     "borderRadius": "0.8em",
+        # },
     ),
 )

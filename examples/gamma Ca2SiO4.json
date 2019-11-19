@@ -1,20 +1,20 @@
 {
-    "name": "γ-Ca₂SiO₄",
-    "description": "A high-temperature calcium-silicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
-    "isotopomers" : [
+  "name": "γ-Ca₂SiO₄",
+  "description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
+  "isotopomers": [
     {
-        "name": "Q0",
-        "sites": [
-            {
-                "isotope": "29Si",
-                "isotropic_chemical_shift": "-73.7 ppm",
-                "shielding_symmetric": {
-                    "zeta": "-25.5 ppm",
-                    "eta": 0.83
-                }
-            }
-        ],
-        "abundance": "100 %"
+      "name": "Q0",
+      "sites": [
+        {
+          "isotope": "29Si",
+          "isotropic_chemical_shift": "-73.7 ppm",
+          "shielding_symmetric": {
+            "zeta": "-25.5 ppm",
+            "eta": 0.83
+          }
+        }
+      ],
+      "abundance": "100 %"
     }
-]
+  ]
 }

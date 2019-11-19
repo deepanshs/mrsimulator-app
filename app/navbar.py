@@ -63,7 +63,7 @@ __email__ = ["deepansh2012@gmail.com"]
 
 def place_icon_and_label(icon, label):
     return html.Div(
-        [html.I(className=icon), html.Div(label, className="hide-label-sm pl-2")],
+        [html.I(className=icon), html.Div(label, className="pl-2")],  # hide-label-sm
         className="d-flex align-items-center",
     )
 
@@ -98,6 +98,7 @@ navbar_top = dbc.Navbar(
                 src="/assets/mrsimulator-logo-dark.svg",
                 height="50px",
                 alt="Mrsimulator",
+                id="mrsimulator-logo",
             )
         ),
         dbc.NavbarToggler(id="navbar-toggler"),
@@ -109,9 +110,9 @@ navbar_top = dbc.Navbar(
     sticky="top",
     fixed="top",
     dark=True,
-    expand="xs",
+    expand="sm",
     id="top-navbar",
-    className="drawer-card",
+    className="top-navbar",
 )
 
 
@@ -171,7 +172,7 @@ import_spectrum_button = dbc.Button(
 import_options = html.Div(
     [import_isotopomer_button, import_spectrum_button],
     id="import-navbar",
-    className="d-flex drawer-card",
+    className="d-flex top-navbar",
 )
 
 
@@ -194,7 +195,7 @@ import_options = html.Div(
 def toggle_import_file_collapse(n1, n2, n4, n5, c1, c2):
     """callback to toggle collapse import and example widgets with their
     respective buttons."""
-    if n1 == n2 == n4 == n5 is None:
+    if n1 is n2 is n4 is n5 is None:
         raise PreventUpdate
 
     ctx = dash.callback_context

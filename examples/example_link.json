@@ -1,50 +1,62 @@
 [
-    {
-        "label": "Rankinite",
-        "value": "./examples/rankinite.json"
-    },
-    {
-        "label": "\u03B1 - Ca2(SiO3OH)OH",
-        "value": "./examples/alpha Ca2(SiO3OH)OH.json"
-    },
-    {
-        "label": "\u03B2 - Ca2SiO4",
-        "value": "./examples/beta Ca2SiO4.json"
-    },
-    {
-        "label": "Ca3SiO4Cl2",
-        "value": "./examples/Ca3SiO4Cl2.json"
-    },
-    {
-        "label": "Cuspidine",
-        "value": "./examples/cuspidine.json"
-    },
-    {
-        "label": "\u03B3 - Ca2SiO4",
-        "value": "./examples/gamma Ca2SiO4.json"
-    },
-    {
-        "label": "Hillebrandite",
-        "value": "./examples/hillebrandite.json"
-    },
-    {
-        "label": "Kyanite",
-        "value": "./examples/kyanite.json"
-    },
-    {
-        "label": "Pseudowollastonite",
-        "value": "./examples/pseudowollastonite.json"
-    },
-    {
-        "label": "Scawtite",
-        "value": "./examples/scawtite.json"
-    },
-    {
-        "label": "Wollastonite",
-        "value": "./examples/wollastonite.json"
-    },
-    {
-        "label": "Xonotlite",
-        "value": "./examples/xonotlite.json"
-    }
+  {
+    "label": "Rankinite",
+    "value": "./examples/rankinite.json"
+  },
+  {
+    "label": "α-Ca2(SiO3OH)OH",
+    "value": "./examples/alpha Ca2(SiO3OH)OH.json"
+  },
+  {
+    "label": "β-Ca2SiO4",
+    "value": "./examples/beta Ca2SiO4.json"
+  },
+  {
+    "label": "Ca3SiO4Cl2",
+    "value": "./examples/Ca3SiO4Cl2.json"
+  },
+  {
+    "label": "Cuspidine",
+    "value": "./examples/cuspidine.json"
+  },
+  {
+    "label": "γ-Ca2SiO4",
+    "value": "./examples/gamma Ca2SiO4.json"
+  },
+  {
+    "label": "Hillebrandite",
+    "value": "./examples/hillebrandite.json"
+  },
+  {
+    "label": "Kyanite",
+    "value": "./examples/kyanite.json"
+  },
+  {
+    "label": "Pseudowollastonite",
+    "value": "./examples/pseudowollastonite.json"
+  },
+  {
+    "label": "Scawtite",
+    "value": "./examples/scawtite.json"
+  },
+  {
+    "label": "Wollastonite",
+    "value": "./examples/wollastonite.json"
+  },
+  {
+    "label": "Xonotlite",
+    "value": "./examples/xonotlite.json"
+  },
+  {
+    "label": "Coesite",
+    "value": "./examples/O17/coesite.json"
+  },
+  {
+    "label": "Cristobalite",
+    "value": "./examples/O17/cristobalite.json"
+  },
+  {
+    "label": "α-quartz",
+    "value": "./examples/O17/α-quartz.json"
+  }
 ]

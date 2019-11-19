@@ -83,7 +83,10 @@ filename_datetime = html.Div(
 #     return is_open
 
 
-# @app.callback(Output("json-file-editor", "value"), [Input("local-metadata", "data")])
+# @app.callback(
+#   Output("json-file-editor", "value"),
+#   [Input("local-isotopomers-data", "data")]
+# )
 # def update_json_editor_contents(data):
 #     """Update JSON editor contents when a file is loaded."""
 #     if data is None:

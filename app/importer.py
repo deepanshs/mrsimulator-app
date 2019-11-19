@@ -4,6 +4,7 @@ import json
 import os
 from urllib.request import urlopen
 
+import csdmpy as cp
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -17,7 +18,6 @@ from dash.exceptions import PreventUpdate
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import label_with_help_button
-
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -204,7 +204,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 className="d-flex justify-content-start",
             ),
         ],
-        className="drawer-card",
+        className="top-navbar",
     )
 
     @app.callback(
@@ -226,7 +226,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     )
     def toggle_collapsible_input(n1, n2, n3, c1, c2, c3, a1, a2, a3):
         """Toggle collapsible widget form url and upload-a-file button fields."""
-        if n1 == n2 == n3 is None:
+        if n1 is n2 is n3 is None:
             return [False, True, False, False, True, False]
 
         ctx = dash.callback_context
@@ -292,7 +292,7 @@ spectrum_import_layout = upload_data(
     [
         Output("alert-message-isotopomer", "children"),
         Output("alert-message-isotopomer", "is_open"),
-        Output("local-metadata", "data"),
+        Output("local-isotopomers-data", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
         # Output("data_citation", "children"),
@@ -301,36 +301,40 @@ spectrum_import_layout = upload_data(
         Input("upload-isotopomer-local", "contents"),
         Input("upload-isotopomer-url-submit", "n_clicks"),
         Input("example-isotopomer-dropbox", "value"),
+        Input("upload-from-graph", "contents"),
         # Input("json-file-editor", "n_blur_timestamp"),
     ],
     [
         State("upload-isotopomer-url", "value"),
         State("upload-isotopomer-local", "filename"),
         # State("json-file-editor", "value"),
-        State("local-metadata", "data"),
+        State("local-isotopomers-data", "data"),
         State("filename_dataset", "children"),
         State("data_description", "children"),
+        State("upload-from-graph", "filename"),
     ],
 )
 def update_isotopomers(
     isotopomer_upload_content,
     n_click,
     example,
+    from_graph_content,
     # time_of_editor_trigger,
     # states
     isotopomer_url,
     isotopomer_filename,
     # editor_value,
-    existing_data,
+    existing_isotopomers_data,
     data_title,
     data_info,
+    from_graph_filename,
 ):
     """Update the local isotopomers when a new file is imported."""
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
-    else:
-        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
@@ -351,7 +355,7 @@ def update_isotopomers(
             data = json.loads(response.read())
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_data, data_title, data_info]
+            return [message, True, existing_isotopomers_data, data_title, data_info]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
@@ -362,7 +366,21 @@ def update_isotopomers(
             data = parse_contents(isotopomer_upload_content, isotopomer_filename)
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_data, data_title, data_info]
+            return [message, True, existing_isotopomers_data, data_title, data_info]
+
+    # The following section applies to when the isotopomers update is triggered from
+    # a user drag and drop on the graph.
+    if trigger_id == "upload-from-graph":
+        if from_graph_content is None:
+            raise PreventUpdate
+        if from_graph_filename.split(".")[1] != "json":
+            raise PreventUpdate
+        try:
+            data = parse_contents(from_graph_content, from_graph_filename)
+        except Exception:
+            message = "Error reading isotopomers."
+            return [message, True, existing_isotopomers_data, data_title, data_info]
+
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
     # if max_ == time_of_editor_trigger:
@@ -424,19 +442,31 @@ def parse_contents(contents, filename):
         Input("upload-spectrum-local", "contents"),
         Input("upload-from-graph", "contents"),
     ],
-    [State("local-csdm-data", "data")],
+    [State("local-csdm-data", "data"), State("upload-from-graph", "filename")],
 )
-def update_csdm_file(csdm_upload_content, csdm_upload_content_graph, existing_data):
+def update_csdm_file(
+    csdm_upload_content, csdm_upload_content_graph, existing_data, filename
+):
     """Update a local CSDM file."""
     ctx = dash.callback_context
-    # print(ctx.triggered)
+    print(ctx.triggered[0]["prop_id"])
     if csdm_upload_content is None and csdm_upload_content_graph is None:
         raise PreventUpdate
 
     if not ctx.triggered:
         raise PreventUpdate
-    else:
-        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    file_extension = filename.split(".")[1]
+    if file_extension not in ["csdf", "json"]:
+        return [
+            f"Expecting a .csdf or .json file, found .{file_extension}.",
+            True,
+            existing_data,
+        ]
+    if file_extension != "csdf":
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if trigger_id == "upload-spectrum-local":
         content_string = csdm_upload_content
@@ -445,9 +475,22 @@ def update_csdm_file(csdm_upload_content, csdm_upload_content_graph, existing_da
 
     content_string = content_string.split(",")[1]
     decoded = base64.b64decode(content_string)
-    try:
-        data = json.loads(str(decoded, encoding="UTF-8"))
+    success, data, error_message = load_json(decoded)
+    if success:
         return ["", False, data]
-    except Exception:
-        message = "Error reading CSDM file."
-        return [message, True, existing_data]
+    else:
+        return [f"Invalid JSON file. {error_message}", True, existing_data]
+
+
+def load_json(content):
+    """Load a JSON file. Return a list with members
+        - Success: True if file is read correctly,
+        - Data: File content is success, otherwise an empty string,
+        - message: An error message when JSON file load fails, else an empty string.
+    """
+    content = str(content, encoding="UTF-8")
+    try:
+        data = cp.loads(content).to_dict()
+        return True, data, ""
+    except Exception as e:
+        return False, "", e

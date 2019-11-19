@@ -45,11 +45,11 @@ integration_volume = dbc.Row(
             dcc.Dropdown(
                 id="integration_volume",
                 options=[
-                    {"label": "Octant", "value": 0},
-                    {"label": "Hemisphere", "value": 1},
+                    {"label": "Octant", "value": "octant"},
+                    {"label": "Hemisphere", "value": "hemisphere"},
                     # {"label": "Sphere", "value": 2},
                 ],
-                value=0,
+                value="octant",
                 clearable=False,
                 searchable=False,
             )

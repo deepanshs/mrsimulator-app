@@ -27,9 +27,11 @@ scale_amplitude_button = custom_switch(
     text="Normalize",
     icon_classname="fas fa-arrows-alt-v",
     id="normalize_amp",
-    tooltip="Scale maximum amplitude to one.",
+    size="sm",
+    # tooltip="Scale maximum amplitude to one.",
     outline=True,
     color="dark",
+    style={"zIndex": 0},
 )
 
 
@@ -38,9 +40,11 @@ decompose_button = custom_switch(
     text="Decompose",
     icon_classname="fac fa-decompose",
     id="decompose",
-    tooltip="Show simulation from individual isotopomers.",
+    size="sm",
+    # tooltip="Show simulation from individual isotopomers.",
     outline=True,
     color="dark",
+    style={"zIndex": 0},
 )
 
 # Button group ---------------------------------------------------------------------- #
@@ -69,7 +73,7 @@ download_layout = [
     custom_button(
         icon_classname="fas fa-download",
         id="download-button",
-        tooltip="Download dataset",
+        # tooltip="Download dataset",
         outline=True,
         color="dark",
     )

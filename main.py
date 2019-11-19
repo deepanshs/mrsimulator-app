@@ -41,7 +41,7 @@ server = app.server
 
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
-    [Output("local-computed-data", "data"), Output("larmor_frequency-0", "data")],
+    [Output("local-computed-data", "data"), Output("local-dimension-data", "data")],
     [
         Input("rotor_frequency-0", "value"),
         Input("rotor_angle-0", "value"),
@@ -55,7 +55,7 @@ server = app.server
     [
         State("integration_density", "value"),
         State("integration_volume", "value"),
-        State("local-metadata", "data"),
+        State("local-isotopomers-data", "data"),
     ],
 )
 def simulation(
@@ -71,7 +71,7 @@ def simulation(
     # state
     integration_density,
     integration_volume,
-    local_metadata,
+    local_isotopomers_data,
 ):
     """Evaluate the spectrum and update the plot."""
     # exit when the following conditions are True
@@ -83,11 +83,11 @@ def simulation(
     if not ctx.triggered:
         raise PreventUpdate
     else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
         value = ctx.triggered[0]["value"]
         if value in [None, "", ".", "-"]:
             raise PreventUpdate
-        if "isotope_id" not in button_id:
+        if "isotope_id" not in trigger_id:
             try:
                 float(value)
             except ValueError:
@@ -98,65 +98,80 @@ def simulation(
 
     magnetic_flux_density = spectrometer_frequency / 42.57748
 
-    sim = Simulator()
     dim = {
         "isotope": isotope_id,
-        "magnetic_flux_density": str(magnetic_flux_density * 100) + " T",
-        "rotor_frequency": str(rotor_frequency) + " kHz",
-        "rotor_angle": str(rotor_angle) + " deg",
+        "magnetic_flux_density": float(magnetic_flux_density) * 100,  # in T
+        "rotor_frequency": float(rotor_frequency) * 1000,  # in Hz
+        "rotor_angle": float(rotor_angle) * np.pi / 180.0,  # in rad
         "number_of_points": 2 ** number_of_points,
-        "spectral_width": str(spectral_width) + " kHz",
-        "reference_offset": str(reference_offset) + " kHz",
-        "nt": integration_density,
+        "spectral_width": float(spectral_width) * 1000,  # in Hz
+        "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
-    sim.spectrum = [Dimension.parse_dict_with_units(dim)]
-    abs_larmor_freq = abs(sim.spectrum[0].larmor_frequency)
+    print("simulate")
+    sim = Simulator()
+    sim.dimensions = [Dimension(**dim)]
     sim.isotopomers = [
-        Isotopomer.parse_dict_with_units(item) for item in local_metadata["isotopomers"]
+        Isotopomer.parse_dict_with_units(item)
+        for item in local_isotopomers_data["isotopomers"]
     ]
 
-    sim.run(
-        one_d_spectrum,
-        geodesic_polyhedron_frequency=integration_density,
-        individual_spectrum=True,
-        averaging=integration_volume,
-    )
+    sim.config.integration_density = integration_density
+    sim.config.decompose = True
+    sim.config.integration_volume = integration_volume
 
+    sim.run(one_d_spectrum)
+
+    dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
     local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
-    return [local_computed_data, abs_larmor_freq]
+    return [local_computed_data, dim]
 
 
 @app.callback(
-    [Output("spectral_width-0", "value"), Output("reference_offset-0", "value")],
-    # Output("buffer", "className"),
+    [Output("reference_offset-0", "value"), Output("spectral_width-0", "value")],
     [Input("nmr_spectrum", "relayoutData")],
-    [
-        State("larmor_frequency-0", "data"),
-        State("number_of_points-0", "value"),
-        State("spectral_width-0", "value"),
-    ],
+    [State("local-dimension-data", "data")],
 )
-def display_relayout_data(relayoutData, larmor_freq, npts, sw):
-    if relayoutData is None:
-        raise PreventUpdate
-    keys = relayoutData.keys()
-    if "xaxis.range[0]" not in keys:
-        raise PreventUpdate
-    if "yaxis.range[0]" in keys:
-        raise PreventUpdate
-    if None in [
-        relayoutData["xaxis.range[0]"],
-        relayoutData["xaxis.range[1]"],
-        larmor_freq,
-    ]:
+def display_relayout_data(relayoutData, dimension_data):
+    print(relayoutData)
+    if None in [relayoutData, dimension_data]:
         raise PreventUpdate
 
-    x_min = relayoutData["xaxis.range[0]"] * larmor_freq
-    x_max = relayoutData["xaxis.range[1]"] * larmor_freq
-    increment = float(sw) * 1000 / (2 ** npts)
+    keys = relayoutData.keys()
+
+    if dimension_data["larmor_frequency"] is None:
+        raise PreventUpdate
+    if "yaxis.range[0]" in keys or "yaxis.range[1]" in keys:
+        raise PreventUpdate
+    if "xaxis.range[0]" not in keys and "xaxis.range[1]" not in keys:
+        raise PreventUpdate
+
+    larmor_frequency = dimension_data["larmor_frequency"] / 1e6  # to MHz
+    factor = 1
+    if larmor_frequency < 0:
+        factor = -1
+    larmor_frequency = abs(larmor_frequency)
+
+    # old increment
+    sw = float(dimension_data["spectral_width"])  # in Hz
+    rf = float(dimension_data["reference_offset"])  # in Hz
+    increment = sw / dimension_data["number_of_points"]  # in Hz
+
+    # new x-min in Hz, larmor_frequency is in MHz
+    if "xaxis.range[0]" in keys and relayoutData["xaxis.range[0]"] is not None:
+        x_min = relayoutData["xaxis.range[0]"] * larmor_frequency
+    else:
+        x_min = sw / 2.0 + rf - increment
+
+    # new x-max in Hz, larmor_frequency is in MHz
+    if "xaxis.range[1]" in keys and relayoutData["xaxis.range[1]"] is not None:
+        x_max = relayoutData["xaxis.range[1]"] * larmor_frequency
+    else:
+        x_max = -sw / 2.0 + rf
+
+    # new spectral-width and reference offset in Hz
     sw_ = x_min - x_max + increment
-    ref_offset = x_max + sw_ / 2.0
-    return ["{0:.5f}".format(sw_ / 1000.0), "{0:.5f}".format(ref_offset / 1000.0)]
+    ref_offset = (x_max + sw_ / 2.0) * factor
+    return ["{0:.5f}".format(ref_offset / 1000.0), "{0:.5f}".format(abs(sw_) / 1000.0)]
 
 
 @app.callback(
@@ -308,7 +323,7 @@ def plot_1D(
 
 @app.callback(
     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
-    [Input("local-metadata", "data")],
+    [Input("local-isotopomers-data", "data")],
 )
 def update_isotope_list(data):
     if data is None:

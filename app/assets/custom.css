@@ -14,7 +14,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 #top-navbar {
   z-index: 4;
-  background-color: #343942;
 }
 
 #bottom-navbar {
@@ -38,17 +37,14 @@ html {
   color: silver;
 }
 
-.nav-link:hover {
-  color: white;
-}
-
+.nav-link:hover,
 .secondary-nav-link:hover {
   color: white;
-  background: linear-gradient(to bottom, #1f1f1f75 0%, #1d1d1d 100%);
-  /* background: linear-gradient(to bottom, #a7a7a775 0%, #cecece 100%); */
+}
+.secondary-nav-link:hover {
+  background-color: #252931;
   border-radius: 0px;
 }
-
 /* button contents */
 
 .button .no-round {
@@ -69,7 +65,7 @@ html {
 
 /* card properties */
 
-.drawer-card {
+.top-navbar {
   position: relative;
   z-index: 1;
   background: #343942;
@@ -92,7 +88,8 @@ html {
 .my-card-sidebar {
   position: relative !important;
   overflow: hidden;
-  border-radius: 0.5em;
+  min-height: 12vh;
+  border-radius: 0.8em;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
   background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
@@ -169,6 +166,10 @@ html {
 }
 
 @media only screen and (max-width: 992px) {
+  .master-padding {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
   .hide-label {
     display: none;
   }

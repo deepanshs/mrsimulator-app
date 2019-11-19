@@ -63,4 +63,4 @@ def post_simulation(function, csdm_object, **kwargs):
 if __name__ == "__main__":
     import numpy
 
-    line_broadening(numpy.asarray([1, 2]), 2, 0)
+    line_broadening(numpy.asarray([-1, 0, 1]), numpy.asarray([0, 1, 0]), 2, 0)

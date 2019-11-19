@@ -22,10 +22,10 @@ sub_body = html.Div(
                 dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=5, xl=5),
             ]
         ),
-        dcc.Store(id="local-metadata", storage_type="memory"),
+        dcc.Store(id="local-isotopomers-data", storage_type="memory"),
         dcc.Store(id="local-csdm-data", storage_type="memory"),
         dcc.Store(id="local-computed-data", storage_type="memory"),
-        dcc.Store(id="larmor_frequency-0", storage_type="memory"),
+        dcc.Store(id="local-dimension-data", storage_type="memory"),
     ]
 )
 

@@ -1,47 +1,48 @@
 {
-    "name": "wollastonite, (Ca₃Si₃O₉)",
-    "description": "A high-temperature calcium-silicate. [Hansen et al. DOI: 10.1021/ic020647f](https://pubs.acs.org/doi/abs/10.1021/ic020647f)",
-    "isotopomers" : [
+  "name": "Wollastonite, (Ca₃Si₃O₉)",
+  "description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
+  "isotopomers": [
     {
-        "name": "Q2 (1)",
-        "sites": [
-            {
-                "isotope": "29Si",
-                "isotropic_chemical_shift": "-87.8 ppm",
-                "shielding_symmetric": {
-                    "zeta": "-69.4 ppm",
-                    "eta": 0.6
-                }
-            }
-        ],
-        "abundance": "100 %"
-    },
-    {   "name": "Q2 (2)",
-        "sites": [
-            {
-                "isotope": "29Si",
-                "isotropic_chemical_shift": "-89 ppm",
-                "shielding_symmetric": {
-                    "zeta": "-59.8 ppm",
-                    "eta": 0.62
-                }
-            }
-        ],
-    "abundance": "100 %"
+      "name": "Q2 (1)",
+      "sites": [
+        {
+          "isotope": "29Si",
+          "isotropic_chemical_shift": "-87.8 ppm",
+          "shielding_symmetric": {
+            "zeta": "-69.4 ppm",
+            "eta": 0.6
+          }
+        }
+      ],
+      "abundance": "100 %"
     },
     {
-        "name": "Q2 (3)",
-        "sites": [
-            {
-                "isotope": "29Si",
-                "isotropic_chemical_shift": "-89.5 ppm",
-                "shielding_symmetric": {
-                    "zeta": "-52.1 ppm",
-                    "eta": 0.68
-                }
-            }
-        ],
-    "abundance": "100 %"
+      "name": "Q2 (2)",
+      "sites": [
+        {
+          "isotope": "29Si",
+          "isotropic_chemical_shift": "-89 ppm",
+          "shielding_symmetric": {
+            "zeta": "-59.8 ppm",
+            "eta": 0.62
+          }
+        }
+      ],
+      "abundance": "100 %"
+    },
+    {
+      "name": "Q2 (3)",
+      "sites": [
+        {
+          "isotope": "29Si",
+          "isotropic_chemical_shift": "-89.5 ppm",
+          "shielding_symmetric": {
+            "zeta": "-52.1 ppm",
+            "eta": 0.68
+          }
+        }
+      ],
+      "abundance": "100 %"
     }
-]
+  ]
 }

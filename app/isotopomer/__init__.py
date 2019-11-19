@@ -141,7 +141,7 @@ slide_from_left = html.Div(
     [State("myNav", "style")],
 )
 def callback_overlay(n1, n2, style):
-    if n1 == n2 is None:
+    if n1 is n2 is None:
         style["width"] = "0%"
         return style
     max_ = max(i for i in [n1, n2] if i is not None)

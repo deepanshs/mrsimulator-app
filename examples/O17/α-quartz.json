@@ -1,0 +1,19 @@
+{
+  "name": "α-quartz",
+  "description": "",
+  "isotopomers": [
+    {
+      "name": "α-quartz",
+      "sites": [
+        {
+          "isotope": "17O",
+          "isotropic_chemical_shift": "39 ppm",
+          "quadrupolar": {
+            "Cq": "5.25 MHz",
+            "eta": 0.18
+          }
+        }
+      ]
+    }
+  ]
+}
