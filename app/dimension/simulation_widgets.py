@@ -20,13 +20,13 @@ def coordinate_grid(i):
             i: An integer with the dimension index.
     """
     # number of points
-    range_num = [8, 10, 12, 14, 16]
+    range_num = [7, 8, 10, 12, 14, 16, 18]
     list_of_numbers = {i: f"{2 ** i}" for i in range_num}
     number_of_points = custom_slider(
         label="Number of points",
         return_function=lambda x: 2 ** x,
         min=7,
-        max=17,
+        max=18,
         step=1,
         value=11,
         marks=list_of_numbers,
@@ -67,17 +67,17 @@ def environment(i):
     """
     # spectrometer frequency
     field_strength = {
-        2: "200 MHz",
+        1: "100 MHz",
         4: "400 MHz",
-        6: "600 MHz",
-        8: "0.8 GHz",
+        7: "700 MHz",
         10: "1 GHz",
+        13: "1.3 GHz",
     }
     spectrometer_frequency = custom_slider(
         label="Spectrometer frequency @1H",
         return_function=lambda x: f"{int(x*100)} MHz" if x < 10 else f"{x/10} GHz",
         min=1,
-        max=12,
+        max=13,
         step=0.5,
         value=4,
         marks=field_strength,

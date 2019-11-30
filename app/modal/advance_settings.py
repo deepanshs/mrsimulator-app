@@ -19,6 +19,23 @@ from app.app import app
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
+# Number of sidebands to evaluate.
+number_of_sidebands = dbc.Row(
+    [
+        dbc.Col(dbc.Label("Number of sidebands")),
+        dbc.Col(
+            dbc.Input(
+                type="number",
+                value=64,
+                min=1,
+                max=4096,
+                step=1,
+                id="number_of_sidebands",
+            )
+        ),
+    ]
+)
+
 # Number of triangles along the edge of octahedron.
 integration_density = dbc.Row(
     [
@@ -26,8 +43,7 @@ integration_density = dbc.Row(
         dbc.Col(
             dbc.Input(
                 type="number",
-                value=35,
-                # type="slider",
+                value=70,
                 min=1,
                 max=4096,
                 step=1,
@@ -71,10 +87,12 @@ def update_number_of_orientations(integration_density, integration_volume):
     Update the number of orientation for powder averaging.
     Option for advance modal.
     """
+    if integration_density in [None, "", ".", "-"]:
+        raise PreventUpdate
     ori = int((integration_density + 1) * (integration_density + 2) / 2)
-    if integration_volume == 0:
+    if integration_volume == "octant":
         return f"Averaging over {ori} orientations."
-    if integration_volume == 1:
+    if integration_volume == "hemisphere":
         return f"Averaging over {4*ori} orientations."
 
 
@@ -84,7 +102,14 @@ advance_settings = dbc.Modal(
     [
         dbc.ModalHeader("Advance setting"),
         dbc.ModalBody(
-            dbc.FormGroup([integration_density, integration_volume, integration_info])
+            dbc.FormGroup(
+                [
+                    integration_density,
+                    integration_volume,
+                    integration_info,
+                    number_of_sidebands,
+                ]
+            )
         ),
         dbc.ModalFooter(
             dbc.Button(

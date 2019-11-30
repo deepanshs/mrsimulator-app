@@ -52,7 +52,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             dcc.Dropdown(
                 id=f"example-{prepend_id}-dropbox",
                 options=options,
-                searchable=False,
+                searchable=True,
                 clearable=True,
                 placeholder="Select an example ... ",
                 style={"zIndex": "10"},
@@ -436,15 +436,15 @@ def parse_contents(contents, filename):
     [
         Output("alert-message-spectrum", "children"),
         Output("alert-message-spectrum", "is_open"),
-        Output("local-csdm-data", "data"),
+        Output("loca-exp-external-data", "data"),
     ],
     [
         Input("upload-spectrum-local", "contents"),
         Input("upload-from-graph", "contents"),
     ],
-    [State("local-csdm-data", "data"), State("upload-from-graph", "filename")],
+    [State("loca-exp-external-data", "data"), State("upload-from-graph", "filename")],
 )
-def update_csdm_file(
+def update_exp_external_file(
     csdm_upload_content, csdm_upload_content_graph, existing_data, filename
 ):
     """Update a local CSDM file."""

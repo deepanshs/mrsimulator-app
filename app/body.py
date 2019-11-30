@@ -23,7 +23,7 @@ sub_body = html.Div(
             ]
         ),
         dcc.Store(id="local-isotopomers-data", storage_type="memory"),
-        dcc.Store(id="local-csdm-data", storage_type="memory"),
+        dcc.Store(id="loca-exp-external-data", storage_type="memory"),
         dcc.Store(id="local-computed-data", storage_type="memory"),
         dcc.Store(id="local-dimension-data", storage_type="memory"),
     ]
@@ -69,6 +69,8 @@ app_1 = dbc.Container(
         ),
         html.Div(body),
         about_modal,
+        # dcc.Location(id="download-csdm-file", refresh=True),
+        # dcc.Location(id="download-csv-file", refresh=True),
         # test,
         # dbc.Jumbotron(),
         navbar.navbar_bottom,

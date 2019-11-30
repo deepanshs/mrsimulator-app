@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
@@ -8,8 +7,10 @@ from dash.dependencies import Output
 from dash.dependencies import State
 
 from app.app import app
-from app.toolbar import collapsible_download_menu
+from app.modal.help import simulation_help
 from app.toolbar import toolbar
+
+# from app.toolbar import collapsible_download_menu
 
 # from app.custom_widgets import custom_hover_help
 
@@ -17,45 +18,15 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-def get_icon_with_description(icon, description):
-    return html.Div(
-        [html.I(className=icon), html.Div(description, className="pl-1 pr-2")],
-        className="d-flex align-items-start justify-content-start p-1",
-    )
-
-
-help_message = html.Div(
-    [
-        get_icon_with_description(
-            "fas fa-arrows-alt-v", "Scale maximum amplitude to one."
-        ),
-        get_icon_with_description(
-            "fac fa-decompose", "Show spectrum from individual isotopomers."
-        ),
-        get_icon_with_description(
-            "fas fa-download", "Download dataset as `.csdf` or `.csv` format."
-        ),
-    ]
-)
-
-
 button = html.Div(
     html.I(className="fas fa-question-circle pl-1"), id="pop-up-simulation-button"
 )
 
-help_popup = dbc.Popover(
-    [dbc.PopoverHeader("The simulated spectrum"), dbc.PopoverBody(help_message)],
-    id="pop-up-simulation-help",
-    is_open=False,
-    placement="auto",
-    target="pop-up-simulation-button",
-)
-
 
 @app.callback(
-    Output("pop-up-simulation-help", "is_open"),
+    Output("modal-simulation-help", "is_open"),
     [Input("pop-up-simulation-button", "n_clicks")],
-    [State("pop-up-simulation-help", "is_open")],
+    [State("modal-simulation-help", "is_open")],
 )
 def toggle_popover(n, is_open):
     if n:
@@ -95,7 +66,7 @@ plotly_graph = dcc.Graph(
                 "easing": "sin-out",
                 "ordering": "traces first",
             },
-            margin={"l": 50, "b": 45, "t": 5, "r": 5},
+            margin={"l": 60, "b": 45, "t": 5, "r": 5},
             legend={"x": 0, "y": 1},
             hovermode="closest",
             paper_bgcolor="rgba(255,255,255,0.1)",
@@ -148,9 +119,8 @@ spectrum_body = html.Div(
                 ],
                 className=f"p-2 justify-content-between {className}",
             ),
-            collapsible_download_menu,
             html.Div(plotly_graph),
-            help_popup,
+            simulation_help,
         ],
         id="upload-from-graph",
         disable_click=True,

@@ -130,7 +130,8 @@ def toggle_navbar_collapse(n, is_open):
 # The navgation bar displayed at the bottom of the web app.
 navbar_bottom = dbc.Navbar(
     html.Div(
-        [dbc.Label("mrsimulator 2018-2019", color="light")], id="bottom-navbar-content"
+        [dbc.Label(f"@mrsimulator, 2018-2019", color="light")],
+        id="bottom-navbar-content",
     ),
     color="dark",
     sticky="bottom",

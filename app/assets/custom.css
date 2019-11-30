@@ -12,6 +12,10 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+.button {
+  padding: 1px;
+}
+
 #top-navbar {
   z-index: 4;
 }
@@ -60,6 +64,12 @@ html {
 .formtext {
   font-size: 0.9rem;
   color: #bed5fa;
+  padding: 0 none;
+}
+
+.formtext-dark {
+  font-size: 0.85rem;
+  color: #464646;
   padding: 0 none;
 }
 

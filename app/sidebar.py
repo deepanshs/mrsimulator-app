@@ -5,6 +5,13 @@ import dash_html_components as html
 from app.custom_widgets import custom_button
 from app.modal.file_info import file_info
 
+# from dash.dependencies import Input
+# from dash.dependencies import Output
+# from dash.dependencies import State
+# from dash.exceptions import PreventUpdate
+# from app.app import app
+# from app.isotopomer import display_isotopomers
+
 colors = {"background": "#e2e2e2", "text": "#585858"}
 
 # Info ------------------------------------------------------------------------------ #
@@ -95,10 +102,37 @@ filename_datetime = html.Div(
 
 
 sidebar = dbc.Card(
-    dbc.CardBody([filename_datetime]),
-    # text_area_collapsible]),
-    # slide_from_left]),
+    dbc.CardBody(
+        [
+            filename_datetime,
+            # text_area_collapsible]),
+            # slide_from_left]),
+            # html.Div([], id="add-isotopomers"),
+        ]
+    ),
     className="h-100 my-card-sidebar",
     inverse=False,
     id="sidebar",
 )
+
+
+# @app.callback(
+#     Output("add-isotopomers", "children"),
+#     [Input("add-isotopomer-button", "n_click")],
+#     [State("add-isotopomers", "children"),],
+# )
+# def update_isotopomer(n1, children):
+#     return children.append(add_isotopomer())
+
+
+# @app.callback(
+#     Output("add-isotopomers", "children"), [Input("local-isotopomers-data", "data")],
+# )
+# def update_isotopomer(data):
+#     print(data)
+#     if data is None:
+#         raise PreventUpdate
+#     children = []
+#     # for item in data["isotopomers"]:
+#     children.append(display_isotopomers(data["isotopomers"]))
+#     return children

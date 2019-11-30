@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from copy import deepcopy
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input
@@ -6,31 +8,134 @@ from dash.dependencies import Output
 from dash.dependencies import State
 
 from app.app import app
+from app.custom_widgets import custom_input_group
+
+keywords_site = [
+    "name",
+    "isotope",
+    "isotropic_chemical_shift",
+    ["zeta", "eta", "alpha", "beta", "gamma"],
+    ["Cq", "eta", "alpha", "beta", "gamma"],
+]
+keywords_site_display = [
+    "name",
+    "isotope",
+    "δ",
+    ["ζ", "η", "α", "β", "γ"],
+    ["Cq", "η", "α", "β", "γ"],
+]
+units_site = [
+    "",
+    "",
+    "ppm",
+    ["ppm", "", "rad", "rad", "rad"],
+    ["MHz", "", "rad", "rad", "rad"],
+]
 
 # with open("app/isotopomer/test.json", "r") as f:
 #     input_ = json.load(f)
 
 
-# def custom_form_group(prepend_label="", **kwargs):
-#     if "step" not in kwargs.keys():
-#         kwargs["step"] = 1e-5
-#     return dbc.InputGroup(
-#         [
-#             dbc.Label(
-#                 prepend_label,
-#                 className="append-addon form-control .form-control-sm, tree-control",
-#                 size="sm",
-#                 style={"width": "30%"},
-#             ),
-#             dbc.Input(
-#                 type="text",
-#                 bs_size="sm",
-#                 className=("append-addon form-control .form-control-sm ",
-#                           "tree-control tree-control-input"),
-#                 **kwargs,
-#             ),
-#         ]
-#     )
+def add_sites(data):
+    print(data)
+    rows = []
+    for k_d, k, u in zip(keywords_site_display, keywords_site, units_site):
+        if isinstance(k, list):
+            for k_1d, k_1, u_1 in zip(k_d, k, u):
+                if k_1 not in data:
+                    value = None
+                else:
+                    value = data[k_1]
+                rows.append(
+                    custom_input_group(
+                        prepend_label=k_1d, append_label=u_1, value=value, size="1"
+                    )
+                )
+        else:
+            if k not in data:
+                value = None
+            else:
+                value = data[k]
+            rows.append(
+                custom_input_group(
+                    prepend_label=k_d, append_label=u, value=value, size="2"
+                )
+            )
+    return dbc.Card(rows)
+
+
+keywords_isotopomers = ["name", "sites", "abundance"]
+
+
+def add_isotopomers(data):
+    rows = []
+    for k in keywords_isotopomers:
+        if k == "sites":
+            for site in data["sites"]:
+                rows.append(add_sites(site))
+    return dbc.Card(rows)
+
+
+display_symbols = {
+    "zeta": "ζ",
+    "eta": "η",
+    "alpha": "α",
+    "beta": "β",
+    "gamma": "γ",
+    "Cq": "Cq",
+}
+
+classname_1 = "d-flex justify-content-between align-content-center formtext-dark"
+
+
+def display_sites(sites):
+    div = []
+    for site in sites:
+        for k, v in site.items():
+            if isinstance(v, dict):
+                value = []
+                for k_1, v_1 in v.items():
+                    value.append(
+                        html.Div(
+                            [html.Div(display_symbols[k_1]), html.Div(v_1)],
+                            className=classname_1,
+                        )
+                    )
+                v = value
+            div.append(html.Div([html.Div(k), html.Div(v)], className=classname_1))
+    return html.Div(div)
+
+
+def display_isotopomers(isotopomers):
+    div = []
+    sub_div = []
+    for i, isotopomer in enumerate(isotopomers):
+        # sub_div = []
+        if "name" not in isotopomer:
+            name = f"isotopomer-{i}"
+        else:
+            if isotopomer["name"] in ["", None]:
+                name = f"isotopomer-{i}"
+            else:
+                name = isotopomer["name"]
+        if "abundance" not in isotopomer:
+            abundance = "100%"
+        else:
+            abundance = isotopomer["abundance"]
+
+        header = dbc.CardHeader(
+            html.Div([html.Div(name), html.Div(abundance)], className=classname_1)
+        )
+        body = dbc.CardBody(display_sites(isotopomer["sites"]))
+        sub_div.append(dbc.Col(dbc.Card([header, body])))
+        if (i + 1) % 3 == 0:
+            div.append(dbc.Row(deepcopy(sub_div)))
+            sub_div = []
+    return html.Div([*div, dbc.Row(sub_div)])
+
+
+# with open("app/isotopomer/test.json", "r") as f:
+#     input_ = json.load(f)
 
 
 # def populate_key_value_from_object(object_dict, id_old):

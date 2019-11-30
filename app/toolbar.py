@@ -1,22 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
-import os
-import uuid
-
-import csdmpy as cp
-import dash
 import dash_bootstrap_components as dbc
-import flask
-import numpy as np
-from dash.dependencies import Input
-from dash.dependencies import Output
-from dash.dependencies import State
-from dash.exceptions import PreventUpdate
 
-from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_switch
-
+from app.modal.download import download_modal
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -24,10 +11,10 @@ __email__ = ["deepansh2012@gmail.com"]
 
 # Scale amplitude ------------------------------------------------------------------- #
 scale_amplitude_button = custom_switch(
-    text="Normalize",
+    # text="Normalize",
     icon_classname="fas fa-arrows-alt-v",
     id="normalize_amp",
-    size="sm",
+    # size="sm",
     # tooltip="Scale maximum amplitude to one.",
     outline=True,
     color="dark",
@@ -37,10 +24,10 @@ scale_amplitude_button = custom_switch(
 
 # Show spectrum from individual isotopomers ----------------------------------------- #
 decompose_button = custom_switch(
-    text="Decompose",
+    # text="Decompose",
     icon_classname="fac fa-decompose",
     id="decompose",
-    size="sm",
+    # size="sm",
     # tooltip="Show simulation from individual isotopomers.",
     outline=True,
     color="dark",
@@ -54,20 +41,6 @@ group_1_buttons = dbc.ButtonGroup(
 )
 
 
-# Download dataset ------------------------------------------------------------------ #
-# Download button
-collapsible_download_menu = dbc.Collapse(
-    [
-        dbc.DropdownMenuItem(
-            "Download as CSDM, (.csdf)", id="download_csdm", external_link="True"
-        ),
-        dbc.DropdownMenuItem(
-            "Download as CSV, (.csv)", id="download_csv", external_link="True"
-        ),
-    ],
-    id="download-collapse",
-)
-
 # layout for the button
 download_layout = [
     custom_button(
@@ -76,78 +49,9 @@ download_layout = [
         # tooltip="Download dataset",
         outline=True,
         color="dark",
-    )
+    ),
+    download_modal,
 ]
-
-
-# toggle download collapsible
-@app.callback(
-    Output("download-collapse", "is_open"),
-    [
-        Input("download-button", "n_clicks"),
-        Input("download_csdm", "n_clicks"),
-        Input("download_csv", "n_clicks"),
-    ],
-    [State("download-collapse", "is_open")],
-)
-def toggle_frame(n1, n2, n3, is_open):
-    if n1 is None:
-        raise PreventUpdate
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        raise PreventUpdate
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "download-button":
-        return not is_open
-    if button_id in ["download_csdm", "download_csv"]:
-        return False
-
-
-# Serialize the computed spectrum and download the serialized file.
-@app.server.route("/downloads/<path:path>")
-def serve_static(path):
-    root_dir = os.getcwd()
-    return flask.send_from_directory(
-        os.path.join(root_dir, "downloads"), path, as_attachment=True
-    )
-
-
-# update the link to the downloadable serialized file.
-@app.callback(
-    [Output("download_csdm", "href"), Output("download_csv", "href")],
-    [Input("download-button", "n_clicks")],
-    [State("local-computed-data", "data")],
-)
-def file_download_link(n_clicks, local_computed_data):
-    """Update the link to the downloadable file."""
-    if local_computed_data is None:
-        raise PreventUpdate
-    if n_clicks is None:
-        raise PreventUpdate
-
-    uuid_1 = uuid.uuid1()
-    relative_filename_csdm = os.path.join("downloads", f"{uuid_1}.csdf")
-    with open(relative_filename_csdm, "w") as f:
-        json.dump(local_computed_data, f)
-
-    relative_filename_csv = os.path.join("downloads", f"{uuid_1}.csv")
-    obj = cp.parse_dict(local_computed_data)
-    lst = []
-    header = []
-    lst.append(obj.dimensions[0].coordinates.to("Hz").value)
-    header.append("frequency / Hz")
-    for item in obj.dependent_variables:
-        lst.append(item.components[0])
-        header.append(
-            item.application["com.github.DeepanshS.mrsimulator"]["isotopomers"][0][
-                "name"
-            ]
-        )
-    header = ", ".join(header)
-    np.savetxt(relative_filename_csv, np.asarray(lst).T, delimiter=",", header=header)
-    return relative_filename_csdm, relative_filename_csv
 
 
 # Button group 1 -------------------------------------------------------------------- #

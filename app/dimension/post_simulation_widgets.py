@@ -21,27 +21,28 @@ def gaussian_linebroadening_widget(i):
     )
 
     broaden_range = {
-        0: "0",
-        200: "200",
-        400: "400",
-        600: "600",
-        800: "800",
-        1000: "1000",
+        0: "0 Hz",
+        200: "200 Hz",
+        400: "400 Hz",
+        600: "600 Hz",
+        800: "800 Hz",
+        1000: "1 kHz",
     }
     line_broadening = custom_slider(
         label="Line Broadening",
-        return_function=lambda x: f"\u03BB = {x/1000} kHz",
+        return_function=lambda x: f"\u03BB = {x/1000} kHz"
+        if x > 1000
+        else f"\u03BB = {x} Hz",
         min=0,
         max=1000,
         step=25,
-        value=25,
+        value=50,
         marks=broaden_range,
         id=f"broadening_points-{i}",
     )
 
     return html.Div(
-        [broadeningFunction, line_broadening, html.Br()],
-        className="collapsible-body-control form",
+        [broadeningFunction, line_broadening], className="collapsible-body-control form"
     )
 
     # return [line_broadening]

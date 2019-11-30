@@ -73,8 +73,7 @@ def custom_button(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         return dbc.Button(
             [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
         )
-    else:
-        return dbc.Button(label, id=id, **kwargs)
+    return dbc.Button(label, id=id, **kwargs)
 
 
 def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
@@ -126,7 +125,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            html.Div([dcc.Slider(**kwargs), html.P()], style={"paddingBottom": "10px"}),
+            dcc.Slider(**kwargs),
         ],
         className="my-auto d-flex flex-column",
     )

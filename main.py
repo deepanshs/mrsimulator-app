@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import csdmpy as cp
 import dash
-import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
@@ -27,10 +26,6 @@ from app.methods.post_simulation_functions import post_simulation
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
-test = html.Div(
-    className="upload-btn-wrapper",
-    children=[html.Button("Upload a file", className="btn"), dcc.Upload()],
-)
 
 app.layout = html.Div(
     app_1, className="wrapper", id="article1", **{"data-role": "page"}
@@ -55,6 +50,7 @@ server = app.server
     [
         State("integration_density", "value"),
         State("integration_volume", "value"),
+        State("number_of_sidebands", "value"),
         State("local-isotopomers-data", "data"),
     ],
 )
@@ -71,6 +67,7 @@ def simulation(
     # state
     integration_density,
     integration_volume,
+    number_of_sidebands,
     local_isotopomers_data,
 ):
     """Evaluate the spectrum and update the plot."""
@@ -118,6 +115,7 @@ def simulation(
     sim.config.integration_density = integration_density
     sim.config.decompose = True
     sim.config.integration_volume = integration_volume
+    sim.config.number_of_sidebands = number_of_sidebands
 
     sim.run(one_d_spectrum)
 
@@ -175,18 +173,18 @@ def display_relayout_data(relayoutData, dimension_data):
 
 
 @app.callback(
-    Output("nmr_spectrum", "figure"),
+    [Output("nmr_spectrum", "figure"), Output("local-processed-data", "data")],
     [
         Input("local-computed-data", "modified_timestamp"),
         Input("decompose", "active"),
-        Input("local-csdm-data", "modified_timestamp"),
+        Input("loca-exp-external-data", "modified_timestamp"),
         Input("normalize_amp", "active"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
     ],
     [
         State("local-computed-data", "data"),
-        State("local-csdm-data", "data"),
+        State("loca-exp-external-data", "data"),
         State("isotope_id-0", "value"),
         State("nmr_spectrum", "figure"),
     ],
@@ -199,12 +197,12 @@ def plot_1D(
     broadening,
     apodization,
     local_computed_data,
-    local_csdm_data,
+    local_exp_external_data,
     isotope_id,
     figure,
 ):
     """Generate and return a one-dimensional plot instance."""
-    if local_computed_data is None and local_csdm_data is None:
+    if local_computed_data is None and local_exp_external_data is None:
         raise PreventUpdate
 
     data = []
@@ -215,19 +213,19 @@ def plot_1D(
 
         local_computed_data = cp.parse_dict(local_computed_data)
 
-        local_computed_data = post_simulation(
+        local_processed_data = post_simulation(
             line_broadening,
             csdm_object=local_computed_data,
             sigma=broadening,
             broadType=apodization,
         )
 
-        origin_offset = local_computed_data.dimensions[0].origin_offset
+        origin_offset = local_processed_data.dimensions[0].origin_offset
         if origin_offset.value == 0.0:
-            x = local_computed_data.dimensions[0].coordinates.to("kHz").value
+            x = local_processed_data.dimensions[0].coordinates.to("kHz").value
         else:
             x = (
-                (local_computed_data.dimensions[0].coordinates / origin_offset)
+                (local_processed_data.dimensions[0].coordinates / origin_offset)
                 .to("ppm")
                 .value
             )
@@ -237,10 +235,10 @@ def plot_1D(
             maximum = 1.0
             if normalized:
                 y_data = 0
-                for datum in local_computed_data.dependent_variables:
+                for datum in local_processed_data.dependent_variables:
                     y_data += datum.components[0]
                     maximum = y_data.max()
-            for datum in local_computed_data.dependent_variables:
+            for datum in local_processed_data.dependent_variables:
                 name = datum.name
                 if name == "":
                     name = None
@@ -259,7 +257,7 @@ def plot_1D(
 
         else:
             y_data = 0
-            for datum in local_computed_data.dependent_variables:
+            for datum in local_processed_data.dependent_variables:
                 y_data += datum.components[0]
             if normalized:
                 y_data /= y_data.max()
@@ -274,21 +272,23 @@ def plot_1D(
                 )
             )
 
-    if local_csdm_data is not None:
-        local_csdm_data = cp.parse_dict(local_csdm_data)
+    if local_exp_external_data is not None:
+        local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
-        origin_offset = local_csdm_data.dimensions[0].origin_offset
+        origin_offset = local_exp_external_data.dimensions[0].origin_offset
         if origin_offset.value == 0.0:
-            x_spectrum = local_csdm_data.dimensions[0].coordinates.to("kHz").value
+            x_spectrum = (
+                local_exp_external_data.dimensions[0].coordinates.to("kHz").value
+            )
         else:
             x_spectrum = (
-                (local_csdm_data.dimensions[0].coordinates / origin_offset)
+                (local_exp_external_data.dimensions[0].coordinates / origin_offset)
                 .to("ppm")
                 .value
             )
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]
-        y_spectrum = local_csdm_data.dependent_variables[0].components[0]
+        y_spectrum = local_exp_external_data.dependent_variables[0].components[0]
         if normalized:
             y_spectrum /= np.abs(y_spectrum.max())
         data.append(
@@ -305,7 +305,7 @@ def plot_1D(
     layout = figure["layout"]
     layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
     data_object = {"data": data, "layout": go.Layout(**layout)}
-    return data_object
+    return [data_object, local_processed_data.to_dict(update_timestamp=True)]
 
 
 # line={"shape": "hv", "width": 1},

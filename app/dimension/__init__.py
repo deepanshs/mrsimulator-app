@@ -39,28 +39,30 @@ def make_dimension(i):
                 **column_response,
             ),
             dbc.Col(
-                custom_collapsible(
-                    text="Coordinate grid",
-                    identity=f"coordinate_grid_id-{i}",
-                    children=coordinate_grid(i),
-                )
+                [
+                    custom_collapsible(
+                        text="Line broadening",
+                        identity=f"post_simulation_id-{i}",
+                        children=gaussian_linebroadening_widget(i),
+                        hide=False,
+                    ),
+                    custom_collapsible(
+                        text="Coordinate grid",
+                        identity=f"coordinate_grid_id-{i}",
+                        children=coordinate_grid(i),
+                        is_open=False,
+                    ),
+                ],
+                **column_response,
             ),
         ]
     )
-    row2 = dbc.Row(
-        [
-            dbc.Col(
-                custom_collapsible(
-                    text="Line broadening",
-                    identity=f"post_simulation_id-{i}",
-                    children=gaussian_linebroadening_widget(i),
-                    hide=False,
-                ),
-                **column_response,
-            )
-        ]
-    )
-    dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1, row2])
+    # row2 = dbc.Row(
+    #     [
+
+    #     ]
+    # )
+    dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1])
 
     return dimension_contents
 
