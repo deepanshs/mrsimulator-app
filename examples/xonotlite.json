@@ -3,18 +3,18 @@
   "description": "A calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
   "isotopomers": [
     {
-      "name": "Q3",
+      "name": "Q3 (3)",
       "sites": [
         {
           "isotope": "29Si",
           "isotropic_chemical_shift": "-97.6 ppm",
           "shielding_symmetric": {
-            "zeta": "-33.3 ppm",
+            "zeta": "33.3 ppm",
             "eta": 0.02
           }
         }
       ],
-      "abundance": "100 %"
+      "abundance": "50 %"
     },
     {
       "name": "Q2 (1)",
