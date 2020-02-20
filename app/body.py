@@ -8,6 +8,7 @@ from app import navbar
 from app import sidebar
 from app.dimension import dimension_body
 from app.graph import spectrum_body
+from app.isotopomer import wd
 from app.modal.about import about_modal
 
 __author__ = "Deepansh J. Srivastava"
@@ -32,6 +33,7 @@ sub_body = html.Div(
 body = dbc.Row(
     [
         dbc.Col(sidebar.sidebar, xs=12, sm=12, md=12, lg=12, xl=3),
+        dbc.Col(wd, xs=12, sm=12, md=12, lg=12, xl=4),
         dbc.Col(
             [html.Div(sub_body), html.Div(id="isotopomer_computed_log")],
             xs=12,

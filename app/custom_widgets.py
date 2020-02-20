@@ -141,7 +141,7 @@ def custom_slider(label="", return_function=None, **kwargs):
     return slider
 
 
-def custom_input_group(prepend_label="", append_label="", **kwargs):
+def custom_input_group(prepend_label="", append_label="", check_box=None, **kwargs):
     """
         A custom dash bootstrap component input-group widget with a prepend-label,
         followed by an Input box, and an append-label.
@@ -151,7 +151,16 @@ def custom_input_group(prepend_label="", append_label="", **kwargs):
             append_label: A string to append dash-bootstrap-component Input widget.
             kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
+    box = None
+    if check_box is not None:
+        box = dcc.Checklist(
+            options=[{"label": "", "value": str(check_box)}],
+            value=[str(check_box)],
+            className="input-group-prepend",
+        )
+
     group = [
+        box,
         html.Div(
             html.Span(prepend_label, className="input-group-text"),
             className="input-group-prepend",
