@@ -76,7 +76,7 @@ def simulation(
         raise PreventUpdate
 
     ctx = dash.callback_context
-    print(ctx.triggered)
+    # print(ctx.triggered)
     if not ctx.triggered:
         raise PreventUpdate
     else:
@@ -104,7 +104,7 @@ def simulation(
         "spectral_width": float(spectral_width) * 1000,  # in Hz
         "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
-    print("simulate")
+    # print("simulate")
     sim = Simulator()
     sim.dimensions = [Dimension(**dim)]
     sim.isotopomers = [
@@ -130,7 +130,6 @@ def simulation(
     [State("local-dimension-data", "data")],
 )
 def display_relayout_data(relayoutData, dimension_data):
-    print(relayoutData)
     if None in [relayoutData, dimension_data]:
         raise PreventUpdate
 
@@ -177,14 +176,14 @@ def display_relayout_data(relayoutData, dimension_data):
     [
         Input("local-computed-data", "modified_timestamp"),
         Input("decompose", "active"),
-        Input("loca-exp-external-data", "modified_timestamp"),
+        Input("local-exp-external-data", "modified_timestamp"),
         Input("normalize_amp", "active"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
     ],
     [
         State("local-computed-data", "data"),
-        State("loca-exp-external-data", "data"),
+        State("local-exp-external-data", "data"),
         State("isotope_id-0", "value"),
         State("nmr_spectrum", "figure"),
     ],
@@ -220,24 +219,26 @@ def plot_1D(
             broadType=apodization,
         )
 
-        origin_offset = local_processed_data.dimensions[0].origin_offset
-        if origin_offset.value == 0.0:
-            x = local_processed_data.dimensions[0].coordinates.to("kHz").value
-        else:
-            x = (
-                (local_processed_data.dimensions[0].coordinates / origin_offset)
-                .to("ppm")
-                .value
-            )
+        try:
+            local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+        except:
+            pass
+
+        x = local_processed_data.dimensions[0].coordinates.value
         x0 = x[0]
         dx = x[1] - x[0]
+
+        # get the max data point
+        y_data = 0
+        maximum = 1.0
+        for datum in local_processed_data.split():
+            y_data += datum
+
+        if normalized:
+            maximum = y_data.max()
+            y_data /= maximum
+
         if decompose:
-            maximum = 1.0
-            if normalized:
-                y_data = 0
-                for datum in local_processed_data.dependent_variables:
-                    y_data += datum.components[0]
-                    maximum = y_data.max()
             for datum in local_processed_data.dependent_variables:
                 name = datum.name
                 if name == "":
@@ -256,16 +257,11 @@ def plot_1D(
                 )
 
         else:
-            y_data = 0
-            for datum in local_processed_data.dependent_variables:
-                y_data += datum.components[0]
-            if normalized:
-                y_data /= y_data.max()
             data.append(
                 go.Scatter(
                     x0=x0,
                     dx=dx,
-                    y=y_data,
+                    y=y_data.dependent_variables[0].components[0],
                     mode="lines",
                     line={"color": "black", "width": 1.2},
                     name=f"simulation",
@@ -275,17 +271,13 @@ def plot_1D(
     if local_exp_external_data is not None:
         local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
-        origin_offset = local_exp_external_data.dimensions[0].origin_offset
-        if origin_offset.value == 0.0:
-            x_spectrum = (
-                local_exp_external_data.dimensions[0].coordinates.to("kHz").value
-            )
-        else:
-            x_spectrum = (
-                (local_exp_external_data.dimensions[0].coordinates / origin_offset)
-                .to("ppm")
-                .value
-            )
+        try:
+            local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+        except:
+            pass
+
+        x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
+
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]
         y_spectrum = local_exp_external_data.dependent_variables[0].components[0]

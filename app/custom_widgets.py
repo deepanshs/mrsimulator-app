@@ -9,6 +9,8 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 
+# import dash_daq as daq
+
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
@@ -125,7 +127,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            dcc.Slider(**kwargs),
+            dcc.Slider(**kwargs, className="slider-custom"),
         ],
         className="my-auto d-flex flex-column",
     )
@@ -185,8 +187,8 @@ def custom_collapsible(
     children=None,
     is_open=True,
     size="md",
-    button_classname="collapsible-handle ripple",
-    collapse_classname="",
+    # button_classname="",  # ripple",
+    # collapse_classname="panel-collapse collapse in content",  # panel-collapse
     **kwargs,
 ):
     """
@@ -201,38 +203,33 @@ def custom_collapsible(
             button_classname: String. css classnames for button toggler.
             collapse_classname: String. css classnames for collapsible.
     """
+    options = {"data-toggle": "collapse", "data-target": f"#{identity}-collapse"}
+    options["aria-expanded"] = is_open
+
+    collapse_classname = "panel-collapse collapse in content"
+    if is_open:
+        collapse_classname += " show"
+
     layout = [
-        dbc.Button(
+        html.Button(
             html.Div(
                 [text, html.I(className="icon-action fas fa-chevron-down")],
                 className="d-flex justify-content-between align-items-center",
             ),
             # tooltip=tooltip,
             # icon=icon,
-            color="link",
-            size=size,
-            id=f"{identity}-button",
-            block=True,
             style={"color": "black"},
-            className=button_classname,
+            **{
+                "data-toggle": "collapse",
+                "data-target": f"#{identity}-collapse",
+                "aria-expanded": "true",
+            },
+            className=f"collapsible btn btn-link btn-block btn-{size}",
         ),
-        dbc.Collapse(
-            id=f"{identity}-collapse",
-            children=children,
-            is_open=is_open,
-            className=collapse_classname,
+        html.Div(
+            id=f"{identity}-collapse", children=children, className=collapse_classname
         ),
     ]
-
-    @app.callback(
-        Output(f"{identity}-collapse", "is_open"),
-        [Input(f"{identity}-button", "n_clicks")],
-        [State(f"{identity}-collapse", "is_open")],
-    )
-    def toggle_frame(n, is_open):
-        if n:
-            return not is_open
-        return is_open
 
     return html.Div(layout)
 

@@ -27,23 +27,16 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 # Select format
-select_format = dbc.Row(
-    [
-        dbc.Col(dbc.Label("Select format")),
-        dbc.Col(
-            dcc.Dropdown(
-                id="select-format",
-                options=[
-                    {"label": "Comma Separated Values, .csv", "value": "csv"},
-                    {"label": "Core Scientific Dataset Foramt, .csdf", "value": "csdf"},
-                ],
-                value="csdf",
-                clearable=False,
-                searchable=False,
-            )
-        ),
+select_format = dcc.Dropdown(
+    id="select-format",
+    options=[
+        {"label": "Comma Separated Values, (.csv)", "value": "csv"},
+        {"label": "Core Scientific Dataset Format, (.csdf)", "value": "csdf"},
     ],
-    # className="d-flex justify-content-between",
+    value="csdf",
+    clearable=False,
+    searchable=False,
+    className="justify-content-between align-items-center",
 )
 
 # Download link
@@ -67,25 +60,33 @@ def serve_static(path):
 @app.callback(
     Output("download-div", "children"),
     [Input("select-format", "value"), Input("download-button", "n_clicks")],
-    [State("local-computed-data", "data")],
+    [State("local-processed-data", "data"), State("decompose", "active")],
 )
-def file_download_link(format_value, fill, local_computed_data):
+def file_download_link(format_value, fill, local_processed_data, decompose):
     """Update the link to the downloadable file."""
-    if local_computed_data is None:
+    if local_processed_data is None:
         raise PreventUpdate
 
     uuid_1 = uuid.uuid1()
+
+    content = local_processed_data
+    if not decompose:
+        data = cp.parse_dict(local_processed_data)
+        d_ = 1
+        for item in data.split():
+            d_ += item
+        content = d_.to_dict(update_timestamp=True)
 
     if format_value == "csdf":
         filename = f"{uuid_1}.csdf"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
-            json.dump(local_computed_data, f)
+            json.dump(content, f)
 
     if format_value == "csv":
         filename = f"{uuid_1}.csv"
         relative_filename = os.path.join("downloads", filename)
-        obj = cp.parse_dict(local_computed_data)
+        obj = cp.parse_dict(content)
         lst = []
         header = []
         lst.append(obj.dimensions[0].coordinates.to("Hz").value)
@@ -100,7 +101,11 @@ def file_download_link(format_value, fill, local_computed_data):
         header = ", ".join(header)
         np.savetxt(relative_filename, np.asarray(lst).T, delimiter=",", header=header)
 
-    html_link = html.A(filename, href=relative_filename)
+    html_link = html.A(
+        html.I(className="fas fa-download fa-2x", style={"color": "Black"}),
+        href=relative_filename,
+        className="p-4 my-card d-flex justify-content-center",
+    )
     return html_link
 
 
@@ -108,7 +113,7 @@ def file_download_link(format_value, fill, local_computed_data):
 # model user-interface
 download_modal = dbc.Modal(
     [
-        dbc.ModalHeader("Download"),
+        dbc.ModalHeader("Select download format"),
         dbc.ModalBody(dbc.FormGroup([select_format, link])),
         dbc.ModalFooter(
             dbc.Button(
@@ -130,10 +135,12 @@ download_modal = dbc.Modal(
 @app.callback(
     Output("download-modal", "is_open"),
     [Input("download-button", "n_clicks"), Input("close_download_setting", "n_clicks")],
-    [State("download-modal", "is_open")],
+    [State("download-modal", "is_open"), State("local-processed-data", "data")],
 )
-def toggle_modal_setting(n1, n2, is_open):
+def toggle_modal_setting(n1, n2, is_open, local_processed_data):
     """Model window for advance input."""
+    if local_processed_data is None:
+        raise PreventUpdate
     if n1 is None and n2 is None:
         raise PreventUpdate
     if n1 or n2:

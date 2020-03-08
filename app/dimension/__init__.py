@@ -9,6 +9,13 @@ from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
 from app.modal.advance_settings import advance_settings
 
+# from dash.dependencies import Input
+# from dash.dependencies import Output
+# from dash.dependencies import State
+# from dash.exceptions import PreventUpdate
+# from app.app import app
+
+
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
 
@@ -74,11 +81,33 @@ dimension_body = html.Div(
         html.Div(
             [
                 html.H4("Dimensions", style={"fontWeight": "normal"}, className="pl-2"),
+                # dbc.Button("+", id="add-dimension"),
                 dimension_toolbar,
             ],
             className="d-flex justify-content-between p-2",
         ),
-        dbc.Tabs([make_dimension(i) for i in range(1)]),
+        dbc.Tabs(children=[make_dimension(i) for i in range(1)], id="dimension-tabs"),
     ],
     id="dimension-body",
 )
+
+
+# @app.callback(
+#     [Output("dimension-tabs", "children"),
+#      Output("local-dimension-max-index", "data")],
+#     [Input("add-dimension", "n_clicks")],
+#     [State("dimension-tabs", "children"),
+#      State("local-dimension-max-index", "data")],
+# )
+# def add_dimension_tab(n, children, max_index):
+#     if max_index == 1:
+#         raise PreventUpdate
+
+#     if max_index is None:
+#         max_index = 0
+
+#     if n:
+#         children.append(make_dimension(max_index + 1))
+#         return [children, max_index + 1]
+
+#     return [children, max_index]

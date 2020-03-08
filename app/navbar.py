@@ -8,6 +8,8 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from app.app import app
+from app.app import year
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -130,7 +132,7 @@ def toggle_navbar_collapse(n, is_open):
 # The navgation bar displayed at the bottom of the web app.
 navbar_bottom = dbc.Navbar(
     html.Div(
-        [dbc.Label(f"@mrsimulator, 2018-2019", color="light")],
+        [dbc.Label(f"@mrsimulator, 2018-{year}", color="light")],
         id="bottom-navbar-content",
     ),
     color="dark",
@@ -145,7 +147,7 @@ navbar_bottom = dbc.Navbar(
 import_isotopomer_button = dbc.Button(
     html.Div(
         [
-            html.I(className="fac fa-isotopomers-lg"),
+            html.I(className="fac fa-isotopomers fa-lg"),
             html.Div("Isotopomers", className="hide-label-xs pl-3"),
         ],
         className="d-flex align-items-center justify-content-center",

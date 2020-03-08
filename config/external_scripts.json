@@ -1,10 +1,14 @@
-[{
-        "src": "https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    },
-    {
-        "src": "https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
-    },
-    {
-        "src": "https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"
-    }
+[
+  {
+    "src": "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+  },
+  {
+    "src": "https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+  },
+  {
+    "src": "https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
+  },
+  {
+    "src": "https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"
+  }
 ]

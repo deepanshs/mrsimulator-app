@@ -123,8 +123,7 @@ html {
 
 /* collapsible group handle */
 
-.collapsible-handle,
-.collapsible-handle:hover {
+.collapsible {
   box-shadow: 0 0px 2px 0px #979797;
   z-index: 0;
   border-radius: 0.1em;
@@ -133,7 +132,15 @@ html {
   border-bottom: 1px solid rgb(194, 194, 194);
 }
 
-.collapsible-handle:hover {
+.content {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+}
+
+/* .active, */
+.collapsible:hover {
   box-shadow: 0 0px 3px 0px #979797;
   background-color: #e0eff3;
 }

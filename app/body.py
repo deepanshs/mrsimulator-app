@@ -22,10 +22,18 @@ sub_body = html.Div(
                 dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=5, xl=5),
             ]
         ),
+        # memory for holding the isotopomers data
         dcc.Store(id="local-isotopomers-data", storage_type="memory"),
-        dcc.Store(id="loca-exp-external-data", storage_type="memory"),
+        # memory for holding the exp data
+        dcc.Store(id="local-exp-external-data", storage_type="memory"),
+        # memory for holding the computationally expensive computed data.
         dcc.Store(id="local-computed-data", storage_type="memory"),
+        # memory for holding the computed + processed data. Processing over the
+        # computed data is less computationally expensive.
+        dcc.Store(id="local-processed-data", storage_type="memory"),
+        # memory for holding the dimension data
         dcc.Store(id="local-dimension-data", storage_type="memory"),
+        # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
     ]
 )
 

@@ -15,13 +15,14 @@ from dash.dependencies import Output
 from dash.exceptions import PreventUpdate
 
 from app.app import app
+from app.app import year
 
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-PATH = "static/"
+PATH = "config/"
 
 # Get info from JSON file.
 with open(PATH + "about.json", "r") as f:
@@ -64,7 +65,7 @@ tabs = dbc.Tabs(tabs_list)
 
 # Layout ----------------------------------------------------------------------
 about_modal = dbc.Modal(
-    [dbc.ModalHeader("Mrsimulator-app 2018-2019"), dbc.ModalBody(tabs)],
+    [dbc.ModalHeader(f"Mrsimulator-app 2018-{year}"), dbc.ModalBody(tabs)],
     size="lg",
     id="modal_about",
     role="document",

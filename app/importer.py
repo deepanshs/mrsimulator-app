@@ -436,20 +436,20 @@ def parse_contents(contents, filename):
     [
         Output("alert-message-spectrum", "children"),
         Output("alert-message-spectrum", "is_open"),
-        Output("loca-exp-external-data", "data"),
+        Output("local-exp-external-data", "data"),
     ],
     [
         Input("upload-spectrum-local", "contents"),
         Input("upload-from-graph", "contents"),
     ],
-    [State("loca-exp-external-data", "data"), State("upload-from-graph", "filename")],
+    [State("local-exp-external-data", "data"), State("upload-from-graph", "filename")],
 )
 def update_exp_external_file(
     csdm_upload_content, csdm_upload_content_graph, existing_data, filename
 ):
     """Update a local CSDM file."""
     ctx = dash.callback_context
-    print(ctx.triggered[0]["prop_id"])
+    # print(ctx.triggered[0]["prop_id"])
     if csdm_upload_content is None and csdm_upload_content_graph is None:
         raise PreventUpdate
 
