@@ -13,8 +13,9 @@ from app.app import app
 from app.custom_widgets import custom_button
 from app.isotopomer.draft import filter_isotopomer_list
 from app.isotopomer.draft import get_isotopomer_dropdown_options
-from app.isotopomer.draft import isotopomer_set
 from app.modal.file_info import file_info
+
+# from app.isotopomer.draft import isotopomer_set
 
 # from app.isotopomer import display_isotopomers
 
@@ -57,7 +58,7 @@ filename_datetime = html.Div(
         html.P(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
-        isotopomer_set,
+        # isotopomer_set,
         # site_set,
         # html.H6(
         #     html.A(

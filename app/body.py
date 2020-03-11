@@ -8,6 +8,7 @@ from app import navbar
 from app import sidebar
 from app.dimension import dimension_body
 from app.graph import spectrum_body
+from app.isotopomer import isotopomer_body
 from app.modal.about import about_modal
 
 __author__ = "Deepansh J. Srivastava"
@@ -18,8 +19,9 @@ sub_body = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col([html.Br(), spectrum_body], xs=12, sm=12, md=12, lg=7, xl=7),
-                dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=5, xl=5),
+                dbc.Col([html.Br(), isotopomer_body], xs=12, sm=12, md=12, lg=3, xl=3),
+                dbc.Col([html.Br(), spectrum_body], xs=12, sm=12, md=12, lg=6, xl=6),
+                dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=3, xl=3),
             ]
         ),
         # memory for holding the isotopomers data
@@ -41,14 +43,14 @@ sub_body = html.Div(
 
 body = dbc.Row(
     [
-        dbc.Col(sidebar.sidebar, xs=12, sm=12, md=12, lg=12, xl=3),
+        dbc.Col(sidebar.sidebar, xs=12, sm=12, md=12, lg=12, xl=12),
         dbc.Col(
             [html.Div(sub_body), html.Div(id="isotopomer_computed_log")],
             xs=12,
             sm=12,
             md=12,
             lg=12,
-            xl=9,
+            xl=12,
         ),
     ]
 )
