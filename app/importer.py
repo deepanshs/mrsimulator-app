@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import uuid
 from urllib.request import urlopen
 
 import csdmpy as cp
@@ -18,6 +19,8 @@ from dash.exceptions import PreventUpdate
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import label_with_help_button
+from app.isotopomer import make_isotopomer_dropdown_UI
+from app.isotopomer import make_isotopomers_UI
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -295,6 +298,8 @@ spectrum_import_layout = upload_data(
         Output("local-isotopomers-data", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
+        Output("local-isotopomers-ui-data", "data"),
+        Output("isotopomer_list", "children"),
         # Output("data_citation", "children"),
     ],
     [
@@ -312,6 +317,8 @@ spectrum_import_layout = upload_data(
         State("filename_dataset", "children"),
         State("data_description", "children"),
         State("upload-from-graph", "filename"),
+        State("local-isotopomers-ui-data", "data"),
+        State("isotopomer_list", "children"),
     ],
 )
 def update_isotopomers(
@@ -328,6 +335,8 @@ def update_isotopomers(
     data_title,
     data_info,
     from_graph_filename,
+    local_isotopomers_ui_data_state,
+    isotopomer_list_state,
 ):
     """Update the local isotopomers when a new file is imported."""
     ctx = dash.callback_context
@@ -355,7 +364,15 @@ def update_isotopomers(
             data = json.loads(response.read())
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [
+                message,
+                True,
+                existing_isotopomers_data,
+                data_title,
+                data_info,
+                local_isotopomers_ui_data_state,
+                isotopomer_list_state,
+            ]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
@@ -366,7 +383,15 @@ def update_isotopomers(
             data = parse_contents(isotopomer_upload_content, isotopomer_filename)
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [
+                message,
+                True,
+                existing_isotopomers_data,
+                data_title,
+                data_info,
+                local_isotopomers_ui_data_state,
+                isotopomer_list_state,
+            ]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user drag and drop on the graph.
@@ -379,7 +404,15 @@ def update_isotopomers(
             data = parse_contents(from_graph_content, from_graph_filename)
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [
+                message,
+                True,
+                existing_isotopomers_data,
+                data_title,
+                data_info,
+                local_isotopomers_ui_data_state,
+                isotopomer_list_state,
+            ]
 
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
@@ -390,12 +423,21 @@ def update_isotopomers(
     #     data["name"] = data_title
     #     data["description"] = data_info
     #     data["isotopomers"] = json.loads(editor_value)
-
+    local_isotopomers_ui_data_state = None
+    isotopomer_ui = make_isotopomers_UI(data, uuid.uuid1())
     if "name" not in data:
         data["name"] = ""
     if "description" not in data:
         data["description"] = ""
-    return ["", False, data, data["name"], data["description"]]
+    return [
+        "",
+        False,
+        data,
+        data["name"],
+        data["description"],
+        isotopomer_ui,
+        make_isotopomer_dropdown_UI(data),
+    ]
 
 
 def parse_contents(contents, filename):

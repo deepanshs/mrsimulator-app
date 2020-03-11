@@ -8,16 +8,13 @@ import numpy as np
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
 from app.custom_widgets import custom_slider
-
-with open("app/isotopomer/test.json", "r") as f:
-    input_ = json.load(f)
-input_ = input_["isotopomers"][0]
 
 
 # def custom_form_group(prepend_label="", **kwargs):
@@ -42,9 +39,7 @@ input_ = input_["isotopomers"][0]
 #     )
 
 
-def custom_fitting_input_group(
-    prepend_label="", append_label="", identity=None, **kwargs
-):
+def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
     """
         A custom dash bootstrap component input-group widget with a prepend-label,
         followed by an Input box, and an append-label.
@@ -54,17 +49,19 @@ def custom_fitting_input_group(
             append_label: A string to append dash-bootstrap-component Input widget.
             kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
-    # Yeet custom collapsible into here oops
+    id_ = kwargs["id"]
+    # custom collapsible into here
     group = [
         dbc.Button(
             prepend_label,
             className="input-group-prepend",
-            id=f"{identity}-collapse-button",
+            id=f"{id_}-fit-collapse-button",
         ),
         dcc.Input(
             type="number",
             # pattern="?[0-9]*\\.?[0-9]",
             className="form-control",
+            n_submit=0,
             **kwargs,
         ),
     ]
@@ -83,115 +80,43 @@ def custom_fitting_input_group(
         return html.Div(group, className="input-group p1 d-flex")
 
 
+def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
+    """
+        A custom dash bootstrap component input-group widget with a prepend-label,
+        followed by an Input box, and an append-label.
+
+        Args:
+            prepend_label: A string to prepend dash-bootstrap-component Input widget.
+            append_label: A string to append dash-bootstrap-component Input widget.
+            kwargs: additional keyward arguments for dash-bootstrap-component Input.
+    """
+    id_ = kwargs["id"]
+    custom_fitting_input_group(prepend_label, append_label, **kwargs)
+
+    @app.callback(
+        Output("local-isotopomers-data", "data"),
+        [Input(f"{id_}", "value")],  # id belongs to the input field
+        [State("local-isotopomers-data", "data")],
+    )
+    def update_isotopomers_data(value, local_isotopomer_data):
+        key = id_.split("_")[1].replace("%", ".")
+        print(key)
+        local_isotopomer_data[key] = value
+        return local_isotopomer_data
+
+
 def fitting_collapsible(key, val, identity=None):
-    if type(val) == int:
-        valArray = (val, "")
-        val = (valArray[0], valArray[1])
-
-    tick_list = np.linspace(int(val[0]) - 10, int(val[0]) + 10, 5)
-    tick_dict = {}
-    for items in tick_list:
-        tick_dict[int(items)] = f"{int(items)}"
-
-    collapsible = dbc.Row(
-        [
-            dbc.Collapse(
-                [
-                    dbc.FormGroup(
-                        [
-                            dbc.Checklist(
-                                options=[{"label": "Fix", "value": 1}],
-                                value=[],
-                                id=f"{identity}-switches-fix-input",
-                                switch=True,
-                            ),
-                            dcc.Slider(
-                                id=f"{identity}-slider",
-                                # return_function=lambda x:f"{x} {val[1]}",
-                                min=int(val[0]) - 10,
-                                max=int(val[0]) + 10,
-                                marks=tick_dict,
-                                step=1,
-                                value=int(val[0]),
-                            ),
-                            html.Br(),
-                        ]
-                    ),
-                    html.Div(
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    custom_input_group(
-                                        prepend_label="Max",
-                                        size="md",
-                                        value=int(val[0]),
-                                        id=f"{identity}_max-{i}",
-                                    )
-                                ),
-                                dbc.Col(
-                                    custom_input_group(
-                                        prepend_label="Min",
-                                        size="md",
-                                        value=int(val[0]),
-                                        id=f"{identity}_min-{i}",
-                                    )
-                                ),
-                                dbc.Col(
-                                    dbc.Checklist(
-                                        options=[{"label": "Constraint", "value": 1}],
-                                        value=0,
-                                        id=f"{identity}-switches-constraint-input",
-                                        switch=True,
-                                    ),
-                                    align="center",
-                                ),
-                            ],
-                            no_gutters=True,
-                            align="center",
-                        )
-                    ),
-                    html.Div(
-                        dbc.Collapse(
-                            dcc.Textarea(placeholder="Expression"),
-                            className="mb-3",
-                            id=f"{identity}-collapse-expression",
-                        )
-                    ),
-                ],
-                id=f"{identity}-collapse",
-            )
-        ]
-    )
-
-    @app.callback(
-        Output(f"{identity}-collapse", "is_open"),
-        [Input(f"{identity}-collapse-button", "n_clicks")],
-        [State(f"{identity}-collapse", "is_open")],
-    )
-    def toggle_collapse(button, is_open):
-        if button:
-            return not is_open
-        return is_open
-
-    @app.callback(
-        Output(f"{identity}-collapse-expression", "is_open"),
-        [Input(f"{identity}-switches-constraint-input", "value")],
-        [State(f"{identity}-collapse-expression", "is_open")],
-    )
-    def toggle_switch(button, is_open):
-        if button:
-            return not is_open
-        # return is_open
-
+    collapsible = dbc.Row(html.Br())
     return collapsible
 
 
 def populate_key_value_from_object(object_dict, id_old):
     lst = []
     for key, value in object_dict.items():  # keys():
-        id_new = f"{key}_{id_old}"
-        print("new ", id_new)
+        id_new = f"{id_old}%{key}"
+        print(id_new)
         if isinstance(object_dict[key], dict):
+            print("insode")
             new_lst = populate_key_value_from_object(object_dict[key], id_new)
             lst.append(
                 custom_collapsible(
@@ -200,29 +125,35 @@ def populate_key_value_from_object(object_dict, id_old):
                     children=new_lst,
                     is_open=False,
                     size="sm",
-                    button_classname="tree-control-button",
-                    collapse_classname="tree-control",
+                    # button_classname="tree-control-button",
+                    # collapse_classname="tree-control",
                     style={"padding-left": "7px"},
                 )
             )
         else:
             if key == "isotope":
+                # lst.append(
+                #     custom_input_group(
+                #         prepend_label=key, id=id_new, value=object_dict[key]
+                #     )
+                # )
                 lst.append(
-                    custom_input_group(
-                        prepend_label=key, id=id_new, value=object_dict[key]
+                    dbc.InputGroup(
+                        [
+                            dbc.InputGroupAddon("Isotope", addon_type="prepend"),
+                            dbc.Input(placeholder="#Nucleus", type="text"),
+                        ],
+                        className="mb-3",
                     )
                 )
             elif key == "eta":
                 lst.append(
                     html.Div(
                         [
-                            custom_fitting_input_group(
-                                prepend_label=key,
-                                id=id_new,
-                                value=value,
-                                identity=id_new,
+                            custom_input_group(
+                                prepend_label=key, id=id_new, value=value
                             ),
-                            fitting_collapsible(key, value, identity=id_new),
+                            # fitting_collapsible(key, value, identity=id_new),
                         ],
                         className="input-group-append input-group d-flex",
                     )
@@ -235,38 +166,86 @@ def populate_key_value_from_object(object_dict, id_old):
                 lst.append(
                     html.Div(
                         [
-                            custom_fitting_input_group(
+                            custom_input_group_callable(
                                 prepend_label=key,
                                 append_label=value[-1],
-                                id=id_new,
                                 value=value[0],
-                                identity=id_new,
+                                id=id_new,
                             ),
-                            fitting_collapsible(key, value, identity=id_new),
+                            # fitting_collapsible(key, value, identity=id_new),
                         ],
                         className="input-group-append input-group d-flex",
                     )
                 )
-    return lst
+    return html.Div(lst, className="collapsible-body-control form")
 
 
-widgets = []
-for i, site in enumerate(input_["sites"]):
-    id_ = f"site_{i}"
-    widgets.append(
-        html.Div(
-            custom_collapsible(
-                text=id_,
-                identity=id_,
-                children=populate_key_value_from_object(site, id_),
-                is_open=False,
-                size="sm",
-                button_classname="tree-control-button",
-                collapse_classname="tree-control-input",
-                # style={"padding-left": "7px"},
+def make_isotopomers_UI(isotopomers_data, id_):
+    master_widgets = []
+    for j, isotopomer in enumerate(isotopomers_data["isotopomers"]):
+        widgets = []
+        id_1 = f"{id_}_isotopomer[{j}]%site"
+        for i, site in enumerate(isotopomer["sites"]):
+            id_2 = f"{id_1}[{i}]"
+            print(id_)
+            widgets.append(
+                dbc.Tab(
+                    label=f"site {i}",
+                    children=populate_key_value_from_object(
+                        site, id_2
+                    )  # custom_collapsible(
+                    # text=id_,
+                    # identity=id_,
+                    # children=populate_key_value_from_object(site, id_),
+                    # is_open=True,
+                    # size="sm",
+                    # button_classname="tree-control-button",
+                    # collapse_classname="tree-control-input",
+                    # style={"padding-left": "7px"},
+                )
             )
-        )
+
+        master_widgets.append(dbc.Tabs(widgets))
+    return master_widgets
+
+
+def make_isotopomer_dropdown_UI(isotopomers_data):
+    isotopomer_dropdown = dcc.Dropdown(
+        value=0,
+        options=[
+            {"label": f"Isotopomer {i}", "value": i}
+            for i in range(len(isotopomers_data["isotopomers"]))
+        ],
+        id="isotopomer_selection_dropdown",
+        clearable=False,
     )
+    return isotopomer_dropdown
+
+
+@app.callback(
+    Output("site_UI", "children"),
+    [Input("isotopomer_selection_dropdown", "value")],
+    [State("local-isotopomers-ui-data", "data")],
+)
+def site_UI_update(value, UI_data):
+    if UI_data is None:
+        raise PreventUpdate
+    return UI_data[value]
+
+
+# Isotopomer layout
+isotopomer_body = html.Div(
+    className="v-100 my-card",
+    children=[
+        html.Div(
+            [html.H4("Isotopomers", style={"fontWeight": "normal"}, className="pl-2")],
+            className="d-flex justify-content-between p-2",
+        ),
+        html.Div(id="isotopomer_list"),
+        html.Div(id="site_UI"),
+    ],
+    id="isotopomer-body",
+)
 
 
 # test = html.Div(
@@ -375,6 +354,3 @@ for i, site in enumerate(input_["sites"]):
 #         ),
 #     ]
 # )
-
-
-wd = html.Div(widgets)

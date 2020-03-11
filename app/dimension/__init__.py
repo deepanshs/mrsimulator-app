@@ -17,7 +17,7 @@ __email__ = ["deepansh2012@gmail.com"]
 advance_setting_button = custom_button(
     icon_classname="fas fa-cog",
     id="advance_setting",
-    tooltip="Advance setting",
+    tooltip="Advanced settings",
     outline=True,
     color="dark",
 )
@@ -76,7 +76,7 @@ dimension_body = html.Div(
             ],
             className="d-flex justify-content-between p-2",
         ),
-        dbc.Tabs([make_dimension(i) for i in range(1)]),
+        dbc.Tabs([make_dimension(i) for i in range(2)]),
     ],
     id="dimension-body",
 )

@@ -211,6 +211,7 @@ def custom_collapsible(
             button_classname: String. css classnames for button toggler.
             collapse_classname: String. css classnames for collapsible.
     """
+    print("identity: ", identity)
     layout = [
         dbc.Button(
             html.Div(
@@ -240,7 +241,9 @@ def custom_collapsible(
         [State(f"{identity}-collapse", "is_open")],
     )
     def toggle_frame(n, is_open):
+        print(is_open)
         if n:
+            print("cick")
             return not is_open
         return is_open
 
