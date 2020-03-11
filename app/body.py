@@ -33,6 +33,8 @@ sub_body = html.Div(
         dcc.Store(id="local-processed-data", storage_type="memory"),
         # memory for holding the dimension data
         dcc.Store(id="local-dimension-data", storage_type="memory"),
+        # a mapping of isotopomer index to local isotopomer index
+        dcc.Store(id="local-isotopomer-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
     ]
 )

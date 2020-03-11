@@ -295,23 +295,24 @@ spectrum_import_layout = upload_data(
         Output("local-isotopomers-data", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
-        # Output("data_citation", "children"),
     ],
     [
         Input("upload-isotopomer-local", "contents"),
         Input("upload-isotopomer-url-submit", "n_clicks"),
         Input("example-isotopomer-dropbox", "value"),
         Input("upload-from-graph", "contents"),
-        # Input("json-file-editor", "n_blur_timestamp"),
+        Input("json-file-editor", "n_blur_timestamp"),
     ],
     [
         State("upload-isotopomer-url", "value"),
         State("upload-isotopomer-local", "filename"),
-        # State("json-file-editor", "value"),
+        State("json-file-editor", "value"),
         State("local-isotopomers-data", "data"),
         State("filename_dataset", "children"),
         State("data_description", "children"),
         State("upload-from-graph", "filename"),
+        State("local-isotopomer-index-map", "data"),
+        State("isotopomer-dropdown", "value"),
     ],
 )
 def update_isotopomers(
@@ -319,15 +320,17 @@ def update_isotopomers(
     n_click,
     example,
     from_graph_content,
-    # time_of_editor_trigger,
+    time_of_editor_trigger,
     # states
     isotopomer_url,
     isotopomer_filename,
-    # editor_value,
+    editor_value,
     existing_isotopomers_data,
     data_title,
     data_info,
     from_graph_filename,
+    index_map,
+    isotopomer_dropdown_value,
 ):
     """Update the local isotopomers when a new file is imported."""
     ctx = dash.callback_context
@@ -383,13 +386,12 @@ def update_isotopomers(
 
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
-    # if max_ == time_of_editor_trigger:
-    #     if editor_value in ["", None]:
-    #         raise PreventUpdate
-    #     data = {}
-    #     data["name"] = data_title
-    #     data["description"] = data_info
-    #     data["isotopomers"] = json.loads(editor_value)
+    if trigger_id == "json-file-editor":
+        if editor_value in ["", None]:
+            raise PreventUpdate
+        isotopomers = json.loads(editor_value)
+        data = existing_isotopomers_data
+        data["isotopomers"][index_map[isotopomer_dropdown_value]] = isotopomers
 
     if "name" not in data:
         data["name"] = ""

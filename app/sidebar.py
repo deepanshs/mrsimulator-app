@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
+import json
+
+import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 
+from app.app import app
 from app.custom_widgets import custom_button
+from app.isotopomer.draft import filter_isotopomer_list
+from app.isotopomer.draft import get_isotopomer_dropdown_options
+from app.isotopomer.draft import isotopomer_set
 from app.modal.file_info import file_info
 
-# from dash.dependencies import Input
-# from dash.dependencies import Output
-# from dash.dependencies import State
-# from dash.exceptions import PreventUpdate
-# from app.app import app
 # from app.isotopomer import display_isotopomers
 
 colors = {"background": "#e2e2e2", "text": "#585858"}
@@ -33,17 +39,17 @@ filename_datetime = html.Div(
                 #     width=3,
                 #     className="d-flex justify-content-end",
                 # )
-                # dbc.Col(
-                #     custom_button(
-                #         text="",
-                #         icon_classname="fas fa-edit",
-                #         id="json-file-editor-toggler",
-                #         tooltip="Edit the isotopomer file.",
-                #         active=False,
-                #         outline=True,
-                #         style={"float": "right"},
-                #     )
-                # ),
+                dbc.Col(
+                    custom_button(
+                        text="",
+                        icon_classname="fas fa-edit",
+                        id="json-file-editor-toggler",
+                        tooltip="Edit the isotopomer file.",
+                        active=False,
+                        outline=True,
+                        style={"float": "right"},
+                    )
+                ),
             ],
             className="d-flex justify-content-between",
         ),
@@ -51,6 +57,8 @@ filename_datetime = html.Div(
         html.P(
             id="data_description", style={"textAlign": "left", "color": colors["text"]}
         ),
+        isotopomer_set,
+        # site_set,
         # html.H6(
         #     html.A(
         #         id="data_citation",
@@ -62,77 +70,140 @@ filename_datetime = html.Div(
     ]
 )
 
-# text_area = (
-#     dbc.Textarea(
-#         className="mb-3",
-#         id="json-file-editor",
-#         placeholder="A Textarea",
-#         draggable="False",
-#         contentEditable="False",
-#         bs_size="sm",
-#         rows=10,
-#         value="",
-#     ),
-# )
 
-# text_area_collapsible = dbc.Collapse(text_area, id="json-file-editor-collapse")
+text_area = dbc.Textarea(
+    className="mb-3 p-0",
+    id="json-file-editor",
+    placeholder="A Textarea",
+    draggable="False",
+    contentEditable="False",
+    spellCheck="False",
+    bs_size="sm",
+    rows=10,
+    value="",
+)
 
-
-# @app.callback(
-#     Output("json-file-editor-collapse", "is_open"),
-#     [Input("json-file-editor-toggler", "n_clicks")],
-#     [State("json-file-editor-collapse", "is_open")],
-# )
-# def toggle_json_file_editor_collapse(n, is_open):
-#     """Callback for toggling collapsible json editor."""
-#     if n:
-#         return not is_open
-#     return is_open
+text_area_collapsible = dbc.Collapse(text_area, id="json-file-editor-collapse")
 
 
-# @app.callback(
-#   Output("json-file-editor", "value"),
-#   [Input("local-isotopomers-data", "data")]
-# )
-# def update_json_editor_contents(data):
-#     """Update JSON editor contents when a file is loaded."""
-#     if data is None:
-#         return ""
-#     return json.dumps(data["isotopomers"], indent=2, ensure_ascii=True)
+@app.callback(
+    Output("json-file-editor-collapse", "is_open"),
+    [Input("json-file-editor-toggler", "n_clicks")],
+    [State("json-file-editor-collapse", "is_open")],
+)
+def toggle_json_file_editor_collapse(n, is_open):
+    """Callback for toggling collapsible json editor."""
+    if n:
+        return not is_open
+    return is_open
+
+
+# def get_isotopomer_from_clicked_spectrum(clickData, local_computed_data):
+#     if clickData is not None:
+#         index = [clickData["points"][0]["curveNumber"]]
+#     else:
+#         length = len(local_computed_data["csdm"]["dependent_variables"])
+#         index = [i for i in range(length)]
+
+#     isotopomer = []
+#     for i in index:
+#         datum = local_computed_data["csdm"]["dependent_variables"][i]
+#         isotopomer.append(
+#             datum["application"]["com.github.DeepanshS.mrsimulator"]["isotopomers"][0]
+#         )
+#     return index, isotopomer
+
+
+@app.callback(
+    Output("isotopomer-dropdown", "value"),
+    [Input("nmr_spectrum", "clickData"), Input("isotopomer-dropdown", "options")],
+    [State("decompose", "active"), State("isotopomer-dropdown", "value")],
+)
+def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown_value):
+    """Update the current value of the isotopomer dropdown value when
+        a) the trace (line plot) is selected, or
+        b) the isotopomer dropdown options has changed.
+        Args:
+            clickData: (trigger) the click data when a trace is clicked.
+            options: (trigger) the list of new options for the isotopomers dropdown.
+            decompose: (state) the state of the decompose option.
+            old_dropdown_value: (state) the old drop-down index value. Return 0, if
+                old value is greater than the length of new options, else return the
+                old value
+    """
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if trigger_id == "isotopomer-dropdown":
+        if old_dropdown_value > len(options):
+            return 0
+        return old_dropdown_value
+
+    if clickData is None:
+        raise PreventUpdate
+
+    index = 0
+    if decompose:
+        index = clickData["points"][0]["curveNumber"]
+    return index
+
+
+@app.callback(
+    Output("json-file-editor", "value"),
+    [Input("isotopomer-dropdown", "value")],
+    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+)
+def update_json_file_editor_from_isotopomer_dropdown(
+    index, local_isotopomer_data, isotope_id_value
+):
+    """Return an isotopomer as a JSON value corresponding to dropdown selection index.
+    Args:
+        index: (trigger) The index of isotopomer dropdown selection.
+        local_isotopomer_data: (state) Local isotopomers data as the state.
+        isotope_id_value: (state) update of the isotopomer json list based on the value
+            of the isotope.
+    """
+    if local_isotopomer_data is None:
+        raise PreventUpdate
+    if index is None:
+        raise PreventUpdate
+
+    isotopomer_list = filter_isotopomer_list(
+        local_isotopomer_data["isotopomers"], isotope_id_value
+    )
+    print("isotope_id_value", isotope_id_value)
+    return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
+
+
+@app.callback(
+    Output("isotopomer-dropdown", "options"),
+    [Input("isotope_id-0", "value")],
+    [State("local-isotopomers-data", "data")],
+)
+def update_isotopomer_dropdown_options(isotope_id_value, local_isotopomer_data):
+    """Update isotopomer dropdown options base on local isotopomers data.
+        Args:
+            isotope_id_value: (trigger) a filter and update of the isotopomer
+                dropdown options based on the value of the isotope.
+            local_isotopomer_data: (state) Local isotopomers data as the state.
+    """
+    if isotope_id_value is None:
+        raise PreventUpdate
+    if local_isotopomer_data is None:
+        raise PreventUpdate
+
+    isotopomer_dropdown_options = get_isotopomer_dropdown_options(
+        local_isotopomer_data["isotopomers"], isotope_id_value
+    )
+
+    return isotopomer_dropdown_options
 
 
 sidebar = dbc.Card(
-    dbc.CardBody(
-        [
-            filename_datetime,
-            # text_area_collapsible]),
-            # slide_from_left]),
-            # html.Div([], id="add-isotopomers"),
-        ]
-    ),
+    dbc.CardBody([filename_datetime, text_area_collapsible]),
     className="h-100 my-card-sidebar",
     inverse=False,
     id="sidebar",
 )
-
-
-# @app.callback(
-#     Output("add-isotopomers", "children"),
-#     [Input("add-isotopomer-button", "n_click")],
-#     [State("add-isotopomers", "children"),],
-# )
-# def update_isotopomer(n1, children):
-#     return children.append(add_isotopomer())
-
-
-# @app.callback(
-#     Output("add-isotopomers", "children"), [Input("local-isotopomers-data", "data")],
-# )
-# def update_isotopomer(data):
-#     print(data)
-#     if data is None:
-#         raise PreventUpdate
-#     children = []
-#     # for item in data["isotopomers"]:
-#     children.append(display_isotopomers(data["isotopomers"]))
-#     return children

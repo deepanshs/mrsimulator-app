@@ -35,6 +35,20 @@ var decompose_icon = {
 FontAwesome.library.add(decompose_icon)
 
 
+var compose_icon = {
+    prefix: 'fac',
+    iconName: 'compose',
+    icon: [
+        70, 70,
+        [],
+        null,
+        "M5.1,0v67.7h69.5v5.1H0V0 M71.5,61C64.1,41.5,53.8,2.3,49.2,2.3s-7.9,40.5-10.6,40.5C36,42.7,20.7,7.4,17.3,8.3S8.6,61,8.6,61"
+    ]
+}
+FontAwesome.library.add(compose_icon)
+
+
+
 var spectrum_icon = {
     prefix: 'fac',
     iconName: 'spectrum',

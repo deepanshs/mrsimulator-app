@@ -36,7 +36,11 @@ server = app.server
 
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
-    [Output("local-computed-data", "data"), Output("local-dimension-data", "data")],
+    [
+        Output("local-computed-data", "data"),
+        Output("local-dimension-data", "data"),
+        Output("local-isotopomer-index-map", "data"),
+    ],
     [
         Input("rotor_frequency-0", "value"),
         Input("rotor_angle-0", "value"),
@@ -79,16 +83,16 @@ def simulation(
     # print(ctx.triggered)
     if not ctx.triggered:
         raise PreventUpdate
-    else:
-        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        value = ctx.triggered[0]["value"]
-        if value in [None, "", ".", "-"]:
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    value = ctx.triggered[0]["value"]
+    if value in [None, "", ".", "-"]:
+        raise PreventUpdate
+    if "isotope_id" not in trigger_id:
+        try:
+            float(value)
+        except ValueError:
             raise PreventUpdate
-        if "isotope_id" not in trigger_id:
-            try:
-                float(value)
-            except ValueError:
-                raise PreventUpdate
 
     if spectral_width == 0:
         raise PreventUpdate
@@ -104,13 +108,26 @@ def simulation(
         "spectral_width": float(spectral_width) * 1000,  # in Hz
         "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
-    # print("simulate")
+    print("simulate")
     sim = Simulator()
     sim.dimensions = [Dimension(**dim)]
-    sim.isotopomers = [
-        Isotopomer.parse_dict_with_units(item)
-        for item in local_isotopomers_data["isotopomers"]
-    ]
+
+    mapping = []
+    for i, item in enumerate(local_isotopomers_data["isotopomers"]):
+        site_isotope = [site["isotope"] for site in item["sites"]]
+        if isotope_id in site_isotope:
+            sim.isotopomers.append(Isotopomer.parse_dict_with_units(item))
+            print(item)
+            mapping.append(i)
+
+    # filter_isotopomers = [
+    #     Isotopomer.parse_dict_with_units(item)
+    #     for item in local_isotopomers_data["isotopomers"]
+    # ]
+    # sim.isotopomers = [
+    #     Isotopomer.parse_dict_with_units(item)
+    #     for item in local_isotopomers_data["isotopomers"]
+    # ]
 
     sim.config.integration_density = integration_density
     sim.config.decompose = True
@@ -121,7 +138,31 @@ def simulation(
 
     dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
     local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
-    return [local_computed_data, dim]
+    return [local_computed_data, dim, mapping]
+
+
+# @app.callback(
+#     Output("buffer", "children"),
+#     [Input("nmr_spectrum", "restyleData")],
+#     [State("local-computed-data", "data"), State("decompose", "active")],
+# )
+# def display_click_data(restyleData, local_computed_data, decompose):
+#     print(restyleData)
+#     return ""
+
+
+# @app.callback(
+#     Output("buffer", "children"),
+#     [Input("nmr_spectrum", "clickData"), Input("nmr_spectrum", "relayoutData")],
+#     [State("local-computed-data", "data"), State("decompose", "active")],
+# )
+# def drag_selected_data(clickData, relayoutData, local_computed_data, decompose):
+#     if None in [relayoutData, clickData, local_computed_data]:
+#         raise PreventUpdate
+
+#     keys = relayoutData.keys()
+#     print(keys)
+#     return ""
 
 
 @app.callback(
@@ -180,6 +221,7 @@ def display_relayout_data(relayoutData, dimension_data):
         Input("normalize_amp", "active"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
+        Input("nmr_spectrum", "clickData"),
     ],
     [
         State("local-computed-data", "data"),
@@ -195,6 +237,7 @@ def plot_1D(
     normalized,
     broadening,
     apodization,
+    clickData,
     local_computed_data,
     local_exp_external_data,
     isotope_id,
@@ -203,6 +246,12 @@ def plot_1D(
     """Generate and return a one-dimensional plot instance."""
     if local_computed_data is None and local_exp_external_data is None:
         raise PreventUpdate
+
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print(trigger_id)
 
     data = []
     if isotope_id is None:
@@ -290,12 +339,21 @@ def plot_1D(
                 y=y_spectrum.real,
                 mode="lines",
                 line={"color": "grey", "width": 1.2},
-                name=f"experiment",
+                name="experiment",
             )
         )
 
     layout = figure["layout"]
+    layout["xaxis"]["autorange"] = True
+    layout["yaxis"]["autorange"] = True
     layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
+
+    print(clickData)
+    if trigger_id == "nmr_spectrum":
+        if clickData is not None:
+            index = clickData["points"][0]["curveNumber"]
+            data[index].line["width"] = 2.2
+
     data_object = {"data": data, "layout": go.Layout(**layout)}
     return [data_object, local_processed_data.to_dict(update_timestamp=True)]
 
