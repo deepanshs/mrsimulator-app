@@ -349,10 +349,15 @@ def plot_1D(
     layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
     print(clickData)
-    if trigger_id == "nmr_spectrum":
+    if trigger_id == "nmr_spectrum" and decompose:
         if clickData is not None:
             index = clickData["points"][0]["curveNumber"]
-            data[index].line["width"] = 2.2
+            # data[index], data[-1] = data[-1], data[index]
+            data[index].line["width"] = 3.0
+            # print("fillcolor", data[index].fillcolor)
+            # for i in range(len(data)):
+            #     if i != index:
+            #         data[i].opacity = 0.25
 
     data_object = {"data": data, "layout": go.Layout(**layout)}
     return [data_object, local_processed_data.to_dict(update_timestamp=True)]
@@ -374,8 +379,9 @@ def plot_1D(
 @app.callback(
     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
     [Input("local-isotopomers-data", "data")],
+    [State("isotope_id-0", "value")],
 )
-def update_isotope_list(data):
+def update_isotope_list(data, old_isotope_value):
     if data is None:
         raise PreventUpdate
     if data["isotopomers"] == []:
@@ -385,12 +391,18 @@ def update_isotope_list(data):
     sim_m.isotopomers = [
         Isotopomer.parse_dict_with_units(item) for item in data["isotopomers"]
     ]
-    isotope_list = [
-        {"label": site_iso, "value": site_iso} for site_iso in sim_m.get_isotopes()
-    ]
-    isotope = isotope_list[0]["value"]
 
-    return [isotope_list, isotope]
+    isotope_list = sim_m.get_isotopes()
+    isotope_option_list = [
+        {"label": site_iso, "value": site_iso} for site_iso in isotope_list
+    ]
+
+    if old_isotope_value in isotope_list:
+        isotope = old_isotope_value
+    else:
+        isotope = isotope_option_list[0]["value"]
+
+    return [isotope_option_list, isotope]
 
 
 if __name__ == "__main__":

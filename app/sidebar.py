@@ -173,7 +173,9 @@ def update_json_file_editor_from_isotopomer_dropdown(
     isotopomer_list = filter_isotopomer_list(
         local_isotopomer_data["isotopomers"], isotope_id_value
     )
-    print("isotope_id_value", isotope_id_value)
+    print("isotope_id_value", isotope_id_value, index)
+    if index >= len(isotopomer_list):
+        index = 0
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
 
