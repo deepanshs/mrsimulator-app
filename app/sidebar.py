@@ -34,29 +34,36 @@ filename_datetime = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col(html.H5(id="filename_dataset")),
+                dbc.Col(
+                    html.H5(
+                        "Add a title", id="filename_dataset"  # contentEditable="True"
+                    )
+                ),
                 # dbc.Col(
                 #     isotopomers_info_button,
                 #     width=3,
                 #     className="d-flex justify-content-end",
                 # )
-                dbc.Col(
-                    custom_button(
-                        text="",
-                        icon_classname="fas fa-edit",
-                        id="json-file-editor-toggler",
-                        tooltip="Edit the isotopomer file.",
-                        active=False,
-                        outline=True,
-                        style={"float": "right"},
-                    )
-                ),
+                # dbc.Col(
+                #     custom_button(
+                #         text="",
+                #         icon_classname="fas fa-edit",
+                #         id="json-file-editor-toggler",
+                #         tooltip="Edit the isotopomer file.",
+                #         active=False,
+                #         outline=True,
+                #         style={"float": "right"},
+                #     )
+                # ),
             ],
             className="d-flex justify-content-between",
         ),
         file_info,
         html.P(
-            id="data_description", style={"textAlign": "left", "color": colors["text"]}
+            "Add a description ... ",
+            id="data_description",
+            style={"textAlign": "left", "color": colors["text"]},
+            # contentEditable="True",
         ),
         # isotopomer_set,
         # site_set,
@@ -70,34 +77,6 @@ filename_datetime = html.Div(
         # ),
     ]
 )
-
-
-text_area = dbc.Textarea(
-    className="mb-3 p-0",
-    id="json-file-editor",
-    placeholder="A Textarea",
-    draggable="False",
-    contentEditable="False",
-    spellCheck="False",
-    bs_size="sm",
-    rows=10,
-    value="",
-)
-
-text_area_collapsible = dbc.Collapse(text_area, id="json-file-editor-collapse")
-
-
-@app.callback(
-    Output("json-file-editor-collapse", "is_open"),
-    [Input("json-file-editor-toggler", "n_clicks")],
-    [State("json-file-editor-collapse", "is_open")],
-)
-def toggle_json_file_editor_collapse(n, is_open):
-    """Callback for toggling collapsible json editor."""
-    if n:
-        return not is_open
-    return is_open
-
 
 # def get_isotopomer_from_clicked_spectrum(clickData, local_computed_data):
 #     if clickData is not None:
@@ -205,7 +184,7 @@ def update_isotopomer_dropdown_options(isotope_id_value, local_isotopomer_data):
 
 
 sidebar = dbc.Card(
-    dbc.CardBody([filename_datetime, text_area_collapsible]),
+    dbc.CardBody(filename_datetime),
     className="h-100 my-card-sidebar",
     inverse=False,
     id="sidebar",

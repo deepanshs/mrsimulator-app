@@ -419,7 +419,7 @@ def parse_contents(contents, filename):
             data["name"] = filename
 
         if "description" not in data.keys():
-            data["description"] = ""
+            data["description"] = "Add a description ... "
 
         # if "citation" not in data.keys():
         #     data["citation"] = ""

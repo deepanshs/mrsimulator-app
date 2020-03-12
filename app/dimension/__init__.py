@@ -64,11 +64,6 @@ def make_dimension(i):
             ),
         ]
     )
-    # row2 = dbc.Row(
-    #     [
-
-    #     ]
-    # )
     dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1])
 
     return dimension_contents

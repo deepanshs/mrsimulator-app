@@ -271,13 +271,16 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from app.app import app
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
+
 # from mrsimulator.dimension import ISOTOPE_DATA
 
 # from app.custom_widgets import custom_slider
 
 N_SITE = 2
+colors = {"background": "#e2e2e2", "text": "#585858"}
 
 # def custom_form_group(prepend_label="", **kwargs):
 #     if "step" not in kwargs.keys():
@@ -493,17 +496,111 @@ def site_UI_update(value, UI_data):
     return UI_data[value]
 
 
+advance_isotopomer_editor_button = dbc.Col(
+    custom_button(
+        icon_classname="fas fa-edit",
+        id="json-file-editor-button",
+        tooltip="Advance isotopomer editor",
+        active=False,
+        outline=True,
+        color="dark",
+        style={"float": "right"},
+    )
+)
+
+advance_isotopomer_text_area = dbc.Textarea(
+    className="mb-3 p-0",
+    id="json-file-editor",
+    placeholder="Isotopomer editor",
+    draggable="False",
+    contentEditable="False",
+    spellCheck="False",
+    bs_size="sm",
+    rows=10,
+    value="",
+)
+
+advance_isotopomer_text_area_collapsible = dbc.Collapse(
+    advance_isotopomer_text_area, id="json-file-editor-collapse"
+)
+
+
+isotopomer_name_field = dcc.Input(
+    # value=isotopomer["name"],
+    placeholder="Isotopomer name",
+    id="isotopomer-name",
+    style={"textAlign": "left", "color": colors["text"]},
+    className="d-flex flex-column grow",
+)
+
+isotopomer_description_field = dcc.Input(
+    # value=isotopomer["description"],
+    placeholder="Isotopomer description ... ",
+    id="isotopomer-description",
+    style={"textAlign": "left", "color": colors["text"]},
+    className=" d-flex",
+)
+
+isotopomer_abundance_field = dcc.Input(
+    placeholder="Isotopomer abundance",
+    # value=100,
+    id="isotopomer-abundance",
+    style={"textAlign": "left", "color": colors["text"]},
+    className=" d-flex",
+)
+
+isotopomer_form = dbc.Collapse(
+    [
+        dbc.Col(
+            [
+                isotopomer_name_field,  # isotopomer name
+                isotopomer_description_field,  # isotopomer description
+                isotopomer_abundance_field,  # isotopomer abundance
+            ]
+        ),
+        dbc.Tabs(widgets),
+    ],
+    id="isotopomer_form-collapse",
+    is_open=True,
+)
+
+
+@app.callback(
+    [
+        Output("json-file-editor-collapse", "is_open"),
+        Output("json-file-editor-button", "active"),
+        Output("isotopomer_form-collapse", "is_open"),
+    ],
+    [Input("json-file-editor-button", "n_clicks")],
+    [State("json-file-editor-button", "active")],
+)
+def toggle_json_file_editor_collapse(n, active):
+    """Callback for toggling collapsible json editor."""
+    if n is None:
+        raise PreventUpdate
+    if active:
+        return [False, False, True]
+    return [True, True, False]
+
+
 # Isotopomer layout
 isotopomer_body = html.Div(
     className="v-100 my-card",
     children=[
         dcc.Store(id="new_json", storage_type="memory"),
         html.Div(
-            [html.H4("Isotopomers", style={"fontWeight": "normal"}, className="pl-2")],
+            [
+                html.H4(
+                    "Isotopomers", style={"fontWeight": "normal"}, className="pl-2"
+                ),
+                advance_isotopomer_editor_button,
+            ],
             className="d-flex justify-content-between p-2",
         ),
-        isotopomer_dropdown,  # html.Div(id="isotopomer_list"),
-        dbc.Tabs(widgets),
+        dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
+        html.Br(),
+        advance_isotopomer_text_area_collapsible,
+        isotopomer_form,
     ],
     id="isotopomer-body",
 )
