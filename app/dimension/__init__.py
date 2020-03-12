@@ -24,7 +24,7 @@ __email__ = ["deepansh2012@gmail.com"]
 advance_setting_button = custom_button(
     icon_classname="fas fa-cog",
     id="advance_setting",
-    tooltip="Advance setting",
+    tooltip="Advanced setting",
     outline=True,
     color="dark",
 )
@@ -64,11 +64,6 @@ def make_dimension(i):
             ),
         ]
     )
-    # row2 = dbc.Row(
-    #     [
-
-    #     ]
-    # )
     dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1])
 
     return dimension_contents

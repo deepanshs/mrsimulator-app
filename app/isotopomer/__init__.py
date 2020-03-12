@@ -1,266 +1,6 @@
 # -*- coding: utf-8 -*-
-# from copy import deepcopy
-# import dash_bootstrap_components as dbc
-# import dash_html_components as html
-# from dash.dependencies import Input
-# from dash.dependencies import Output
-# from dash.dependencies import State
-# from app.app import app
-# from app.custom_widgets import custom_input_group
-# keywords_site = [
-#     "name",
-#     "isotope",
-#     "isotropic_chemical_shift",
-#     ["zeta", "eta", "alpha", "beta", "gamma"],
-#     ["Cq", "eta", "alpha", "beta", "gamma"],
-# ]
-# keywords_site_display = [
-#     "name",
-#     "isotope",
-#     "δ",
-#     ["ζ", "η", "α", "β", "γ"],
-#     ["Cq", "η", "α", "β", "γ"],
-# ]
-# units_site = [
-#     "",
-#     "",
-#     "ppm",
-#     ["ppm", "", "rad", "rad", "rad"],
-#     ["MHz", "", "rad", "rad", "rad"],
-# ]
-# # with open("app/isotopomer/test.json", "r") as f:
-# #     input_ = json.load(f)
-# # def add_sites(data):
-# #     print(data)
-# #     rows = []
-# #     for k_d, k, u in zip(keywords_site_display, keywords_site, units_site):
-# #         if isinstance(k, list):
-# #             for k_1d, k_1, u_1 in zip(k_d, k, u):
-# #                 if k_1 not in data:
-# #                     value = None
-# #                 else:
-# #                     value = data[k_1]
-# #                 rows.append(
-# #                     custom_input_group(
-# #                         prepend_label=k_1d, append_label=u_1, value=value, size="1"
-# #                     )
-# #                 )
-# #         else:
-# #             if k not in data:
-# #                 value = None
-# #             else:
-# #                 value = data[k]
-# #             rows.append(
-# #                 custom_input_group(
-# #                     prepend_label=k_d, append_label=u, value=value, size="2"
-# #                 )
-# #             )
-# #     return dbc.Card(rows)
-# keywords_isotopomers = ["name", "sites", "abundance"]
-# def add_isotopomers(data):
-#     rows = []
-#     for k in keywords_isotopomers:
-#         if k == "sites":
-#             for site in data["sites"]:
-#                 rows.append(add_sites(site))
-#     return dbc.Card(rows)
-# display_symbols = {
-#     "zeta": "ζ",
-#     "eta": "η",
-#     "alpha": "α",
-#     "beta": "β",
-#     "gamma": "γ",
-#     "Cq": "Cq",
-# }
-# classname_1 = "d-flex justify-content-between align-content-center formtext-dark"
-# def display_sites(sites):
-#     div = []
-#     for site in sites:
-#         for k, v in site.items():
-#             if isinstance(v, dict):
-#                 value = []
-#                 for k_1, v_1 in v.items():
-#                     value.append(
-#                         html.Div(
-#                             [html.Div(display_symbols[k_1]), html.Div(v_1)],
-#                             className=classname_1,
-#                         )
-#                     )
-#                 v = value
-#             div.append(html.Div([html.Div(k), html.Div(v)], className=classname_1))
-#     return html.Div(div)
-# def display_isotopomers(isotopomers):
-#     div = []
-#     sub_div = []
-#     for i, isotopomer in enumerate(isotopomers):
-#         # sub_div = []
-#         if "name" not in isotopomer:
-#             name = f"isotopomer-{i}"
-#         else:
-#             if isotopomer["name"] in ["", None]:
-#                 name = f"isotopomer-{i}"
-#             else:
-#                 name = isotopomer["name"]
-#         if "abundance" not in isotopomer:
-#             abundance = "100%"
-#         else:
-#             abundance = isotopomer["abundance"]
-#         header = dbc.CardHeader(
-#             html.Div([html.Div(name), html.Div(abundance)], className=classname_1)
-#         )
-#         body = dbc.CardBody(display_sites(isotopomer["sites"]))
-#         sub_div.append(dbc.Col(dbc.Card([header, body])))
-#         if (i + 1) % 3 == 0:
-#             div.append(dbc.Row(deepcopy(sub_div)))
-#             sub_div = []
-#     return html.Div([*div, dbc.Row(sub_div)])
-# # with open("app/isotopomer/test.json", "r") as f:
-# #     input_ = json.load(f)
-# # def populate_key_value_from_object(object_dict, id_old):
-# #     lst = []
-# #     for key in object_dict.keys():
-# #         id_new = f"{key}_{id_old}"
-# #         if isinstance(object_dict[key], dict):
-# #             new_lst = populate_key_value_from_object(object_dict[key], id_new)
-# #             lst.append(
-# #                 custom_collapsible(
-# #                     text=key,
-# #                     identity=id_new,
-# #                     children=new_lst,
-# #                     is_open=False,
-# #                     size="sm",
-# #                     button_classname="tree-control-button",
-# #                     collapse_classname="tree-control",
-# #                     # style={"padding-left": "7px"},
-# #                 )
-# #             )
-# #         else:
-# #             lst.append(
-# #                 custom_form_group(prepend_label=key, id=id_new,
-# #                               value=object_dict[key])
-# #             )
-# #     return lst
-# # widgets = []
-# # for i, site in enumerate(input_["sites"]):
-# #     id_ = f"site_{i}"
-# #     widgets.append(
-# #         html.Div(
-# #             custom_collapsible(
-# #                 text=id_,
-# #                 identity=id_,
-# #                 children=populate_key_value_from_object(site, id_),
-# #                 is_open=False,
-# #                 size="sm",
-# #                 button_classname="tree-control-button",
-# #                 collapse_classname="tree-control-input",
-# #                 # style={"padding-left": "7px"},
-# #             )
-# #         )
-# #     )
-# # test = html.Div(
-# #     className="form-popup",
-# #     id="myForm",
-# #     children=html.Form(
-# #         action="/action_page.php",
-# #         className="form-container",
-# #         children=[
-# #             html.H1("Login"),
-# #             html.Label("Email"),
-# #             dcc.Input(
-# #                 type="text", placeholder="Enter Email", name="email", required=True
-# #             ),
-# #             html.Label("Password"),
-# #             dcc.Input(
-# #                 type="text", placeholder="Enter Password", name="psw", required=True
-# #             ),
-# #             html.Button(type="submit", className="btn", children="Login"),
-# #             html.Button(
-# #                 type="submit",
-# #                 className="btn cancel",
-# #                 # onclick="closeForm()",
-# #                 children="Close",
-# #             ),
-# #         ],
-# #     ),
-# # )
-# slide_from_left = html.Div(
-#     [
-#         html.Div(
-#             id="myNav",
-#             className="overlay",
-#             children=[
-#                 dbc.Button(
-#                     html.I(className="fas fa-times"),
-#                     id="toggle-overlay-hide",
-#                     className="closebtn",
-#                 ),
-#                 html.Div(
-#                     className="overlay-content",
-#                     children=[
-#                         html.A("About", href="#"),
-#                         html.A("Services", href="#"),
-#                         html.A("Clients", href="#"),
-#                         html.A("Contact", href="#"),
-#                     ],
-#                 ),
-#             ],
-#         ),
-#         dbc.Button("open overlay", id="toggle-overlay-show"),
-#     ]
-# )
-# @app.callback(
-#     Output("myNav", "style"),
-#     [
-#         Input("toggle-overlay-show", "n_clicks"),
-#         Input("toggle-overlay-hide", "n_clicks"),
-#     ],
-#     [State("myNav", "style")],
-# )
-# def callback_overlay(n1, n2, style):
-#     if n1 is n2 is None:
-#         style["width"] = "0%"
-#         return style
-#     max_ = max(i for i in [n1, n2] if i is not None)
-#     if max_ == n1:
-#         style["width"] = "80%"
-#     if max_ == n2:
-#         style = {"width": "0%"}
-#     return style
-# # test = html.Div(
-# #     [
-# #         html.Div(
-# #             id="myNav-info",
-# #             className="overlay",
-# #             children=[
-# #                 dbc.Button(
-# #                     html.I(className="fas fa-times"),
-# #                     id="toggle-overlay-hide",
-# #                     # href="javascript:void(0)",
-# #                     className="closebtn",
-# #                     # onclick="closeNav()",
-# #                 ),
-# #                 html.Div(
-# #                     className="overlay-content",
-# #                     children=[
-# #                         html.A("About", href="#"),
-# #                         html.A("Services", href="#"),
-# #                         html.A("Clients", href="#"),
-# #                         html.A("Contact", href="#"),
-# #                     ],
-# #                 ),
-# #             ],
-# #             style={"z-index": 1},
-# #         ),
-# #         dbc.Button(
-# #             "open",
-# #             id="toggle-overlay-show",
-# #             # style={"font-size": "30px", "cursor": "pointer"},
-# #         ),
-# #     ]
-# # )
-# # wd = html.Div(widgets)
-# -*- coding: utf-8 -*-
 import json
+from copy import deepcopy
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -272,15 +12,16 @@ from dash.exceptions import PreventUpdate
 from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
-
-# from mrsimulator.web_ui import ISOTOPE_DATA
+from app.isotopomer.draft import filter_isotopomer_list
 
 # from app.custom_widgets import custom_slider
 
 N_SITE = 2
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
+colors = {"background": "#e2e2e2", "text": "#585858"}
 
 # def custom_form_group(prepend_label="", **kwargs):
 #     if "step" not in kwargs.keys():
@@ -417,7 +158,7 @@ def populate_key_value_from_object(object_dict, id_old):
                     html.Div(
                         [
                             custom_input_group(
-                                prepend_label=key, id=id_new, value=value
+                                prepend_label=key, id=id_new, value=value, debounce=True
                             ),
                             # fitting_collapsible(key, value, identity=id_new),
                         ],
@@ -437,6 +178,7 @@ def populate_key_value_from_object(object_dict, id_old):
                                 append_label=unit,
                                 value=number,
                                 id=id_new,
+                                debounce=True,
                             ),
                             # fitting_collapsible(key, value, identity=id_new),
                         ],
@@ -499,16 +241,110 @@ def site_UI_update(value, UI_data):
     return UI_data[value]
 
 
+advance_isotopomer_editor_button = dbc.Col(
+    custom_button(
+        icon_classname="fas fa-edit",
+        id="json-file-editor-button",
+        tooltip="Advanced isotopomer editor",
+        active=False,
+        outline=True,
+        color="dark",
+        style={"float": "right"},
+    )
+)
+
+advance_isotopomer_text_area = dbc.Textarea(
+    className="mb-3 p-0",
+    id="json-file-editor",
+    placeholder="Isotopomer editor",
+    draggable="False",
+    contentEditable="False",
+    spellCheck="False",
+    bs_size="sm",
+    rows=10,
+    value="",
+)
+
+advance_isotopomer_text_area_collapsible = dbc.Collapse(
+    advance_isotopomer_text_area, id="json-file-editor-collapse"
+)
+
+
+isotopomer_name_field = dcc.Input(
+    # value=isotopomer["name"],
+    placeholder="Isotopomer name",
+    id="isotopomer-name",
+    style={"textAlign": "left", "color": colors["text"]},
+    className="d-flex flex-column grow",
+)
+
+isotopomer_description_field = dcc.Input(
+    # value=isotopomer["description"],
+    placeholder="Isotopomer description ... ",
+    id="isotopomer-description",
+    style={"textAlign": "left", "color": colors["text"]},
+    className=" d-flex",
+)
+
+isotopomer_abundance_field = dcc.Input(
+    placeholder="Isotopomer abundance",
+    # value=100,
+    id="isotopomer-abundance",
+    style={"textAlign": "left", "color": colors["text"]},
+    className=" d-flex",
+)
+
+isotopomer_form = dbc.Collapse(
+    [
+        dbc.Col(
+            [
+                isotopomer_name_field,  # isotopomer name
+                isotopomer_description_field,  # isotopomer description
+                isotopomer_abundance_field,  # isotopomer abundance
+            ]
+        ),
+        dbc.Tabs(widgets),
+    ],
+    id="isotopomer_form-collapse",
+    is_open=True,
+)
+
+
+@app.callback(
+    [
+        Output("json-file-editor-collapse", "is_open"),
+        Output("json-file-editor-button", "active"),
+        Output("isotopomer_form-collapse", "is_open"),
+    ],
+    [Input("json-file-editor-button", "n_clicks")],
+    [State("json-file-editor-button", "active")],
+)
+def toggle_json_file_editor_collapse(n, active):
+    """Callback for toggling collapsible json editor."""
+    if n is None:
+        raise PreventUpdate
+    if active:
+        return [False, False, True]
+    return [True, True, False]
+
+
 # Isotopomer layout
 isotopomer_body = html.Div(
     className="v-100 my-card",
     children=[
         html.Div(
-            [html.H4("Isotopomers", style={"fontWeight": "normal"}, className="pl-2")],
+            [
+                html.H4(
+                    "Isotopomers", style={"fontWeight": "normal"}, className="pl-2"
+                ),
+                advance_isotopomer_editor_button,
+            ],
             className="d-flex justify-content-between p-2",
         ),
-        isotopomer_dropdown,  # html.Div(id="isotopomer_list"),
-        dbc.Tabs(widgets),
+        dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
+        html.Br(),
+        advance_isotopomer_text_area_collapsible,
+        isotopomer_form,
     ],
     id="isotopomer-body",
 )
@@ -516,11 +352,80 @@ isotopomer_body = html.Div(
 greek_list = ["eta", "alpha", "beta", "gamma"]
 list_2 = ["shielding_symmetric", "quadrupolar"]
 
+
+def parse_number(quantity):
+    if isinstance(quantity, (float, int)):
+        return quantity
+    return float(quantity.split(" ")[0])
+
+
 # one function Input(isotopomoer-dropdown value) updates the fields, and create one json file
-# @app.callback(
-#     Output("json", "data"),
-#     [Input("isotopomer-dropdown", "value")]
-# )
+def parse_isotopomer_for_input_fields(isotopomer):
+    sites = isotopomer["sites"]
+    length = len(sites)
+
+    isotope_field = [site["isotope"] for site in sites]
+    shift_field = [parse_number(site["isotropic_chemical_shift"]) for site in sites]
+    zeta_field = [
+        parse_number(site["shielding_symmetric"]["zeta"])
+        if "shielding_symmetric" in site.keys()
+        else None
+        for site in sites
+    ]
+    Cq_field = [
+        parse_number(site["quadrupolar"]["Cq"])
+        if "quadrupolar" in site.keys()
+        else None
+        for site in sites
+    ]
+    greek_field = [
+        parse_number(site[key1][key2])
+        if key1 in site.keys() and key2 in site[key1].keys()
+        else None
+        for site in sites
+        for key1 in list_2
+        for key2 in greek_list
+    ]
+
+    if length < 2:
+        diff = 2 - length
+        empty_field = [None] * diff
+        isotope_field += empty_field
+        shift_field += empty_field
+        zeta_field += empty_field
+        Cq_field += empty_field
+        greek_field += empty_field * 8
+
+    return [*isotope_field, *shift_field, *zeta_field, *Cq_field, *greek_field]
+
+
+@app.callback(
+    [
+        *[Output(f"site[{i}]isotope", "value") for i in range(N_SITE)],
+        *[Output(f"site[{i}]isotropic_chemical_shift", "value") for i in range(N_SITE)],
+        *[Output(f"site[{i}]shielding_symmetriczeta", "value") for i in range(N_SITE)],
+        *[Output(f"site[{i}]quadrupolarCq", "value") for i in range(N_SITE)],
+        *[
+            Output(f"site[{i}]{key1}{key2}", "value")
+            for i in range(N_SITE)
+            for key1 in list_2
+            for key2 in greek_list
+        ],
+    ],
+    [Input("isotopomer-dropdown", "value")],
+    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+)
+def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
+    if local_isotopomer_data is None:
+        raise PreventUpdate
+    if index is None:
+        raise PreventUpdate
+
+    isotopomer_list = filter_isotopomer_list(
+        local_isotopomer_data["isotopomers"], isotope_id_value
+    )
+
+    return parse_isotopomer_for_input_fields(isotopomer_list[index])
 
 
 @app.callback(
@@ -551,51 +456,79 @@ list_2 = ["shielding_symmetric", "quadrupolar"]
     ],
 )
 def create_json(*args):
+    print(args)
+    remaining_items = [
+        "isotope",
+        "isotropic_chemical_shift",
+        "shielding_symmetric",
+        "quadrupolar",
+    ]
+    arg_list = args[12 * N_SITE :]
     """create a json object frim the input fields in the isotopomers UI"""
-    # print(args)
-    json_site = {
-        "sites": [
-            {
-                "isotope": f"{args[24]}",
-                "isotropic_chemical_shift": f"{args[26]} ppm",
-                "shielding_symmetric": {
-                    "zeta": f"{args[28]} ppm",
-                    "eta": args[32],
-                    "alpha": f"{args[33]} deg",
-                    "beta": f"{args[34]} deg",
-                    "gamma": f"{args[35]} deg",
-                },
-                "quadrupolar": {
-                    "Cq": f"{args[30]} Hz",
-                    "eta": args[36],
-                    "alpha": f"{args[37]} deg",
-                    "beta": f"{args[38]} deg",
-                    "gamma": f"{args[39]} deg",
-                },
-            },
-            {
-                "isotope": f"{args[25]}",
-                "isotropic_chemical_shift": f"{args[27]} ppm",
-                "shielding_symmetric": {
-                    "zeta": f"{args[29]} ppm",
-                    "eta": args[40],
-                    "alpha": f"{args[41]} deg",
-                    "beta": f"{args[42]} deg",
-                    "gamma": f"{args[43]} deg",
-                },
-                "quadrupolar": {
-                    "Cq": f"{args[31]} Hz",
-                    "eta": args[44],
-                    "alpha": f"{args[45]} deg",
-                    "beta": f"{args[46]} deg",
-                    "gamma": f"{args[47]} deg",
-                },
-            },
-        ],
-        "abundance": "100 %",
+    default_site = {
+        "isotope": "",
+        "isotropic_chemical_shift": "ppm",
+        "shielding_symmetric": {
+            "zeta": "ppm",
+            "eta": "",
+            "alpha": "deg",
+            "beta": "deg",
+            "gamma": "deg",
+        },
+        "quadrupolar": {
+            "Cq": "MHz",
+            "eta": "",
+            "alpha": "deg",
+            "beta": "deg",
+            "gamma": "deg",
+        },
     }
+    default_isotopomer = {}
+    default_isotopomer["sites"] = [deepcopy(default_site) for _ in range(N_SITE)]
 
-    return json.dumps(json_site)
+    for i in range(N_SITE):
+        site = default_isotopomer["sites"][i]
+
+        for j1, key1 in enumerate(list_2):
+            for j2, key2 in enumerate(greek_list):
+                element = arg_list[4 * N_SITE + 4 * j1 + j2 + 8 * i]
+                if element is not None:
+                    if key2 == "eta":
+                        site[key1][key2] = element
+                    else:
+                        site[key1][key2] = f"{element} {site[key1][key2]}"
+                else:
+                    del site[key1][key2]
+        # print(site)
+    for k, item in enumerate(remaining_items):
+        for j, site in enumerate(default_isotopomer["sites"]):
+
+            element = arg_list[k * N_SITE + j]
+            if item == "shielding_symmetric":
+
+                if element is not None:
+                    site[item]["zeta"] = f"{element} {site[item]['zeta']}"
+                else:
+                    del site[item]["zeta"]
+            elif item == "quadrupolar":
+
+                if element is not None:
+                    site[item]["Cq"] = f"{element} {site[item]['Cq']}"
+                else:
+                    del site[item]["Cq"]
+            else:
+                if element is not None:
+                    site[item] = f"{element} {site[item]}"
+                else:
+                    del site[item]
+        print(site)
+
+        if site["shielding_symmetric"] == {}:
+            del site["shielding_symmetric"]
+        if site["quadrupolar"] == {}:
+            del site["quadrupolar"]
+
+    return json.dumps(default_isotopomer)
 
 
 # (None, None, None, None, None, None, None, None, None, None,

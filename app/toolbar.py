@@ -34,21 +34,21 @@ decompose_button = custom_switch(
     style={"zIndex": 0},
 )
 
-# Show sum of spectrum from individual isotopomers ---------------------------------- #
-compose_button = custom_switch(
-    # text="Decompose",
-    icon_classname="fac fa-compose",
-    id="compose",
-    # size="sm",
-    # tooltip="Show simulation from individual isotopomers.",
-    outline=True,
-    color="dark",
-    style={"zIndex": 0},
-)
+# # Show sum of spectrum from individual isotopomers ---------------------------------- #
+# compose_button = custom_switch(
+#     # text="Decompose",
+#     icon_classname="fac fa-compose",
+#     id="compose",
+#     # size="sm",
+#     # tooltip="Show simulation from individual isotopomers.",
+#     outline=True,
+#     color="dark",
+#     style={"zIndex": 0},
+# )
 
 # Button group ---------------------------------------------------------------------- #
 group_1_buttons = dbc.ButtonGroup(
-    [scale_amplitude_button, compose_button, decompose_button],
+    [scale_amplitude_button, decompose_button],
     # className="btn-group mr-2",
 )
 

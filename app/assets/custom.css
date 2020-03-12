@@ -182,6 +182,11 @@ html {
   border-top-right-radius: 0px;
 }
 
+.bare {
+  background-color: #ffffff00;
+  border: 0px solid #e0e0e000;
+}
+
 @media only screen and (max-width: 992px) {
   .master-padding {
     padding-right: 0px;

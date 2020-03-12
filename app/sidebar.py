@@ -34,29 +34,36 @@ filename_datetime = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col(html.H5(id="filename_dataset")),
+                dbc.Col(
+                    html.H5(
+                        "Add a title", id="filename_dataset"  # contentEditable="True"
+                    )
+                ),
                 # dbc.Col(
                 #     isotopomers_info_button,
                 #     width=3,
                 #     className="d-flex justify-content-end",
                 # )
-                dbc.Col(
-                    custom_button(
-                        text="",
-                        icon_classname="fas fa-edit",
-                        id="json-file-editor-toggler",
-                        tooltip="Edit the isotopomer file.",
-                        active=False,
-                        outline=True,
-                        style={"float": "right"},
-                    )
-                ),
+                # dbc.Col(
+                #     custom_button(
+                #         text="",
+                #         icon_classname="fas fa-edit",
+                #         id="json-file-editor-toggler",
+                #         tooltip="Edit the isotopomer file.",
+                #         active=False,
+                #         outline=True,
+                #         style={"float": "right"},
+                #     )
+                # ),
             ],
             className="d-flex justify-content-between",
         ),
         file_info,
         html.P(
-            id="data_description", style={"textAlign": "left", "color": colors["text"]}
+            "Add a description ... ",
+            id="data_description",
+            style={"textAlign": "left", "color": colors["text"]},
+            # contentEditable="True",
         ),
         # isotopomer_set,
         # site_set,
@@ -70,34 +77,6 @@ filename_datetime = html.Div(
         # ),
     ]
 )
-
-
-text_area = dbc.Textarea(
-    className="mb-3 p-0",
-    id="json-file-editor",
-    placeholder="A Textarea",
-    draggable="False",
-    contentEditable="False",
-    spellCheck="False",
-    bs_size="sm",
-    rows=10,
-    value="",
-)
-
-text_area_collapsible = dbc.Collapse(text_area, id="json-file-editor-collapse")
-
-
-@app.callback(
-    Output("json-file-editor-collapse", "is_open"),
-    [Input("json-file-editor-toggler", "n_clicks")],
-    [State("json-file-editor-collapse", "is_open")],
-)
-def toggle_json_file_editor_collapse(n, is_open):
-    """Callback for toggling collapsible json editor."""
-    if n:
-        return not is_open
-    return is_open
-
 
 # def get_isotopomer_from_clicked_spectrum(clickData, local_computed_data):
 #     if clickData is not None:
@@ -153,11 +132,11 @@ def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown
 
 @app.callback(
     Output("json-file-editor", "value"),
-    [Input("isotopomer-dropdown", "value")],
+    [Input("isotopomer-dropdown", "value"), Input("new_json", "data")],
     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
 def update_json_file_editor_from_isotopomer_dropdown(
-    index, local_isotopomer_data, isotope_id_value
+    index, new_json_data, local_isotopomer_data, isotope_id_value
 ):
     """Return an isotopomer as a JSON value corresponding to dropdown selection index.
     Args:
@@ -166,6 +145,12 @@ def update_json_file_editor_from_isotopomer_dropdown(
         isotope_id_value: (state) update of the isotopomer json list based on the value
             of the isotope.
     """
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
     if local_isotopomer_data is None:
         raise PreventUpdate
     if index is None:
@@ -174,7 +159,13 @@ def update_json_file_editor_from_isotopomer_dropdown(
     isotopomer_list = filter_isotopomer_list(
         local_isotopomer_data["isotopomers"], isotope_id_value
     )
-    print("isotope_id_value", isotope_id_value)
+    print("isotope_id_value", isotope_id_value, index)
+    if index >= len(isotopomer_list):
+        index = 0
+
+    if trigger_id == "new_json":
+        isotopomer_list[index] = json.loads(new_json_data)
+
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
 
@@ -203,7 +194,7 @@ def update_isotopomer_dropdown_options(isotope_id_value, local_isotopomer_data):
 
 
 sidebar = dbc.Card(
-    dbc.CardBody([filename_datetime, text_area_collapsible]),
+    dbc.CardBody(filename_datetime),
     className="h-100 my-card-sidebar",
     inverse=False,
     id="sidebar",
