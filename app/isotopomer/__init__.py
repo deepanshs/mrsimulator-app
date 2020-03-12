@@ -269,15 +269,18 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
+from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
-# from mrsimulator.dimension import ISOTOPE_DATA
+
+# from mrsimulator.web_ui import ISOTOPE_DATA
 
 # from app.custom_widgets import custom_slider
 
 N_SITE = 2
+isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 
 # def custom_form_group(prepend_label="", **kwargs):
 #     if "step" not in kwargs.keys():
@@ -375,8 +378,9 @@ def fitting_collapsible(key, val, identity=None):
 def populate_key_value_from_object(object_dict, id_old):
     lst = []
     for key, value in object_dict.items():  # keys():
-        id_new = f"{id_old}%{key}"
+        id_new = f"{id_old}{key}"
         if isinstance(object_dict[key], dict):
+            # print(id_new)
             new_lst = populate_key_value_from_object(object_dict[key], id_new)
             lst.append(
                 custom_collapsible(
@@ -401,7 +405,9 @@ def populate_key_value_from_object(object_dict, id_old):
                     dbc.InputGroup(
                         [
                             dbc.InputGroupAddon("Isotope", addon_type="prepend"),
-                            dbc.Input(placeholder="#Nucleus", type="text"),
+                            dbc.Select(
+                                options=isotope_options_list, value=value, id=id_new
+                            ),
                         ],
                         className="mb-3",
                     )
@@ -421,8 +427,8 @@ def populate_key_value_from_object(object_dict, id_old):
 
             else:
                 number, unit = value.split()  # splitting string into number and unit
-                if "_" in key:
-                    key = key.replace("_", " ")
+                # if "_" in key:
+                #     key = key.replace("_", " ")
                 lst.append(
                     html.Div(
                         [
@@ -497,7 +503,6 @@ def site_UI_update(value, UI_data):
 isotopomer_body = html.Div(
     className="v-100 my-card",
     children=[
-        dcc.Store(id="new_json", storage_type="memory"),
         html.Div(
             [html.H4("Isotopomers", style={"fontWeight": "normal"}, className="pl-2")],
             className="d-flex justify-content-between p-2",
@@ -510,32 +515,94 @@ isotopomer_body = html.Div(
 
 greek_list = ["eta", "alpha", "beta", "gamma"]
 list_2 = ["shielding_symmetric", "quadrupolar"]
-# Outermost loop = N_SITE, innermost loop = greek_letter for fifth input
-# *[Input(f"site[{i}]%shielding_symmetric%eta", "value") for i in range(N_SITE)],
-# *[Input(f"site[{i}]%shielding_symmetric%alpha", "value") for i in range(N_SITE)],
-# *[Input(f"site[{i}]%shielding_symmetric%beta", "value") for i in range(N_SITE)],
-# *[Input(f"site[{i}]%shielding_symmetric%gamma", "value") for i in range(N_SITE)],
+
+# one function Input(isotopomoer-dropdown value) updates the fields, and create one json file
+# @app.callback(
+#     Output("json", "data"),
+#     [Input("isotopomer-dropdown", "value")]
+# )
 
 
 @app.callback(
-    Output("new_jason", "data"),
+    Output("new_json", "data"),
     [
-        # *[Input(f"site[{i}]%isotope", "value") for i in range(N_SITE)],
-        *[Input(f"site[{i}]%isotropic_chemical_shift", "value") for i in range(N_SITE)],
-        *[Input(f"site[{i}]%shielding_symmetric%zeta", "value") for i in range(N_SITE)],
-        *[Input(f"site[{i}]%quadrupolar%Cq", "value") for i in range(N_SITE)],
+        *[Input(f"site[{i}]isotope", "n_blur") for i in range(N_SITE)],
+        *[Input(f"site[{i}]isotropic_chemical_shift", "n_blur") for i in range(N_SITE)],
+        *[Input(f"site[{i}]shielding_symmetriczeta", "n_blur") for i in range(N_SITE)],
+        *[Input(f"site[{i}]quadrupolarCq", "n_blur") for i in range(N_SITE)],
         *[
-            Input(f"site[{i}]%{key1}%{key2}", "value")
+            Input(f"site[{i}]{key1}{key2}", "n_blur")
+            for i in range(N_SITE)
+            for key1 in list_2
+            for key2 in greek_list
+        ],
+    ],
+    [
+        *[State(f"site[{i}]isotope", "value") for i in range(N_SITE)],
+        *[State(f"site[{i}]isotropic_chemical_shift", "value") for i in range(N_SITE)],
+        *[State(f"site[{i}]shielding_symmetriczeta", "value") for i in range(N_SITE)],
+        *[State(f"site[{i}]quadrupolarCq", "value") for i in range(N_SITE)],
+        *[
+            State(f"site[{i}]{key1}{key2}", "value")
             for i in range(N_SITE)
             for key1 in list_2
             for key2 in greek_list
         ],
     ],
 )
-def create_json(*args, **kwargs):
-    print(args, kwargs)
-    return ""
+def create_json(*args):
+    """create a json object frim the input fields in the isotopomers UI"""
+    # print(args)
+    json_site = {
+        "sites": [
+            {
+                "isotope": f"{args[24]}",
+                "isotropic_chemical_shift": f"{args[26]} ppm",
+                "shielding_symmetric": {
+                    "zeta": f"{args[28]} ppm",
+                    "eta": args[32],
+                    "alpha": f"{args[33]} deg",
+                    "beta": f"{args[34]} deg",
+                    "gamma": f"{args[35]} deg",
+                },
+                "quadrupolar": {
+                    "Cq": f"{args[30]} Hz",
+                    "eta": args[36],
+                    "alpha": f"{args[37]} deg",
+                    "beta": f"{args[38]} deg",
+                    "gamma": f"{args[39]} deg",
+                },
+            },
+            {
+                "isotope": f"{args[25]}",
+                "isotropic_chemical_shift": f"{args[27]} ppm",
+                "shielding_symmetric": {
+                    "zeta": f"{args[29]} ppm",
+                    "eta": args[40],
+                    "alpha": f"{args[41]} deg",
+                    "beta": f"{args[42]} deg",
+                    "gamma": f"{args[43]} deg",
+                },
+                "quadrupolar": {
+                    "Cq": f"{args[31]} Hz",
+                    "eta": args[44],
+                    "alpha": f"{args[45]} deg",
+                    "beta": f"{args[46]} deg",
+                    "gamma": f"{args[47]} deg",
+                },
+            },
+        ],
+        "abundance": "100 %",
+    }
 
+    return json.dumps(json_site)
+
+
+# (None, None, None, None, None, None, None, None, None, None,
+#  None, None, None, None, None, None, None, None, None, None,
+#  None, None, None, None, '1H', '1H', '100', '200', '1', '9',
+#  '5', '13', 0.5, '2', '3', '4', 0.7, '6', '7', '8', 0.8, '10',
+#  '11', '12', 0.9, '14', '15', '16')
 
 # test = html.Div(
 #     className="form-popup",
