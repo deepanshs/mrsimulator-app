@@ -38,6 +38,7 @@ sub_body = html.Div(
         # a mapping of isotopomer index to local isotopomer index
         dcc.Store(id="local-isotopomer-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
+        dcc.Store(id="new_json", storage_type="memory"),
     ]
 )
 

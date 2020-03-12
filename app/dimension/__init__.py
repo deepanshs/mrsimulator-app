@@ -24,7 +24,7 @@ __email__ = ["deepansh2012@gmail.com"]
 advance_setting_button = custom_button(
     icon_classname="fas fa-cog",
     id="advance_setting",
-    tooltip="Advance setting",
+    tooltip="Advanced setting",
     outline=True,
     color="dark",
 )

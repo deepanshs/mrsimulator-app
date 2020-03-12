@@ -132,11 +132,11 @@ def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown
 
 @app.callback(
     Output("json-file-editor", "value"),
-    [Input("isotopomer-dropdown", "value")],
+    [Input("isotopomer-dropdown", "value"), Input("new_json", "data")],
     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
 def update_json_file_editor_from_isotopomer_dropdown(
-    index, local_isotopomer_data, isotope_id_value
+    index, new_json_data, local_isotopomer_data, isotope_id_value
 ):
     """Return an isotopomer as a JSON value corresponding to dropdown selection index.
     Args:
@@ -145,6 +145,12 @@ def update_json_file_editor_from_isotopomer_dropdown(
         isotope_id_value: (state) update of the isotopomer json list based on the value
             of the isotope.
     """
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
     if local_isotopomer_data is None:
         raise PreventUpdate
     if index is None:
@@ -156,6 +162,10 @@ def update_json_file_editor_from_isotopomer_dropdown(
     print("isotope_id_value", isotope_id_value, index)
     if index >= len(isotopomer_list):
         index = 0
+
+    if trigger_id == "new_json":
+        isotopomer_list[index] = json.loads(new_json_data)
+
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
 
