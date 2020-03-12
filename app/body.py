@@ -26,6 +26,8 @@ sub_body = html.Div(
         ),
         # memory for holding the isotopomers data
         dcc.Store(id="local-isotopomers-data", storage_type="memory"),
+        # memory for old local isotopomers data
+        dcc.Store(id="old-local-isotopomers-data", storage_type="memory"),
         # memory for holding the exp data
         dcc.Store(id="local-exp-external-data", storage_type="memory"),
         # memory for holding the computationally expensive computed data.

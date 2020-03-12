@@ -34,6 +34,21 @@ app.layout = html.Div(
 server = app.server
 
 
+def check_if_old_and_new_isotopomers_data_are_equal(new, old):
+    """Check if the two isotopomers are the same. This does not include the
+        name and the description of the isotopomers."""
+    size1 = len(new["isotopomers"])
+    size2 = len(old["isotopomers"])
+    size_min = min(size1, size2)
+
+    true_index = [False] * size1
+    for i in range(size_min):
+        if new["isotopomers"][i]["sites"] == old["isotopomers"][i]["sites"]:
+            true_index[i] = True
+
+    return true_index
+
+
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
     [
@@ -56,6 +71,8 @@ server = app.server
         State("integration_volume", "value"),
         State("number_of_sidebands", "value"),
         State("local-isotopomers-data", "data"),
+        State("old-local-isotopomers-data", "data"),
+        State("local-computed-data", "data"),
     ],
 )
 def simulation(
@@ -73,6 +90,8 @@ def simulation(
     integration_volume,
     number_of_sidebands,
     local_isotopomers_data,
+    old_local_isotopomers_data,
+    old_local_computed_data,
 ):
     """Evaluate the spectrum and update the plot."""
     # exit when the following conditions are True
@@ -108,11 +127,40 @@ def simulation(
         "spectral_width": float(spectral_width) * 1000,  # in Hz
         "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
+
+    # true_index = [False] * len(local_isotopomers_data['isotopomers'])
+    # if trigger_id not in [
+    #     "rotor_frequency-0",
+    #     "rotor_angle-0",
+    #     "number_of_points-0",
+    #     "spectral_width-0",
+    #     "reference_offset-0",
+    #     "spectrometer_frequency-0",
+    #     "isotope_id-0",
+    #     "close_setting",
+    # ]:
+    #     true_index = check_if_old_and_new_isotopomers_data_are_equal(
+    #         local_isotopomers_data, old_local_isotopomers_data
+    #     )
+
+    # if np.all(true_index):
+    #     raise PreventUpdate
     print("simulate")
     sim = Simulator()
     sim.dimensions = [Dimension(**dim)]
 
     mapping = []
+    # for i, item in enumerate(true_index):
+    #     if not item:
+    #         site_isotope = [site["isotope"] for site in
+    #                   local_isotopomers_data["isotopomers"][i]["sites"]]
+    #         if isotope_id in site_isotope:
+    #             sim.isotopomers.append(Isotopomer.parse_dict_with_units(
+    #                           local_isotopomers_data["isotopomers"][i])
+    #               )
+    #             # print(item)
+    #             mapping.append(i)
+
     for i, item in enumerate(local_isotopomers_data["isotopomers"]):
         site_isotope = [site["isotope"] for site in item["sites"]]
         if isotope_id in site_isotope:
