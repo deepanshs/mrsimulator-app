@@ -1,6 +1,6 @@
 [flake8]
 exclude = .eggs,*.egg,build
-ignore = C901, E722
+ignore = C901, E722 E203
 filename = *.pyx,*.px*, *py
 max-line-length = 88
 max-complexity = 18

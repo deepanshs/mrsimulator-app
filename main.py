@@ -454,4 +454,4 @@ def update_isotope_list(data, old_isotope_value):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False, threaded=True)
+    app.run_server(debug=True, threaded=True)

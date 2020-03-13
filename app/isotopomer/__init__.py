@@ -359,7 +359,8 @@ def parse_number(quantity):
     return float(quantity.split(" ")[0])
 
 
-# one function Input(isotopomoer-dropdown value) updates the fields, and create one json file
+# one function Input(isotopomer-dropdown value) updates the fields,
+# and create one json file
 def parse_isotopomer_for_input_fields(isotopomer):
     sites = isotopomer["sites"]
     length = len(sites)
@@ -429,7 +430,7 @@ def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
 
 
 @app.callback(
-    Output("new_json", "data"),
+    Output("new-json", "data"),
     [
         *[Input(f"site[{i}]isotope", "n_blur") for i in range(N_SITE)],
         *[Input(f"site[{i}]isotropic_chemical_shift", "n_blur") for i in range(N_SITE)],
@@ -456,7 +457,7 @@ def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
     ],
 )
 def create_json(*args):
-    print(args)
+    # print(args)
     remaining_items = [
         "isotope",
         "isotropic_chemical_shift",
@@ -464,7 +465,7 @@ def create_json(*args):
         "quadrupolar",
     ]
     arg_list = args[12 * N_SITE :]
-    """create a json object frim the input fields in the isotopomers UI"""
+    """create a json object from the input fields in the isotopomers UI"""
     default_site = {
         "isotope": "",
         "isotropic_chemical_shift": "ppm",
@@ -516,19 +517,32 @@ def create_json(*args):
                     site[item]["Cq"] = f"{element} {site[item]['Cq']}"
                 else:
                     del site[item]["Cq"]
+
+            elif item == "isotope":
+                if element is not None:
+                    site[item] = element
+                else:
+                    del site[item]
+
             else:
                 if element is not None:
                     site[item] = f"{element} {site[item]}"
                 else:
                     del site[item]
-        print(site)
+        # print(site)
 
+    for site in default_isotopomer["sites"]:
         if site["shielding_symmetric"] == {}:
             del site["shielding_symmetric"]
         if site["quadrupolar"] == {}:
             del site["quadrupolar"]
+        if site == {}:
+            del site
 
-    return json.dumps(default_isotopomer)
+    var = {}
+    var["sites"] = [s for s in default_isotopomer["sites"] if s != {}]
+    print("create json", var)
+    return var
 
 
 # (None, None, None, None, None, None, None, None, None, None,

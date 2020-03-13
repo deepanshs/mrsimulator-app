@@ -302,6 +302,7 @@ spectrum_import_layout = upload_data(
         Input("example-isotopomer-dropbox", "value"),
         Input("upload-from-graph", "contents"),
         Input("json-file-editor", "n_blur_timestamp"),
+        Input("new-json", "data"),
     ],
     [
         State("upload-isotopomer-url", "value"),
@@ -321,6 +322,7 @@ def update_isotopomers(
     example,
     from_graph_content,
     time_of_editor_trigger,
+    new_json_data,
     # states
     isotopomer_url,
     isotopomer_filename,
@@ -389,9 +391,24 @@ def update_isotopomers(
     if trigger_id == "json-file-editor":
         if editor_value in ["", None]:
             raise PreventUpdate
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
         isotopomers = json.loads(editor_value)
         data = existing_isotopomers_data
         data["isotopomers"][index_map[isotopomer_dropdown_value]] = isotopomers
+
+    # The following section applies to when the isotopomers update is triggered from
+    # the GUI fields.
+    if trigger_id == "new-json":
+        if new_json_data in ["", None]:
+            raise PreventUpdate
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
+        data = existing_isotopomers_data
+
+        # print("data before", data)
+        data["isotopomers"][index_map[isotopomer_dropdown_value]] = new_json_data
+        # print("data after", data)
 
     if "name" not in data:
         data["name"] = ""

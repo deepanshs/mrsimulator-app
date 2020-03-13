@@ -132,7 +132,7 @@ def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown
 
 @app.callback(
     Output("json-file-editor", "value"),
-    [Input("isotopomer-dropdown", "value"), Input("new_json", "data")],
+    [Input("isotopomer-dropdown", "value"), Input("new-json", "data")],
     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
 def update_json_file_editor_from_isotopomer_dropdown(
@@ -163,8 +163,8 @@ def update_json_file_editor_from_isotopomer_dropdown(
     if index >= len(isotopomer_list):
         index = 0
 
-    if trigger_id == "new_json":
-        isotopomer_list[index] = json.loads(new_json_data)
+    if trigger_id == "new-json":
+        isotopomer_list[index] = new_json_data
 
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
@@ -189,7 +189,7 @@ def update_isotopomer_dropdown_options(isotope_id_value, local_isotopomer_data):
     isotopomer_dropdown_options = get_isotopomer_dropdown_options(
         local_isotopomer_data["isotopomers"], isotope_id_value
     )
-
+    # print("option list", local_isotopomer_data, isotopomer_dropdown_options)
     return isotopomer_dropdown_options
 
 
