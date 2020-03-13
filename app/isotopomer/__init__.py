@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-from copy import deepcopy
 
+import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -20,6 +20,7 @@ from app.isotopomer.draft import filter_isotopomer_list
 # from app.custom_widgets import custom_slider
 
 N_SITE = 2
+ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 colors = {"background": "#e2e2e2", "text": "#585858"}
 
@@ -119,7 +120,7 @@ def fitting_collapsible(key, val, identity=None):
 def populate_key_value_from_object(object_dict, id_old):
     lst = []
     for key, value in object_dict.items():  # keys():
-        id_new = f"{id_old}{key}"
+        id_new = f"{id_old}-{key}"
         if isinstance(object_dict[key], dict):
             # print(id_new)
             new_lst = populate_key_value_from_object(object_dict[key], id_new)
@@ -196,7 +197,7 @@ with open("app/isotopomer/test.json", "r") as f:
 widgets = []
 # id_1 = f"[{1}]%site"
 for i, site in enumerate(isotopomer["sites"]):
-    id_2 = f"site[{i}]"
+    id_2 = f"{i}"
     widgets.append(
         dbc.Tab(
             label=f"site {i}",
@@ -349,70 +350,104 @@ isotopomer_body = html.Div(
     id="isotopomer-body",
 )
 
-greek_list = ["eta", "alpha", "beta", "gamma"]
+
 list_2 = ["shielding_symmetric", "quadrupolar"]
+greek_list = ["eta", "alpha", "beta", "gamma"]
+
+base_keys = ["isotope", "isotropic_chemical_shift"]
+shielding_symmertic_keys = [
+    f"shielding_symmetric-{item}" for item in ["zeta", *greek_list]
+]
+quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", *greek_list]]
+all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
+
+default_unit = {
+    "isotope": None,
+    "isotropic_chemical_shift": "ppm",
+    "shielding_symmetric": {
+        "zeta": "ppm",
+        "eta": None,
+        "alpha": "deg",
+        "beta": "deg",
+        "gamma": "deg",
+    },
+    "quadrupolar": {
+        "Cq": "MHz",
+        "eta": None,
+        "alpha": "deg",
+        "beta": "deg",
+        "gamma": "deg",
+    },
+}
 
 
 def parse_number(quantity):
-    if isinstance(quantity, (float, int)):
-        return quantity
-    return float(quantity.split(" ")[0])
+    return [
+        quantity
+        if isinstance(quantity, (float, int))
+        else float(quantity.split(" ")[0])
+    ][0]
 
 
-# one function Input(isotopomer-dropdown value) updates the fields,
-# and create one json file
-def parse_isotopomer_for_input_fields(isotopomer):
-    sites = isotopomer["sites"]
-    length = len(sites)
-
-    isotope_field = [site["isotope"] for site in sites]
-    shift_field = [parse_number(site["isotropic_chemical_shift"]) for site in sites]
-    zeta_field = [
-        parse_number(site["shielding_symmetric"]["zeta"])
-        if "shielding_symmetric" in site.keys()
-        else None
-        for site in sites
+def extract_sites_dictionary_dash_triggers(dash_triggers):
+    """
+    Extract a list of site dictionaries from the dash ids. This
+    method does not depend on how the trigger ids are ordered.
+    """
+    sites = [
+        {
+            "isotope": None,
+            "isotropic_chemical_shift": None,
+            "shielding_symmetric": {},
+            "quadrupolar": {},
+        }
+        for _ in range(N_SITE)
     ]
-    Cq_field = [
-        parse_number(site["quadrupolar"]["Cq"])
-        if "quadrupolar" in site.keys()
-        else None
-        for site in sites
-    ]
-    greek_field = [
-        parse_number(site[key1][key2])
-        if key1 in site.keys() and key2 in site[key1].keys()
-        else None
-        for site in sites
-        for key1 in list_2
-        for key2 in greek_list
-    ]
+    for key, value in dash_triggers.items():
+        if value is not None:
+            group = key.split(".")[0].split("-")
+            i = int(group[0])
+            if len(group) == 2:
+                unit = default_unit[group[1]]
+                val = [value if unit is None else f"{value} {unit}"][0]
+                sites[i][group[1]] = val
+            if len(group) == 3:
+                unit = default_unit[group[1]][group[2]]
+                val = [value if unit is None else f"{value} {unit}"][0]
+                sites[i][group[1]][group[2]] = val
+    return sites
 
-    if length < 2:
-        diff = 2 - length
-        empty_field = [None] * diff
-        isotope_field += empty_field
-        shift_field += empty_field
-        zeta_field += empty_field
-        Cq_field += empty_field
-        greek_field += empty_field * 8
 
-    return [*isotope_field, *shift_field, *zeta_field, *Cq_field, *greek_field]
+def extract_trigger_values_from_dictionary(site_lists):
+    """
+    Extract the trigger values from an ordered list of site objects.
+    The order of the trigger values follows the order defined by variable
+    `all_keys`.
+    """
+    root_keys = [site.keys() for site in site_lists]
+
+    trigger_values = [None for _ in range(ATTR_PER_SITE * N_SITE)]
+    for i, site in enumerate(site_lists):
+        for k, key in enumerate(all_keys):
+            group = key.split("-")
+            if len(group) == 1:
+                if group[0] in root_keys[i]:
+                    val = site[group[0]]
+                    trigger_values[i * ATTR_PER_SITE + k] = [
+                        parse_number(val) if key != "isotope" else val
+                    ][0]
+            if len(group) == 2:
+                if group[0] in root_keys[i]:
+                    sub_root_keys = site[group[0]].keys()
+                    if group[1] in sub_root_keys:
+                        val = site[group[0]][group[1]]
+                        trigger_values[i * ATTR_PER_SITE + k] = parse_number(val)
+
+    return trigger_values
 
 
 @app.callback(
-    [
-        *[Output(f"site[{i}]isotope", "value") for i in range(N_SITE)],
-        *[Output(f"site[{i}]isotropic_chemical_shift", "value") for i in range(N_SITE)],
-        *[Output(f"site[{i}]shielding_symmetriczeta", "value") for i in range(N_SITE)],
-        *[Output(f"site[{i}]quadrupolarCq", "value") for i in range(N_SITE)],
-        *[
-            Output(f"site[{i}]{key1}{key2}", "value")
-            for i in range(N_SITE)
-            for key1 in list_2
-            for key2 in greek_list
-        ],
-    ],
+    [*[Output(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
     [Input("isotopomer-dropdown", "value")],
     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
@@ -425,124 +460,50 @@ def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
     isotopomer_list = filter_isotopomer_list(
         local_isotopomer_data["isotopomers"], isotope_id_value
     )
+    if index >= len(isotopomer_list):
+        index = 0
 
-    return parse_isotopomer_for_input_fields(isotopomer_list[index])
+    values = extract_trigger_values_from_dictionary(isotopomer_list[index]["sites"])
+    return values
 
 
 @app.callback(
     Output("new-json", "data"),
     [
-        *[Input(f"site[{i}]isotope", "n_blur") for i in range(N_SITE)],
-        *[Input(f"site[{i}]isotropic_chemical_shift", "n_blur") for i in range(N_SITE)],
-        *[Input(f"site[{i}]shielding_symmetriczeta", "n_blur") for i in range(N_SITE)],
-        *[Input(f"site[{i}]quadrupolarCq", "n_blur") for i in range(N_SITE)],
+        *[Input(f"{i}-isotope", "n_blur") for i in range(N_SITE)],
         *[
-            Input(f"site[{i}]{key1}{key2}", "n_blur")
+            Input(f"{i}-{item}", "n_blur")
             for i in range(N_SITE)
-            for key1 in list_2
-            for key2 in greek_list
+            for item in all_keys
+            if "isotope" not in item
         ],
     ],
-    [
-        *[State(f"site[{i}]isotope", "value") for i in range(N_SITE)],
-        *[State(f"site[{i}]isotropic_chemical_shift", "value") for i in range(N_SITE)],
-        *[State(f"site[{i}]shielding_symmetriczeta", "value") for i in range(N_SITE)],
-        *[State(f"site[{i}]quadrupolarCq", "value") for i in range(N_SITE)],
-        *[
-            State(f"site[{i}]{key1}{key2}", "value")
-            for i in range(N_SITE)
-            for key1 in list_2
-            for key2 in greek_list
-        ],
-    ],
+    [*[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
 )
 def create_json(*args):
-    # print(args)
-    remaining_items = [
-        "isotope",
-        "isotropic_chemical_shift",
-        "shielding_symmetric",
-        "quadrupolar",
-    ]
-    arg_list = args[12 * N_SITE :]
-    """create a json object from the input fields in the isotopomers UI"""
-    default_site = {
-        "isotope": "",
-        "isotropic_chemical_shift": "ppm",
-        "shielding_symmetric": {
-            "zeta": "ppm",
-            "eta": "",
-            "alpha": "deg",
-            "beta": "deg",
-            "gamma": "deg",
-        },
-        "quadrupolar": {
-            "Cq": "MHz",
-            "eta": "",
-            "alpha": "deg",
-            "beta": "deg",
-            "gamma": "deg",
-        },
-    }
-    default_isotopomer = {}
-    default_isotopomer["sites"] = [deepcopy(default_site) for _ in range(N_SITE)]
+    """Create a json object from the input fields in the isotopomers UI"""
 
-    for i in range(N_SITE):
-        site = default_isotopomer["sites"][i]
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
 
-        for j1, key1 in enumerate(list_2):
-            for j2, key2 in enumerate(greek_list):
-                element = arg_list[4 * N_SITE + 4 * j1 + j2 + 8 * i]
-                if element is not None:
-                    if key2 == "eta":
-                        site[key1][key2] = element
-                    else:
-                        site[key1][key2] = f"{element} {site[key1][key2]}"
-                else:
-                    del site[key1][key2]
-        # print(site)
-    for k, item in enumerate(remaining_items):
-        for j, site in enumerate(default_isotopomer["sites"]):
+    # state is a list of dict where dict is of form {'dash_id.value': 'value'}.
+    states = dash.callback_context.states
 
-            element = arg_list[k * N_SITE + j]
-            if item == "shielding_symmetric":
+    # the dash_id is defined as site_index-key1-key2, which is used to generate site
+    # dictionary as
+    #           site[site_index][key1][key2] = value
+    # with this method, we don't have to track the order of the inputs. See function
+    # extract_sites_dictionary_dash_triggers()
+    sites = extract_sites_dictionary_dash_triggers(states)
 
-                if element is not None:
-                    site[item]["zeta"] = f"{element} {site[item]['zeta']}"
-                else:
-                    del site[item]["zeta"]
-            elif item == "quadrupolar":
+    # remove key entries with empty dict.
+    sites = [site for site in sites if site["isotope"] is not None]
+    sites = [dict([(k, v) for k, v in site.items() if v != {}]) for site in sites]
 
-                if element is not None:
-                    site[item]["Cq"] = f"{element} {site[item]['Cq']}"
-                else:
-                    del site[item]["Cq"]
-
-            elif item == "isotope":
-                if element is not None:
-                    site[item] = element
-                else:
-                    del site[item]
-
-            else:
-                if element is not None:
-                    site[item] = f"{element} {site[item]}"
-                else:
-                    del site[item]
-        # print(site)
-
-    for site in default_isotopomer["sites"]:
-        if site["shielding_symmetric"] == {}:
-            del site["shielding_symmetric"]
-        if site["quadrupolar"] == {}:
-            del site["quadrupolar"]
-        if site == {}:
-            del site
-
-    var = {}
-    var["sites"] = [s for s in default_isotopomer["sites"] if s != {}]
-    print("create json", var)
-    return var
+    isotopomer_dict = {}
+    isotopomer_dict["sites"] = sites
+    return isotopomer_dict
 
 
 # (None, None, None, None, None, None, None, None, None, None,
