@@ -351,6 +351,8 @@ isotopomer_body = html.Div(
 )
 
 
+# callback code section =======================================================
+
 list_2 = ["shielding_symmetric", "quadrupolar"]
 greek_list = ["eta", "alpha", "beta", "gamma"]
 
@@ -382,6 +384,7 @@ default_unit = {
 
 
 def parse_number(quantity):
+    """Return the numerical value of a quantity."""
     return [
         quantity
         if isinstance(quantity, (float, int))
@@ -391,8 +394,16 @@ def parse_number(quantity):
 
 def extract_sites_dictionary_dash_triggers(dash_triggers):
     """
-    Extract a list of site dictionaries from the dash ids. This
-    method does not depend on how the trigger ids are ordered.
+    Extract a list of site dictionaries from the dash_id. This method does not
+    depend on how the trigger dash_id are ordered.
+
+    Arg:
+        dash_trigger: A list of dash trigger dictionaries where each dictionary is
+                of form {'dash_id.value': 'value'}
+
+    We define the dash_id as `site_index-key1-key2`, which makes it easy to generate
+    the site dictionary objects following
+                site[site_index][key1][key2] = value
     """
     sites = [
         {
@@ -420,8 +431,9 @@ def extract_sites_dictionary_dash_triggers(dash_triggers):
 
 def extract_trigger_values_from_dictionary(site_lists):
     """
-    Extract the trigger values from an ordered list of site objects.
-    The order of the trigger values follows the order defined by variable
+    Extract the values from an ordered list of site objects. the extracted values are
+    sent to the dash Output.
+    The order of the optput trigger values follows the order defined by the variable
     `all_keys`.
     """
     root_keys = [site.keys() for site in site_lists]
@@ -452,6 +464,8 @@ def extract_trigger_values_from_dictionary(site_lists):
     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
 def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
+    """Extract the values from the local isotopomer data and populate the input fields
+    in the isotopomer UI."""
     if local_isotopomer_data is None:
         raise PreventUpdate
     if index is None:
@@ -481,20 +495,12 @@ def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
     [*[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
 )
 def create_json(*args):
-    """Create a json object from the input fields in the isotopomers UI"""
-
+    """Generate a json object from the input fields in the isotopomers UI"""
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
 
-    # state is a list of dict where dict is of form {'dash_id.value': 'value'}.
     states = dash.callback_context.states
-
-    # the dash_id is defined as site_index-key1-key2, which is used to generate site
-    # dictionary as
-    #           site[site_index][key1][key2] = value
-    # with this method, we don't have to track the order of the inputs. See function
-    # extract_sites_dictionary_dash_triggers()
     sites = extract_sites_dictionary_dash_triggers(states)
 
     # remove key entries with empty dict.
