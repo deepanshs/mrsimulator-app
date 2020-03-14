@@ -75,7 +75,12 @@ dimension_body = html.Div(
     children=[
         html.Div(
             [
-                html.H4("Dimensions", style={"fontWeight": "normal"}, className="pl-2"),
+                html.H4(
+                    "Dimensions",
+                    style={"fontWeight": "normal"},
+                    className="pl-2",
+                    id="dimension-card",
+                ),
                 # dbc.Button("+", id="add-dimension"),
                 dimension_toolbar,
             ],
@@ -85,6 +90,8 @@ dimension_body = html.Div(
     ],
     id="dimension-body",
 )
+
+dimension_body_card = html.Div(dimension_body, id="dimension-body-card")
 
 
 # @app.callback(

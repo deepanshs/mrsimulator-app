@@ -142,7 +142,7 @@ def custom_slider(label="", return_function=None, **kwargs):
     return slider
 
 
-def custom_input_group(prepend_label="", append_label="", **kwargs):
+def custom_input_group(prepend_label="", append_label=None, **kwargs):
     """
         A custom dash bootstrap component input-group widget with a prepend-label,
         followed by an Input box, and an append-label.
@@ -164,7 +164,7 @@ def custom_input_group(prepend_label="", append_label="", **kwargs):
             **kwargs,
         ),
     ]
-    if append_label != "":
+    if append_label is not None:
         return html.Div(
             [
                 *group,

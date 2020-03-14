@@ -11,8 +11,62 @@ from app.graph import spectrum_body
 from app.isotopomer import isotopomer_body
 from app.modal.about import about_modal
 
+# import dash
+
+# from dash.dependencies import Input
+# from dash.dependencies import Output
+# from dash.exceptions import PreventUpdate
+
+# from app.app import app
+
+# from app.isotopomer import isotopomer_body_card
+# from app.dimension import dimension_body_card
+
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
+
+# The dimension and isotopomer cards are place at the front and back of a master
+# card
+# card_flip = html.Div(
+#     dbc.Row(
+#         [
+#             dbc.Col(isotopomer_body_card, className="card-face card-face-back", xl=6),
+#             dbc.Col(dimension_body_card, className="card-face", xl=6),
+#         ],
+#         id="card-flip",
+#         className="card-3D",
+#     ),
+#     className="scene",
+# )
+
+
+# @app.callback(
+#     [
+#         Output("card-flip", "className"),
+#         Output("dimension-body-card", "className"),
+#         Output("isotopomer-body-card", "className"),
+#     ],
+#     [Input("dimension-card", "n_clicks"), Input("isotopomer-card", "n_clicks")],
+# )
+# def flip(n1, n2):
+#     """Flips the card between the isotopomer and dimension cards."""
+#     if n1 is None and n2 is None:
+#         raise PreventUpdate
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         raise PreventUpdate
+
+#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+#     if trigger_id == "dimension-card":
+#         return [
+#             "card-3D card-3D-is-flipped",
+#             "card-flip-hide",
+#             "card-flip-show",
+#         ]
+
+#     if trigger_id == "isotopomer-card":
+#         return ["card-3D", "card-flip-show", "card-flip-hide"]
 
 
 sub_body = html.Div(
@@ -22,6 +76,8 @@ sub_body = html.Div(
                 dbc.Col([html.Br(), isotopomer_body], xs=12, sm=12, md=12, lg=3, xl=3),
                 dbc.Col([html.Br(), spectrum_body], xs=12, sm=12, md=12, lg=6, xl=6),
                 dbc.Col([html.Br(), dimension_body], xs=12, sm=12, md=12, lg=3, xl=3),
+                # dbc.Col([html.Br(), spectrum_body], xs=12, sm=12, md=12, lg=7, xl=5),
+                # dbc.Col([html.Br(), card_flip], xs=12, sm=12, md=12, lg=5, xl=7),
             ]
         ),
         # memory for holding the isotopomers data

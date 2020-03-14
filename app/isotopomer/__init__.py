@@ -12,10 +12,11 @@ from dash.exceptions import PreventUpdate
 from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
-from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
 from app.isotopomer.draft import filter_isotopomer_list
+from app.isotopomer.toolbar import advanced_isotopomer_text_area_collapsible
+from app.isotopomer.toolbar import toolbar
 
 # from app.custom_widgets import custom_slider
 
@@ -242,35 +243,6 @@ def site_UI_update(value, UI_data):
     return UI_data[value]
 
 
-advance_isotopomer_editor_button = dbc.Col(
-    custom_button(
-        icon_classname="fas fa-edit",
-        id="json-file-editor-button",
-        tooltip="Advanced isotopomer editor",
-        active=False,
-        outline=True,
-        color="dark",
-        style={"float": "right"},
-    )
-)
-
-advance_isotopomer_text_area = dbc.Textarea(
-    className="mb-3 p-0",
-    id="json-file-editor",
-    placeholder="Isotopomer editor",
-    draggable="False",
-    contentEditable="False",
-    spellCheck="False",
-    bs_size="sm",
-    rows=10,
-    value="",
-)
-
-advance_isotopomer_text_area_collapsible = dbc.Collapse(
-    advance_isotopomer_text_area, id="json-file-editor-collapse"
-)
-
-
 isotopomer_name_field = dcc.Input(
     # value=isotopomer["name"],
     placeholder="Isotopomer name",
@@ -334,21 +306,24 @@ isotopomer_body = html.Div(
     className="v-100 my-card",
     children=[
         html.Div(
-            [
-                html.H4(
-                    "Isotopomers", style={"fontWeight": "normal"}, className="pl-2"
-                ),
-                advance_isotopomer_editor_button,
-            ],
+            html.H4(
+                "Isotopomers",
+                style={"fontWeight": "normal"},
+                className="pl-2",
+                id="isotopomer-card",
+            ),
             className="d-flex justify-content-between p-2",
         ),
+        dbc.Col(toolbar),
         dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
         html.Br(),
-        advance_isotopomer_text_area_collapsible,
+        advanced_isotopomer_text_area_collapsible,
         isotopomer_form,
     ],
     id="isotopomer-body",
 )
+
+isotopomer_body_card = html.Div(isotopomer_body, id="isotopomer-body-card")
 
 
 # callback code section =======================================================
