@@ -11,9 +11,11 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 from app.custom_widgets import custom_button
-from app.isotopomer.draft import filter_isotopomer_list
-from app.isotopomer.draft import get_isotopomer_dropdown_options
+from app.isotopomer.draft import get_all_isotopomer_dropdown_options
 from app.modal.file_info import file_info
+
+# from app.isotopomer.draft import filter_isotopomer_list
+# from app.isotopomer.draft import get_isotopomer_dropdown_options
 
 # from app.isotopomer.draft import isotopomer_set
 
@@ -97,9 +99,15 @@ filename_datetime = html.Div(
 @app.callback(
     Output("isotopomer-dropdown", "value"),
     [Input("nmr_spectrum", "clickData"), Input("isotopomer-dropdown", "options")],
-    [State("decompose", "active"), State("isotopomer-dropdown", "value")],
+    [
+        State("decompose", "active"),
+        State("isotopomer-dropdown", "value"),
+        State("local-isotopomer-index-map", "data"),
+    ],
 )
-def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown_value):
+def update_isotopomer_dropdown_index(
+    clickData, options, decompose, old_dropdown_value, index_map
+):
     """Update the current value of the isotopomer dropdown value when
         a) the trace (line plot) is selected, or
         b) the isotopomer dropdown options has changed.
@@ -127,68 +135,77 @@ def update_isotopomer_dropdown_index(clickData, options, decompose, old_dropdown
     index = 0
     if decompose:
         index = clickData["points"][0]["curveNumber"]
-    return index
+    return index_map[index]
 
 
 @app.callback(
     Output("json-file-editor", "value"),
-    [Input("isotopomer-dropdown", "value"), Input("new-json", "data")],
-    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+    [Input("isotopomer-dropdown", "value"), Input("json-file-editor-button", "active")],
+    [State("local-isotopomers-data", "data")],
 )
 def update_json_file_editor_from_isotopomer_dropdown(
-    index, new_json_data, local_isotopomer_data, isotope_id_value
+    index, is_advanced_editor_open, local_isotopomer_data
 ):
     """Return an isotopomer as a JSON value corresponding to dropdown selection index.
     Args:
         index: (trigger) The index of isotopomer dropdown selection.
         local_isotopomer_data: (state) Local isotopomers data as the state.
-        isotope_id_value: (state) update of the isotopomer json list based on the value
-            of the isotope.
     """
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        raise PreventUpdate
+    print("active", is_advanced_editor_open)
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if not is_advanced_editor_open:
+        raise PreventUpdate
 
     if local_isotopomer_data is None:
         raise PreventUpdate
     if index is None:
         raise PreventUpdate
 
-    isotopomer_list = filter_isotopomer_list(
-        local_isotopomer_data["isotopomers"], isotope_id_value
-    )
-    print("isotope_id_value", isotope_id_value, index)
+    # isotopomer_list = filter_isotopomer_list(
+    #     local_isotopomer_data["isotopomers"], isotope_id_value
+    # )
+    isotopomer_list = local_isotopomer_data["isotopomers"]
+    print("dropdown index", index)
     if index >= len(isotopomer_list):
         index = 0
 
-    if trigger_id == "new-json":
-        isotopomer_list[index] = new_json_data
+    # ctx = dash.callback_context
+    # if not ctx.triggered:
+    #     raise PreventUpdate
+
+    # trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    # if trigger_id == "new-json":
+    # isotopomer_list[index] = new_json_data
 
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
 
 @app.callback(
     Output("isotopomer-dropdown", "options"),
-    [Input("isotope_id-0", "value")],
+    [Input("local-isotopomers-data", "modified_timestamp")],
+    # [Input("isotope_id-0", "value")],
     [State("local-isotopomers-data", "data")],
 )
-def update_isotopomer_dropdown_options(isotope_id_value, local_isotopomer_data):
+def update_isotopomer_dropdown_options(timestamp, local_isotopomer_data):
     """Update isotopomer dropdown options base on local isotopomers data.
         Args:
             isotope_id_value: (trigger) a filter and update of the isotopomer
                 dropdown options based on the value of the isotope.
             local_isotopomer_data: (state) Local isotopomers data as the state.
     """
-    if isotope_id_value is None:
+    if timestamp is None:
         raise PreventUpdate
     if local_isotopomer_data is None:
         raise PreventUpdate
 
-    isotopomer_dropdown_options = get_isotopomer_dropdown_options(
-        local_isotopomer_data["isotopomers"], isotope_id_value
+    isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
+        local_isotopomer_data["isotopomers"]
     )
+
+    # isotopomer_dropdown_options = get_isotopomer_dropdown_options(
+    #     local_isotopomer_data["isotopomers"], isotope_id_value
+    # )
     # print("option list", local_isotopomer_data, isotopomer_dropdown_options)
     return isotopomer_dropdown_options
 

@@ -34,7 +34,7 @@ decompose_button = custom_switch(
     style={"zIndex": 0},
 )
 
-# # Show sum of spectrum from individual isotopomers ---------------------------------- #
+# # Show sum of spectrum from individual isotopomers -------------------------------- #
 # compose_button = custom_switch(
 #     # text="Decompose",
 #     icon_classname="fac fa-compose",

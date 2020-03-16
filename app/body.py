@@ -97,6 +97,7 @@ sub_body = html.Div(
         dcc.Store(id="local-isotopomer-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
         dcc.Store(id="new-json", storage_type="memory"),
+        # dcc.Store(id="shielding_symmetric", storage_type="memory"),
     ]
 )
 

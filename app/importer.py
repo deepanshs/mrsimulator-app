@@ -340,6 +340,7 @@ def update_isotopomers(
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("trigger", trigger_id)
 
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
@@ -352,7 +353,7 @@ def update_isotopomers(
 
     # The following section applies to when the isotopomers update is triggered from
     # url-submit.
-    if trigger_id == "upload-isotopomer-url-submit":
+    elif trigger_id == "upload-isotopomer-url-submit":
         if isotopomer_url in ["", None]:
             raise PreventUpdate
         response = urlopen(isotopomer_url)
@@ -364,7 +365,7 @@ def update_isotopomers(
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
-    if trigger_id == "upload-isotopomer-local":
+    elif trigger_id == "upload-isotopomer-local":
         if isotopomer_upload_content is None:
             raise PreventUpdate
         try:
@@ -375,7 +376,7 @@ def update_isotopomers(
 
     # The following section applies to when the isotopomers update is triggered from
     # a user drag and drop on the graph.
-    if trigger_id == "upload-from-graph":
+    elif trigger_id == "upload-from-graph":
         if from_graph_content is None:
             raise PreventUpdate
         if from_graph_filename.split(".")[1] != "json":
@@ -388,18 +389,18 @@ def update_isotopomers(
 
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
-    if trigger_id == "json-file-editor":
+    elif trigger_id == "json-file-editor":
         if editor_value in ["", None]:
             raise PreventUpdate
         if existing_isotopomers_data is None:
             raise PreventUpdate
         isotopomers = json.loads(editor_value)
         data = existing_isotopomers_data
-        data["isotopomers"][index_map[isotopomer_dropdown_value]] = isotopomers
+        data["isotopomers"][isotopomer_dropdown_value] = isotopomers
 
     # The following section applies to when the isotopomers update is triggered from
     # the GUI fields.
-    if trigger_id == "new-json":
+    elif trigger_id == "new-json":
         if new_json_data in ["", None]:
             raise PreventUpdate
         if existing_isotopomers_data is None:
@@ -407,7 +408,7 @@ def update_isotopomers(
         data = existing_isotopomers_data
 
         # print("data before", data)
-        data["isotopomers"][index_map[isotopomer_dropdown_value]] = new_json_data
+        data["isotopomers"][isotopomer_dropdown_value] = new_json_data
         # print("data after", data)
 
     if "name" not in data:

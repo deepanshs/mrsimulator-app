@@ -18,6 +18,8 @@ from app.body import app_1
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
+# from app.isotopomer import N_SITE, all_keys
+
 # from app.modal.about import about_modal
 
 # from mrsimulator.app.post_simulation import line_broadening
@@ -27,6 +29,7 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
 
+RAD_FACTOR = np.pi / 180.0
 app.layout = html.Div(
     app_1, className="wrapper", id="article1", **{"data-role": "page"}
 )
@@ -57,12 +60,12 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
         Output("local-isotopomer-index-map", "data"),
     ],
     [
-        Input("rotor_frequency-0", "value"),
-        Input("rotor_angle-0", "value"),
-        Input("number_of_points-0", "value"),
-        Input("spectral_width-0", "value"),
-        Input("reference_offset-0", "value"),
-        Input("spectrometer_frequency-0", "value"),
+        Input("dim-rotor_frequency-0", "value"),
+        Input("dim-rotor_angle-0", "value"),
+        Input("dim-number_of_points-0", "value"),
+        Input("dim-spectral_width-0", "value"),
+        Input("dim-reference_offset-0", "value"),
+        Input("dim-spectrometer_frequency-0", "value"),
         Input("isotope_id-0", "value"),
         Input("close_setting", "n_clicks"),
     ],
@@ -73,6 +76,8 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
         State("local-isotopomers-data", "data"),
         State("old-local-isotopomers-data", "data"),
         State("local-computed-data", "data"),
+        # State("isotopomer-dropdown", "value"),
+        # *[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys],
     ],
 )
 def simulation(
@@ -105,12 +110,13 @@ def simulation(
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     value = ctx.triggered[0]["value"]
-    if value in [None, "", ".", "-"]:
+    if value in [".", "-"]:
         raise PreventUpdate
-    if "isotope_id" not in trigger_id:
+
+    if "isotope" not in trigger_id:
         try:
             float(value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise PreventUpdate
 
     if spectral_width == 0:
@@ -118,24 +124,56 @@ def simulation(
 
     magnetic_flux_density = spectrometer_frequency / 42.57748
 
+    if "dim" in trigger_id:
+        if value in [None, ""]:
+            raise PreventUpdate
+
     dim = {
         "isotope": isotope_id,
         "magnetic_flux_density": float(magnetic_flux_density) * 100,  # in T
         "rotor_frequency": float(rotor_frequency) * 1000,  # in Hz
-        "rotor_angle": float(rotor_angle) * np.pi / 180.0,  # in rad
+        "rotor_angle": float(rotor_angle) * RAD_FACTOR,  # in rad
         "number_of_points": 2 ** number_of_points,
         "spectral_width": float(spectral_width) * 1000,  # in Hz
         "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
 
+    # def check_val(val):
+    #     return val if val not in [None, ""] else 0
+
+    # states = dash.callback_context.states
+    # site = {
+    #     "isotope": states[f"{i}-isotope"],
+    #     "isotropic_chemical_shift": check_val(
+    #         states[f"{i}-isotropic_chemical_shift"]
+    #     ),  # in ppm
+    #     "shielding_symmetric": {
+    #         "zeta": check_val(states[f"{i}-shielding_symmetric-zeta"]),  # in ppm
+    #         "eta": check_val(states[f"{i}-shielding_symmetric-eta"]),
+    #         "alpha": check_val(states[f"{i}-shielding_symmetric-alpha"])
+    #         * RAD_FACTOR,  # in rad
+    #         "beta": check_val(states[f"{i}-shielding_symmetric-beta"])
+    #         * RAD_FACTOR,  # in rad
+    #         "gamma": check_val(states[f"{i}-shielding_symmetric-gamma"])
+    #         * RAD_FACTOR,  # in rad
+    #     },
+    #     "quadrupolar": {
+    #         "Cq": check_val(states[f"{i}-quadrupolar-Cq"]) * 1e6,  # in Hz
+    #         "eta": check_val(states[f"{i}-quadrupolar-eta"]),
+    #         "alpha": check_val(states[f"{i}-quadrupolar-alpha"])*RAD_FACTOR,# in rad
+    #         "beta": check_val(states[f"{i}-quadrupolar-beta"])*RAD_FACTOR,# in rad
+    #         "gamma": check_val(states[f"{i}-quadrupolar-gamma"])*RAD_FACTOR,# in rad
+    #     },
+    # }
+
     # true_index = [False] * len(local_isotopomers_data['isotopomers'])
     # if trigger_id not in [
-    #     "rotor_frequency-0",
-    #     "rotor_angle-0",
-    #     "number_of_points-0",
-    #     "spectral_width-0",
-    #     "reference_offset-0",
-    #     "spectrometer_frequency-0",
+    #     "dim-rotor_frequency-0",
+    #     "dim-rotor_angle-0",
+    #     "dim-number_of_points-0",
+    #     "dim-spectral_width-0",
+    #     "dim-reference_offset-0",
+    #     "dim-spectrometer_frequency-0",
     #     "isotope_id-0",
     #     "close_setting",
     # ]:
@@ -214,7 +252,10 @@ def simulation(
 
 
 @app.callback(
-    [Output("reference_offset-0", "value"), Output("spectral_width-0", "value")],
+    [
+        Output("dim-reference_offset-0", "value"),
+        Output("dim-spectral_width-0", "value"),
+    ],
     [Input("nmr_spectrum", "relayoutData")],
     [State("local-dimension-data", "data")],
 )
@@ -299,7 +340,7 @@ def plot_1D(
     if not ctx.triggered:
         raise PreventUpdate
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print(trigger_id)
+    print("plot trigger id", trigger_id)
 
     data = []
     if isotope_id is None:
@@ -318,10 +359,10 @@ def plot_1D(
 
         try:
             local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-        except:
+            x = local_processed_data.dimensions[0].coordinates.value
+        except (ZeroDivisionError, ValueError):
             pass
 
-        x = local_processed_data.dimensions[0].coordinates.value
         x0 = x[0]
         dx = x[1] - x[0]
 
@@ -370,10 +411,9 @@ def plot_1D(
 
         try:
             local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-        except:
+            x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
+        except (ZeroDivisionError, ValueError):
             pass
-
-        x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
 
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]
@@ -435,17 +475,14 @@ def update_isotope_list(data, old_isotope_value):
     if data["isotopomers"] == []:
         return [[], ""]
 
-    sim_m = Simulator()
-    sim_m.isotopomers = [
-        Isotopomer.parse_dict_with_units(item) for item in data["isotopomers"]
-    ]
-
-    isotope_list = sim_m.get_isotopes()
+    isotopes = set(
+        [site["isotope"] for item in data["isotopomers"] for site in item["sites"]]
+    )
     isotope_option_list = [
-        {"label": site_iso, "value": site_iso} for site_iso in isotope_list
+        {"label": site_iso, "value": site_iso} for site_iso in isotopes
     ]
 
-    if old_isotope_value in isotope_list:
+    if old_isotope_value in isotopes:
         isotope = old_isotope_value
     else:
         isotope = isotope_option_list[0]["value"]

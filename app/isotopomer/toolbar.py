@@ -38,4 +38,15 @@ advanced_isotopomer_text_area_collapsible = dbc.Collapse(
     advanced_isotopomer_text_area, id="json-file-editor-collapse"
 )
 
-toolbar = dbc.ButtonGroup([advanced_isotopomer_editor_button])
+add_isotopomer = custom_button(
+    icon_classname="fas fa-plus-circle",
+    id="add-isotopomer-button",
+    tooltip="Add isotopomer",
+    active=False,
+    outline=True,
+    color="dark",
+    style={"float": "right"},
+)
+
+
+toolbar = dbc.ButtonGroup([add_isotopomer, advanced_isotopomer_editor_button])

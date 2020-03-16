@@ -35,3 +35,15 @@ def get_isotopomer_dropdown_options(isotopomers, isotope):
             {"label": f"Isotopomer-{item} ({isotope_list})", "value": i}
         )
     return isotopomer_dropdown_options
+
+
+def get_all_isotopomer_dropdown_options(isotopomers):
+    isotopomer_dropdown_options = [None] * len(isotopomers)
+    for i, item in enumerate(isotopomers):
+        isotope_list = "-".join([site["isotope"] for site in item["sites"]])
+        isotopomer_dropdown_options[i] = {
+            "label": f"Isotopomer-{i} ({isotope_list})",
+            "value": i,
+        }
+
+    return isotopomer_dropdown_options
