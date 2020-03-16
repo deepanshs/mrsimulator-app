@@ -206,7 +206,7 @@ def populate_key_value_from_object(object_dict, id_old):
     return html.Div(lst, className="collapsible-body-control form")
 
 
-with open("app/isotopomer/test.json", "r") as f:
+with open("app/isotopomer/template.json", "r") as f:
     isotopomer = json.load(f)
 # def make_isotopomers_UI(isotopomers_data, id_):
 # master_widgets = []

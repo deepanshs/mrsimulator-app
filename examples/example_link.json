@@ -4,11 +4,11 @@
     "value": "./examples/rankinite.json"
   },
   {
-    "label": "α-Ca2(SiO3OH)OH",
+    "label": "\u03B1-Ca2(SiO3OH)OH",
     "value": "./examples/alpha Ca2(SiO3OH)OH.json"
   },
   {
-    "label": "β-Ca2SiO4",
+    "label": "\u03B2-Ca2SiO4",
     "value": "./examples/beta Ca2SiO4.json"
   },
   {
@@ -20,7 +20,7 @@
     "value": "./examples/cuspidine.json"
   },
   {
-    "label": "γ-Ca2SiO4",
+    "label": "\u03B3-Ca2SiO4",
     "value": "./examples/gamma Ca2SiO4.json"
   },
   {
@@ -56,7 +56,7 @@
     "value": "./examples/O17/cristobalite.json"
   },
   {
-    "label": "α-quartz",
+    "label": "\u03B1-quartz",
     "value": "./examples/O17/α-quartz.json"
   }
 ]

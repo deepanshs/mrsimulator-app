@@ -1,0 +1,43 @@
+{
+  "name": "Q4",
+  "sites": [
+    {
+      "isotope": "17O",
+      "isotropic_chemical_shift": "100 ppm",
+      "shielding_symmetric": {
+        "zeta": "1 ppm",
+        "eta": 0.5,
+        "alpha": "2 deg",
+        "beta": "3 deg",
+        "gamma": "4 deg"
+      },
+      "quadrupolar": {
+        "Cq": "5 MHz",
+        "eta": 0.7,
+        "alpha": "6 deg",
+        "beta": "7 deg",
+        "gamma": "8 deg"
+      }
+    },
+    {
+    "isotope": "29Si",
+    "isotropic_chemical_shift": "200 ppm",
+    "shielding_symmetric": {
+      "zeta": "9 ppm",
+      "eta": 0.8,
+      "alpha": "10 deg",
+      "beta": "11 deg",
+      "gamma": "12 deg"
+    },
+    "quadrupolar": {
+      "Cq": "13 MHz",
+      "eta": 0.9,
+      "alpha": "14 deg",
+      "beta": "15 deg",
+      "gamma": "16 deg"
+    }
+  }
+  ],
+  "abundance": "100 %"
+}
+
