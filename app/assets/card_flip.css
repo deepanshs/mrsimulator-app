@@ -1,0 +1,56 @@
+.card-flip-hide {
+  pointer-events: none;
+}
+
+.card-flip-show {
+  pointer-events: all;
+}
+.scene {
+  margin: 0px 0;
+  perspective: 1000px;
+}
+
+.card-3D {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  padding: 0px;
+  position: relative;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+}
+
+.card-3D-is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+}
+
+.card-face-back {
+  transform: rotateY(180deg);
+}
+
+@media only screen and (min-width: 1200px) {
+  .card-3D {
+    transition: none;
+    transform-style: none;
+  }
+  .card-face {
+    position: relative;
+  }
+
+  .card-flip-hide {
+    pointer-events: all;
+  }
+  .card-face-back {
+    transform: none;
+  }
+  .card-3D-is-flipped {
+    transform: none;
+  }
+}

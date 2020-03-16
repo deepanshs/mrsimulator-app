@@ -136,6 +136,7 @@ navbar_bottom = dbc.Navbar(
         id="bottom-navbar-content",
     ),
     color="dark",
+    # fixed="bottom",
     sticky="bottom",
     dark=True,
     id="bottom-navbar",

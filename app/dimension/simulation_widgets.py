@@ -30,7 +30,7 @@ def coordinate_grid(i):
         step=1,
         value=11,
         marks=list_of_numbers,
-        id=f"number_of_points-{i}",
+        id=f"dim-number_of_points-{i}",
     )
 
     # spectral width
@@ -39,7 +39,7 @@ def coordinate_grid(i):
         append_label="kHz",
         value=25.0,
         min=0.0,
-        id=f"spectral_width-{i}",
+        id=f"dim-spectral_width-{i}",
     )
 
     # reference offset
@@ -47,7 +47,7 @@ def coordinate_grid(i):
         prepend_label="Reference offset",
         append_label="kHz",
         value=0.0,
-        id=f"reference_offset-{i}",
+        id=f"dim-reference_offset-{i}",
     )
 
     return html.Div(
@@ -81,7 +81,7 @@ def environment(i):
         step=0.5,
         value=4,
         marks=field_strength,
-        id=f"spectrometer_frequency-{i}",
+        id=f"dim-spectrometer_frequency-{i}",
     )
 
     # rotor frequency
@@ -89,7 +89,7 @@ def environment(i):
         prepend_label="Rotor frequency",
         append_label="kHz",
         value=0.0,
-        id=f"rotor_frequency-{i}",
+        id=f"dim-rotor_frequency-{i}",
         min=0.0,
         # list=["0", "54.7356", "30", "60", "90"],
     )
@@ -99,7 +99,7 @@ def environment(i):
         prepend_label="Rotor angle",
         append_label="deg",
         value=54.735,
-        id=f"rotor_angle-{i}",
+        id=f"dim-rotor_angle-{i}",
         max=90,
         min=0,
     )

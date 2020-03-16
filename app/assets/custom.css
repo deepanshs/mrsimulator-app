@@ -55,21 +55,11 @@ html {
   border-radius: 0;
 }
 
-#example-spectrum-button,
-#example-spectrum-dropbox {
-  display: none;
-}
 /* formtest contents */
 
 .formtext {
   font-size: 0.9rem;
   color: #bed5fa;
-  padding: 0 none;
-}
-
-.formtext-dark {
-  font-size: 0.85rem;
-  color: #464646;
   padding: 0 none;
 }
 
@@ -205,6 +195,7 @@ html {
 
 @media only screen and (min-width: 992px) {
   #dimension-body,
+  #isotopomer-body,
   #spectrum-body {
     min-height: 75vh;
   }

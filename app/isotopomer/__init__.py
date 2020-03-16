@@ -12,10 +12,12 @@ from dash.exceptions import PreventUpdate
 from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
-from app.custom_widgets import custom_button
 from app.custom_widgets import custom_collapsible
 from app.custom_widgets import custom_input_group
-from app.isotopomer.draft import filter_isotopomer_list
+from app.isotopomer.toolbar import advanced_isotopomer_text_area_collapsible
+from app.isotopomer.toolbar import toolbar
+
+# from app.isotopomer.draft import filter_isotopomer_list
 
 # from app.custom_widgets import custom_slider
 
@@ -257,35 +259,6 @@ def site_UI_update(value, UI_data):
     return UI_data[value]
 
 
-advance_isotopomer_editor_button = dbc.Col(
-    custom_button(
-        icon_classname="fas fa-edit",
-        id="json-file-editor-button",
-        tooltip="Advanced isotopomer editor",
-        active=False,
-        outline=True,
-        color="dark",
-        style={"float": "right"},
-    )
-)
-
-advance_isotopomer_text_area = dbc.Textarea(
-    className="mb-3 p-0",
-    id="json-file-editor",
-    placeholder="Isotopomer editor",
-    draggable="False",
-    contentEditable="False",
-    spellCheck="False",
-    bs_size="sm",
-    rows=10,
-    value="",
-)
-
-advance_isotopomer_text_area_collapsible = dbc.Collapse(
-    advance_isotopomer_text_area, id="json-file-editor-collapse"
-)
-
-
 isotopomer_name_field = dcc.Input(
     # value=isotopomer["name"],
     placeholder="Isotopomer name",
@@ -349,26 +322,28 @@ isotopomer_body = html.Div(
     className="v-100 my-card",
     children=[
         html.Div(
-            [
-                html.H4(
-                    "Isotopomers", style={"fontWeight": "normal"}, className="pl-2"
-                ),
-                advance_isotopomer_editor_button,
-            ],
+            html.H4(
+                "Isotopomers",
+                style={"fontWeight": "normal"},
+                className="pl-2",
+                id="isotopomer-card",
+            ),
             className="d-flex justify-content-between p-2",
         ),
+        dbc.Col(toolbar),
         dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
         html.Br(),
-        advance_isotopomer_text_area_collapsible,
+        advanced_isotopomer_text_area_collapsible,
         isotopomer_form,
     ],
     id="isotopomer-body",
 )
 
+isotopomer_body_card = html.Div(isotopomer_body, id="isotopomer-body-card")
+
 
 # callback code section =======================================================
 
-list_2 = ["shielding_symmetric", "quadrupolar"]
 greek_list = ["eta", "alpha", "beta", "gamma"]
 
 base_keys = ["isotope", "isotropic_chemical_shift"]
@@ -400,14 +375,14 @@ default_unit = {
 
 def parse_number(quantity):
     """Return the numerical value of a quantity."""
-    return [
+    return (
         quantity
         if isinstance(quantity, (float, int))
         else float(quantity.split(" ")[0])
-    ][0]
+    )
 
 
-def extract_sites_dictionary_dash_triggers(dash_triggers):
+def extract_site_dictionary_from_dash_triggers(dash_triggers):
     """
     Extract a list of site dictionaries from the dash_id. This method does not
     depend on how the trigger dash_id are ordered.
@@ -444,7 +419,19 @@ def extract_sites_dictionary_dash_triggers(dash_triggers):
     return sites
 
 
-def extract_trigger_values_from_dictionary(site_lists):
+# def flatten_dict(dd, separator="-", prefix=""):
+#     return (
+#         {
+#             "".join([prefix, separator, k]) if prefix else k: v
+#             for kk, vv in dd.items()
+#             for k, v in flatten_dict(vv, separator, kk).items()
+#         }
+#         if isinstance(dd, dict)
+#         else {prefix: dd}
+#     )
+
+
+def extract_isotopomer_UI_field_values_from_dictionary(site_lists):
     """
     Extract the values from an ordered list of site objects. the extracted values are
     sent to the dash Output.
@@ -475,48 +462,150 @@ def extract_trigger_values_from_dictionary(site_lists):
 
 @app.callback(
     [*[Output(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
-    [Input("isotopomer-dropdown", "value")],
-    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+    [Input("isotopomer-dropdown", "value"), Input("json-file-editor-button", "active")],
+    [State("local-isotopomers-data", "data")],
 )
-def populate_isotopomer_fields(index, local_isotopomer_data, isotope_id_value):
+def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_data):
     """Extract the values from the local isotopomer data and populate the input fields
-    in the isotopomer UI."""
+    in the isotopomer UI. """
+    # The argument `is_advanced_editor_open` is for checking if the fields are in view.
+    # If this argument is true, the advanced editor is open and, therefore, the
+    # isotopomer UI fields are hidden. In this case, we want to prevent any updates
+    # from the `populate_isotopomer_fields` (this function) to improve the performance.
+    if is_advanced_editor_open:
+        raise PreventUpdate
     if local_isotopomer_data is None:
         raise PreventUpdate
     if index is None:
         raise PreventUpdate
 
-    isotopomer_list = filter_isotopomer_list(
-        local_isotopomer_data["isotopomers"], isotope_id_value
-    )
+    # isotopomer_list = filter_isotopomer_list(
+    #     local_isotopomer_data["isotopomers"], isotope_id_value
+    # )
+    isotopomer_list = local_isotopomer_data["isotopomers"]
     if index >= len(isotopomer_list):
         index = 0
 
-    values = extract_trigger_values_from_dictionary(isotopomer_list[index]["sites"])
+    values = extract_isotopomer_UI_field_values_from_dictionary(
+        isotopomer_list[index]["sites"]
+    )
     return values
+
+
+# @app.callback(
+#     Output("shielding_symmetric", "data"),
+#     [
+#         Input(f"{i}-shielding_symmetric-{item}", "value")
+#         for i in range(N_SITE)
+#         for item in ["zeta", "eta"]
+#     ],
+# )
+# def check_for_shielding_symmetric_pair(*args):
+#     print("check_for_shielding_symmetric_pair")
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         raise PreventUpdate
+
+#     inputs = dash.callback_context.inputs
+#     print(inputs)
+#     val = check_for_pairs(["zeta", "eta"], inputs)
+#     print("check shielding", val)
+#     return [f"{i} ppm" for i in val[0::2]]
+
+
+# def check_for_pairs(pair, inputs):
+#     val = []
+#     for i in range(N_SITE):
+#         zeta_or_Cq = inputs[f"{i}-shielding_symmetric-{pair[0]}.value"]
+#         eta = inputs[f"{i}-shielding_symmetric-{pair[1]}.value"]
+#         if zeta_or_Cq not in [None, ""] and eta not in [None, ""]:
+#             raise PreventUpdate
+#         val += [zeta_or_Cq, eta]
+#     return val
 
 
 @app.callback(
     Output("new-json", "data"),
     [
-        *[Input(f"{i}-isotope", "n_blur") for i in range(N_SITE)],
+        *[Input(f"{i}-isotope", "value") for i in range(N_SITE)],
         *[
             Input(f"{i}-{item}", "n_blur")
             for i in range(N_SITE)
             for item in all_keys
             if "isotope" not in item
         ],
+        # *[Input(f"{i}-{item}", "n_blur") for i in range(N_SITE) for item in all_keys],
     ],
-    [*[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
+    [
+        *[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys],
+        State("local-isotopomers-data", "data"),
+        State("isotopomer-dropdown", "value"),
+    ],
 )
 def create_json(*args):
     """Generate a json object from the input fields in the isotopomers UI"""
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
+    if ctx.triggered[0]["value"] is None:
+        raise PreventUpdate
 
     states = dash.callback_context.states
-    sites = extract_sites_dictionary_dash_triggers(states)
+    print(ctx.triggered)
+    # inputs = dash.callback_context.inputs
+
+    data = states["local-isotopomers-data.data"]
+    if data is None:
+        raise PreventUpdate
+
+    index = states["isotopomer-dropdown.value"]
+    data = data["isotopomers"][index]
+
+    del states["isotopomer-dropdown.value"], states["local-isotopomers-data.data"]
+    # print(data)
+
+    # if data is not None:
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    trigger_key = trigger_id.split("-")
+    trigger_site_index, keys = trigger_key[0], trigger_key[1:]
+    trigger_site = data["sites"][int(trigger_site_index)]
+    trigger_value = str(states[f"{trigger_id}.value"]).strip()
+    # print("state", states[f"{trigger_id}.value"])
+    # print(trigger_value)
+
+    empty = ["", "None"]
+    root_keys = trigger_site.keys()
+    if len(keys) == 1:
+        if keys[0] not in root_keys and trigger_value in empty:
+            print("stop because sub key is missing and value is None or ''")
+            raise PreventUpdate
+        if keys[0] in root_keys:
+            previous_value = str(trigger_site[keys[0]]).split(" ")[0]
+            print("previous_value", previous_value)
+            if previous_value == trigger_value:
+                print("stop because value did not change")
+                raise PreventUpdate
+
+    else:
+        if keys[0] not in root_keys and trigger_value in empty:
+            print("stop because sub key is missing and value is None or ''")
+            raise PreventUpdate
+        if keys[0] in root_keys:
+            trigger_sub_key = trigger_site[keys[0]].keys()
+            # print("sub keys", trigger_sub_key)
+            if keys[1] not in trigger_sub_key and trigger_value in empty:
+                print("stop because sub key is missing and value is None or ''")
+                raise PreventUpdate
+            if keys[1] in trigger_sub_key:
+                previous_value = str(trigger_site[keys[0]][keys[1]]).split(" ")[0]
+                print("previous_value", previous_value)
+                if previous_value == trigger_value:
+                    print("stop because value did not change")
+                    raise PreventUpdate
+
+    print("creating json")
+
+    sites = extract_site_dictionary_from_dash_triggers(states)
 
     # remove key entries with empty dict.
     sites = [site for site in sites if site["isotope"] is not None]
