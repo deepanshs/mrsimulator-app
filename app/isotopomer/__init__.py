@@ -24,6 +24,16 @@ ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 colors = {"background": "#e2e2e2", "text": "#585858"}
 
+isotopomer_prepend_labels = {
+    "alpha": "α",
+    "beta": "β",
+    "gamma": "γ",
+    "zeta": "ζ",
+    "eta": "η",
+    "isotropic_chemical_shift": "δ",
+    "Cq": "Cq",
+}
+
 # def custom_form_group(prepend_label="", **kwargs):
 #     if "step" not in kwargs.keys():
 #         kwargs["step"] = 1e-5
@@ -126,7 +136,7 @@ def populate_key_value_from_object(object_dict, id_old):
             new_lst = populate_key_value_from_object(object_dict[key], id_new)
             lst.append(
                 custom_collapsible(
-                    text=key,
+                    text=key.replace("_", " "),
                     identity=id_new,
                     children=new_lst,
                     is_open=True,
@@ -148,10 +158,12 @@ def populate_key_value_from_object(object_dict, id_old):
                         [
                             dbc.InputGroupAddon("Isotope", addon_type="prepend"),
                             dbc.Select(
-                                options=isotope_options_list, value=value, id=id_new
+                                options=isotope_options_list,
+                                value=value,
+                                id=id_new,  # searchable = True, clearable = False, style={'display': 'flex'}
                             ),
                         ],
-                        className="mb-3",
+                        className="mb-0",
                     )
                 )
             elif key == "eta":
@@ -159,7 +171,10 @@ def populate_key_value_from_object(object_dict, id_old):
                     html.Div(
                         [
                             custom_input_group(
-                                prepend_label=key, id=id_new, value=value, debounce=True
+                                prepend_label=isotopomer_prepend_labels[key],
+                                id=id_new,
+                                value=value,
+                                debounce=True,
                             ),
                             # fitting_collapsible(key, value, identity=id_new),
                         ],
@@ -175,7 +190,7 @@ def populate_key_value_from_object(object_dict, id_old):
                     html.Div(
                         [
                             custom_input_group(
-                                prepend_label=key,
+                                prepend_label=isotopomer_prepend_labels[key],
                                 append_label=unit,
                                 value=number,
                                 id=id_new,
