@@ -21,7 +21,7 @@ from app.isotopomer.toolbar import toolbar
 
 # from app.custom_widgets import custom_slider
 
-N_SITE = 2
+N_SITE = 1
 ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 colors = {"background": "#e2e2e2", "text": "#585858"}
