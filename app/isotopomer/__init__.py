@@ -338,34 +338,6 @@ shielding_symmertic_keys = [
 quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", *greek_list]]
 all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
 
-default_unit = {
-    "isotope": None,
-    "isotropic_chemical_shift": "ppm",
-    "shielding_symmetric": {
-        "zeta": "ppm",
-        "eta": None,
-        "alpha": "deg",
-        "beta": "deg",
-        "gamma": "deg",
-    },
-    "quadrupolar": {
-        "Cq": "MHz",
-        "eta": None,
-        "alpha": "deg",
-        "beta": "deg",
-        "gamma": "deg",
-    },
-}
-
-
-def parse_number(quantity):
-    """Return the numerical value of a quantity."""
-    return (
-        quantity
-        if isinstance(quantity, (float, int))
-        else float(quantity.split(" ")[0])
-    )
-
 
 def extract_site_dictionary_from_dash_triggers(dash_triggers):
     """
@@ -392,15 +364,15 @@ def extract_site_dictionary_from_dash_triggers(dash_triggers):
     for key, value in dash_triggers.items():
         if value is not None:
             group = key.split(".")[0].split("-")
-            i = int(group[0])
-            if len(group) == 2:
-                unit = default_unit[group[1]]
-                val = [value if unit is None else f"{value} {unit}"][0]
-                sites[i][group[1]] = val
-            if len(group) == 3:
-                unit = default_unit[group[1]][group[2]]
-                val = [value if unit is None else f"{value} {unit}"][0]
-                sites[i][group[1]][group[2]] = val
+            i, keys = int(group[0]), group[1:]
+
+            # when only one key is present, use site[site_index][key1] = value
+            if len(keys) == 1:
+                sites[i][keys[0]] = value
+
+            # when two keys are present, use site[site_index][key1][key2] = value
+            if len(keys) == 2:
+                sites[i][keys[0]][keys[1]] = value
     return sites
 
 
@@ -426,21 +398,24 @@ def extract_isotopomer_UI_field_values_from_dictionary(site_lists):
     root_keys = [site.keys() for site in site_lists]
 
     trigger_values = [None for _ in range(ATTR_PER_SITE * N_SITE)]
+    index = 0
     for i, site in enumerate(site_lists):
-        for k, key in enumerate(all_keys):
-            group = key.split("-")
-            if len(group) == 1:
-                if group[0] in root_keys[i]:
-                    val = site[group[0]]
-                    trigger_values[i * ATTR_PER_SITE + k] = [
-                        parse_number(val) if key != "isotope" else val
-                    ][0]
-            if len(group) == 2:
-                if group[0] in root_keys[i]:
-                    sub_root_keys = site[group[0]].keys()
-                    if group[1] in sub_root_keys:
-                        val = site[group[0]][group[1]]
-                        trigger_values[i * ATTR_PER_SITE + k] = parse_number(val)
+        for key in all_keys:
+            keys = key.split("-")
+
+            # when only one key is present, use the value of site[site_index][key1]
+            if len(keys) == 1:
+                if keys[0] in root_keys[i]:
+                    trigger_values[index] = site[keys[0]]
+
+            # when two keys are present, use the value of site[site_index][key1][key2]
+            if len(keys) == 2:
+                if keys[0] in root_keys[i]:
+                    if site[keys[0]] is not None:
+                        sub_root_keys = site[keys[0]].keys()
+                        if keys[1] in sub_root_keys:
+                            trigger_values[index] = site[keys[0]][keys[1]]
+            index += 1
 
     return trigger_values
 
@@ -519,7 +494,6 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
             for item in all_keys
             if "isotope" not in item
         ],
-        # *[Input(f"{i}-{item}", "n_blur") for i in range(N_SITE) for item in all_keys],
     ],
     [
         *[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys],

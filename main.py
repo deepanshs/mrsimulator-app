@@ -74,7 +74,6 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
         State("integration_volume", "value"),
         State("number_of_sidebands", "value"),
         State("local-isotopomers-data", "data"),
-        State("old-local-isotopomers-data", "data"),
         State("local-computed-data", "data"),
         # State("isotopomer-dropdown", "value"),
         # *[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys],
@@ -95,7 +94,6 @@ def simulation(
     integration_volume,
     number_of_sidebands,
     local_isotopomers_data,
-    old_local_isotopomers_data,
     old_local_computed_data,
 ):
     """Evaluate the spectrum and update the plot."""
@@ -202,8 +200,7 @@ def simulation(
     for i, item in enumerate(local_isotopomers_data["isotopomers"]):
         site_isotope = [site["isotope"] for site in item["sites"]]
         if isotope_id in site_isotope:
-            sim.isotopomers.append(Isotopomer.parse_dict_with_units(item))
-            print(item)
+            sim.isotopomers.append(Isotopomer(**item))
             mapping.append(i)
 
     # filter_isotopomers = [
@@ -272,11 +269,7 @@ def display_relayout_data(relayoutData, dimension_data):
     if "xaxis.range[0]" not in keys and "xaxis.range[1]" not in keys:
         raise PreventUpdate
 
-    larmor_frequency = dimension_data["larmor_frequency"] / 1e6  # to MHz
-    factor = 1
-    if larmor_frequency < 0:
-        factor = -1
-    larmor_frequency = abs(larmor_frequency)
+    larmor_frequency = abs(dimension_data["larmor_frequency"] / 1e6)  # to MHz
 
     # old increment
     sw = float(dimension_data["spectral_width"])  # in Hz
@@ -297,7 +290,7 @@ def display_relayout_data(relayoutData, dimension_data):
 
     # new spectral-width and reference offset in Hz
     sw_ = x_min - x_max + increment
-    ref_offset = (x_max + sw_ / 2.0) * factor
+    ref_offset = x_max + sw_ / 2.0
     return ["{0:.5f}".format(ref_offset / 1000.0), "{0:.5f}".format(abs(sw_) / 1000.0)]
 
 
@@ -491,4 +484,6 @@ def update_isotope_list(data, old_isotope_value):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, threaded=True)
+    app.run_server(
+        debug=True, threaded=True, dev_tools_ui=True, dev_tools_hot_reload=True
+    )

@@ -24,6 +24,7 @@ input[type="number"]::-webkit-outer-spin-button {
   z-index: 0;
   height: 40px;
   background-color: #343942;
+  position: static;
 }
 
 html {
@@ -31,9 +32,8 @@ html {
 }
 
 .wrapper {
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative;
-  overflow-y: scroll;
 }
 
 .nav-link,
@@ -194,10 +194,11 @@ html {
 }
 
 @media only screen and (min-width: 992px) {
+  /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
   #dimension-body,
   #isotopomer-body,
   #spectrum-body {
-    min-height: 75vh;
+    height: 75vh;
   }
   /* #tab-body {
     height: 75vh;
@@ -206,6 +207,26 @@ html {
   #nmr_spectrum {
     height: calc(75vh - 55px);
   }
+  #isotopomer_form-collapse {
+    max-height: calc(75vh - 40px - 130px);
+    overflow-y: scroll;
+  }
+  /* #dimension-body,
+  #isotopomer-body,
+  #spectrum-body {
+    max-height: 75vh;
+  }
+  #isotopomer_form-collapse {
+    max-height: calc(100vh - 40px - 27px - 169px);
+    overflow-y: scroll;
+  }
+  #dimension-tab-scroll-0 {
+    max-height: calc(75vh - 95px - 40px);
+    overflow-y: scroll;
+  }
+  #nmr_spectrum {
+    height: calc(75vh - 55px - 40px);
+  } */
 }
 
 @media only screen and (max-width: 550px) {

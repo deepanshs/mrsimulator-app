@@ -14,6 +14,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
+from mrsimulator import Isotopomer
 
 from app.app import app
 from app.custom_widgets import custom_button
@@ -342,6 +343,8 @@ def update_isotopomers(
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("trigger", trigger_id)
 
+    if_error_occurred = [True, existing_isotopomers_data, data_title, data_info]
+
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
     if trigger_id == "example-isotopomer-dropbox":
@@ -350,6 +353,11 @@ def update_isotopomers(
             raise PreventUpdate
         response = urlopen(get_absolute_url_path(example, path))
         data = json.loads(response.read())
+
+        data["isotopomers"] = [
+            Isotopomer.parse_dict_with_units(item).dict()
+            for item in data["isotopomers"]
+        ]
 
     # The following section applies to when the isotopomers update is triggered from
     # url-submit.
@@ -361,7 +369,12 @@ def update_isotopomers(
             data = json.loads(response.read())
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [message, *if_error_occurred]
+
+        data["isotopomers"] = [
+            Isotopomer.parse_dict_with_units(item).dict()
+            for item in data["isotopomers"]
+        ]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
@@ -372,7 +385,12 @@ def update_isotopomers(
             data = parse_contents(isotopomer_upload_content, isotopomer_filename)
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [message, *if_error_occurred]
+
+        data["isotopomers"] = [
+            Isotopomer.parse_dict_with_units(item).dict()
+            for item in data["isotopomers"]
+        ]
 
     # The following section applies to when the isotopomers update is triggered from
     # a user drag and drop on the graph.
@@ -385,7 +403,12 @@ def update_isotopomers(
             data = parse_contents(from_graph_content, from_graph_filename)
         except Exception:
             message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            return [message, *if_error_occurred]
+
+        data["isotopomers"] = [
+            Isotopomer.parse_dict_with_units(item).dict()
+            for item in data["isotopomers"]
+        ]
 
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
@@ -397,6 +420,11 @@ def update_isotopomers(
         isotopomers = json.loads(editor_value)
         data = existing_isotopomers_data
         data["isotopomers"][isotopomer_dropdown_value] = isotopomers
+
+        data["isotopomers"] = [
+            Isotopomer.parse_dict_with_units(item).dict()
+            for item in data["isotopomers"]
+        ]
 
     # The following section applies to when the isotopomers update is triggered from
     # the GUI fields.
@@ -411,6 +439,7 @@ def update_isotopomers(
         data["isotopomers"][isotopomer_dropdown_value] = new_json_data
         # print("data after", data)
 
+    # print(data["isotopomers"])
     if "name" not in data:
         data["name"] = ""
     if "description" not in data:
