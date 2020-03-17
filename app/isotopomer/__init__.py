@@ -17,10 +17,6 @@ from app.custom_widgets import custom_input_group
 from app.isotopomer.toolbar import advanced_isotopomer_text_area_collapsible
 from app.isotopomer.toolbar import toolbar
 
-# from app.isotopomer.draft import filter_isotopomer_list
-
-# from app.custom_widgets import custom_slider
-
 N_SITE = 1
 ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
@@ -34,6 +30,34 @@ isotopomer_prepend_labels = {
     "eta": "η",
     "isotropic_chemical_shift": "δ",
     "Cq": "Cq",
+}
+
+greek_list = ["eta", "alpha", "beta", "gamma"]
+
+base_keys = ["isotope", "isotropic_chemical_shift"]
+shielding_symmertic_keys = [
+    f"shielding_symmetric-{item}" for item in ["zeta", *greek_list]
+]
+quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", *greek_list]]
+all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
+
+default_unit = {
+    "isotope": None,
+    "isotropic_chemical_shift": "ppm",
+    "shielding_symmetric": {
+        "zeta": "ppm",
+        "eta": None,
+        "alpha": "deg",
+        "beta": "deg",
+        "gamma": "deg",
+    },
+    "quadrupolar": {
+        "Cq": "MHz",
+        "eta": None,
+        "alpha": "deg",
+        "beta": "deg",
+        "gamma": "deg",
+    },
 }
 
 # def custom_form_group(prepend_label="", **kwargs):
@@ -124,68 +148,178 @@ def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
     #     return local_isotopomer_data
 
 
-def fitting_collapsible(key, val, identity=None):
-    collapsible = dbc.Row(html.Br())
-    return collapsible
+def feature_orientation_collapsible(key_dict, id_label, site_number):
+    # print('old id', id_old)
+    # print('id label', id_label)
+    feature_dict = {k: key_dict[k] for k in list(key_dict)[:2]}
+    orientation_dict = {k: key_dict[k] for k in list(key_dict)[2:]}
+
+    # zeta/eta and Cq/eta:
+    feature_input_fields = []
+    for key, value in feature_dict.items():
+        if isinstance(value, str):
+            number, unit = value.split()  # splitting string into number and unit
+        else:
+            number = value
+            unit = None
+
+        feature_input_fields.append(
+            html.Div(
+                [
+                    custom_input_group(
+                        prepend_label=isotopomer_prepend_labels[key],
+                        append_label=unit,
+                        value=number,
+                        id=f"{site_number}-{id_label}-{key}",
+                        debounce=True,
+                    )
+                ]
+            )
+        )
+
+    orientation_input_fields = []
+    for key, value in orientation_dict.items():
+        if isinstance(value, str):
+            number, unit = value.split()  # splitting string into number and unit
+        else:
+            number = value
+            unit = None
+
+        orientation_input_fields.append(
+            html.Div(
+                [
+                    custom_input_group(
+                        prepend_label=isotopomer_prepend_labels[key],
+                        append_label=unit,
+                        value=number,
+                        id=f"{site_number}-{id_label}-{key}",
+                        debounce=True,
+                    )
+                ]
+            )
+        )
+
+    lst = html.Div(
+        [
+            html.Br(),
+            dbc.ButtonGroup(
+                [
+                    dbc.Button(f"{id_label}", id=f"{id_label}-button", disabled=False),
+                    dbc.Button(
+                        f"Orientation",
+                        id=f"{id_label}-orientation-button",
+                        disabled=False,
+                    ),
+                ],
+                size="sm",
+                className="mr-1",
+            ),
+            dbc.InputGroup(
+                [
+                    dbc.Collapse(
+                        feature_input_fields, id=f"{id_label}-feature-collapse"
+                    ),
+                    dbc.Collapse(
+                        orientation_input_fields, id=f"{id_label}-orientation-collapse"
+                    ),
+                ],
+                className="mb-3",
+                style={"display": "inline"},
+            ),
+        ]
+    )
+
+    @app.callback(
+        [
+            Output(f"{id_label}-feature-collapse", "is_open"),
+            Output(f"{id_label}-orientation-collapse", "is_open"),
+        ],
+        [
+            Input(f"{id_label}-button", "n_clicks"),
+            Input(f"{id_label}-orientation-button", "n_clicks"),
+        ],
+        [
+            State(f"{id_label}-feature-collapse", "is_open"),
+            State(f"{id_label}-orientation-collapse", "is_open"),
+        ],
+    )
+    def toggle_feature_buttons(n1, n2, feature_active, orientation_active):
+        ctx = dash.callback_context
+
+        if not ctx.triggered:
+            return ""
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            print(button_id)
+
+        if button_id == f"{id_label}-button" and n1:
+            return not feature_active, False
+        elif button_id == f"{id_label}-orientation-button" and n2:
+            return False, not orientation_active
+        return False, False
+
+    @app.callback(
+        [Output(f"{id_label}-orientation-button", "disabled")],
+        [
+            *[
+                Input(f"{site_number}-{id_label}-{key}", "value")
+                for key in feature_dict.keys()
+            ]
+        ],
+    )
+    def freeze_orientation_button(*args):
+        print(f"My data for {id_label}", args[0], args[1])
+        if args[0] is None and args[1] is None:
+            return [True]
+        else:
+            return [False]
+
+    return lst
 
 
 def populate_key_value_from_object(object_dict, id_old):
     lst = []
     for key, value in object_dict.items():  # keys():
         id_new = f"{id_old}-{key}"
+        print("id new", id_new)
         if isinstance(object_dict[key], dict):
-            # print(id_new)
+            print("the key", key)
+            # feature_orientation_collapsible(object_dict[key])
             new_lst = populate_key_value_from_object(object_dict[key], id_new)
-            lst.append(
-                custom_collapsible(
-                    text=key.replace("_", " "),
-                    identity=id_new,
-                    children=new_lst,
-                    is_open=True,
-                    size="sm",
-                    # button_classname="tree-control-button",
-                    # collapse_classname="tree-control",
-                    style={"padding-left": "7px"},
-                )
-            )
+            lst.append(feature_orientation_collapsible(object_dict[key], key, id_old))
+            #     custom_collapsible(
+            #         text=key.replace("_", " "),
+            #         identity=id_new,
+            #         children=new_lst,
+            #         is_open=True,
+            #         size="sm",
+            #         # button_classname="tree-control-button",
+            #         # collapse_classname="tree-control",
+            #         style={"padding-left": "7px"},
+            #     )
+            # )
         else:
             if key == "isotope":
-                # lst.append(
-                #     custom_input_group(
-                #         prepend_label=key, id=id_new, value=object_dict[key]
-                #     )
-                # )
                 lst.append(
                     dbc.InputGroup(
                         [
                             dbc.InputGroupAddon("Isotope", addon_type="prepend"),
                             dbc.Select(
-                                options=isotope_options_list,
-                                value=value,
-                                id=id_new,  # searchable = True, clearable = False, style={'display': 'flex'}
+                                options=isotope_options_list, value=value, id=id_new
                             ),
                         ],
                         className="mb-0",
                     )
                 )
-            elif key == "eta":
-                lst.append(
-                    html.Div(
-                        [
-                            custom_input_group(
-                                prepend_label=isotopomer_prepend_labels[key],
-                                id=id_new,
-                                value=value,
-                                debounce=True,
-                            ),
-                            # fitting_collapsible(key, value, identity=id_new),
-                        ],
-                        className="input-group-append input-group d-flex",
-                    )
-                )
 
             else:
-                number, unit = value.split()  # splitting string into number and unit
+                if isinstance(value, str):
+                    number, unit = (
+                        value.split()
+                    )  # splitting string into number and unit
+                else:
+                    number = value
+                    unit = None
                 # if "_" in key:
                 #     key = key.replace("_", " ")
                 lst.append(
@@ -259,28 +393,32 @@ def site_UI_update(value, UI_data):
     return UI_data[value]
 
 
-isotopomer_name_field = dcc.Input(
+isotopomer_name_field = custom_input_group(
+    prepend_label="Name",
+    input_type="text",
     # value=isotopomer["name"],
     placeholder="Isotopomer name",
     id="isotopomer-name",
     style={"textAlign": "left", "color": colors["text"]},
-    className="d-flex flex-column grow",
 )
 
-isotopomer_description_field = dcc.Input(
+isotopomer_description_field = custom_input_group(
     # value=isotopomer["description"],
+    prepend_label="Description",
+    input_type="text",
     placeholder="Isotopomer description ... ",
     id="isotopomer-description",
     style={"textAlign": "left", "color": colors["text"]},
-    className=" d-flex",
+    size="sm",
 )
 
-isotopomer_abundance_field = dcc.Input(
+isotopomer_abundance_field = custom_input_group(
+    prepend_label="Abundance",
+    input_type="text",
     placeholder="Isotopomer abundance",
-    # value=100,
+    value=isotopomer["abundance"],
     id="isotopomer-abundance",
     style={"textAlign": "left", "color": colors["text"]},
-    className=" d-flex",
 )
 
 isotopomer_form = dbc.Collapse(
@@ -290,6 +428,7 @@ isotopomer_form = dbc.Collapse(
                 isotopomer_name_field,  # isotopomer name
                 isotopomer_description_field,  # isotopomer description
                 isotopomer_abundance_field,  # isotopomer abundance
+                html.Br(),
             ]
         ),
         dbc.Tabs(widgets),
