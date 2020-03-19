@@ -25,6 +25,7 @@ __email__ = ["deepansh2012@gmail.com"]
 card_flip = html.Div(
     dbc.Row(
         [
+            dbc.Col(dimension_body_card, className="card-face", md=6, lg=12, xl=6),
             dbc.Col(
                 isotopomer_body_card,
                 className="card-face card-face-back",
@@ -32,7 +33,6 @@ card_flip = html.Div(
                 lg=12,
                 xl=6,
             ),
-            dbc.Col(dimension_body_card, className="card-face", md=6, lg=12, xl=6),
         ],
         id="card-flip",
         className="card-3D",
@@ -90,6 +90,8 @@ sub_body = html.Div(
         dcc.Store(id="local-isotopomer-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
         dcc.Store(id="new-json", storage_type="memory"),
+        # store a bool indicating if the data is from an external file
+        dcc.Store(id="config", storage_type="memory"),
     ]
 )
 

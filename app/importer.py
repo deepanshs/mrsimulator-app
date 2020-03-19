@@ -296,6 +296,7 @@ spectrum_import_layout = upload_data(
         Output("local-isotopomers-data", "data"),
         Output("filename_dataset", "children"),
         Output("data_description", "children"),
+        Output("config", "data"),
     ],
     [
         Input("upload-isotopomer-local", "contents"),
@@ -303,7 +304,10 @@ spectrum_import_layout = upload_data(
         Input("example-isotopomer-dropbox", "value"),
         Input("upload-from-graph", "contents"),
         Input("json-file-editor", "n_blur_timestamp"),
-        Input("new-json", "data"),
+        Input("new-json", "modified_timestamp"),
+        Input("new-isotopomer-button", "n_clicks"),
+        Input("duplicate-isotopomer-button", "n_clicks"),
+        Input("trash-isotopomer-button", "n_clicks"),
     ],
     [
         State("upload-isotopomer-url", "value"),
@@ -315,6 +319,7 @@ spectrum_import_layout = upload_data(
         State("upload-from-graph", "filename"),
         State("local-isotopomer-index-map", "data"),
         State("isotopomer-dropdown", "value"),
+        State("new-json", "data"),
     ],
 )
 def update_isotopomers(
@@ -323,7 +328,10 @@ def update_isotopomers(
     example,
     from_graph_content,
     time_of_editor_trigger,
-    new_json_data,
+    time_of_new_json_data_trigger,
+    new_isotopomer_button,
+    duplicate_isotopomer_button,
+    trash_isotopomer_button,
     # states
     isotopomer_url,
     isotopomer_filename,
@@ -334,6 +342,7 @@ def update_isotopomers(
     from_graph_filename,
     index_map,
     isotopomer_dropdown_value,
+    new_json_data,
 ):
     """Update the local isotopomers when a new file is imported."""
     ctx = dash.callback_context
@@ -343,8 +352,92 @@ def update_isotopomers(
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("trigger", trigger_id)
 
-    if_error_occurred = [True, existing_isotopomers_data, data_title, data_info]
+    # the following config is true for all cases when isotopomer data is modified
+    # using the app.
+    config = {"is_new_data": False, "length_changed": False}
 
+    # The following section applies to when the isotopomers update is triggered from
+    # the GUI fields. This is a very common trigger, so we place it at the start.
+    if trigger_id == "new-json":
+        if new_json_data in ["", None]:
+            raise PreventUpdate
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
+        data = existing_isotopomers_data
+        data["isotopomers"][isotopomer_dropdown_value] = new_json_data
+        config["index_last_modified"] = isotopomer_dropdown_value
+        return ["", False, data, data["name"], data["description"], config]
+
+    # The following section applies to when the a new isotopomers is added from
+    # new-isotopomer-button.
+    if trigger_id == "new-isotopomer-button":
+        new_isotopomer = {"sites": [{"isotope": "1H", "isotropic_chemical_shift": 0}]}
+        data = (
+            existing_isotopomers_data
+            if existing_isotopomers_data is not None
+            else {"name": "", "description": "", "isotopomers": []}
+        )
+        data["isotopomers"] += [new_isotopomer]
+        config["length_changed"] = True
+        config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
+        config["removed"] = None
+        config["index_last_modified"] = len(data["isotopomers"]) - 1
+        return ["", False, data, data["name"], data["description"], config]
+
+    # The following section applies to when a request to duplicate the isotopomers is
+    # initiated using the duplicate-isotopomer-button.
+    if trigger_id == "duplicate-isotopomer-button":
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
+        data = existing_isotopomers_data
+        # the index to copy is given by isotopomer_dropdown_value
+        isotopomer_to_copy = data["isotopomers"][isotopomer_dropdown_value].copy()
+        data["isotopomers"] += [isotopomer_to_copy]
+        config["length_changed"] = True
+        config["added"] = [site["isotope"] for site in isotopomer_to_copy["sites"]]
+        config["removed"] = None
+        config["index_last_modified"] = len(data["isotopomers"]) - 1
+        return ["", False, data, data["name"], data["description"], config]
+
+    # The following section applies to when a request to remove an isotopomers is
+    # initiated using the trash-isotopomer-button.
+    if trigger_id == "trash-isotopomer-button":
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
+        data = existing_isotopomers_data
+        # the index to remove is given by isotopomer_dropdown_value
+        config["removed"] = [
+            site["isotope"]
+            for site in data["isotopomers"][isotopomer_dropdown_value]["sites"]
+        ]
+        config["added"] = None
+
+        del data["isotopomers"][isotopomer_dropdown_value]
+        new_length = len(data["isotopomers"]) - 1
+        config["length_changed"] = True
+        index = (
+            isotopomer_dropdown_value
+            if isotopomer_dropdown_value < new_length
+            else new_length
+        )
+
+        config["index_last_modified"] = index
+        return ["", False, data, data["name"], data["description"], config]
+
+    # The following section applies to when the isotopomers update is triggered when
+    # user edits the loaded isotopomer file.
+    if trigger_id == "json-file-editor":
+        if editor_value in ["", None]:
+            raise PreventUpdate
+        if existing_isotopomers_data is None:
+            raise PreventUpdate
+        isotopomers = json.loads(editor_value)
+        data = existing_isotopomers_data
+        data["isotopomers"][isotopomer_dropdown_value] = isotopomers
+        config["index_last_modified"] = isotopomer_dropdown_value
+        return ["", False, data, data["name"], data["description"], config]
+
+    if_error_occurred = [True, existing_isotopomers_data, data_title, data_info]
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
     if trigger_id == "example-isotopomer-dropbox":
@@ -353,15 +446,11 @@ def update_isotopomers(
             raise PreventUpdate
         response = urlopen(get_absolute_url_path(example, path))
         data = json.loads(response.read())
-
-        data["isotopomers"] = [
-            Isotopomer.parse_dict_with_units(item).dict()
-            for item in data["isotopomers"]
-        ]
+        return assemble_data(data)
 
     # The following section applies to when the isotopomers update is triggered from
     # url-submit.
-    elif trigger_id == "upload-isotopomer-url-submit":
+    if trigger_id == "upload-isotopomer-url-submit":
         if isotopomer_url in ["", None]:
             raise PreventUpdate
         response = urlopen(isotopomer_url)
@@ -370,15 +459,11 @@ def update_isotopomers(
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
-
-        data["isotopomers"] = [
-            Isotopomer.parse_dict_with_units(item).dict()
-            for item in data["isotopomers"]
-        ]
+        return assemble_data(data)
 
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
-    elif trigger_id == "upload-isotopomer-local":
+    if trigger_id == "upload-isotopomer-local":
         if isotopomer_upload_content is None:
             raise PreventUpdate
         try:
@@ -386,15 +471,11 @@ def update_isotopomers(
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
-
-        data["isotopomers"] = [
-            Isotopomer.parse_dict_with_units(item).dict()
-            for item in data["isotopomers"]
-        ]
+        return assemble_data(data)
 
     # The following section applies to when the isotopomers update is triggered from
     # a user drag and drop on the graph.
-    elif trigger_id == "upload-from-graph":
+    if trigger_id == "upload-from-graph":
         if from_graph_content is None:
             raise PreventUpdate
         if from_graph_filename.split(".")[1] != "json":
@@ -405,46 +486,35 @@ def update_isotopomers(
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
 
-        data["isotopomers"] = [
-            Isotopomer.parse_dict_with_units(item).dict()
-            for item in data["isotopomers"]
-        ]
+        return assemble_data(data)
 
-    # The following section applies to when the isotopomers update is triggered when
-    # user edits the loaded isotopomer file.
-    elif trigger_id == "json-file-editor":
-        if editor_value in ["", None]:
-            raise PreventUpdate
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        isotopomers = json.loads(editor_value)
-        data = existing_isotopomers_data
-        data["isotopomers"][isotopomer_dropdown_value] = isotopomers
 
-        data["isotopomers"] = [
-            Isotopomer.parse_dict_with_units(item).dict()
-            for item in data["isotopomers"]
-        ]
+def filter_dict(dict1):
+    dict_new = {}
+    for key, val in dict1.items():
+        # print(key, val)
+        if val is not None:
+            dict_new[key] = val
+        if isinstance(val, dict):
+            dict_new[key] = filter_dict(val)
+        if isinstance(val, list):
+            dict_new[key] = [filter_dict(item) for item in val]
+        if key == "property_units":
+            dict_new.pop("property_units")
+    return dict_new
 
-    # The following section applies to when the isotopomers update is triggered from
-    # the GUI fields.
-    elif trigger_id == "new-json":
-        if new_json_data in ["", None]:
-            raise PreventUpdate
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        data = existing_isotopomers_data
 
-        # print("data before", data)
-        data["isotopomers"][isotopomer_dropdown_value] = new_json_data
-        # print("data after", data)
+def assemble_data(data):
+    a = [Isotopomer.parse_dict_with_units(item).dict() for item in data["isotopomers"]]
+    data["isotopomers"] = [filter_dict(item) for item in a]
 
-    # print(data["isotopomers"])
     if "name" not in data:
         data["name"] = ""
     if "description" not in data:
         data["description"] = ""
-    return ["", False, data, data["name"], data["description"]]
+
+    config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
+    return ["", False, data, data["name"], data["description"], config]
 
 
 def parse_contents(contents, filename):

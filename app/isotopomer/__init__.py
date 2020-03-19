@@ -21,7 +21,7 @@ from app.isotopomer.toolbar import toolbar
 
 # from app.custom_widgets import custom_slider
 
-N_SITE = 2
+N_SITE = 1
 ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 colors = {"background": "#e2e2e2", "text": "#585858"}
@@ -170,7 +170,7 @@ def populate_key_value_from_object(object_dict, id_old):
                 )
 
             else:
-                number, unit = value.split()  # splitting string into number and unit
+                unit = value.split()  # splitting string into number and unit
                 # if "_" in key:
                 #     key = key.replace("_", " ")
                 lst.append(
@@ -179,7 +179,7 @@ def populate_key_value_from_object(object_dict, id_old):
                             custom_input_group(
                                 prepend_label=key,
                                 append_label=unit,
-                                value=number,
+                                # value=number,
                                 id=id_new,
                                 debounce=True,
                             ),
@@ -221,13 +221,14 @@ for i, site in enumerate(isotopomer["sites"]):
 
 # def make_isotopomer_dropdown_UI():#isotopomers_data):
 isotopomer_dropdown = dcc.Dropdown(
-    value=0,
+    value=None,
     options=[
         # {"label": f"Isotopomer {i}", "value": i}
         # for i in range(len(isotopomers_data["isotopomers"]))
     ],
     multi=False,
     id="isotopomer-dropdown",
+    searchable=True,
     clearable=False,
 )
 # return isotopomer_dropdown
@@ -405,16 +406,19 @@ def extract_isotopomer_UI_field_values_from_dictionary(site_lists):
 
             # when only one key is present, use the value of site[site_index][key1]
             if len(keys) == 1:
-                if keys[0] in root_keys[i]:
-                    trigger_values[index] = site[keys[0]]
+                trigger_values[index] = (
+                    site[keys[0]] if keys[0] in root_keys[i] else None
+                )
 
             # when two keys are present, use the value of site[site_index][key1][key2]
             if len(keys) == 2:
                 if keys[0] in root_keys[i]:
                     if site[keys[0]] is not None:
-                        sub_root_keys = site[keys[0]].keys()
-                        if keys[1] in sub_root_keys:
-                            trigger_values[index] = site[keys[0]][keys[1]]
+                        trigger_values[index] = (
+                            site[keys[0]][keys[1]]
+                            if keys[1] in site[keys[0]].keys()
+                            else None
+                        )
             index += 1
 
     return trigger_values
@@ -443,8 +447,6 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
     #     local_isotopomer_data["isotopomers"], isotope_id_value
     # )
     isotopomer_list = local_isotopomer_data["isotopomers"]
-    if index >= len(isotopomer_list):
-        index = 0
 
     values = extract_isotopomer_UI_field_values_from_dictionary(
         isotopomer_list[index]["sites"]

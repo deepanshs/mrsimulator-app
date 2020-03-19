@@ -18,12 +18,6 @@ from app.body import app_1
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
-# from app.isotopomer import N_SITE, all_keys
-
-# from app.modal.about import about_modal
-
-# from mrsimulator.app.post_simulation import line_broadening
-
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -52,6 +46,86 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
     return true_index
 
 
+def check_for_simulation_update(
+    isotope_id,
+    config,
+    local_isotopomers_data,
+    previous_local_computed_data,
+    previous_local_isotopomer_index_map,
+    figure,
+):
+    """
+    Check if the simulation needs to update. The check search for
+    1) If the simulation on display has a different isotope than the isotope requested
+        for simulation, perform an update.
+    2) If the display (from spectrum) and requested isotopes (from dimension) are the
+        same, check if the last modified isotopomer
+        a) was triggered with a change of isotope. If true, check if the previously
+            selected isotope was used in simulation. If yes, re-simulate, else prevent
+            update.
+        b) was triggered with any other site attribute. If true, check if the modified
+            isotopomer has the same isotope as on display. If yes, re-simulate, else,
+            prevent update.
+    """
+    # checking for the first condition.
+    isotope_on_graph = (
+        figure["layout"]["xaxis"]["title"]["text"].split()[0]
+        if previous_local_computed_data is not None
+        else isotope_id
+    )
+    print("spectrum isotope", isotope_on_graph)
+    if isotope_on_graph != isotope_id:
+        return
+
+    # cheking for the second condition.
+    # the `index_last_modified` attribute of the config holds the index of the
+    # isotopomer that was last modified. Here, we check if the changes made to the
+    # isotopomer pertains the isotope used in the simulation. If the site isotopes
+    # in the isotopomer is not the same as `isotope_id`, prevent the update.
+    modified_index = config["index_last_modified"]
+    if modified_index is None:
+        raise PreventUpdate
+
+    # site isotopes in the modified isotopomer
+    modified_site_isotopes = [
+        site["isotope"]
+        for site in local_isotopomers_data["isotopomers"][modified_index]["sites"]
+    ]
+
+    if previous_local_computed_data is None:
+        return
+    # checking part a of the second condition
+    # the previous_local_isotopomer_index_map contains a list of isotopomer indexes
+    # that were used in the simulation. To check if the identity of the isotope changed
+    # in the modified isotopomer, we compare the identity of the isotopes from the
+    # isotopomers from previous_local_computed_data.
+    if modified_index in previous_local_isotopomer_index_map:
+
+        index_in_computed_data = np.where(
+            np.asarray(previous_local_isotopomer_index_map) == modified_index
+        )[0][0]
+        print(index_in_computed_data)
+        dv = previous_local_computed_data["csdm"]["dependent_variables"][
+            index_in_computed_data
+        ]
+        previous_site_isotopes = [
+            site["isotope"]
+            for site in dv["application"]["com.github.DeepanshS.mrsimulator"][
+                "isotopomers"
+            ][0]["sites"]
+        ]
+        if modified_site_isotopes != previous_site_isotopes:
+            return
+
+    # checking part b of the second condition
+    if isotope_on_graph not in modified_site_isotopes:
+        print(
+            "update pervented because the changes does not involve "
+            f"{isotope_id} isotope."
+        )
+        raise PreventUpdate
+
+
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
     [
@@ -75,8 +149,9 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
         State("number_of_sidebands", "value"),
         State("local-isotopomers-data", "data"),
         State("local-computed-data", "data"),
-        # State("isotopomer-dropdown", "value"),
-        # *[State(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys],
+        State("local-isotopomer-index-map", "data"),
+        State("config", "data"),
+        State("nmr_spectrum", "figure"),
     ],
 )
 def simulation(
@@ -94,36 +169,57 @@ def simulation(
     integration_volume,
     number_of_sidebands,
     local_isotopomers_data,
-    old_local_computed_data,
+    previous_local_computed_data,
+    previous_local_isotopomer_index_map,
+    config,
+    figure,
 ):
     """Evaluate the spectrum and update the plot."""
     # exit when the following conditions are True
     if isotope_id in ["", None]:
+        print("simulation stopped", isotope_id)
         raise PreventUpdate
 
     ctx = dash.callback_context
     # print(ctx.triggered)
     if not ctx.triggered:
+        print("simulation stopped ctx not triggered")
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    # if the data is new, skip the check and simulate the spectrum.
+    # if "isotope" in trigger_id and not config["is_new_data"]:
+    #     check_for_simulation_update(
+    #         isotope_id,
+    #         config,
+    #         local_isotopomers_data,
+    #         previous_local_computed_data,
+    #         previous_local_isotopomer_index_map,
+    #         figure,
+    #     )
+
     value = ctx.triggered[0]["value"]
     if value in [".", "-"]:
+        print("simulation stopped triggered value is", value)
         raise PreventUpdate
 
     if "isotope" not in trigger_id:
         try:
             float(value)
         except (ValueError, TypeError):
+            print("simulation stopped triggered value is", value)
             raise PreventUpdate
 
     if spectral_width == 0:
+        print("simulation stopped spectral_width is 0")
         raise PreventUpdate
 
     magnetic_flux_density = spectrometer_frequency / 42.57748
 
     if "dim" in trigger_id:
         if value in [None, ""]:
+            print("simulation stopped trigger value is", value)
             raise PreventUpdate
 
     dim = {
@@ -221,6 +317,7 @@ def simulation(
 
     dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
     local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
+    print("local computed data generated", local_computed_data["csdm"]["timestamp"])
     return [local_computed_data, dim, mapping]
 
 
@@ -326,6 +423,7 @@ def plot_1D(
     figure,
 ):
     """Generate and return a one-dimensional plot instance."""
+    print("inside plot, time of computation", time_of_computation)
     if local_computed_data is None and local_exp_external_data is None:
         raise PreventUpdate
 
@@ -459,10 +557,10 @@ def plot_1D(
 
 @app.callback(
     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
-    [Input("local-isotopomers-data", "data")],
-    [State("isotope_id-0", "value")],
+    [Input("local-isotopomers-data", "modified_timestamp")],
+    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
 )
-def update_isotope_list(data, old_isotope_value):
+def update_isotope_list(data_modify_time, data, old_isotope_value):
     if data is None:
         raise PreventUpdate
     if data["isotopomers"] == []:

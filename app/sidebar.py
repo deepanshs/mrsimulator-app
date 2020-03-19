@@ -103,10 +103,11 @@ filename_datetime = html.Div(
         State("decompose", "active"),
         State("isotopomer-dropdown", "value"),
         State("local-isotopomer-index-map", "data"),
+        State("config", "data"),
     ],
 )
 def update_isotopomer_dropdown_index(
-    clickData, options, decompose, old_dropdown_value, index_map
+    clickData, options, decompose, old_dropdown_value, index_map, config
 ):
     """Update the current value of the isotopomer dropdown value when
         a) the trace (line plot) is selected, or
@@ -124,17 +125,21 @@ def update_isotopomer_dropdown_index(
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("config dropdown value", config)
+
     if trigger_id == "isotopomer-dropdown":
-        if old_dropdown_value > len(options):
+        if old_dropdown_value is None:
             return 0
-        return old_dropdown_value
+        if config["is_new_data"]:
+            return 0
+        if config["length_changed"]:
+            return config["index_last_modified"]
+        raise PreventUpdate
 
     if clickData is None:
         raise PreventUpdate
 
-    index = 0
-    if decompose:
-        index = clickData["points"][0]["curveNumber"]
+    index = clickData["points"][0]["curveNumber"] if decompose else 0
     return index_map[index]
 
 
