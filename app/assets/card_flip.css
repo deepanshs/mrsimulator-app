@@ -5,9 +5,11 @@
 .card-flip-show {
   pointer-events: all;
 }
+
 .scene {
   margin: 0px 0;
-  perspective: 1000px;
+  perspective: 1500px;
+  position: relative;
 }
 
 .card-3D {
@@ -15,9 +17,6 @@
   transform-style: preserve-3d;
   padding: 0px;
   position: relative;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
 }
 
 .card-3D-is-flipped {
@@ -29,9 +28,11 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -moz-backface-visibility: hidden;
+  transform: rotateX(0deg);
 }
 
 .card-face-back {
+  transform: rotateX(0deg);
   transform: rotateY(180deg);
 }
 
@@ -52,5 +53,32 @@
   }
   .card-3D-is-flipped {
     transform: none;
+  }
+}
+
+@media only screen and (max-width: 992px) and (min-width: 500px) {
+  .card-3D {
+    transition: none;
+    transform-style: none;
+  }
+  .card-face {
+    position: relative;
+  }
+
+  .card-flip-hide {
+    pointer-events: all;
+  }
+  .card-face-back {
+    transform: none;
+  }
+  .card-3D-is-flipped {
+    transform: none;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  #isotopomer_computed_log {
+    /* padding: 10vh; */
+    min-height: 50vh;
   }
 }

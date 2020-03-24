@@ -102,6 +102,7 @@
     height: calc(100vh - 75px);
   }
   #dimension-body,
+  #isotopomer-body,
   #top-navbar,
   #drawers-import,
   #bottom-navbar {

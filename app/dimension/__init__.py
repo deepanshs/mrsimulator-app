@@ -30,39 +30,30 @@ advance_setting_button = custom_button(
 )
 dimension_toolbar = dbc.Row([dbc.Col([advance_setting_button, advance_settings])])
 
-column_response = {"xs": "12", "sm": "12", "md": "6", "lg": "12", "xl": "12"}
-
 
 # dimension parameters
 def make_dimension(i):
-    row1 = dbc.Row(
+    row1 = html.Div(
         [
-            dbc.Col(
-                custom_collapsible(
-                    text="Environment",
-                    identity=f"environment_id-{i}",
-                    children=environment(i),
-                ),
-                **column_response,
+            custom_collapsible(
+                text="Environment",
+                identity=f"environment_id-{i}",
+                children=environment(i),
             ),
-            dbc.Col(
-                [
-                    custom_collapsible(
-                        text="Line broadening",
-                        identity=f"post_simulation_id-{i}",
-                        children=gaussian_linebroadening_widget(i),
-                        hide=False,
-                    ),
-                    custom_collapsible(
-                        text="Coordinate grid",
-                        identity=f"coordinate_grid_id-{i}",
-                        children=coordinate_grid(i),
-                        is_open=False,
-                    ),
-                ],
-                **column_response,
+            custom_collapsible(
+                text="Line broadening",
+                identity=f"post_simulation_id-{i}",
+                children=gaussian_linebroadening_widget(i),
+                hide=False,
             ),
-        ]
+            custom_collapsible(
+                text="Coordinate grid",
+                identity=f"coordinate_grid_id-{i}",
+                children=coordinate_grid(i),
+                is_open=False,
+            ),
+        ],
+        id=f"dimension-tab-scroll-{i}",
     )
     dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1])
 
