@@ -53,7 +53,7 @@ default_unit = {
         "gamma": "deg",
     },
     "quadrupolar": {
-        "Cq": "MHz",
+        "Cq": "Hz",
         "eta": None,
         "alpha": "deg",
         "beta": "deg",
