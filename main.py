@@ -4,6 +4,7 @@ import dash
 import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
+from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -15,18 +16,19 @@ from mrsimulator.methods import one_d_spectrum
 
 from app.app import app
 from app.body import app_1
+from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
+# import dash_core_components as dcc
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
 
 RAD_FACTOR = np.pi / 180.0
-app.layout = html.Div(
-    app_1, className="wrapper", id="article1", **{"data-role": "page"}
-)
+app.layout = html.Div(app_1, id="article1", **{"data-role": "page"})
+
 
 server = app.server
 
@@ -139,7 +141,7 @@ def check_for_simulation_update(
         Input("dim-number_of_points-0", "value"),
         Input("dim-spectral_width-0", "value"),
         Input("dim-reference_offset-0", "value"),
-        Input("dim-spectrometer_frequency-0", "value"),
+        Input("dim-flux_density-0", "value"),
         Input("isotope_id-0", "value"),
         Input("close_setting", "n_clicks"),
     ],
@@ -161,7 +163,7 @@ def simulation(
     number_of_points,
     spectral_width,
     reference_offset,
-    spectrometer_frequency,
+    magnetic_flux_density,
     isotope_id,
     close_setting_model,
     # state
@@ -175,9 +177,13 @@ def simulation(
     figure,
 ):
     """Evaluate the spectrum and update the plot."""
+    # if "removed" in config.keys():
+    #     raise PreventUpdate
     # exit when the following conditions are True
-    if isotope_id in ["", None]:
-        print("simulation stopped", isotope_id)
+    if isotope_id is None:
+        if previous_local_computed_data is not None:
+            print("simulation cleared because isotope id is", isotope_id)
+            return [[], no_update, no_update]
         raise PreventUpdate
 
     ctx = dash.callback_context
@@ -215,7 +221,7 @@ def simulation(
         print("simulation stopped spectral_width is 0")
         raise PreventUpdate
 
-    magnetic_flux_density = spectrometer_frequency / 42.57748
+    # magnetic_flux_density = spectrometer_frequency / 42.57748
 
     if "dim" in trigger_id:
         if value in [None, ""]:
@@ -224,10 +230,10 @@ def simulation(
 
     dim = {
         "isotope": isotope_id,
-        "magnetic_flux_density": float(magnetic_flux_density) * 100,  # in T
+        "magnetic_flux_density": float(magnetic_flux_density),  # in T
         "rotor_frequency": float(rotor_frequency) * 1000,  # in Hz
         "rotor_angle": float(rotor_angle) * RAD_FACTOR,  # in rad
-        "number_of_points": 2 ** number_of_points,
+        "number_of_points": int(number_of_points),
         "spectral_width": float(spectral_width) * 1000,  # in Hz
         "reference_offset": float(reference_offset) * 1000,  # in Hz
     }
@@ -317,6 +323,10 @@ def simulation(
 
     dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
     local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
+    print(
+        "check with previous data",
+        previous_local_computed_data == local_isotopomers_data,
+    )
     print("local computed data generated", local_computed_data["csdm"]["timestamp"])
     return [local_computed_data, dim, mapping]
 
@@ -417,6 +427,7 @@ def plot_1D(
     broadening,
     apodization,
     clickData,
+    # state
     local_computed_data,
     local_exp_external_data,
     isotope_id,
@@ -433,10 +444,11 @@ def plot_1D(
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("plot trigger id", trigger_id)
 
-    data = []
     if isotope_id is None:
-        isotope_id = ""
+        if local_exp_external_data is None:
+            return [DEFAULT_FIGURE, None]
 
+    data = []
     if local_computed_data is not None:
 
         local_computed_data = cp.parse_dict(local_computed_data)
@@ -478,7 +490,7 @@ def plot_1D(
                         dx=dx,
                         y=datum.components[0] / maximum,
                         mode="lines",
-                        opacity=0.8,
+                        opacity=0.6,
                         line={"width": 1.2},
                         fill="tozeroy",
                         name=name,
@@ -527,7 +539,8 @@ def plot_1D(
     layout["yaxis"]["autorange"] = True
     layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
-    print(clickData)
+    print("isotope_id", isotope_id)
+    print("clickData", clickData)
     if trigger_id == "nmr_spectrum" and decompose:
         if clickData is not None:
             index = clickData["points"][0]["curveNumber"]
@@ -564,7 +577,7 @@ def update_isotope_list(data_modify_time, data, old_isotope_value):
     if data is None:
         raise PreventUpdate
     if data["isotopomers"] == []:
-        return [[], ""]
+        return [[], None]
 
     isotopes = set(
         [site["isotope"] for item in data["isotopomers"] for site in item["sites"]]
@@ -583,5 +596,9 @@ def update_isotope_list(data_modify_time, data, old_isotope_value):
 
 if __name__ == "__main__":
     app.run_server(
-        debug=True, threaded=True, dev_tools_ui=True, dev_tools_hot_reload=True
+        host="0.0.0.0",
+        port=5001,
+        debug=True,
+        dev_tools_ui=True,
+        dev_tools_hot_reload=True,
     )

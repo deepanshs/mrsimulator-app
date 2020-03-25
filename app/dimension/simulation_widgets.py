@@ -3,7 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
-from app.custom_widgets import custom_slider
+
+# from app.custom_widgets import custom_slider
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -20,17 +21,25 @@ def coordinate_grid(i):
             i: An integer with the dimension index.
     """
     # number of points
-    range_num = [7, 8, 10, 12, 14, 16, 18]
-    list_of_numbers = {i: f"{2 ** i}" for i in range_num}
-    number_of_points = custom_slider(
-        label="Number of points",
-        return_function=lambda x: 2 ** x,
-        min=7,
-        max=18,
-        step=1,
-        value=11,
-        marks=list_of_numbers,
+    # range_num = [7, 8, 10, 12, 14, 16, 18]
+    # list_of_numbers = {i: f"{2 ** i}" for i in range_num}
+    # number_of_points = custom_slider(
+    #     label="Number of points",
+    #     return_function=lambda x: 2 ** x,
+    #     min=7,
+    #     max=18,
+    #     step=1,
+    #     value=11,
+    #     marks=list_of_numbers,
+    #     id=f"dim-number_of_points-{i}",
+    # )
+    number_of_points = custom_input_group(
+        prepend_label="Number of points",
+        value=2048,
+        min=2,
         id=f"dim-number_of_points-{i}",
+        debounce=True,
+        inputMode="numeric",
     )
 
     # spectral width
@@ -38,8 +47,9 @@ def coordinate_grid(i):
         prepend_label="Spectral width",
         append_label="kHz",
         value=25.0,
-        min=0.0,
+        min=1e-6,
         id=f"dim-spectral_width-{i}",
+        debounce=True,
     )
 
     # reference offset
@@ -48,11 +58,12 @@ def coordinate_grid(i):
         append_label="kHz",
         value=0.0,
         id=f"dim-reference_offset-{i}",
+        debounce=True,
     )
 
     return html.Div(
         [number_of_points, spectral_width, reference_offset],
-        className="collapsible-body-control",
+        className="collapsible-body-control dimension-class",
     )
 
 
@@ -66,22 +77,30 @@ def environment(i):
             i: An integer with the dimension index.
     """
     # spectrometer frequency
-    field_strength = {
-        1: "100 MHz",
-        4: "400 MHz",
-        7: "700 MHz",
-        10: "1 GHz",
-        13: "1.3 GHz",
-    }
-    spectrometer_frequency = custom_slider(
-        label="Spectrometer frequency @1H",
-        return_function=lambda x: f"{int(x*100)} MHz" if x < 10 else f"{x/10} GHz",
-        min=1,
-        max=13,
-        step=0.5,
-        value=4,
-        marks=field_strength,
-        id=f"dim-spectrometer_frequency-{i}",
+    # field_strength = {
+    #     1: "100 MHz",
+    #     4: "400 MHz",
+    #     7: "700 MHz",
+    #     10: "1 GHz",
+    #     13: "1.3GHz",
+    # }
+    # spectrometer_frequency = custom_slider(
+    #     label="Spectrometer frequency @1H",
+    #     return_function=lambda x: f"{int(x*100)} MHz" if x < 10 else f"{x/10} GHz",
+    #     min=1,
+    #     max=13,
+    #     step=0.5,
+    #     value=4,
+    #     marks=field_strength,
+    #     id=f"dim-spectrometer_frequency-{i}",
+    # )
+    flux_density = custom_input_group(
+        prepend_label="Magnetic flux density",
+        append_label="T",
+        value=9.4,
+        id=f"dim-flux_density-{i}",
+        min=0.0,
+        debounce=True,
     )
 
     # rotor frequency
@@ -91,6 +110,7 @@ def environment(i):
         value=0.0,
         id=f"dim-rotor_frequency-{i}",
         min=0.0,
+        debounce=True,
         # list=["0", "54.7356", "30", "60", "90"],
     )
 
@@ -102,6 +122,7 @@ def environment(i):
         id=f"dim-rotor_angle-{i}",
         max=90,
         min=0,
+        debounce=True,
     )
 
     isotope_and_filter = html.Div(
@@ -118,6 +139,6 @@ def environment(i):
     )
 
     return html.Div(
-        [isotope_and_filter, spectrometer_frequency, rotor_frequency, rotor_angle],
-        className="collapsible-body-control form",
+        [isotope_and_filter, flux_density, rotor_frequency, rotor_angle],
+        className="collapsible-body-control dimension-class",
     )

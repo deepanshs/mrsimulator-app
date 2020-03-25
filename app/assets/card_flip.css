@@ -7,16 +7,13 @@
 }
 
 .scene {
-  margin: 0px 0;
   perspective: 1500px;
-  position: relative;
 }
 
 .card-3D {
+  margin: 0;
   transition: transform 0.6s;
   transform-style: preserve-3d;
-  padding: 0px;
-  position: relative;
 }
 
 .card-3D-is-flipped {
@@ -34,6 +31,13 @@
 .card-face-back {
   transform: rotateX(0deg);
   transform: rotateY(180deg);
+}
+
+#dimension-card-title:hover,
+#isotopomer-card-title:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
 }
 
 @media only screen and (min-width: 1200px) {
@@ -54,9 +58,13 @@
   .card-3D-is-flipped {
     transform: none;
   }
+  #dimension-card-title,
+  #isotopomer-card-title {
+    pointer-events: none;
+  }
 }
 
-@media only screen and (max-width: 992px) and (min-width: 500px) {
+@media only screen and (max-width: 767px) and (min-width: 576px) {
   .card-3D {
     transition: none;
     transform-style: none;
@@ -74,11 +82,23 @@
   .card-3D-is-flipped {
     transform: none;
   }
+  #dimension-card-title,
+  #isotopomer-card-title {
+    pointer-events: none;
+  }
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 576px) {
   #isotopomer_computed_log {
     /* padding: 10vh; */
-    min-height: 50vh;
+    min-height: 100vh;
+  }
+  #isotopomer_form-collapse {
+    max-height: calc(100vh - 40px - 150px);
+    overflow-y: scroll;
+  }
+  #dimension-tab-scroll-0 {
+    max-height: calc(100vh - 95px);
+    overflow-y: scroll;
   }
 }

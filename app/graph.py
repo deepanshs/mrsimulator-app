@@ -19,7 +19,9 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 button = html.Div(
-    html.I(className="fas fa-question-circle pl-1"), id="pop-up-simulation-button"
+    html.I(className="fas fa-question-circle pl-1"),
+    id="pop-up-simulation-button",
+    style={"cursor": "pointer"},
 )
 
 
@@ -34,47 +36,46 @@ def toggle_popover(n, is_open):
     return is_open
 
 
+DEFAULT_FIGURE = {
+    "data": [
+        go.Scatter(
+            x=[-1.2, 0, 1.2],
+            y=[0, 0, 0],
+            mode="lines",
+            line={"color": "black", "width": 1.2},
+        )
+    ],
+    "layout": go.Layout(
+        xaxis=dict(
+            title="frequency ratio / ppm",
+            ticks="outside",
+            showline=True,
+            autorange="reversed",
+            zeroline=False,
+        ),
+        yaxis=dict(
+            title="arbitrary unit",
+            ticks="outside",
+            showline=True,
+            zeroline=False,
+            autorange=True,
+            rangemode="tozero",
+        ),
+        autosize=True,
+        transition={"duration": 175, "easing": "sin-out", "ordering": "traces first"},
+        margin={"l": 60, "b": 45, "t": 5, "r": 5},
+        legend={"x": 0, "y": 1},
+        hovermode="closest",
+        paper_bgcolor="rgba(255,255,255,0.1)",
+        plot_bgcolor="rgba(255,255,255,0.3)",
+        template="none",
+        clickmode="event+select",
+    ),
+}
+
 plotly_graph = dcc.Graph(
     id="nmr_spectrum",
-    figure={
-        "data": [
-            go.Scatter(
-                x=[-1.2, 0, 1.2],
-                y=[0, 0, 0],
-                mode="lines",
-                line={"color": "black", "width": 1.2},
-            )
-        ],
-        "layout": go.Layout(
-            xaxis=dict(
-                title="frequency ratio / ppm",
-                ticks="outside",
-                showline=True,
-                autorange="reversed",
-                zeroline=False,
-            ),
-            yaxis=dict(
-                title="arbitrary unit",
-                ticks="outside",
-                showline=True,
-                zeroline=False,
-                rangemode="tozero",
-            ),
-            autosize=True,
-            transition={
-                "duration": 175,
-                "easing": "sin-out",
-                "ordering": "traces first",
-            },
-            margin={"l": 60, "b": 45, "t": 5, "r": 5},
-            legend={"x": 0, "y": 1},
-            hovermode="closest",
-            paper_bgcolor="rgba(255,255,255,0.1)",
-            plot_bgcolor="rgba(255,255,255,0.3)",
-            template="none",
-            clickmode="event+select",
-        ),
-    },
+    figure=DEFAULT_FIGURE,
     config={
         # "editable": True,
         # "edits": {"axisTitleText": True},
@@ -102,22 +103,15 @@ plotly_graph = dcc.Graph(
     },
 )
 
-className = "d-flex align-items-center"
+className = "align-items-center"
 spectrum_body = html.Div(
     id="spectrum-body",
-    className="v-100 my-card",
+    className="my-card",
     children=dcc.Upload(
         [
             html.Div(
-                [
-                    html.H4(
-                        ["Simulation", button],
-                        style={"fontWeight": "normal"},
-                        className=f"pl-2 {className} justify-content-center",
-                    ),
-                    toolbar,
-                ],
-                className=f"p-2 justify-content-between {className}",
+                [html.H4(["Simulation", button], className="title-with-help"), toolbar],
+                className="card-header toolbar toolbar-header",
             ),
             html.Div(plotly_graph),
             simulation_help,

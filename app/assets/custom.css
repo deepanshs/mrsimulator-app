@@ -1,5 +1,37 @@
 body {
   box-sizing: border-box;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  font-family: sans-serif;
+  color: rgb(27, 27, 27);
+}
+
+h4 {
+  margin: 0;
+}
+.app-1 {
+  /* background: linear-gradient(
+    to right,
+    rgb(63, 47, 47) 0%,
+    rgb(49, 36, 51) 100%
+  ); */
+  background-color: rgb(228, 228, 228);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+  --text-color-normal: #0a244d;
+  --text-color-light: #8cabd9;
+}
+
+html[data-theme="dark"] {
+  --text-color-normal: hsl(210, 10%, 62%);
+  --text-color-light: hsl(210, 15%, 35%);
+  --text-color-richer: hsl(210, 50%, 72%);
+  --text-color-highlight: hsl(25, 70%, 45%);
 }
 
 input[type="number"] {
@@ -12,103 +44,75 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-.button {
-  padding: 1px;
-}
-
-#top-navbar {
-  z-index: 4;
-}
-
-#bottom-navbar {
-  z-index: 0;
-  height: 40px;
-  background-color: #343942;
-  position: static;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-.wrapper {
-  overflow: hidden;
-  position: relative;
-}
-
-.nav-link,
-.secondary-nav-link {
-  color: silver;
-}
-
-.nav-link:hover,
-.secondary-nav-link:hover {
-  color: white;
-}
-.secondary-nav-link:hover {
-  background-color: #252931;
-  border-radius: 0px;
-}
-/* button contents */
-
-.button .no-round {
-  border-radius: 0;
-}
-
 /* formtest contents */
-
 .formtext {
   font-size: 0.9rem;
   color: #bed5fa;
-  padding: 0 none;
+  padding: 0;
 }
 
 /* card properties */
 
-.top-navbar {
-  position: relative;
-  z-index: 1;
-  background: #343942;
-  border-radius: 0em;
-  border: 0px solid #343942;
-  border-top: 1px solid #343942;
-  /* border-bottom: 1px solid #bed5fa; */
-  box-shadow: 0 0px 20px 0px #3a3a3a;
-}
-
 .my-card {
-  /* padding: 10px; */
+  z-index: -1;
   overflow: hidden;
-  border-radius: 0.8em;
-  border: 1px solid rgb(214, 214, 214);
-  /* box-shadow: 0 1px 2px 0px #b6b6b6; */
+  /* height: 100%;
+  width: 100%; */
+  border-radius: 0.8rem;
+  border: 1px solid silver;
   background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%);
+  box-shadow: 0 0 15px 0 rgb(175, 175, 175);
 }
 
 .my-card-sidebar {
-  position: relative !important;
-  overflow: hidden;
-  min-height: 12vh;
-  border-radius: 0.8em;
+  border-radius: 0.8rem;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
+  /* background: linear-gradient(to bottom, #d8d0d0 0%, #e7e6e6 100%); */
   background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
 }
 
-/* dash slider properties */
-
-.rc-slider-track {
-  background-color: #3c676bd7;
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  /* background-color: black; */
+  background: linear-gradient(to right, #ffc6844b 0%, #e6749e3d 100%);
+  /* background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%); */
+  margin-bottom: 1px;
+  outline: brown solid 1px;
+  /* outline-offset: -1px; */
+  /* border: brown solid 1px; */
+  box-shadow: 0 0px 3px 1px black;
 }
 
+/* .color-gradient-2 {
+  height: 1px;
+  background-color: black;
+} */
+
+/* dash slider properties */
+.rc-slider-track {
+  background-color: #6b553cd7;
+}
 .rc-slider-dot-active {
   /* border-color: red; */
-  border: solid 2px #5c7a7e;
+  border: solid 2px #7e6e5c;
 }
-
+.rc-slider-handle-click-focused:focus {
+  border-color: #d4ad72;
+}
+.rc-slider-handle:hover {
+  border-color: #ebbc75;
+  box-shadow: 0 0 2px 1px #ebbc75;
+}
 .rc-slider-handle {
-  border-color: #63aeb8;
-  background-color: #0f5d63;
+  border-color: #b89663;
+  background-color: #63380f;
+}
+.rc-slider-handle:active {
+  border-color: #dfb473;
 }
 
 /* collapsible group handle */
@@ -117,8 +121,8 @@ html {
   box-shadow: 0 0px 2px 0px #979797;
   z-index: 0;
   border-radius: 0.1em;
-  background-color: #e9f4f7;
-  border-top: 1px solid #0f5d63;
+  background-color: #f7f0e9ea;
+  border-top: 1px solid #632e0f;
   border-bottom: 1px solid rgb(194, 194, 194);
 }
 
@@ -132,9 +136,9 @@ html {
 /* .active, */
 .collapsible:hover {
   box-shadow: 0 0px 3px 0px #979797;
-  background-color: #e0eff3;
+  background-color: #f3e7e0;
 }
-
+/*
 .ripple {
   position: relative;
   overflow: hidden;
@@ -162,7 +166,7 @@ html {
   transform: scale(0, 0);
   opacity: 0.3;
   transition: 0s;
-}
+} */
 
 .collapsible-body-control {
   padding: 10px;
@@ -172,71 +176,136 @@ html {
   border-top-right-radius: 0px;
 }
 
-.bare {
-  background-color: #ffffff00;
-  border: 0px solid #e0e0e000;
+/* dash callback loading */
+*[data-dash-is-loading="true"] {
+  opacity: 1;
+  pointer-events: none;
+  visibility: visible;
+}
+/* *[data-dash-is-loading="true"]::before {
+  content: "Loading...";
+  display: inline-block;
+  color: rgb(116, 73, 116);
+  visibility: visible;
+} */
+.col-grid {
+  margin: 0;
+  padding: 0;
+}
+.col-left {
+  padding-left: 15px;
+}
+.col-right {
+  padding-left: 10px;
+}
+.col-left,
+.col-right {
+  padding-right: 10px;
+  margin: 0;
 }
 
+/* .card-face */
+.card-face {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#import-isotopomer-toggler {
+  border-top-left-radius: 2.5rem;
+}
 @media only screen and (max-width: 992px) {
-  .master-padding {
-    padding-right: 0px;
+  .card-face {
     padding-left: 0px;
+    padding-right: 0px;
+  }
+  .col-left {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  .col-right {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .card-face,
+  .col-left,
+  .col-right {
+    padding: 0px;
+  }
+  #dimension-card-body {
+    padding-right: 3px;
+  }
+  #isotopomer-card-body {
+    padding-left: 3px;
   }
   .hide-label {
     display: none;
   }
+  #dimension-body,
+  #isotopomer-body,
   #spectrum-body {
-    height: 50vh;
+    min-height: 50vh;
   }
   #nmr_spectrum {
     height: calc(50vh - 55px);
   }
 }
 
-@media only screen and (min-width: 992px) {
+/* #isotopomer_form-collapse {
+  max-height: calc(75vh - 40px - 130px);
+  overflow-y: scroll;
+}
+#dimension-tab-scroll-0 {
+  max-height: calc(75vh - 95px);
+  overflow-y: scroll;
+} */
+
+@media only screen and (min-width: 768px) {
   /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
-  #dimension-body,
+
+  /* #dimension-body,
   #isotopomer-body,
   #spectrum-body {
-    height: 75vh;
-  }
+    max-height: 80vh;
+  } */
   /* #tab-body {
     height: 75vh;
     overflow-y: scroll;
   } */
-  #nmr_spectrum {
-    height: calc(75vh - 55px);
-  }
-  #isotopomer_form-collapse {
-    max-height: calc(75vh - 40px - 130px);
-    overflow-y: scroll;
+  /* #nmr_spectrum {
+    height: calc(80vh - 55px);
+  } */
+  #spectrum-body {
+    height: 70%;
   }
   /* #dimension-body,
   #isotopomer-body,
   #spectrum-body {
-    max-height: 75vh;
-  }
+    max-height: 90vh;
+  } */
   #isotopomer_form-collapse {
-    max-height: calc(100vh - 40px - 27px - 169px);
+    height: calc(85vh - 40px - 20px - 145px);
     overflow-y: scroll;
   }
   #dimension-tab-scroll-0 {
-    max-height: calc(75vh - 95px - 40px);
+    height: calc(85vh - 78px);
     overflow-y: scroll;
   }
   #nmr_spectrum {
-    height: calc(75vh - 55px - 40px);
-  } */
-}
-
-@media only screen and (max-width: 550px) {
-  .hide-label-sm {
-    display: none;
+    height: calc(85vh - 55px - 40px);
   }
 }
-@media only screen and (max-width: 300px) {
-  .hide-label-xs {
-    display: none;
+
+@media only screen and (max-width: 575px) {
+  .card-face,
+  .col-left,
+  .col-right {
+    padding: 0px;
+  }
+  #dimension-card-body,
+  #isotopomer-card-body {
+    padding: 0;
   }
 }
 /* dash-bootstrap customize */
@@ -244,6 +313,57 @@ html {
 /* .dash-bootstrap .is-open>.Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 1em;
+} */
+
+.form-control {
+  font-family: sans-serif;
+}
+
+.form-control:focus {
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  outline: none;
+  /* padding: 3px 0px 3px 3px; */
+  /* margin: 5px 1px 3px 0px; */
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.068) inset,
+    0px 0px 2px rgba(0, 17, 255, 0.829);
+  /* box-shadow: none; */
+}
+
+.form-control:invalid {
+  background-color: rgba(255, 230, 238, 0.795);
+  outline: none;
+}
+
+.form-control:valid {
+  background-color: white;
+  outline: none;
+}
+.dimension-class .input-group-append {
+  width: 3.5rem;
+  display: flex;
+  text-align: right;
+  justify-content: space-around;
+  flex-direction: column;
+}
+.dimension-class .input-group-prepend {
+  width: 9rem;
+  display: flex;
+  justify-content: left;
+  flex-direction: column;
+}
+/* .input-group,
+.input-group-append,
+.input-group-prepend,
+.input-group input {
+  max-height: 32px;
+  overflow: hidden;
+}
+.input-group-text {
+  padding-top: 3px;
+  padding-bottom: 3px;
 } */
 
 .append-first {
@@ -258,4 +378,68 @@ html {
 .append-last {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+.inactive {
+  display: none;
+}
+
+.active {
+  display: block;
+  /* pointer-events: all; */
+}
+
+.js-line:hover {
+  transform: scale(1.5);
+}
+
+.input-form-2 {
+  width: 100%;
+  /* height: 1.75rem; */
+  justify-content: start;
+  display: flex;
+}
+/* .input-form-2:hover + .label-left::after {
+  color: rgb(39, 39, 39);
+  transform: scale(1.06);
+  transition: all 0.3s ease;
+} */
+.input-form-2 .label-left {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-right: 0.5rem;
+  color: rgb(94, 94, 94);
+  flex-wrap: nowrap;
+}
+.input-form-2 .label-right {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-left: 0.5rem;
+  min-width: 2.5rem;
+  text-align: right;
+  color: rgb(94, 94, 94);
+}
+.input-form-2 input {
+  cursor: pointer;
+  text-align: right;
+  min-width: 20%;
+  max-width: 40%;
+  margin-left: auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  border-radius: 0.3rem;
+  background-color: transparent;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+.input-form-2 input:focus {
+  cursor: text;
+  background-color: white;
+  border: 2px solid rgb(218, 161, 115);
+  transition: all 0.3s ease;
+}
+.input-form-2 input:invalid {
+  color: rgba(196, 56, 100, 0.795);
+  outline: none;
+  box-shadow: none;
 }

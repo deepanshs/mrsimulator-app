@@ -10,6 +10,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from csdmpy.dependent_variables.download import get_absolute_url_path
+from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -189,8 +190,9 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 dbc.Button(
                     html.I(className="fas fa-times"),
                     id=f"upload-{prepend_id}-panel-hide-button",
-                    color="dark",
+                    # color="dark",
                     size="sm",
+                    style={"backgroundColor": "transparent", "outline": "none"},
                 ),
                 className="d-flex justify-content-end",
             ),
@@ -205,7 +207,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 className="d-flex justify-content-start",
             ),
         ],
-        className="top-navbar",
+        className="navbar-reveal",
     )
 
     @app.callback(
@@ -366,7 +368,7 @@ def update_isotopomers(
         data = existing_isotopomers_data
         data["isotopomers"][isotopomer_dropdown_value] = new_json_data
         config["index_last_modified"] = isotopomer_dropdown_value
-        return ["", False, data, data["name"], data["description"], config]
+        return [no_update, no_update, data, no_update, no_update, config]
 
     # The following section applies to when the a new isotopomers is added from
     # new-isotopomer-button.
@@ -380,9 +382,8 @@ def update_isotopomers(
         data["isotopomers"] += [new_isotopomer]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
-        config["removed"] = None
         config["index_last_modified"] = len(data["isotopomers"]) - 1
-        return ["", False, data, data["name"], data["description"], config]
+        return [no_update, no_update, data, no_update, no_update, config]
 
     # The following section applies to when a request to duplicate the isotopomers is
     # initiated using the duplicate-isotopomer-button.
@@ -395,13 +396,14 @@ def update_isotopomers(
         data["isotopomers"] += [isotopomer_to_copy]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in isotopomer_to_copy["sites"]]
-        config["removed"] = None
         config["index_last_modified"] = len(data["isotopomers"]) - 1
-        return ["", False, data, data["name"], data["description"], config]
+        return [no_update, no_update, data, no_update, no_update, config]
 
     # The following section applies to when a request to remove an isotopomers is
     # initiated using the trash-isotopomer-button.
     if trigger_id == "trash-isotopomer-button":
+        if isotopomer_dropdown_value is None:
+            raise PreventUpdate
         if existing_isotopomers_data is None:
             raise PreventUpdate
         data = existing_isotopomers_data
@@ -410,7 +412,6 @@ def update_isotopomers(
             site["isotope"]
             for site in data["isotopomers"][isotopomer_dropdown_value]["sites"]
         ]
-        config["added"] = None
 
         del data["isotopomers"][isotopomer_dropdown_value]
         new_length = len(data["isotopomers"]) - 1
@@ -420,9 +421,10 @@ def update_isotopomers(
             if isotopomer_dropdown_value < new_length
             else new_length
         )
+        index = None if new_length < 0 else index
 
         config["index_last_modified"] = index
-        return ["", False, data, data["name"], data["description"], config]
+        return [no_update, no_update, data, no_update, no_update, config]
 
     # The following section applies to when the isotopomers update is triggered when
     # user edits the loaded isotopomer file.
@@ -435,9 +437,9 @@ def update_isotopomers(
         data = existing_isotopomers_data
         data["isotopomers"][isotopomer_dropdown_value] = isotopomers
         config["index_last_modified"] = isotopomer_dropdown_value
-        return ["", False, data, data["name"], data["description"], config]
+        return [no_update, no_update, data, no_update, no_update, config]
 
-    if_error_occurred = [True, existing_isotopomers_data, data_title, data_info]
+    if_error_occurred = [True, existing_isotopomers_data, no_update, no_update]
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
     if trigger_id == "example-isotopomer-dropbox":
@@ -561,31 +563,29 @@ def parse_contents(contents, filename):
         Input("upload-spectrum-local", "contents"),
         Input("upload-from-graph", "contents"),
     ],
-    [State("local-exp-external-data", "data"), State("upload-from-graph", "filename")],
+    [
+        State("upload-spectrum-local", "filename"),
+        State("upload-from-graph", "filename"),
+    ],
 )
-def update_exp_external_file(
-    csdm_upload_content, csdm_upload_content_graph, existing_data, filename
-):
+def update_exp_external_file(csdm_upload_content, csdm_upload_content_graph, *args):
     """Update a local CSDM file."""
     ctx = dash.callback_context
-    # print(ctx.triggered[0]["prop_id"])
     if csdm_upload_content is None and csdm_upload_content_graph is None:
         raise PreventUpdate
 
     if not ctx.triggered:
         raise PreventUpdate
 
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    states = dash.callback_context.states
+
+    filename = states[f"{trigger_id}.filename"]
     file_extension = filename.split(".")[1]
     if file_extension not in ["csdf", "json"]:
-        return [
-            f"Expecting a .csdf or .json file, found .{file_extension}.",
-            True,
-            existing_data,
-        ]
+        return [f"Expecting a .csdf file, found .{file_extension}.", True, no_update]
     if file_extension != "csdf":
         raise PreventUpdate
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if trigger_id == "upload-spectrum-local":
         content_string = csdm_upload_content
@@ -598,7 +598,7 @@ def update_exp_external_file(
     if success:
         return ["", False, data]
     else:
-        return [f"Invalid JSON file. {error_message}", True, existing_data]
+        return [f"Invalid JSON file. {error_message}", True, no_update]
 
 
 def load_json(content):

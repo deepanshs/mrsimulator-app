@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # import dash
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 
 from app.custom_widgets import custom_button
 
 # import dash_core_components as dcc
-# import dash_html_components as html
 
 # from dash.dependencies import Input
 # from dash.dependencies import Output
@@ -27,7 +27,7 @@ advanced_isotopomer_text_area = dbc.Textarea(
     id="json-file-editor",
     placeholder="Isotopomer editor",
     draggable="False",
-    contentEditable="False",
+    # contentEditable="False",
     spellCheck="False",
     bs_size="sm",
     rows=10,
@@ -41,7 +41,7 @@ advanced_isotopomer_text_area_collapsible = dbc.Collapse(
 new_isotopomer = custom_button(
     icon_classname="fas fa-plus-circle",
     id="new-isotopomer-button",
-    tooltip="Add isotopomer",
+    tooltip="Add",
     active=False,
     outline=True,
     color="dark",
@@ -51,7 +51,7 @@ new_isotopomer = custom_button(
 duplicate_isotopomer = custom_button(
     icon_classname="fas fa-clone",
     id="duplicate-isotopomer-button",
-    tooltip="Add isotopomer",
+    tooltip="Duplicate",
     active=False,
     outline=True,
     color="dark",
@@ -61,18 +61,15 @@ duplicate_isotopomer = custom_button(
 trash_isotopomer = custom_button(
     icon_classname="fas fa-trash",
     id="trash-isotopomer-button",
-    tooltip="Remove isotopomer",
+    tooltip="Remove",
     active=False,
     outline=True,
     color="dark",
     style={"float": "right"},
 )
 
-toolbar = dbc.ButtonGroup(
-    [
-        new_isotopomer,
-        duplicate_isotopomer,
-        trash_isotopomer,
-        advanced_isotopomer_editor_button,
-    ]
-)
+group_one = dbc.ButtonGroup([new_isotopomer, duplicate_isotopomer, trash_isotopomer])
+
+group_two = dbc.ButtonGroup([advanced_isotopomer_editor_button])
+
+toolbar = html.Div([group_one, group_two], className="toolbar")
