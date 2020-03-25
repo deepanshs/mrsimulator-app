@@ -447,6 +447,8 @@ def plot_1D(
     if isotope_id is None:
         if local_exp_external_data is None:
             return [DEFAULT_FIGURE, None]
+        if local_exp_external_data["isotopomers"] == []:
+            return [DEFAULT_FIGURE, None]
 
     data = []
     if local_computed_data is not None:
