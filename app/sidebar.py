@@ -4,6 +4,7 @@ import json
 import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -13,6 +14,8 @@ from app.app import app
 from app.custom_widgets import custom_button
 from app.isotopomer.draft import get_all_isotopomer_dropdown_options
 from app.modal.file_info import file_info
+
+# from dash.dependencies import ClientsideFunction
 
 # from app.isotopomer.draft import filter_isotopomer_list
 # from app.isotopomer.draft import get_isotopomer_dropdown_options
@@ -34,32 +37,28 @@ isotopomers_info_button = custom_button(
 
 filename_datetime = html.Div(
     [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.H5(
-                        "Add a title", id="filename_dataset"  # contentEditable="True"
-                    )
-                ),
-                # dbc.Col(
-                #     isotopomers_info_button,
-                #     width=3,
-                #     className="d-flex justify-content-end",
-                # )
-                # dbc.Col(
-                #     custom_button(
-                #         text="",
-                #         icon_classname="fas fa-edit",
-                #         id="json-file-editor-toggler",
-                #         tooltip="Edit the isotopomer file.",
-                #         active=False,
-                #         outline=True,
-                #         style={"float": "right"},
-                #     )
-                # ),
-            ],
-            className="d-flex justify-content-between",
-        ),
+        # dbc.Row(
+        # [
+        html.H5("Add a title", id="filename_dataset"),  # contentEditable="True"
+        # dbc.Col(
+        #     isotopomers_info_button,
+        #     width=3,
+        #     className="d-flex justify-content-end",
+        # )
+        # dbc.Col(
+        #     custom_button(
+        #         text="",
+        #         icon_classname="fas fa-edit",
+        #         id="json-file-editor-toggler",
+        #         tooltip="Edit the isotopomer file.",
+        #         active=False,
+        #         outline=True,
+        #         style={"float": "right"},
+        #     )
+        # ),
+        # ],
+        # className="d-flex justify-content-between",
+        # ),
         file_info,
         html.P(
             "Add a description ... ",
@@ -103,10 +102,11 @@ filename_datetime = html.Div(
         State("decompose", "active"),
         State("isotopomer-dropdown", "value"),
         State("local-isotopomer-index-map", "data"),
+        State("config", "data"),
     ],
 )
 def update_isotopomer_dropdown_index(
-    clickData, options, decompose, old_dropdown_value, index_map
+    clickData, options, decompose, old_dropdown_value, index_map, config
 ):
     """Update the current value of the isotopomer dropdown value when
         a) the trace (line plot) is selected, or
@@ -124,17 +124,23 @@ def update_isotopomer_dropdown_index(
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("config dropdown value", config)
+
     if trigger_id == "isotopomer-dropdown":
-        if old_dropdown_value > len(options):
-            return 0
-        return old_dropdown_value
+        # if old_dropdown_value is None:
+        #     return 0
+        if config is None or options == []:
+            return None
+        if config["is_new_data"]:
+            return None
+        # if config["length_changed"]:
+        #     return config["index_last_modified"]
+        # return no_update
 
     if clickData is None:
-        raise PreventUpdate
+        return no_update
 
-    index = 0
-    if decompose:
-        index = clickData["points"][0]["curveNumber"]
+    index = clickData["points"][0]["curveNumber"] if decompose else 0
     return index_map[index]
 
 
@@ -154,12 +160,12 @@ def update_json_file_editor_from_isotopomer_dropdown(
     print("active", is_advanced_editor_open)
 
     if not is_advanced_editor_open:
-        raise PreventUpdate
+        return no_update
 
     if local_isotopomer_data is None:
-        raise PreventUpdate
+        return no_update
     if index is None:
-        raise PreventUpdate
+        return no_update
 
     # isotopomer_list = filter_isotopomer_list(
     #     local_isotopomer_data["isotopomers"], isotope_id_value
@@ -181,23 +187,33 @@ def update_json_file_editor_from_isotopomer_dropdown(
     return json.dumps(isotopomer_list[index], indent=2, ensure_ascii=True)
 
 
+# app.clientside_callback(
+#     ClientsideFunction(
+#         namespace="clientside", function_name="update_isotopomer_dropdown_options"
+#     ),
+#     Output("isotopomer-dropdown", "options"),
+#     [Input("local-isotopomers-data", "data")],
+#     # [State("local-isotopomers-data", "data")],
+# )
+
+
 @app.callback(
     Output("isotopomer-dropdown", "options"),
-    [Input("local-isotopomers-data", "modified_timestamp")],
+    [Input("local-isotopomers-data", "data")],
     # [Input("isotope_id-0", "value")],
-    [State("local-isotopomers-data", "data")],
+    # [State("local-isotopomers-data", "data")],
 )
-def update_isotopomer_dropdown_options(timestamp, local_isotopomer_data):
+def update_isotopomer_dropdown_options(local_isotopomer_data):
     """Update isotopomer dropdown options base on local isotopomers data.
         Args:
             isotope_id_value: (trigger) a filter and update of the isotopomer
                 dropdown options based on the value of the isotope.
             local_isotopomer_data: (state) Local isotopomers data as the state.
     """
-    if timestamp is None:
-        raise PreventUpdate
+    # if timestamp is None:
+    #     return no_update
     if local_isotopomer_data is None:
-        raise PreventUpdate
+        return []
 
     isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
         local_isotopomer_data["isotopomers"]

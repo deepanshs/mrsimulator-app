@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
+# import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 from app.custom_widgets import custom_button
@@ -28,7 +28,7 @@ advance_setting_button = custom_button(
     outline=True,
     color="dark",
 )
-dimension_toolbar = dbc.Row([dbc.Col([advance_setting_button, advance_settings])])
+dimension_toolbar = html.Div([advance_setting_button, advance_settings])
 
 
 # dimension parameters
@@ -44,45 +44,41 @@ def make_dimension(i):
                 text="Line broadening",
                 identity=f"post_simulation_id-{i}",
                 children=gaussian_linebroadening_widget(i),
-                hide=False,
             ),
             custom_collapsible(
                 text="Coordinate grid",
                 identity=f"coordinate_grid_id-{i}",
                 children=coordinate_grid(i),
-                is_open=False,
             ),
         ],
         id=f"dimension-tab-scroll-{i}",
     )
-    dimension_contents = dbc.Tab(label=f"Index-{i}", children=[row1])
+    dimension_contents = html.Div(children=[row1])
 
     return dimension_contents
 
 
 # dimension layout
 dimension_body = html.Div(
-    className="v-100 my-card",
+    className="my-card",
     children=[
         html.Div(
             [
-                html.H4(
-                    "Dimensions",
-                    style={"fontWeight": "normal"},
-                    className="pl-2",
-                    id="dimension-card",
-                ),
+                html.H4("Spectral Dimension", id="dimension-card-title"),
                 # dbc.Button("+", id="add-dimension"),
                 dimension_toolbar,
             ],
-            className="d-flex justify-content-between p-2",
+            className="card-header",
         ),
-        dbc.Tabs(children=[make_dimension(i) for i in range(1)], id="dimension-tabs"),
+        html.Div(className="color-gradient-2"),
+        html.Div(children=[make_dimension(i) for i in range(1)], id="dimension-tabs"),
     ],
     id="dimension-body",
 )
 
-dimension_body_card = html.Div(dimension_body, id="dimension-body-card")
+dimension_body_card = html.Div(
+    dimension_body, id="dimension-card-body", className="h-100"
+)
 
 
 # @app.callback(

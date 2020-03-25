@@ -31,9 +31,9 @@ def line_broadening(x, amp, sigma, broadType):
     else:
         broadSignal = 1
 
-    appodized = np.roll(TimeDomain * broadSignal, -int(x.count / 2))
+    apodize = np.roll(TimeDomain * broadSignal, -int(x.count / 2))
 
-    return fftshift(fft(appodized))
+    return fftshift(fft(apodize)).real
 
 
 def post_simulation(function, csdm_object, **kwargs):

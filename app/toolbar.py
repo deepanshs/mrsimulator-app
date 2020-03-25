@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_switch
@@ -47,10 +48,7 @@ decompose_button = custom_switch(
 # )
 
 # Button group ---------------------------------------------------------------------- #
-group_1_buttons = dbc.ButtonGroup(
-    [scale_amplitude_button, decompose_button],
-    # className="btn-group mr-2",
-)
+group_1_buttons = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
 
 
 # layout for the button
@@ -70,7 +68,7 @@ download_layout = [
 group_2_buttons = dbc.ButtonGroup(download_layout)
 
 # toolbar icons --------------------------------------------------------------------- #
-toolbar = dbc.Row([dbc.Col(group_1_buttons), dbc.Col(group_2_buttons)])
+toolbar = html.Div([group_1_buttons, group_2_buttons], className="toolbar")
 
 
 # # add callback for toggling the collapse on small screens

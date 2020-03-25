@@ -44,7 +44,10 @@ def custom_hover_help(message="", id=None):
     """
     button = html.Div(
         [
-            html.I(className="fas fa-question-circle", style={"color": "white"}),
+            html.I(
+                className="fas fa-question-circle",
+                style={"color": "white", "cursor": "pointer"},
+            ),
             dbc.Tooltip(message, target=id, **tooltip_format),
         ],
         id=id,
@@ -128,8 +131,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 className="d-flex justify-content-between",
             ),
             dcc.Slider(**kwargs, className="slider-custom"),
-        ],
-        className="my-auto d-flex flex-column",
+        ]
     )
 
     @app.callback([Output(id_label, "children")], [Input(kwargs["id"], "value")])
@@ -140,6 +142,42 @@ def custom_slider(label="", return_function=None, **kwargs):
             return [return_function(value)]
 
     return slider
+
+
+# def custom_input_group(prepend_label="", append_label=None, **kwargs):
+#     """
+#         A custom dash bootstrap component input-group widget with a prepend-label,
+#         followed by an Input box, and an append-label.
+
+#         Args:
+#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
+#             append_label: A string to append dash-bootstrap-component Input widget.
+#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
+#     """
+#     append_label = append_label if append_label is not None else ""
+
+#     group = [
+#         dcc.Input(
+#             type="number",
+#             autoComplete="off",
+#             name="name",
+#             pattern="?[0-9]*\\.?[0-9]",
+#             className="",
+#             required="required",
+#             **kwargs,
+#         ),
+#         html.Label(
+#             className="label-name",
+#             htmlFor="name",
+#             children=html.Span(prepend_label, className="content-name"),
+#         ),
+#         html.Label(
+#             className="label-name-after",
+#             htmlFor="name",
+#             children=html.Span(append_label, className="content-name-after"),
+#         ),
+#     ]
+#     return html.Div(group, className="input-form")
 
 
 def custom_input_group(
@@ -154,31 +192,81 @@ def custom_input_group(
             append_label: A string to append dash-bootstrap-component Input widget.
             kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
+    append_label = append_label if append_label is not None else ""
+
     group = [
-        html.Div(
-            html.Span(prepend_label, className="input-group-text"),
-            className="input-group-prepend",
+        html.Label(
+            className="label-left", htmlFor="name", children=html.Span(prepend_label)
         ),
         dcc.Input(
             type=input_type,
+            autoComplete="off",
+            name="name",
             # pattern="?[0-9]*\\.?[0-9]",
-            className="form-control",
             **kwargs,
         ),
+        html.Label(
+            className="label-right", htmlFor="name", children=html.Span(append_label)
+        ),
     ]
-    if append_label is not None:
-        return html.Div(
-            [
-                *group,
-                html.Div(
-                    html.Span(append_label, className="input-group-text"),
-                    className="input-group-append",
-                ),
-            ],
-            className="input-group d-flex",
-        )
-    else:
-        return html.Div(group, className="input-group p1 d-flex")
+    return html.Div(group, className="input-form-2")
+
+
+# def custom_input_group(prepend_label="", append_label=None, **kwargs):
+#     """
+#         A custom dash bootstrap component input-group widget with a prepend-label,
+#         followed by an Input box, and an append-label.
+
+#         Args:
+#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
+#             append_label: A string to append dash-bootstrap-component Input widget.
+#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
+#     """
+#     # if pattern == "pos_dec_only":
+#     #     pattern_re = r"^[0-9]\d*(\.\d+)?$"
+#     # elif pattern == "pos_neg_dec":
+#     #     pattern_re = r"^-?[0-9]\d*(\.\d+)?$"
+#     # elif pattern == "scientific":
+#     #     pattern_re = r"(^[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+))$"
+#     #     # pattern_re = r"/[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?/"
+#     # else:
+#     #     pattern_re = pattern
+
+#     group = [
+#         html.Div(
+#             html.Span(prepend_label, className="input-group-text"),
+#             className="input-group-prepend",
+#         ),
+#         dcc.Input(
+#             type="number",
+#             # pattern="?[0-9]*\\.?[0-9]",
+#             className="form-control",
+#             **kwargs,
+#         ),
+#     ]
+
+#     # @app.callback(Output(kwargs["id"], "step"), [Input(kwargs["id"], "value")])
+#     # def update_steps(value):
+#     #     if not isinstance(value, (float, int)):
+#     #         raise PreventUpdate
+#     #     val = str(value).split(".")
+#     #     if len(val) == 1:
+#     #         return 1
+#     #     return 10 ** -len(val[1])
+
+#     if append_label is not None:
+#         return html.Div(
+#             [
+#                 *group,
+#                 html.Div(
+#                     html.Span(append_label, className="input-group-text"),
+#                     className="input-group-append",
+#                 ),
+#             ],
+#             className="input-group input-group-sm d-flex",
+#         )
+#     else:
+#         return html.Div(group, className="input-group input-group-sm d-flex")
 
 
 def custom_collapsible(
@@ -191,7 +279,6 @@ def custom_collapsible(
     size="md",
     # button_classname="",  # ripple",
     # collapse_classname="panel-collapse collapse in content",  # panel-collapse
-    **kwargs,
 ):
     """
         A custom collapsible widget with a title and a carret dropdown icon.
