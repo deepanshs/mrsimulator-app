@@ -9,7 +9,7 @@
           "isotope": "29Si",
           "isotropic_chemical_shift": "-83.6 ppm",
           "shielding_symmetric": {
-            "zeta": "-88.9 ppm",
+            "zeta": "88.9 ppm",
             "eta": 0.55
           }
         }

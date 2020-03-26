@@ -54,21 +54,43 @@ input[type="number"]::-webkit-outer-spin-button {
 /* card properties */
 
 .my-card {
-  z-index: -1;
   overflow: hidden;
-  /* height: 100%;
-  width: 100%; */
   border-radius: 0.8rem;
   border: 1px solid silver;
   background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%);
   box-shadow: 0 0 15px 0 rgb(175, 175, 175);
 }
 
+.my-sub-card-title {
+  display: block;
+  height: 0;
+  color: rgb(131, 60, 12);
+  transform: translateY(-0.85rem) translateX(-0.5rem);
+  transition: all 0.3s ease;
+}
+.my-sub-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  background: transparent;
+  margin-top: 1rem;
+}
+.my-sub-card:after {
+  content: "";
+  width: 50%;
+  right: 0;
+  height: 1px;
+  background: rgb(131, 60, 12);
+  position: absolute;
+  top: -2px;
+}
 .my-card-sidebar {
   border-radius: 0.8rem;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
-  /* background: linear-gradient(to bottom, #d8d0d0 0%, #e7e6e6 100%); */
   background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
 }
 
@@ -77,13 +99,9 @@ input[type="number"]::-webkit-outer-spin-button {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem;
-  /* background-color: black; */
   background: linear-gradient(to right, #ffc6844b 0%, #e6749e3d 100%);
-  /* background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%); */
   margin-bottom: 1px;
   outline: brown solid 1px;
-  /* outline-offset: -1px; */
-  /* border: brown solid 1px; */
   box-shadow: 0 0px 3px 1px black;
 }
 
@@ -285,11 +303,14 @@ input[type="number"]::-webkit-outer-spin-button {
     max-height: 90vh;
   } */
   #isotopomer_form-collapse {
-    height: calc(85vh - 40px - 20px - 145px);
+    height: calc(85vh - 40px - 20px - 124px);
+  }
+  .tab-scroll {
+    height: calc(85vh - 40px - 20px - 274px);
     overflow-y: scroll;
   }
   #dimension-tab-scroll-0 {
-    height: calc(85vh - 78px);
+    height: calc(85vh - 79px);
     overflow-y: scroll;
   }
   #nmr_spectrum {
@@ -410,6 +431,7 @@ input[type="number"]::-webkit-outer-spin-button {
   padding-right: 0.5rem;
   color: rgb(94, 94, 94);
   flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .input-form-2 .label-right {
   margin-top: auto;

@@ -11,7 +11,7 @@
           "isotropic_chemical_shift": "-74.5 ppm",
           "shielding_symmetric": {
             "zeta": "-55.3 ppm",
-            "eta": 0.0
+            "eta": 0.69
           }
         }
       ]
@@ -25,7 +25,7 @@
           "isotropic_chemical_shift": "-75.9 ppm",
           "shielding_symmetric": {
             "zeta": "-40.5 ppm",
-            "eta": 0.0
+            "eta": 0.65
           }
         }
       ]
