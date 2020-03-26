@@ -338,7 +338,7 @@ def populate_key_value_from_object(object_dict, id_old):
 
 
 lst, button = populate_key_value_from_object(default_unit, "0")
-widgets = dbc.Tab(label=f"Site", children=[button, lst])
+widgets = dbc.Tab(label=f"Site", children=[button, lst], className="tab-scroll")
 
 isotopomer_dropdown = dcc.Dropdown(
     value=None,
@@ -390,16 +390,18 @@ isotopomer_abundance_field = custom_input_group(
 isotopomer_form = dbc.Collapse(
     html.Div(
         [
-            dbc.Col(
+            html.Div(
                 [
                     isotopomer_name_field,  # isotopomer name
                     isotopomer_description_field,  # isotopomer description
                     isotopomer_abundance_field,  # isotopomer abundance
-                ]
+                ],
+                className="collapsible-body-control",
             ),
             dbc.Tabs([widgets, transition_tab]),
         ],
         id="isotopomer-form-content",
+        className="inactive",
     ),
     id="isotopomer_form-collapse",
     is_open=True,
@@ -434,7 +436,6 @@ isotopomer_body = html.Div(
         html.Div(className="color-gradient-2"),
         html.Div(toolbar),
         dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
-        html.Br(),
         advanced_isotopomer_text_area_collapsible,
         isotopomer_form,
     ],
