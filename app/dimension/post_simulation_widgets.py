@@ -20,14 +20,14 @@ def gaussian_linebroadening_widget(i):
         id=f"Apodizing_function-{i}",
     )
 
-    broaden_range = {
-        0: "0 Hz",
-        200: "200 Hz",
-        400: "400 Hz",
-        600: "600 Hz",
-        800: "800 Hz",
-        1000: "1 kHz",
-    }
+    # broaden_range = {
+    #     0: "0 Hz",
+    #     200: "200 Hz",
+    #     400: "400 Hz",
+    #     600: "600 Hz",
+    #     800: "800 Hz",
+    #     1000: "1 kHz",
+    # }
     # line_broadening = custom_slider(
     #     label="Line Broadening",
     #     return_function=lambda x: f"\u03BB = {x/1000} kHz"

@@ -194,22 +194,14 @@ def custom_input_group(
     """
     append_label = append_label if append_label is not None else ""
 
-    group = [
-        html.Label(
-            className="label-left", htmlFor="name", children=html.Span(prepend_label)
-        ),
-        dcc.Input(
-            type=input_type,
-            autoComplete="off",
-            name="name",
-            # pattern="?[0-9]*\\.?[0-9]",
-            **kwargs,
-        ),
-        html.Label(
-            className="label-right", htmlFor="name", children=html.Span(append_label)
-        ),
-    ]
-    return html.Div(group, className="input-form-2")
+    return html.Div(
+        [
+            html.Label(className="label-left", children=prepend_label),
+            dcc.Input(type=input_type, autoComplete="off", **kwargs),
+            html.Label(className="label-right", children=append_label),
+        ],
+        className="input-form-2",
+    )
 
 
 # def custom_input_group(prepend_label="", append_label=None, **kwargs):
