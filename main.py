@@ -596,9 +596,9 @@ def update_isotope_list(data_modify_time, data, old_isotope_value):
 
 if __name__ == "__main__":
     app.run_server(
-        host="0.0.0.0",
-        port=5001,
-        debug=True,
+        # host="0.0.0.0",
+        # port=5001,
+        debug=False,
         dev_tools_ui=True,
         dev_tools_hot_reload=True,
     )

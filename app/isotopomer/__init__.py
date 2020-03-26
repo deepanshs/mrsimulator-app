@@ -664,9 +664,9 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
     if is_advanced_editor_open:
         raise PreventUpdate
     if local_isotopomer_data is None:
-        return [*[no_update for _ in range(ATTR_PER_SITE)], "inactive", no_update]
+        return [*[no_update for _ in range(ATTR_PER_SITE+3)], "inactive", no_update]
     if index is None:
-        return [*[no_update for _ in range(ATTR_PER_SITE)], "inactive", no_update]
+        return [*[no_update for _ in range(ATTR_PER_SITE+3)], "inactive", no_update]
 
     values = extract_isotopomer_UI_field_values_from_dictionary(
         local_isotopomer_data["isotopomers"][index]["sites"][0]
