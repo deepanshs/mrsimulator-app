@@ -373,7 +373,12 @@ def update_isotopomers(
     # The following section applies to when the a new isotopomers is added from
     # new-isotopomer-button.
     if trigger_id == "new-isotopomer-button":
-        new_isotopomer = {"sites": [{"isotope": "1H", "isotropic_chemical_shift": 0}]}
+        new_isotopomer = {
+            "name": "",
+            "description": "",
+            "abundance": 1,
+            "sites": [{"isotope": "1H", "isotropic_chemical_shift": 0}],
+        }
         data = (
             existing_isotopomers_data
             if existing_isotopomers_data is not None
