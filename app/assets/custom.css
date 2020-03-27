@@ -336,32 +336,6 @@ input[type="number"]::-webkit-outer-spin-button {
     border-bottom-left-radius: 1em;
 } */
 
-.form-control {
-  font-family: sans-serif;
-}
-
-.form-control:focus {
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  outline: none;
-  /* padding: 3px 0px 3px 3px; */
-  /* margin: 5px 1px 3px 0px; */
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.068) inset,
-    0px 0px 2px rgba(0, 17, 255, 0.829);
-  /* box-shadow: none; */
-}
-
-.form-control:invalid {
-  background-color: rgba(255, 230, 238, 0.795);
-  outline: none;
-}
-
-.form-control:valid {
-  background-color: white;
-  outline: none;
-}
 .dimension-class .input-group-append {
   width: 3.5rem;
   display: flex;
@@ -441,7 +415,8 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: right;
   color: rgb(94, 94, 94);
 }
-.input-form-2 input {
+.input-form-2 input,
+.input-text {
   cursor: pointer;
   text-align: right;
   min-width: 20%;

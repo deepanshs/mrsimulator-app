@@ -77,7 +77,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                         id=f"upload-{prepend_id}-url",
                         value="",
                         placeholder="Paste URL ...",
-                        className="form-control",
                     ),
                     dbc.Button(
                         "Submit",
@@ -103,9 +102,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                     [
                         "Drag and drop, or ",
                         html.A(
-                            [html.I(className="fas fa-upload"), " select"],
-                            className="formtext",
-                            href="#",
+                            [html.I(className="fas fa-upload"), " select"], href="#"
                         ),
                     ],
                     className="formtext",
@@ -120,7 +117,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 },
                 # Allow multiple files to be uploaded
                 multiple=False,
-                className="control-upload",
             ),
         ],
         className="d-flex flex-column pb-1",

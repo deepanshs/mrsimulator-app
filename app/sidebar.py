@@ -163,7 +163,7 @@ def update_json_file_editor_from_isotopomer_dropdown(
     if local_isotopomer_data is None:
         return PreventUpdate
     if index is None:
-        raise ""
+        return ""
 
     isotopomer_list = local_isotopomer_data["isotopomers"]
     print("dropdown index", index)

@@ -107,7 +107,6 @@ def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
         dcc.Input(
             type="number",
             # pattern="?[0-9]*\\.?[0-9]",
-            className="form-control",
             n_submit=0,
             **kwargs,
         ),
@@ -365,20 +364,24 @@ transition_tab = dcc.Tab(
     children=html.Div([transition_group, transition], className="p-2"),
 )
 
-isotopomer_name_field = custom_input_group(
-    prepend_label="Name",
-    input_type="text",
-    placeholder="Isotopomer name",
+isotopomer_name_field = dcc.Input(
+    type="text",
+    autoComplete="off",
+    placeholder="Add name",
+    value="Add name",
     id="isotopomer-name",
     debounce=True,
+    className="input-text",
 )
 
-isotopomer_description_field = custom_input_group(
-    prepend_label="Description",
-    input_type="text",
-    placeholder="Isotopomer description ... ",
+isotopomer_description_field = dcc.Input(
+    type="text",
+    autoComplete="off",
+    value="Add description ... ",
+    placeholder="Add description ... ",
     id="isotopomer-description",
     debounce=True,
+    className="input-text",
 )
 
 isotopomer_abundance_field = custom_input_group(
