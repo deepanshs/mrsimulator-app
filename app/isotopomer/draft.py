@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_core_components as dcc
-
-# set up isotopomer dropdown
-isotopomer_set = dcc.Dropdown(
-    id="isotopomer-dropdown", options=[], value=0, multi=False
-)
-
-
 def get_isotopomer_index_containing_this_isotope(isotopomers, isotope):
     index = []
     for i, item in enumerate(isotopomers):

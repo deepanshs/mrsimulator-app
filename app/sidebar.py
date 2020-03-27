@@ -12,16 +12,9 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 from app.custom_widgets import custom_button
-from app.isotopomer.draft import get_all_isotopomer_dropdown_options
 from app.modal.file_info import file_info
 
 # from dash.dependencies import ClientsideFunction
-
-# from app.isotopomer.draft import filter_isotopomer_list
-
-# from app.isotopomer.draft import isotopomer_set
-
-# from app.isotopomer import display_isotopomers
 
 colors = {"background": "#e2e2e2", "text": "#585858"}
 
@@ -96,7 +89,7 @@ filename_datetime = html.Div(
 
 @app.callback(
     Output("isotopomer-dropdown", "value"),
-    [Input("nmr_spectrum", "clickData"), Input("isotopomer-dropdown", "options")],
+    [Input("nmr_spectrum", "clickData")],
     [
         State("decompose", "active"),
         State("isotopomer-dropdown", "value"),
@@ -105,11 +98,10 @@ filename_datetime = html.Div(
     ],
 )
 def update_isotopomer_dropdown_index(
-    clickData, options, decompose, old_dropdown_value, index_map, config
+    clickData, decompose, old_dropdown_value, index_map, config
 ):
-    """Update the current value of the isotopomer dropdown value when
-        a) the trace (line plot) is selected, or
-        b) the isotopomer dropdown options has changed.
+    """Update the current value of the isotopomer dropdown value when the trace
+       (line plot) is selected, or
         Args:
             clickData: (trigger) the click data when a trace is clicked.
             options: (trigger) the list of new options for the isotopomers dropdown.
@@ -121,20 +113,6 @@ def update_isotopomer_dropdown_index(
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("config dropdown value", config)
-
-    if trigger_id == "isotopomer-dropdown":
-        # if old_dropdown_value is None:
-        #     return 0
-        if config is None or options == []:
-            return None
-        if config["is_new_data"]:
-            return None
-        # if config["length_changed"]:
-        #     return config["index_last_modified"]
-        # return no_update
 
     if clickData is None:
         return no_update
@@ -188,28 +166,9 @@ def update_json_file_editor_from_isotopomer_dropdown(
 # )
 
 
-@app.callback(
-    Output("isotopomer-dropdown", "options"), [Input("local-isotopomers-data", "data")]
-)
-def update_isotopomer_dropdown_options(local_isotopomer_data):
-    """Update isotopomer dropdown options base on local isotopomers data.
-        Args:
-            isotope_id_value: (trigger) a filter and update of the isotopomer
-                dropdown options based on the value of the isotope.
-            local_isotopomer_data: (state) Local isotopomers data as the state.
-    """
-    if local_isotopomer_data is None:
-        return []
-
-    isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
-        local_isotopomer_data["isotopomers"]
-    )
-    return isotopomer_dropdown_options
-
-
 sidebar = dbc.Card(
     dbc.CardBody(filename_datetime),
-    className="h-100 my-card-sidebar",
+    className="my-card-sidebar",
     inverse=False,
     id="sidebar",
 )

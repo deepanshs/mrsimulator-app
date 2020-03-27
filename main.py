@@ -570,37 +570,11 @@ def plot_1D(
 #             'bounce-in-out']
 
 
-@app.callback(
-    [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
-    [Input("local-isotopomers-data", "modified_timestamp")],
-    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
-)
-def update_isotope_list(data_modify_time, data, old_isotope_value):
-    if data is None:
-        raise PreventUpdate
-    if data["isotopomers"] == []:
-        return [[], None]
-
-    isotopes = set(
-        [site["isotope"] for item in data["isotopomers"] for site in item["sites"]]
-    )
-    isotope_option_list = [
-        {"label": site_iso, "value": site_iso} for site_iso in isotopes
-    ]
-
-    if old_isotope_value in isotopes:
-        isotope = old_isotope_value
-    else:
-        isotope = isotope_option_list[0]["value"]
-
-    return [isotope_option_list, isotope]
-
-
 if __name__ == "__main__":
     app.run_server(
-        # host="0.0.0.0",
-        # port=5001,
-        debug=False,
+        host="0.0.0.0",
+        port=5001,
+        debug=True,
         dev_tools_ui=True,
         dev_tools_hot_reload=True,
     )

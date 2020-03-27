@@ -20,6 +20,7 @@ from mrsimulator import Isotopomer
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import label_with_help_button
+from app.isotopomer.draft import get_all_isotopomer_dropdown_options
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -614,3 +615,71 @@ def load_json(content):
         return True, data, ""
     except Exception as e:
         return False, "", e
+
+
+@app.callback(
+    [
+        Output("isotope_id-0", "options"),
+        Output("isotope_id-0", "value"),
+        Output("isotopomer-dropdown", "options"),
+        Output("isotopomer-form-content", "className"),
+    ],
+    [
+        Input("local-isotopomers-data", "modified_timestamp"),
+        Input("isotopomer-dropdown", "value"),
+    ],
+    [
+        State("local-isotopomers-data", "data"),
+        State("isotope_id-0", "value"),
+        State("config", "data"),
+    ],
+)
+def update_dropdown_options(
+    data_modify_time,
+    isotopomer_dropdown_value,
+    local_isotopomer_data,
+    old_isotope,
+    config,
+):
+    if local_isotopomer_data is None:
+        raise PreventUpdate
+    if local_isotopomer_data["isotopomers"] == []:
+        return [[], None, [], "inactive"]
+
+    # Display the isotopomer when isotopomer-dropdown value is triggered
+    trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if trigger_id == "isotopomer-dropdown":
+        return [no_update, no_update, no_update, "active"]
+
+    # extracting a list of unique isotopes from the list of isotopes
+    isotopes = set(
+        [
+            site["isotope"]
+            for item in local_isotopomer_data["isotopomers"]
+            for site in item["sites"]
+        ]
+    )
+    # Output isotope_id-0 -> options
+    # set up a list of options for the isotope dropdown menu
+    isotope_dropdown_options = [
+        {"label": site_iso, "value": site_iso} for site_iso in isotopes
+    ]
+
+    # Output isotope_id-0 -> value
+    # select an isotope from the list of options. If the previously selected isotope
+    # is in the new option list, use the previous isotope, else select the isotope at
+    # index zero of the options list.
+    isotope = (
+        old_isotope if old_isotope in isotopes else isotope_dropdown_options[0]["value"]
+    )
+
+    # Output isotopomer-dropdown -> options
+    # Update isotopomer dropdown options base on local isotopomers data
+    isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
+        local_isotopomer_data["isotopomers"]
+    )
+
+    # Output isotopomer-form-content -> className
+    classname = "inactive" if config["is_new_data"] else "active"
+
+    return [isotope_dropdown_options, isotope, isotopomer_dropdown_options, classname]
