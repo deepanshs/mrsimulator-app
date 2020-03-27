@@ -415,8 +415,7 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: right;
   color: rgb(94, 94, 94);
 }
-.input-form-2 input,
-.input-text {
+.input-form-2 input {
   cursor: pointer;
   text-align: right;
   min-width: 20%;
@@ -429,7 +428,8 @@ input[type="number"]::-webkit-outer-spin-button {
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
-.input-form-2 input:focus {
+.input-form-2 input:focus,
+.input-text:focus {
   cursor: text;
   background-color: white;
   border: 2px solid rgb(218, 161, 115);
@@ -439,4 +439,25 @@ input[type="number"]::-webkit-outer-spin-button {
   color: rgba(196, 56, 100, 0.795);
   outline: none;
   box-shadow: none;
+}
+
+.input-text {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  width: 100%;
+  margin-left: auto;
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0.3rem;
+  background-color: transparent;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+.input-text-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.input-text-description {
+  font-size: 0.95rem;
 }

@@ -23,7 +23,6 @@ from app.isotopomer.toolbar import toolbar
 
 # from app.custom_widgets import custom_slider
 
-N_SITE = 1
 ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 
@@ -349,6 +348,33 @@ isotopomer_dropdown = dcc.Dropdown(
     clearable=False,
 )
 
+isotopomer_name_field = dcc.Input(
+    type="text",
+    autoComplete="off",
+    placeholder="Add name",
+    value="Add name",
+    id="isotopomer-name",
+    debounce=True,
+    className="input-text input-text-name",
+)
+
+isotopomer_description_field = dcc.Input(
+    type="text",
+    autoComplete="off",
+    value="Add description ... ",
+    placeholder="Add description ... ",
+    id="isotopomer-description",
+    debounce=True,
+    className="input-text input-text-description",
+)
+
+isotopomer_abundance_field = custom_input_group(
+    prepend_label="Abundance",
+    placeholder="Isotopomer abundance",
+    id="isotopomer-abundance",
+    debounce=True,
+)
+
 # spin transition
 transition = dcc.Dropdown(
     value=None,
@@ -362,33 +388,6 @@ transition_group = html.Label("Spin transition")
 transition_tab = dcc.Tab(
     label="Properties",
     children=html.Div([transition_group, transition], className="p-2"),
-)
-
-isotopomer_name_field = dcc.Input(
-    type="text",
-    autoComplete="off",
-    placeholder="Add name",
-    value="Add name",
-    id="isotopomer-name",
-    debounce=True,
-    className="input-text",
-)
-
-isotopomer_description_field = dcc.Input(
-    type="text",
-    autoComplete="off",
-    value="Add description ... ",
-    placeholder="Add description ... ",
-    id="isotopomer-description",
-    debounce=True,
-    className="input-text",
-)
-
-isotopomer_abundance_field = custom_input_group(
-    prepend_label="Abundance",
-    placeholder="Isotopomer abundance",
-    id="isotopomer-abundance",
-    debounce=True,
 )
 
 isotopomer_form = dbc.Collapse(
@@ -518,24 +517,12 @@ def extract_isotopomer_UI_field_values_from_dictionary(site):
     return trigger_values
 
 
-# app.clientside_callback(
-#     ClientsideFunction(
-#         namespace="clientside", function_name="populate_isotopomer_fields"
-#     ),
-#     [*[Output(f"{i}-{item}", "value") for i in range(N_SITE) for item in all_keys]],
-#     [Input("isotopomer-dropdown", "value"),
-#       Input("json-file-editor-button", "active")],
-#     [State("local-isotopomers-data", "data")],
-# )
-
-
 @app.callback(
     [
         *[Output(f"0-{item}", "value") for item in all_keys],
         Output("isotopomer-abundance", "value"),
         Output("isotopomer-name", "value"),
         Output("isotopomer-description", "value"),
-        Output("isotopomer-form-content", "className"),
         Output("isotopomer-transitions", "options"),
     ],
     [Input("isotopomer-dropdown", "value"), Input("json-file-editor-button", "active")],
@@ -552,9 +539,7 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
     if is_advanced_editor_open:
         raise PreventUpdate
     if None in [local_isotopomer_data, index]:
-        return [*[no_update for _ in range(ATTR_PER_SITE + 3)], "inactive", no_update]
-    # if index is None:
-    #     return [*[no_update for _ in range(ATTR_PER_SITE + 3)], "inactive", no_update]
+        raise PreventUpdate
 
     isotopomer = local_isotopomer_data["isotopomers"][index]
     values = extract_isotopomer_UI_field_values_from_dictionary(isotopomer["sites"][0])
@@ -567,7 +552,7 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
     transition_options = [{"label": "Default Δm=-1", "value": 0}] + [
         {"label": str(item), "value": str(item)} for item in transition_objects
     ]
-    return [*values, abundance, name, description, "active", transition_options]
+    return [*values, abundance, name, description, transition_options]
 
 
 # @app.callback(
