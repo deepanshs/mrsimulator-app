@@ -204,7 +204,7 @@ def feature_orientation_collapsible(key_dict, id_label, site_number):
                         dbc.Collapse(
                             orientation_input_fields,
                             id=f"{id_label}-orientation-collapse",
-                            is_open=True,
+                            is_open=False,
                         ),
                     ],
                     className="my-sub-card",
@@ -215,52 +215,53 @@ def feature_orientation_collapsible(key_dict, id_label, site_number):
         ]
     )
 
-    @app.callback(
-        [
-            Output(f"{id_label}-feature-collapse", "is_open"),
-            Output(f"{id_label}-orientation-collapse", "is_open"),
-        ],
-        [
-            Input(f"{id_label}-button", "n_clicks"),
-            Input(f"{id_label}-orientation-button", "n_clicks"),
-            Input(f"0-isotope", "value"),
-            Input(f"{id_label}-button", "children"),
-            *[
-                Input(f"{site_number}-{id_label}-{key}", "value")
-                for key in feature_dict.keys()
-            ],
-        ],
-        [
-            State(f"{id_label}-feature-collapse", "is_open"),
-            State(f"{id_label}-orientation-collapse", "is_open"),
-        ],
-    )
-    def toggle_feature_buttons(
-        n1, n2, isotope, feature_label, data1, data2, feature_active, orientation_active
-    ):
-        # Closes quad buttons if non-quad nuclei. A separate callback will disable
-        # the buttons
-        print("in toggle", dash.callback_context.triggered)
-        dim = Dimension(isotope=isotope, spectral_width=50000)
-        if dim.spin == 0.5 and feature_label == "q":
-            return False, False
+    # @app.callback(
+    #     [
+    #         Output(f"{id_label}-feature-collapse", "is_open"),
+    #         Output(f"{id_label}-orientation-collapse", "is_open"),
+    #     ],
+    #     [
+    #         Input(f"{id_label}-button", "n_clicks"),
+    #         Input(f"{id_label}-orientation-button", "n_clicks"),
 
-        ctx = dash.callback_context
-        if not ctx.triggered:
-            return [no_update, no_update]
+    #     ],
+    #     [
+    #         State(f"0-isotope", "value"),
+    #         State(f"{id_label}-button", "children"),
+    #         *[
+    #             State(f"{site_number}-{id_label}-{key}", "value")
+    #             for key in feature_dict.keys()
+    #         ],
+    #         State(f"{id_label}-feature-collapse", "is_open"),
+    #         State(f"{id_label}-orientation-collapse", "is_open"),
+    #     ],
+    # )
+    # def toggle_feature_buttons(
+    #     n1, n2, isotope, feature_label, data1, data2, feature_active, orientation_active
+    # ):
+    #     # Closes quad buttons if non-quad nuclei. A separate callback will disable
+    #     # the buttons
+    #     print("in toggle", dash.callback_context.triggered)
+    #     dim = Dimension(isotope=isotope, spectral_width=50000)
+    #     if dim.spin == 0.5:
+    #         return True, False
 
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    #     ctx = dash.callback_context
+    #     if not ctx.triggered:
+    #         return [no_update, no_update]
 
-        # toggles buttons
-        if button_id == f"{id_label}-button":
-            return not feature_active, orientation_active
-        if button_id == f"{id_label}-orientation-button":
-            return True, not orientation_active
+    #     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-        if None in [data1, data2]:  # and feature_active == True:
-            return True, False
+    #     # toggles buttons
+    #     if button_id == f"{id_label}-button":
+    #         return feature_active, orientation_active
+    #     if button_id == f"{id_label}-orientation-button":
+    #         return True, not orientation_active
 
-        return True, False
+    #     if None in [data1, data2]:  # and feature_active == True:
+    #         return True, False
+
+    #     return True, False
 
     @app.callback(
         Output(f"{id_label}-orientation-button", "disabled"),

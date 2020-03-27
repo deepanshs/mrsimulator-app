@@ -327,7 +327,7 @@ def simulation(
         "check with previous data",
         previous_local_computed_data == local_isotopomers_data,
     )
-    print("local computed data generated", local_computed_data["csdm"]["timestamp"])
+    # print("local computed data generated", local_computed_data["csdm"]["timestamp"])
     return [local_computed_data, dim, mapping]
 
 
