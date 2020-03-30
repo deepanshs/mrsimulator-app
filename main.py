@@ -538,19 +538,6 @@ def plot_1D(
     return [data_object, local_processed_data.to_dict(update_timestamp=True)]
 
 
-# line={"shape": "hv", "width": 1},
-
-#  ['linear', 'quad', 'cubic', 'sin', 'exp', 'circle',
-#             'elastic', 'back', 'bounce', 'linear-in', 'quad-in',
-#             'cubic-in', 'sin-in', 'exp-in', 'circle-in', 'elastic-in',
-#             'back-in', 'bounce-in', 'linear-out', 'quad-out',
-#             'cubic-out', 'sin-out', 'exp-out', 'circle-out',
-#             'elastic-out', 'back-out', 'bounce-out', 'linear-in-out',
-#             'quad-in-out', 'cubic-in-out', 'sin-in-out', 'exp-in-out',
-#             'circle-in-out', 'elastic-in-out', 'back-in-out',
-#             'bounce-in-out']
-
-
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",

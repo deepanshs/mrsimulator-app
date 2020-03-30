@@ -308,7 +308,7 @@ spectrum_import_layout = upload_data(
         Input("upload-from-graph", "contents"),
         Input("json-file-editor", "n_blur_timestamp"),
         Input("new-json", "modified_timestamp"),
-        Input("new-isotopomer-button", "n_clicks"),
+        Input("add-isotopomer-button", "n_clicks"),
         Input("duplicate-isotopomer-button", "n_clicks"),
         Input("trash-isotopomer-button", "n_clicks"),
     ],
@@ -378,8 +378,8 @@ def update_isotopomers(
 
     # Add a new isotopomer
     # The following section applies to when the a new isotopomers is added from
-    # new-isotopomer-button.
-    if trigger_id == "new-isotopomer-button":
+    # add-isotopomer-button.
+    if trigger_id == "add-isotopomer-button":
         data_len = (
             len(existing_isotopomers_data["isotopomers"])
             if existing_isotopomers_data is not None
@@ -399,7 +399,7 @@ def update_isotopomers(
         data["isotopomers"] += [new_isotopomer]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
-        config["index_last_modified"] = data_len + 1
+        config["index_last_modified"] = data_len
         dropdown_options = update_dropdown_options(data, old_isotope, config)
         return [*no_updates, data, config, *dropdown_options]
 

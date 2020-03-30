@@ -30,7 +30,7 @@ advanced_isotopomer_text_area_collapsible = dbc.Collapse(
 
 new_isotopomer = custom_button(
     icon_classname="fas fa-plus-circle",
-    id="new-isotopomer-button",
+    id="add-isotopomer-button",
     tooltip="Add",
     outline=True,
     color="dark",

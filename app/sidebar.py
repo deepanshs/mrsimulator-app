@@ -71,23 +71,31 @@ def update_isotopomer_dropdown_index(
     if not ctx.triggered:
         raise PreventUpdate
 
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "nmr_spectrum":
+        if clickData is None:
+            return no_update
+
+        index = clickData["points"][0]["curveNumber"] if decompose else 0
+        return index_map[index]
+
     if config is None:
         raise PreventUpdate
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    # Whenever a new sample is loaded, always return the isotopomer index 0
+    if config["is_new_data"]:
+        return 0
 
-    if trigger_id == "local-processed-data" and config["is_new_data"]:
-        dropdown_index = 0 if dropdown_index is None else dropdown_index
-        dropdown_index = 0 if dropdown_index >= len(options) else dropdown_index
-        return dropdown_index
-    if trigger_id == "local-processed-data":
-        return no_update
+    # if the sample is modified, check if the modified index is the same as the current
+    # index. If the two are the same, stop the update.
+    if config["index_last_modified"] == dropdown_index:
+        print("index update prevented")
+        raise PreventUpdate
 
-    if clickData is None:
-        return no_update
-
-    index = clickData["points"][0]["curveNumber"] if decompose else 0
-    return index_map[index]
+    # If not, pass the value of the `index_last_modified` key to load the respective
+    # isotopomer.
+    return config["index_last_modified"]
 
 
 @app.callback(
