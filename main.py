@@ -327,32 +327,7 @@ def simulation(
         "check with previous data",
         previous_local_computed_data == local_isotopomers_data,
     )
-    print("local computed data generated", local_computed_data["csdm"]["timestamp"])
     return [local_computed_data, dim, mapping]
-
-
-# @app.callback(
-#     Output("buffer", "children"),
-#     [Input("nmr_spectrum", "restyleData")],
-#     [State("local-computed-data", "data"), State("decompose", "active")],
-# )
-# def display_click_data(restyleData, local_computed_data, decompose):
-#     print(restyleData)
-#     return ""
-
-
-# @app.callback(
-#     Output("buffer", "children"),
-#     [Input("nmr_spectrum", "clickData"), Input("nmr_spectrum", "relayoutData")],
-#     [State("local-computed-data", "data"), State("decompose", "active")],
-# )
-# def drag_selected_data(clickData, relayoutData, local_computed_data, decompose):
-#     if None in [relayoutData, clickData, local_computed_data]:
-#         raise PreventUpdate
-
-#     keys = relayoutData.keys()
-#     print(keys)
-#     return ""
 
 
 @app.callback(
@@ -399,6 +374,12 @@ def display_relayout_data(relayoutData, dimension_data):
     sw_ = x_min - x_max + increment
     ref_offset = x_max + sw_ / 2.0
     return ["{0:.5f}".format(ref_offset / 1000.0), "{0:.5f}".format(abs(sw_) / 1000.0)]
+
+
+@app.callback(Output("buffer", "children"), [Input("nmr_spectrum", "restyleData")])
+def getSelectedLegend(selected):
+    print("restyleData", selected)
+    raise PreventUpdate
 
 
 @app.callback(

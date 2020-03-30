@@ -76,9 +76,7 @@ dimension_body = html.Div(
     id="dimension-body",
 )
 
-dimension_body_card = html.Div(
-    dimension_body, id="dimension-card-body", className="h-100"
-)
+dimension_body_card = html.Div(dimension_body, id="dimension-card-body")
 
 
 # @app.callback(

@@ -13,6 +13,7 @@ from mrsimulator import Isotopomer
 from mrsimulator.dimension import ISOTOPE_DATA
 
 from app.app import app
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 from app.isotopomer.toolbar import advanced_isotopomer_text_area_collapsible
 from app.isotopomer.toolbar import toolbar
@@ -30,10 +31,10 @@ isotopomer_prepend_labels = {
     "alpha": "α",
     "beta": "β",
     "gamma": "γ",
-    "zeta": "anisotropy (ζ)",
-    "eta": "asymmetry (η)",
-    "isotropic_chemical_shift": "isotropic chemical shift (δ)",
-    "Cq": "coupling constant (Cq)",
+    "zeta": "Anisotropy (ζ)",
+    "eta": "Asymmetry (η)",
+    "isotropic_chemical_shift": "Isotropic shift (δ)",
+    "Cq": "Coupling constant (Cq)",
 }
 
 greek_list = ["eta", "alpha", "beta", "gamma"]
@@ -331,7 +332,7 @@ def populate_key_value_from_object(object_dict, id_old):
                 )
     return [
         html.Div(lst, className="collapsible-body-control form"),
-        html.Div(lst_button),
+        html.Div(lst_button, className="button-toolbar"),
     ]
 
 
@@ -347,31 +348,35 @@ isotopomer_dropdown = dcc.Dropdown(
     clearable=False,
 )
 
-isotopomer_name_field = dcc.Input(
-    type="text",
-    autoComplete="off",
-    placeholder="Add name",
-    value="Add name",
-    id="isotopomer-name",
-    debounce=True,
-    className="input-text input-text-name",
-)
-
-isotopomer_description_field = dcc.Input(
-    type="text",
-    autoComplete="off",
-    value="Add description ... ",
-    placeholder="Add description ... ",
-    id="isotopomer-description",
-    debounce=True,
-    className="input-text input-text-description",
-)
-
+# isotopomer abundance
 isotopomer_abundance_field = custom_input_group(
     prepend_label="Abundance",
     placeholder="Isotopomer abundance",
     id="isotopomer-abundance",
     debounce=True,
+)
+
+# metadata
+isotopomer_name_field = custom_input_group(
+    prepend_label="Name",
+    input_type="text",
+    placeholder="Add name",
+    value="Isotopomer Name",
+    id="isotopomer-name",
+)
+
+isotopomer_description_field = html.Div(
+    [
+        html.Label("Description"),
+        dbc.Textarea(placeholder="Add description ... ", id="isotopomer-description"),
+    ]
+)
+
+metadata = dcc.Tab(
+    label="Metadata",
+    children=html.Div(
+        [isotopomer_name_field, isotopomer_description_field], className="p-2"
+    ),
 )
 
 # spin transition
@@ -389,21 +394,60 @@ transition_tab = dcc.Tab(
     children=html.Div([transition_group, transition], className="p-2"),
 )
 
+# isotopomer-title
+isotopomer_title = html.Div(
+    [
+        html.Label(id="isotopomer-title"),
+        custom_button(text="Apply", id="apply-isotopomer-changes"),
+    ],
+    className="input-text-group",
+)
+
+
+@app.callback(
+    Output("isotopomer-title", "children"), [Input("isotopomer-name", "value")]
+)
+def update_isotopomer_title(value):
+    value = value if value is not None else "Name"
+    return value
+
+
+isotopomer_edit_button = custom_button(
+    icon_classname="fas fa-pencil-alt",
+    id="edit_isotopomer",
+    tooltip="Edit",
+    outline=True,
+    color="dark",
+)
+
+
+@app.callback(
+    [Output("slide", "className"), Output("edit_isotopomer", "active")],
+    [Input("edit_isotopomer", "n_clicks")],
+    [State("slide", "className")],
+)
+def toggle_classname(n, previous_class):
+    if n is None:
+        raise PreventUpdate
+    if previous_class == "slide":
+        return ["slide-offset", True]
+    return ["slide", False]
+
+
+# isotopomer read-only section
+isotopomer_read_only = dcc.Markdown(id="isotopomer-read-only")
+# isotopomer section
 isotopomer_form = dbc.Collapse(
     html.Div(
         [
             html.Div(
-                [
-                    isotopomer_name_field,  # isotopomer name
-                    isotopomer_description_field,  # isotopomer description
-                    isotopomer_abundance_field,  # isotopomer abundance
-                ],
+                [isotopomer_title, isotopomer_abundance_field],
                 className="collapsible-body-control",
             ),
-            dbc.Tabs([widgets, transition_tab]),
+            dbc.Tabs([widgets, transition_tab, metadata]),
         ],
         id="isotopomer-form-content",
-        className="inactive",
+        className="active",
     ),
     id="isotopomer_form-collapse",
     is_open=True,
@@ -428,25 +472,37 @@ def toggle_json_file_editor_collapse(n, active):
     return [True, True, False]
 
 
-# Isotopomer layout
-isotopomer_body = html.Div(
-    className="my-card",
-    children=[
-        html.Div(
-            html.H4("Isotopomers", id="isotopomer-card-title"), className="card-header"
-        ),
-        html.Div(className="color-gradient-2"),
+# slides
+slide_1 = html.Div(isotopomer_read_only, className="slider1")
+slide_2 = html.Div(
+    [
         html.Div(toolbar),
         dbc.Col(["Select Isotopomer", isotopomer_dropdown]),
         advanced_isotopomer_text_area_collapsible,
         isotopomer_form,
     ],
+    className="slider2",
+)
+slide = html.Div([slide_1, slide_2], id="slide", className="slide")
+
+# Isotopomer layout
+isotopomer_body = html.Div(
+    className="my-card",
+    children=[
+        html.Div(
+            [
+                html.H4("Isotopomers", id="isotopomer-card-title"),
+                isotopomer_edit_button,
+            ],
+            className="card-header",
+        ),
+        html.Div(className="color-gradient-2"),
+        slide,
+    ],
     id="isotopomer-body",
 )
 
-isotopomer_body_card = html.Div(
-    isotopomer_body, id="isotopomer-card-body", className="h-100"
-)
+isotopomer_body_card = html.Div(isotopomer_body, id="isotopomer-card-body")
 
 
 # callback code section =======================================================
@@ -585,90 +641,153 @@ def populate_isotopomer_fields(index, is_advanced_editor_open, local_isotopomer_
 #         val += [zeta_or_Cq, eta]
 #     return val
 
-orientations = ["alpha", "beta", "gamma"]
-shielding_pairs = ["zeta", "eta"]
-quad_pairs = ["Cq", "eta"]
-root_options = ["name", "description", "abundance"]
+# orientations = ["alpha", "beta", "gamma"]
+# shielding_pairs = ["zeta", "eta"]
+# quad_pairs = ["Cq", "eta"]
+# root_options = ["name", "description", "abundance"]
 
 
-def check_groups(states, k0, k1):
-    # check if the value for all orientations is given.
-    # 1) get the state values of the orientations,
-    # 2) stop the update if
-    #   a) the trigger originated from orientation field, and
-    #   b) any of the orientation state value is None, and
-    #   c) not all orientation state value are None.
-    orientation_group = [states[f"0-{k0}-{_}.value"] for _ in orientations]
-    print("orientation group", orientation_group)
-    if (
-        k1 in orientations
-        and None in orientation_group
-        and orientation_group != [None, None, None]
-    ):
-        print("stop because not all alpha, beta, gamma is given.")
-        raise PreventUpdate
+# def check_groups(states, k0, k1):
+#     # check if the value for all orientations is given.
+#     # 1) get the state values of the orientations,
+#     # 2) stop the update if
+#     #   a) the trigger originated from orientation field, and
+#     #   b) any of the orientation state value is None, and
+#     #   c) not all orientation state value are None.
+#     orientation_group = [states[f"0-{k0}-{_}.value"] for _ in orientations]
+#     print("orientation group", orientation_group)
+#     if (
+#         k1 in orientations
+#         and None in orientation_group
+#         and orientation_group != [None, None, None]
+#     ):
+#         print("stop because not all alpha, beta, gamma is given.")
+#         raise PreventUpdate
 
-    if k0 == "shielding_symmetric":
-        shielding_group = [states[f"0-{k0}-{_}.value"] for _ in shielding_pairs]
-        print("shielding group", shielding_group)
-        if (
-            k1 in shielding_pairs
-            and None in shielding_group
-            and shielding_group != [None, None]
-        ):
-            print("stop because not either zeta or eta is missing.")
-            raise PreventUpdate
-    if k0 == "quadrupolar":
-        quad_group = [states[f"0-{k0}-{_}.value"] for _ in quad_pairs]
-        print("quad group", quad_group)
-        if k1 in quad_pairs and None in quad_group and quad_group != [None, None]:
-            print("stop because not either Cq or eta is missing.")
-            raise PreventUpdate
+#     if k0 == "shielding_symmetric":
+#         shielding_group = [states[f"0-{k0}-{_}.value"] for _ in shielding_pairs]
+#         print("shielding group", shielding_group)
+#         if (
+#             k1 in shielding_pairs
+#             and None in shielding_group
+#             and shielding_group != [None, None]
+#         ):
+#             print("stop because not either zeta or eta is missing.")
+#             raise PreventUpdate
+#     if k0 == "quadrupolar":
+#         quad_group = [states[f"0-{k0}-{_}.value"] for _ in quad_pairs]
+#         print("quad group", quad_group)
+#         if k1 in quad_pairs and None in quad_group and quad_group != [None, None]:
+#             print("stop because not either Cq or eta is missing.")
+#             raise PreventUpdate
 
 
-def if_value_change(trigger_site, trigger_value, keys, states):
-    empty = ["", None]
-    root_keys = trigger_site.keys()
-    k0 = keys[0]
-    if len(keys) == 1:
-        if k0 not in root_keys and trigger_value in empty:
-            print("stop because sub key is missing and value is None or ''")
-            raise PreventUpdate
-        if k0 in root_keys:
-            print("previous_value", trigger_site[k0])
-            if trigger_value == trigger_site[k0]:
-                print("stop because value did not change")
-                raise PreventUpdate
+# def if_value_change(trigger_site, trigger_value, keys, states):
+#     empty = ["", None]
+#     root_keys = trigger_site.keys()
+#     k0 = keys[0]
+#     if len(keys) == 1:
+#         if k0 not in root_keys and trigger_value in empty:
+#             print("stop because sub key is missing and value is None or ''")
+#             raise PreventUpdate
+#         if k0 in root_keys:
+#             print("previous_value", trigger_site[k0])
+#             if trigger_value == trigger_site[k0]:
+#                 print("stop because value did not change")
+#                 raise PreventUpdate
 
-    else:
-        k1 = keys[1]
-        if k0 not in root_keys and trigger_value in empty:
-            print("stop because sub key is missing and value is None or ''")
-            raise PreventUpdate
-        if k0 in root_keys:
-            trigger_sub_key = trigger_site[k0].keys()
-            # print("sub keys", trigger_sub_key)
-            if k1 not in trigger_sub_key and trigger_value in empty:
-                print("stop because sub key is missing and value is None or ''")
-                raise PreventUpdate
-            if k1 in trigger_sub_key:
-                print("previous_value", trigger_site[k0][k1])
-                if trigger_value == trigger_site[k0][k1]:
-                    print("stop because value did not change")
-                    raise PreventUpdate
+#     else:
+#         k1 = keys[1]
+#         if k0 not in root_keys and trigger_value in empty:
+#             print("stop because sub key is missing and value is None or ''")
+#             raise PreventUpdate
+#         if k0 in root_keys:
+#             trigger_sub_key = trigger_site[k0].keys()
+#             # print("sub keys", trigger_sub_key)
+#             if k1 not in trigger_sub_key and trigger_value in empty:
+#                 print("stop because sub key is missing and value is None or ''")
+#                 raise PreventUpdate
+#             if k1 in trigger_sub_key:
+#                 print("previous_value", trigger_site[k0][k1])
+#                 if trigger_value == trigger_site[k0][k1]:
+#                     print("stop because value did not change")
+#                     raise PreventUpdate
 
-            check_groups(states, k0, k1)
+#             check_groups(states, k0, k1)
+
+
+# @app.callback(
+#     Output("new-json", "data"),
+#     [
+#         Input(f"0-isotope", "value"),
+#         *[Input(f"0-{item}", "n_blur") for item in all_keys if "isotope" not in item],
+#         Input("isotopomer-name", "n_blur"),
+#         Input("isotopomer-description", "n_blur"),
+#         Input("isotopomer-abundance", "n_blur"),
+#     ],
+#     [
+#         *[State(f"0-{item}", "value") for item in all_keys],
+#         State("local-isotopomers-data", "data"),
+#         State("isotopomer-dropdown", "value"),
+#         State("isotopomer-name", "value"),
+#         State("isotopomer-description", "value"),
+#         State("isotopomer-abundance", "value"),
+#     ],
+# )
+# def create_json(*args):
+#     """Generate a json object from the input fields in the isotopomers UI"""
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         raise PreventUpdate
+#     if ctx.triggered[0]["value"] is None:
+#         raise PreventUpdate
+
+#     states = dash.callback_context.states
+#     print(ctx.triggered)
+#     # inputs = dash.callback_context.inputs
+
+#     data = states["local-isotopomers-data.data"]
+#     if data is None:
+#         raise PreventUpdate
+
+#     index = states["isotopomer-dropdown.value"]
+#     isotopomer = data["isotopomers"][index]
+
+#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+#     if trigger_id in [f"isotopomer-{_}" for _ in root_options]:
+#         print("creating json")
+#         isotopomer["abundance"] = states["isotopomer-abundance.value"]
+#         isotopomer["name"] = states["isotopomer-name.value"]
+#         isotopomer["description"] = states["isotopomer-description.value"]
+#         return isotopomer
+
+#     del (
+#         states["isotopomer-dropdown.value"],
+#         states["local-isotopomers-data.data"],
+#         states["isotopomer-abundance.value"],
+#         states["isotopomer-description.value"],
+#         states["isotopomer-name.value"],
+#     )
+
+#     sites = isotopomer["sites"]
+#     trigger_key = trigger_id.split("-")
+#     trigger_site_index, keys = trigger_key[0], trigger_key[1:]
+#     trigger_site = sites[int(trigger_site_index)]
+#     trigger_value = states[f"{trigger_id}.value"]
+
+#     if_value_change(trigger_site, trigger_value, keys, states)
+
+#     site = extract_site_dictionary_from_dash_triggers(states)
+#     # remove key entries with empty dict value.
+#     site = dict([(k, v) for k, v in site.items() if v != {}])
+#     sites[int(trigger_site_index)] = site
+#     print("creating json", site)
+#     return isotopomer
 
 
 @app.callback(
     Output("new-json", "data"),
-    [
-        Input(f"0-isotope", "value"),
-        *[Input(f"0-{item}", "n_blur") for item in all_keys if "isotope" not in item],
-        Input("isotopomer-name", "n_blur"),
-        Input("isotopomer-description", "n_blur"),
-        Input("isotopomer-abundance", "n_blur"),
-    ],
+    [Input("apply-isotopomer-changes", "n_clicks")],
     [
         *[State(f"0-{item}", "value") for item in all_keys],
         State("local-isotopomers-data", "data"),
@@ -678,12 +797,13 @@ def if_value_change(trigger_site, trigger_value, keys, states):
         State("isotopomer-abundance", "value"),
     ],
 )
-def create_json(*args):
+def create_json(n, *args):
     """Generate a json object from the input fields in the isotopomers UI"""
+    if n is None:
+        raise PreventUpdate
+
     ctx = dash.callback_context
     if not ctx.triggered:
-        raise PreventUpdate
-    if ctx.triggered[0]["value"] is None:
         raise PreventUpdate
 
     states = dash.callback_context.states
@@ -694,144 +814,30 @@ def create_json(*args):
     if data is None:
         raise PreventUpdate
 
+    print("creating json")
+
     index = states["isotopomer-dropdown.value"]
     isotopomer = data["isotopomers"][index]
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if trigger_id in [f"isotopomer-{_}" for _ in root_options]:
-        print("creating json")
-        isotopomer["abundance"] = states["isotopomer-abundance.value"]
-        isotopomer["name"] = states["isotopomer-name.value"]
-        isotopomer["description"] = states["isotopomer-description.value"]
-        return isotopomer
+    isotopomer["name"] = states["isotopomer-name.value"]
+    isotopomer["description"] = states["isotopomer-description.value"]
 
-    del (
-        states["isotopomer-dropdown.value"],
-        states["local-isotopomers-data.data"],
-        states["isotopomer-abundance.value"],
-        states["isotopomer-description.value"],
-        states["isotopomer-name.value"],
-    )
-
-    sites = isotopomer["sites"]
-    trigger_key = trigger_id.split("-")
-    trigger_site_index, keys = trigger_key[0], trigger_key[1:]
-    trigger_site = sites[int(trigger_site_index)]
-    trigger_value = states[f"{trigger_id}.value"]
-
-    if_value_change(trigger_site, trigger_value, keys, states)
-
-    site = extract_site_dictionary_from_dash_triggers(states)
-    # remove key entries with empty dict value.
+    site = {
+        "isotope": None,
+        "isotropic_chemical_shift": None,
+        "shielding_symmetric": {},
+        "quadrupolar": {},
+    }
+    for item in all_keys:
+        val = states[f"0-{item}.value"]
+        if val is not None:
+            key = item.split("-")
+            if len(key) == 1:
+                site[key[0]] = val
+            if len(key) == 2:
+                site[key[0]][key[1]] = val
     site = dict([(k, v) for k, v in site.items() if v != {}])
-    sites[int(trigger_site_index)] = site
-    print("creating json", site)
+    isotopomer["sites"][0] = site
+    isotopomer["abundance"] = states["isotopomer-abundance.value"]
+
     return isotopomer
-
-
-# test = html.Div(
-#     className="form-popup",
-#     id="myForm",
-#     children=html.Form(
-#         action="/action_page.php",
-#         className="form-container",
-#         children=[
-#             html.H1("Login"),
-#             html.Label("Email"),
-#             dcc.Input(
-#                 type="text", placeholder="Enter Email", name="email", required=True
-#             ),
-#             html.Label("Password"),
-#             dcc.Input(
-#                 type="text", placeholder="Enter Password", name="psw", required=True
-#             ),
-#             html.Button(type="submit", className="btn", children="Login"),
-#             html.Button(
-#                 type="submit",
-#                 className="btn cancel",
-#                 # onclick="closeForm()",
-#                 children="Close",
-#             ),
-#         ],
-#     ),
-# )
-
-# slide_from_left = html.Div(
-#     [
-#         html.Div(
-#             id="myNav",
-#             className="overlay",
-#             children=[
-#                 dbc.Button(
-#                     html.I(className="fas fa-times"),
-#                     id="toggle-overlay-hide",
-#                     className="closebtn",
-#                 ),
-#                 html.Div(
-#                     className="overlay-content",
-#                     children=[
-#                         html.A("About", href="#"),
-#                         html.A("Services", href="#"),
-#                         html.A("Clients", href="#"),
-#                         html.A("Contact", href="#"),
-#                     ],
-#                 ),
-#             ],
-#         ),
-#         dbc.Button("open overlay", id="toggle-overlay-show"),
-#     ]
-# )
-
-
-# @app.callback(
-#     Output("myNav", "style"),
-#     [
-#         Input("toggle-overlay-show", "n_clicks"),
-#         Input("toggle-overlay-hide", "n_clicks"),
-#     ],
-#     [State("myNav", "style")],
-# )
-# def callback_overlay(n1, n2, style):
-#     if n1 is n2 is None:
-#         style["width"] = "0%"
-#         return style
-#     max_ = max(i for i in [n1, n2] if i is not None)
-#     if max_ == n1:
-#         style["width"] = "80%"
-#     if max_ == n2:
-#         style = {"width": "0%"}
-#     return style
-
-
-# test = html.Div(
-#     [
-#         html.Div(
-#             id="myNav-info",
-#             className="overlay",
-#             children=[
-#                 dbc.Button(
-#                     html.I(className="fas fa-times"),
-#                     id="toggle-overlay-hide",
-#                     # href="javascript:void(0)",
-#                     className="closebtn",
-#                     # onclick="closeNav()",
-#                 ),
-#                 html.Div(
-#                     className="overlay-content",
-#                     children=[
-#                         html.A("About", href="#"),
-#                         html.A("Services", href="#"),
-#                         html.A("Clients", href="#"),
-#                         html.A("Contact", href="#"),
-#                     ],
-#                 ),
-#             ],
-#             style={"z-index": 1},
-#         ),
-#         dbc.Button(
-#             "open",
-#             id="toggle-overlay-show",
-#             # style={"font-size": "30px", "cursor": "pointer"},
-#         ),
-#     ]
-# )

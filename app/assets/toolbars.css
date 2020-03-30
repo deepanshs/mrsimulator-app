@@ -1,5 +1,4 @@
 .toolbar {
-  padding: 0.5rem;
   width: 100%;
   position: relative;
   display: flex;
@@ -8,10 +7,8 @@
 }
 
 .title-with-help {
-  /* background-color: blue; */
   display: flex;
   align-items: center;
-  vertical-align: center;
   justify-content: left;
   width: 300%;
 }

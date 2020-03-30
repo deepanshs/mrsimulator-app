@@ -42,9 +42,10 @@ def gaussian_linebroadening_widget(i):
     # )
     line_broadening = custom_input_group(
         id=f"broadening_points-{i}",
-        append_label="kHz",
+        append_label="Hz",
         prepend_label="Factor",
-        value=10,
+        value=50,
+        debounce=True,
     )
 
     return html.Div(

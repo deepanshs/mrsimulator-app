@@ -67,38 +67,22 @@ def flip(n1, n2):
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "dimension-card-title":
-        return ["card-3D card-3D-is-flipped", "card-flip-hide", "card-flip-show"]
-
     if trigger_id == "isotopomer-card-title":
         return ["card-3D", "card-flip-show", "card-flip-hide"]
 
+    return ["card-3D card-3D-is-flipped", "card-flip-hide", "card-flip-show"]
 
-sub_body = html.Div(
+
+body = dbc.Row(
     [
-        dbc.Row(
-            [
-                dbc.Col(
-                    [html.Br(), spectrum_body],
-                    xs=12,
-                    sm=12,
-                    md=7,
-                    lg=7,
-                    xl=5,
-                    className="col-left h-100",
-                ),
-                dbc.Col(
-                    [html.Br(), card_flip],
-                    xs=12,
-                    sm=12,
-                    md=5,
-                    lg=5,
-                    xl=7,
-                    className="col-right h-100",
-                ),
-            ],
-            className="col-grid",
-        ),
+        dbc.Col(spectrum_body, xs=12, sm=12, md=7, lg=7, xl=5, className="col-left"),
+        dbc.Col(card_flip, xs=12, sm=12, md=5, lg=5, xl=7, className="col-right"),
+    ],
+    className="col-grid",
+)
+
+storage_div = html.Div(
+    [
         # memory for holding the isotopomers data
         dcc.Store(id="local-isotopomers-data", storage_type="memory"),
         # memory for holding the exp data
@@ -119,12 +103,9 @@ sub_body = html.Div(
     ]
 )
 
-body = html.Div([sidebar.sidebar, sub_body, html.Div(id="isotopomer_computed_log")])
-
 app_1 = html.Div(
     [
         navbar.navbar_group,
-        html.Div(id="buffer", className="buffer"),
         about_modal,
         # navbar.side_panel,
         html.Div(
@@ -145,20 +126,14 @@ app_1 = html.Div(
             fade=True,
             is_open=False,
         ),
-        html.Div(body),
+        sidebar.sidebar,
+        body,
+        html.Div(className="buffer"),
+        storage_div,
         # dcc.Location(id="download-csdm-file", refresh=True),
         # dcc.Location(id="download-csv-file", refresh=True),
-        # test,
-        # dbc.Jumbotron(),
-        # html.Div(
-        #     [
-        #         dbc.Input(id="my-input", value="initial-value"),
-        #         html.H3(id="output-clientside", children="haha"),
-        #     ]
-        # ),
         navbar.navbar_bottom,
     ],
-    # fluid=True,
     className="app-1",
 )
 

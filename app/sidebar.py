@@ -29,68 +29,25 @@ isotopomers_info_button = custom_button(
 
 filename_datetime = html.Div(
     [
-        # dbc.Row(
-        # [
-        html.H5("Add a title", id="filename_dataset"),  # contentEditable="True"
-        # dbc.Col(
-        #     isotopomers_info_button,
-        #     width=3,
-        #     className="d-flex justify-content-end",
-        # )
-        # dbc.Col(
-        #     custom_button(
-        #         text="",
-        #         icon_classname="fas fa-edit",
-        #         id="json-file-editor-toggler",
-        #         tooltip="Edit the isotopomer file.",
-        #         active=False,
-        #         outline=True,
-        #         style={"float": "right"},
-        #     )
-        # ),
-        # ],
-        # className="d-flex justify-content-between",
-        # ),
+        html.H5("Add a title", id="filename_dataset"),
         file_info,
         html.P(
             "Add a description ... ",
             id="data_description",
             style={"textAlign": "left", "color": colors["text"]},
-            # contentEditable="True",
         ),
-        # isotopomer_set,
-        # site_set,
-        # html.H6(
-        #     html.A(
-        #         id="data_citation",
-        #         href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
-        #         target="_blank",
-        #     ),
-        #     style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
-        # ),
     ]
 )
-
-# def get_isotopomer_from_clicked_spectrum(clickData, local_computed_data):
-#     if clickData is not None:
-#         index = [clickData["points"][0]["curveNumber"]]
-#     else:
-#         length = len(local_computed_data["csdm"]["dependent_variables"])
-#         index = [i for i in range(length)]
-
-#     isotopomer = []
-#     for i in index:
-#         datum = local_computed_data["csdm"]["dependent_variables"][i]
-#         isotopomer.append(
-#             datum["application"]["com.github.DeepanshS.mrsimulator"]["isotopomers"][0]
-#         )
-#     return index, isotopomer
 
 
 @app.callback(
     Output("isotopomer-dropdown", "value"),
-    [Input("nmr_spectrum", "clickData")],
     [
+        Input("nmr_spectrum", "clickData"),
+        Input("local-processed-data", "modified_timestamp"),
+    ],
+    [
+        State("isotopomer-dropdown", "options"),
         State("decompose", "active"),
         State("isotopomer-dropdown", "value"),
         State("local-isotopomer-index-map", "data"),
@@ -98,7 +55,7 @@ filename_datetime = html.Div(
     ],
 )
 def update_isotopomer_dropdown_index(
-    clickData, decompose, old_dropdown_value, index_map, config
+    clickData, t1, options, decompose, dropdown_index, index_map, config
 ):
     """Update the current value of the isotopomer dropdown value when the trace
        (line plot) is selected, or
@@ -113,6 +70,18 @@ def update_isotopomer_dropdown_index(
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
+
+    if config is None:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "local-processed-data" and config["is_new_data"]:
+        dropdown_index = 0 if dropdown_index is None else dropdown_index
+        dropdown_index = 0 if dropdown_index >= len(options) else dropdown_index
+        return dropdown_index
+    if trigger_id == "local-processed-data":
+        return no_update
 
     if clickData is None:
         return no_update
