@@ -262,15 +262,7 @@ def custom_input_group(
 
 
 def custom_collapsible(
-    text="",
-    tooltip=None,
-    # icon="",
-    identity=None,
-    children=None,
-    is_open=True,
-    size="md",
-    # button_classname="",  # ripple",
-    # collapse_classname="panel-collapse collapse in content",  # panel-collapse
+    text="", tooltip=None, identity=None, children=None, is_open=True, size="md"
 ):
     """
         A custom collapsible widget with a title and a carret dropdown icon.
@@ -285,7 +277,7 @@ def custom_collapsible(
             collapse_classname: String. css classnames for collapsible.
     """
     options = {"data-toggle": "collapse", "data-target": f"#{identity}-collapse"}
-    options["aria-expanded"] = is_open
+    options["aria-expanded"] = str(is_open)
 
     collapse_classname = "panel-collapse collapse in content"
     if is_open:

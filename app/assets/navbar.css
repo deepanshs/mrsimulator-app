@@ -1,6 +1,6 @@
 /* navbar */
 .navbar {
-  background: linear-gradient(to right, #361512 0%, #1b0a03 100%);
+  background: linear-gradient(to right, #361512, #1b0a03);
   display: flex;
   width: 100%;
   height: 100%;
@@ -27,21 +27,16 @@
   height: 3px;
   background-color: rgb(231, 231, 231);
   margin: 5px;
-  /* -webkit-transition: all 0.3s ease;
-  -moz-transition: all 0.3s ease; */
   transition: all 0.3s ease;
 }
-
 .toggle .line1 {
   transform: rotate(-45deg) translate(-5px, 6px);
-  /* -webkit-transform: rotate(-45deg) translate(-5px, 6px); */
 }
 .toggle .line2 {
   opacity: 0;
 }
 .toggle .line3 {
   transform: rotate(45deg) translate(-5px, -6px);
-  /* -webkit-transform: rotate(45deg) translate(-5px, -6px); */
 }
 
 .nav-composite {
@@ -54,19 +49,15 @@
   padding-right: 1rem;
   transform: scale(1.05);
   transition: all 0.3s ease;
-  /* -webkit-transition: all 0.3s ease; */
 }
 .navbar-brand {
   padding-left: 1rem;
   padding-right: 1rem;
   transform: scale(1);
   transition: all 0.3s ease;
-  /* -webkit-transition: all 0.3s ease; */
 }
 
 .nav-burger {
-  /* width: 100%; */
-  /* padding: 1rem; */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -100,7 +91,7 @@
   border-left: 1px solid black;
   overflow: hidden;
   border-top-left-radius: 3rem;
-  background: linear-gradient(to right, #ff8800a9 0%, #e52e7180 100%);
+  background: linear-gradient(to right, #ff8800a9, #e52e7180);
 }
 
 .secondary-nav-link:hover,

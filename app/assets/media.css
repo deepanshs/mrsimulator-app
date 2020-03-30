@@ -1,4 +1,16 @@
 /* Media query sizes, 320, 480, 600, 768, 992, and 1382px. */
+@media only screen and (max-device-width: 992px) {
+  .tooltip {
+    display: none !important;
+  }
+  .cursor-pointer {
+    pointer-events: none !important;
+  }
+  /* .btn:hover, */
+  /* .btn:active {
+    color: inherit !important;
+  } */
+}
 
 @media only screen and (max-device-width: 400px) {
   body {

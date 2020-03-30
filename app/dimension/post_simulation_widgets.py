@@ -44,7 +44,7 @@ def gaussian_linebroadening_widget(i):
         id=f"broadening_points-{i}",
         append_label="Hz",
         prepend_label="Factor",
-        value=10,
+        value=50,
         debounce=True,
     )
 

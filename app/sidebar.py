@@ -31,68 +31,21 @@ isotopomers_info_button = custom_button(
 
 filename_datetime = html.Div(
     [
-        # dbc.Row(
-        # [
-        html.H5("Add a title", id="filename_dataset"),  # contentEditable="True"
+        html.H5("Add a title", id="filename_dataset"),
         html.Div(
             [
                 dbc.Button("Open Data", id="read_only_data"),
                 dbc.Modal(id="read_only_data_contents", is_open=False),
             ]
         ),
-        # dbc.Col(
-        #     isotopomers_info_button,
-        #     width=3,
-        #     className="d-flex justify-content-end",
-        # )
-        # dbc.Col(
-        #     custom_button(
-        #         text="",
-        #         icon_classname="fas fa-edit",
-        #         id="json-file-editor-toggler",
-        #         tooltip="Edit the isotopomer file.",
-        #         active=False,
-        #         outline=True,
-        #         style={"float": "right"},
-        #     )
-        # ),
-        # ],
-        # className="d-flex justify-content-between",
-        # ),
         file_info,
         html.P(
             "Add a description ... ",
             id="data_description",
             style={"textAlign": "left", "color": colors["text"]},
-            # contentEditable="True",
         ),
-        # isotopomer_set,
-        # site_set,
-        # html.H6(
-        #     html.A(
-        #         id="data_citation",
-        #         href="https://pubs.acs.org/doi/abs/10.1021/ic020647f",
-        #         target="_blank",
-        #     ),
-        #     style={"textAlign": "left", "color": colors["text"], "fontSize": 12},
-        # ),
     ]
 )
-
-# def get_isotopomer_from_clicked_spectrum(clickData, local_computed_data):
-#     if clickData is not None:
-#         index = [clickData["points"][0]["curveNumber"]]
-#     else:
-#         length = len(local_computed_data["csdm"]["dependent_variables"])
-#         index = [i for i in range(length)]
-
-#     isotopomer = []
-#     for i in index:
-#         datum = local_computed_data["csdm"]["dependent_variables"][i]
-#         isotopomer.append(
-#             datum["application"]["com.github.DeepanshS.mrsimulator"]["isotopomers"][0]
-#         )
-#     return index, isotopomer
 
 
 @app.callback(
@@ -113,8 +66,12 @@ def data_modal(n1, data, is_open):
 
 @app.callback(
     Output("isotopomer-dropdown", "value"),
-    [Input("nmr_spectrum", "clickData")],
     [
+        Input("nmr_spectrum", "clickData"),
+        Input("local-processed-data", "modified_timestamp"),
+    ],
+    [
+        State("isotopomer-dropdown", "options"),
         State("decompose", "active"),
         State("isotopomer-dropdown", "value"),
         State("local-isotopomer-index-map", "data"),
@@ -122,7 +79,7 @@ def data_modal(n1, data, is_open):
     ],
 )
 def update_isotopomer_dropdown_index(
-    clickData, decompose, old_dropdown_value, index_map, config
+    clickData, t1, options, decompose, dropdown_index, index_map, config
 ):
     """Update the current value of the isotopomer dropdown value when the trace
        (line plot) is selected, or
@@ -138,11 +95,31 @@ def update_isotopomer_dropdown_index(
     if not ctx.triggered:
         raise PreventUpdate
 
-    if clickData is None:
-        return no_update
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    index = clickData["points"][0]["curveNumber"] if decompose else 0
-    return index_map[index]
+    if trigger_id == "nmr_spectrum":
+        if clickData is None:
+            return no_update
+
+        index = clickData["points"][0]["curveNumber"] if decompose else 0
+        return index_map[index]
+
+    if config is None:
+        raise PreventUpdate
+
+    # Whenever a new sample is loaded, always return the isotopomer index 0
+    if config["is_new_data"]:
+        return 0
+
+    # if the sample is modified, check if the modified index is the same as the current
+    # index. If the two are the same, stop the update.
+    if config["index_last_modified"] == dropdown_index:
+        print("index update prevented")
+        raise PreventUpdate
+
+    # If not, pass the value of the `index_last_modified` key to load the respective
+    # isotopomer.
+    return config["index_last_modified"]
 
 
 @app.callback(

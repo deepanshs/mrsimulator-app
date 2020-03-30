@@ -62,7 +62,7 @@ DEFAULT_FIGURE = {
             rangemode="tozero",
         ),
         autosize=True,
-        transition={"duration": 175, "easing": "sin-out", "ordering": "traces first"},
+        transition={"duration": 300, "easing": "quad", "ordering": "traces first"},
         margin={"l": 60, "b": 45, "t": 5, "r": 5},
         legend={"x": 0, "y": 1},
         hovermode="closest",
@@ -72,6 +72,16 @@ DEFAULT_FIGURE = {
         clickmode="event+select",
     ),
 }
+
+#  ['linear', 'quad', 'cubic', 'sin', 'exp', 'circle',
+#             'elastic', 'back', 'bounce', 'linear-in', 'quad-in',
+#             'cubic-in', 'sin-in', 'exp-in', 'circle-in', 'elastic-in',
+#             'back-in', 'bounce-in', 'linear-out', 'quad-out',
+#             'cubic-out', 'sin-out', 'exp-out', 'circle-out',
+#             'elastic-out', 'back-out', 'bounce-out', 'linear-in-out',
+#             'quad-in-out', 'cubic-in-out', 'sin-in-out', 'exp-in-out',
+#             'circle-in-out', 'elastic-in-out', 'back-in-out',
+#             'bounce-in-out']
 
 plotly_graph = dcc.Graph(
     id="nmr_spectrum",

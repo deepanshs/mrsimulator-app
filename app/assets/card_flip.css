@@ -43,7 +43,6 @@
 @media only screen and (min-width: 1200px) {
   .card-3D {
     transition: none;
-    transform-style: none;
   }
   .card-face {
     position: relative;
@@ -64,10 +63,9 @@
   }
 }
 
-@media only screen and (max-width: 767px) and (min-width: 576px) {
+@media only screen and (max-width: 767px) {
   .card-3D {
     transition: none;
-    transform-style: none;
   }
   .card-face {
     position: relative;
@@ -88,9 +86,8 @@
   }
 }
 
-@media only screen and (max-width: 576px) {
+/* @media only screen and (max-width: 576px) {
   #isotopomer_computed_log {
-    /* padding: 10vh; */
     min-height: 100vh;
   }
   #isotopomer_form-collapse {
@@ -101,4 +98,4 @@
     max-height: calc(100vh - 95px);
     overflow-y: scroll;
   }
-}
+} */
