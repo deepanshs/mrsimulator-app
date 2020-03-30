@@ -3,6 +3,7 @@ import json
 
 import dash
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 from dash import no_update
 from dash.dependencies import Input
@@ -11,7 +12,7 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from app.app import app
-from app.custom_widgets import custom_button
+from app.custom_widgets import custom_button, print_info
 from app.modal.file_info import file_info
 
 # from dash.dependencies import ClientsideFunction
@@ -32,6 +33,15 @@ filename_datetime = html.Div(
         # dbc.Row(
         # [
         html.H5("Add a title", id="filename_dataset"),  # contentEditable="True"
+        html.Div(
+            [
+                dbc.Button("Open Data", id = "read_only_data"),
+                dbc.Modal(
+                    id = "read_only_data_contents",
+                    is_open = False
+                )
+            ]
+        ),
         # dbc.Col(
         #     isotopomers_info_button,
         #     width=3,
@@ -85,6 +95,23 @@ filename_datetime = html.Div(
 #             datum["application"]["com.github.DeepanshS.mrsimulator"]["isotopomers"][0]
 #         )
 #     return index, isotopomer
+
+@app.callback(
+    [
+        Output("read_only_data_contents", "children"),
+        Output("read_only_data_contents", "is_open")
+    ],
+
+    [Input("read_only_data", "n_clicks")],
+    [
+        State("local-isotopomers-data", "data"),
+        State("read_only_data_contents", "is_open")
+    ]
+)
+def data_modal(n1, data, is_open):
+    if n1:
+        return [print_info(data), not is_open]
+
 
 
 @app.callback(

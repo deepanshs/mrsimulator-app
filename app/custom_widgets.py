@@ -333,3 +333,37 @@ def custom_collapsible(
 #         ],
 #     )
 #     return layout
+
+def print_info(json_data):
+    output = []
+    keys = json_data.keys()
+    if 'name' in keys:
+        #output += (f"{json_data['name']}\n".center(100))
+        output.append(dcc.Markdown(f"{json_data['name']}", style = {'text-align': 'center'}))
+    if 'description' in keys:
+        #output += (f"{json_data['description']}\n".center(100))
+        output.append(dcc.Markdown(f"{json_data['description']}",style = {'text-align': 'center'}))
+    #if 'name' in keys or 'description' in keys:
+        #output += ('\n')
+
+    if 'isotopomers' in keys:
+        for i, isotopomer in enumerate(json_data['isotopomers']):
+            if 'name' in isotopomer:
+                name = isotopomer['name']
+            else:
+                name = ''
+            output.append(dcc.Markdown(f"Isotopomer {i + 1}: {name}"))
+            
+            if 'sites' in isotopomer:
+                for site in isotopomer['sites']:
+                    for site_attribute, val in site.items():
+                        if isinstance(val, dict):
+                            output.append(dcc.Markdown(f"{site_attribute}: \n".replace('_',' '), style = {'padding-left': '20px'}))
+                            for key, value in val.items():
+                                if value != None:
+                                   output.append(dcc.Markdown(f"{key}: {value}\n", style = {'padding-left': '40px'}))
+                        else:
+                            output.append(dcc.Markdown(f"   {site_attribute}: {val}\n".replace('_',' '), style = {'padding-left': '20px'}))
+                    #output.append('\n')
+    return output
+                

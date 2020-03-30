@@ -208,58 +208,62 @@ def feature_orientation_collapsible(key_dict, id_label, site_number):
                     className="my-sub-card",
                 ),
                 id=f"{id_label}-feature-collapse",
-                is_open=True,
+                is_open=False,
             )
         ]
     )
 
-    # @app.callback(
-    #     [
-    #         Output(f"{id_label}-feature-collapse", "is_open"),
-    #         Output(f"{id_label}-orientation-collapse", "is_open"),
-    #     ],
-    #     [
-    #         Input(f"{id_label}-button", "n_clicks"),
-    #         Input(f"{id_label}-orientation-button", "n_clicks"),
+    @app.callback(
+        [
+            Output(f"{id_label}-feature-collapse", "is_open"),
+            Output(f"{id_label}-orientation-collapse", "is_open"),
+        ],
+        [
+            Input(f"{id_label}-button", "n_clicks"),
+            Input(f"{id_label}-orientation-button", "n_clicks"),
 
-    #     ],
-    #     [
-    #         State(f"0-isotope", "value"),
-    #         State(f"{id_label}-button", "children"),
-    #         *[
-    #             State(f"{site_number}-{id_label}-{key}", "value")
-    #             for key in feature_dict.keys()
-    #         ],
-    #         State(f"{id_label}-feature-collapse", "is_open"),
-    #         State(f"{id_label}-orientation-collapse", "is_open"),
-    #     ],
-    # )
-    # def toggle_feature_buttons(
-    #     n1, n2, isotope, feature_label, data1, data2, feature_active, orientation_active
-    # ):
-    #     # Closes quad buttons if non-quad nuclei. A separate callback will disable
-    #     # the buttons
-    #     print("in toggle", dash.callback_context.triggered)
-    #     dim = Dimension(isotope=isotope, spectral_width=50000)
-    #     if dim.spin == 0.5:
-    #         return True, False
+        ],
+        [
+            State(f"0-isotope", "value"),
+            #State(f"{id_label}-button", "children"),
+            # *[
+            #     State(f"{site_number}-{id_label}-{key}", "value")
+            #     for key in feature_dict.keys()
+            # ],
+            State(f"{id_label}-feature-collapse", "is_open"),
+            State(f"{id_label}-orientation-collapse", "is_open"),
+        ],
+    )
+    def toggle_feature_buttons(
+        n1, n2, isotope, feature_active, orientation_active
+        #n1, n2, isotope, feature_label, data1, data2, feature_active, orientation_active
+    ):
+        # Closes quad buttons if non-quad nuclei. A separate callback will disable
+        # the buttons
+        
+        
+        dim = Dimension(isotope=isotope, spectral_width=50000)
+        print("id label", id_label)
+        if dim.spin == 0.5 and f"{id_label}" == "quadrupolar":
+            print("this was true")
+            return [False, False]
 
-    #     ctx = dash.callback_context
-    #     if not ctx.triggered:
-    #         return [no_update, no_update]
+        ctx = dash.callback_context
+        print("ctx: ", ctx.triggered[0]["prop_id"].split(".")[0])
+        if not ctx.triggered:
+            return [no_update, no_update]
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    #     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        # toggles buttons
+        if n1 and button_id == f"{id_label}-button":
+            return [not feature_active, False]
+        if n2 and button_id == f"{id_label}-orientation-button":
+            return [True, not orientation_active]
 
-    #     # toggles buttons
-    #     if button_id == f"{id_label}-button":
-    #         return feature_active, orientation_active
-    #     if button_id == f"{id_label}-orientation-button":
-    #         return True, not orientation_active
+        # if data1 == None or data2 == None:  # and feature_active == True:
+        #     return feature_active, False
 
-    #     if None in [data1, data2]:  # and feature_active == True:
-    #         return True, False
-
-    #     return True, False
+        #return False, False
 
     @app.callback(
         Output(f"{id_label}-orientation-button", "disabled"),
@@ -282,12 +286,18 @@ def feature_orientation_collapsible(key_dict, id_label, site_number):
     return [lst_collapsible, lst_button]
 
 
-@app.callback(Output(f"quadrupolar-button", "disabled"), [Input("0-isotope", "value")])
+@app.callback(
+    [
+        Output(f"quadrupolar-button", "disabled"),
+        # Output(f"0-quadrupolar-Cq", "disabled"),
+        # Output(f"0-quadrupolar-eta", "disabled"),
+    ], 
+    [Input("0-isotope", "value")])
 def freeze_quad_button(isotope):
     dim = Dimension(isotope=isotope, spectral_width=50000)
     if dim.spin == 0.5:
-        return True
-    return False
+        return True, #True, True
+    return False, #False, False
 
 
 def populate_key_value_from_object(object_dict, id_old):
