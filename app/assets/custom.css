@@ -9,11 +9,12 @@ h4 {
   margin: 0;
 }
 .app-1 {
-  background-image: radial-gradient(
+  background-color: rgb(231, 231, 231);
+  /* background-image: radial-gradient(
     circle 879px at 10.4% 22.3%,
     rgba(255, 235, 238, 1) 0%,
-    rgb(245, 208, 186) 93.6%
-  );
+    rgb(241, 231, 225) 93.6%
+  ); */
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -42,11 +43,26 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: auto;
 }
 
+/* .button button {
+  color: silver;
+} */
+/* .button button:hover {
+  background-color: #94573b;
+}
+.button button:active {
+  background-color: #94573b;
+} */
+
+/* #download-div */
 /* formtest contents */
-.formtext {
+.formtext,
+.formtext a {
   font-size: 0.9rem;
-  color: #bed5fa;
+  color: #efeefc;
   padding: 0;
+}
+.formtext a {
+  color: #ffffff;
 }
 
 /* card properties */
@@ -59,12 +75,16 @@ input[type="number"]::-webkit-outer-spin-button {
   box-shadow: 0 0 20px 0px rgb(187, 187, 187);
 }
 .my-sub-card-title {
-  display: block;
-  height: 0;
-  font-weight: 500;
-  color: rgb(131, 60, 12);
-  transform: translateY(-0.85rem);
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-0.5rem);
   transition: all 0.3s ease;
+}
+.my-sub-card-title p {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-weight: 600;
+  color: rgb(131, 60, 12);
 }
 .my-sub-card {
   border-radius: 0;
@@ -74,14 +94,13 @@ input[type="number"]::-webkit-outer-spin-button {
   background: transparent;
   margin-top: 1rem;
 }
-.my-sub-card:after {
+.my-sub-card-title:after {
   content: "";
-  width: 50%;
+  width: 100%;
   right: 0;
   height: 1px;
   background: rgb(131, 60, 12);
   position: absolute;
-  top: -2px;
 }
 .my-card-sidebar {
   border-radius: 0.8rem;
@@ -256,15 +275,15 @@ input[type="number"]::-webkit-outer-spin-button {
   #dimension-card-body,
   #spectrum-body,
   #isotopomer-card-body {
-    min-height: 34rem;
+    min-height: 40rem;
     height: 80vh;
   }
   #isotopomer-form-content {
-    min-height: calc(34rem - 180px);
+    min-height: calc(40rem - 190px);
     height: calc(80vh - 180px);
   }
   .tab-scroll {
-    min-height: calc(34rem - 314px);
+    min-height: calc(40rem - 314px);
     height: calc(80vh - 314px);
     overflow-y: scroll;
   }
@@ -276,7 +295,7 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: space-between;
   }
   #nmr_spectrum {
-    min-height: calc(34rem - 80px);
+    min-height: calc(40rem - 80px);
     height: calc(80vh - 80px);
   }
 }
@@ -314,8 +333,8 @@ input[type="number"]::-webkit-outer-spin-button {
   flex-direction: column;
 }
 .input-group {
-  height: 1.85rem;
   margin: 0;
+  align-items: center;
   justify-content: space-between;
 }
 .input-group-text {
@@ -332,7 +351,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .input-group select {
   height: 1.85rem;
   min-width: 20%;
-  max-width: 53%;
+  max-width: 100%;
   padding-left: 1rem;
   padding-bottom: 0;
   padding-top: 0;
@@ -341,7 +360,6 @@ input[type="number"]::-webkit-outer-spin-button {
 .input-group select:active,
 .input-group select:focus {
   box-shadow: none;
-  border: none;
 }
 
 .append-first {
@@ -380,23 +398,23 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-top: auto;
   margin-bottom: auto;
   padding-right: 0.5rem;
-  color: rgb(94, 94, 94);
+  color: rgb(59, 59, 59);
   flex-wrap: nowrap;
   white-space: nowrap;
 }
 .input-form-2 .label-right {
   margin-top: auto;
   margin-bottom: auto;
-  padding-left: 0.5rem;
+  padding-left: 0.25rem;
   min-width: 2.5rem;
   text-align: right;
-  color: rgb(94, 94, 94);
+  color: rgb(59, 59, 59);
 }
 .input-form-2 input {
   cursor: pointer;
   text-align: right;
   min-width: 20%;
-  max-width: 40%;
+  max-width: 100%;
   margin-left: auto;
   padding-left: 0.5rem;
   padding-right: 0.5rem;

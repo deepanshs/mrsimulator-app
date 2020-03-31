@@ -11,6 +11,7 @@ advanced_isotopomer_editor_button = custom_button(
     tooltip="Advanced isotopomer editor",
     outline=True,
     color="dark",
+    active=False,
 )
 
 advanced_isotopomer_text_area = dbc.Textarea(

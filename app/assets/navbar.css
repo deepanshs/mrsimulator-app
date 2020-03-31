@@ -69,18 +69,6 @@
   justify-content: center;
 }
 
-.secondary-nav-link {
-  background: transparent;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: black;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-}
 .flex-fill {
   background: transparent;
   border: none;
@@ -94,6 +82,15 @@
   background: linear-gradient(to right, #ff8800a9, #e52e7180);
 }
 
+.secondary-nav-link {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.secondary-nav-link div {
+  text-shadow: 1px 1px 1px rgb(39, 39, 39);
+}
 .secondary-nav-link:hover,
 .secondary-nav-link:active {
   z-index: 2;
@@ -105,7 +102,7 @@
 .navbar .nav-link,
 .secondary-nav-link {
   font-family: sans-serif;
-  color: rgb(231, 231, 231);
+  color: rgb(255, 255, 255);
   transform: scale(1);
   transition: transition 0.3s ease;
   -webkit-transition: transform 0.3s ease;
