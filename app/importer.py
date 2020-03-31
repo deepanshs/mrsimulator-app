@@ -20,6 +20,7 @@ from mrsimulator import Isotopomer
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import label_with_help_button
+from app.custom_widgets import print_info
 from app.isotopomer.draft import get_all_isotopomer_dropdown_options
 
 __author__ = "Deepansh J. Srivastava"
@@ -632,7 +633,8 @@ def update_dropdown_options(local_isotopomer_data, old_isotope, config):
         isotope_dropdown_options,
         isotope,
         isotopomer_dropdown_options,
-        json.dumps(local_isotopomer_data, indent=2),
+        print_info(local_isotopomer_data)
+        # json.dumps(local_isotopomer_data, indent=2),
     ]
 
 

@@ -13,7 +13,6 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 from app.custom_widgets import custom_button
-from app.custom_widgets import print_info
 from app.modal.file_info import file_info
 
 # from dash.dependencies import ClientsideFunction
@@ -32,12 +31,12 @@ isotopomers_info_button = custom_button(
 filename_datetime = html.Div(
     [
         html.H5("Add a title", id="filename_dataset"),
-        html.Div(
-            [
-                dbc.Button("Open Data", id="read_only_data"),
-                dbc.Modal(id="read_only_data_contents", is_open=False),
-            ]
-        ),
+        # html.Div(
+        #     [
+        #         dbc.Button("Open Data", id="read_only_data"),
+        #         dbc.Modal(id="read_only_data_contents", is_open=False),
+        #     ]
+        # ),
         file_info,
         html.P(
             "Add a description ... ",
@@ -48,20 +47,20 @@ filename_datetime = html.Div(
 )
 
 
-@app.callback(
-    [
-        Output("read_only_data_contents", "children"),
-        Output("read_only_data_contents", "is_open"),
-    ],
-    [Input("read_only_data", "n_clicks")],
-    [
-        State("local-isotopomers-data", "data"),
-        State("read_only_data_contents", "is_open"),
-    ],
-)
-def data_modal(n1, data, is_open):
-    if n1:
-        return [print_info(data), not is_open]
+# @app.callback(
+#     [
+#         Output("read_only_data_contents", "children"),
+#         Output("read_only_data_contents", "is_open"),
+#     ],
+#     [Input("read_only_data", "n_clicks")],
+#     [
+#         State("local-isotopomers-data", "data"),
+#         State("read_only_data_contents", "is_open"),
+#     ],
+# )
+# def data_modal(n1, data, is_open):
+#     if n1:
+#         return [print_info(data), not is_open]
 
 
 @app.callback(

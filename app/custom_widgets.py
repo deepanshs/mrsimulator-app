@@ -328,20 +328,36 @@ def custom_collapsible(
 
 
 def print_info(json_data):
+    html_tab_sequence = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
     output = []
     keys = json_data.keys()
-    if "name" in keys:
-        # output += (f"{json_data['name']}\n".center(100))
-        output.append(
-            dcc.Markdown(f"{json_data['name']}", style={"text-align": "center"})
-        )
-    if "description" in keys:
-        # output += (f"{json_data['description']}\n".center(100))
-        output.append(
-            dcc.Markdown(f"{json_data['description']}", style={"text-align": "center"})
-        )
-    # if 'name' in keys or 'description' in keys:
-    # output += ('\n')
+    label_dictionary = {
+        "isotope": "Isotope",
+        "shielding_symmetric": "Symmetric Shielding",
+        "quadrupolar": "Quadrupolar",
+        "alpha": "α",
+        "beta": "β",
+        "gamma": "γ",
+        "zeta": "Anisotropy (ζ)",
+        "eta": "Asymmetry (η)",
+        "isotropic_chemical_shift": "Isotropic shift (δ)",
+        "Cq": "Coupling constant (Cq)",
+    }
+    default_unit = {
+        "isotope": "",
+        "isotropic_chemical_shift": "ppm",
+        "Cq": "MHz",
+        "zeta": "ppm",
+        "eta": "",
+        "alpha": "deg",
+        "beta": "deg",
+        "gamma": "deg",
+    }
+
+    # if "name" in keys:
+    #     output.append(f"{json_data['name']}")
+    # if "description" in keys:
+    #     output.append(f"\n{json_data['description']}")
 
     if "isotopomers" in keys:
         for i, isotopomer in enumerate(json_data["isotopomers"]):
@@ -349,32 +365,25 @@ def print_info(json_data):
                 name = isotopomer["name"]
             else:
                 name = ""
-            output.append(dcc.Markdown(f"Isotopomer {i + 1}: {name}"))
+            output.append(f"\nIsotopomer {i + 1}: {name}")
 
             if "sites" in isotopomer:
                 for site in isotopomer["sites"]:
                     for site_attribute, val in site.items():
                         if isinstance(val, dict):
                             output.append(
-                                dcc.Markdown(
-                                    f"{site_attribute}: \n".replace("_", " "),
-                                    style={"padding-left": "20px"},
-                                )
+                                f"\n{html_tab_sequence}{label_dictionary[site_attribute]}: \n"
                             )
                             for key, value in val.items():
                                 if value != None:
+                                    if key == "Cq":
+                                        value = value * 1e-6
                                     output.append(
-                                        dcc.Markdown(
-                                            f"{key}: {value}\n",
-                                            style={"padding-left": "40px"},
-                                        )
+                                        f"{html_tab_sequence}{html_tab_sequence}{label_dictionary[key]}: {value} {default_unit[key]}\n"
                                     )
                         else:
                             output.append(
-                                dcc.Markdown(
-                                    f"   {site_attribute}: {val}\n".replace("_", " "),
-                                    style={"padding-left": "20px"},
-                                )
+                                f"\n{html_tab_sequence}{label_dictionary[site_attribute]}: {val} {default_unit[site_attribute]}\n"
                             )
                     # output.append('\n')
     return output
