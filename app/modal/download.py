@@ -102,9 +102,9 @@ def file_download_link(format_value, fill, local_processed_data, decompose):
         np.savetxt(relative_filename, np.asarray(lst).T, delimiter=",", header=header)
 
     html_link = html.A(
-        html.I(className="fas fa-download fa-2x", style={"color": "Black"}),
+        html.I(className="fas fa-download fa-2x"),
         href=relative_filename,
-        className="p-4 my-card d-flex justify-content-center",
+        className="download-csdm-style",
     )
     return html_link
 

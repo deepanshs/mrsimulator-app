@@ -164,8 +164,8 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 id=item["id"],
                 tooltip=item["tooltip"],
                 active=item["active"],
-                style={"borderRadius": 0},
                 outline=True,
+                color="light",
             )
         )
 
@@ -196,9 +196,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             # *addon,
             html.Div(
                 [
-                    dbc.ButtonGroup(
-                        input_buttons, vertical=True, className="button no-round"
-                    ),
+                    dbc.ButtonGroup(input_buttons, vertical=True, className="button"),
                     dbc.Col(input_layout_0),
                 ],
                 className="d-flex justify-content-start",

@@ -524,17 +524,25 @@ def plot_1D(
 
     print("isotope_id", isotope_id)
     print("clickData", clickData)
-    if trigger_id == "nmr_spectrum" and decompose:
-        if clickData is not None:
-            index = clickData["points"][0]["curveNumber"]
-            # data[index], data[-1] = data[-1], data[index]
-            data[index].line["width"] = 3.0
-            # print("fillcolor", data[index].fillcolor)
-            # for i in range(len(data)):
-            #     if i != index:
-            #         data[i].opacity = 0.25
+    # if trigger_id == "nmr_spectrum" and decompose:
+    if clickData is not None and decompose:
+        index = clickData["points"][0]["curveNumber"]
+        # data[index], data[-1] = data[-1], data[index]
+        data[index].line["width"] = 3.0
+        # print("fillcolor", data[index].fillcolor)
+        # for i in range(len(data)):
+        #     if i != index:
+        #         data[i].opacity = 0.25
 
     data_object = {"data": data, "layout": go.Layout(**layout)}
+
+    if trigger_id in [
+        "decompose",
+        "local-exp-external-data",
+        "normalize_amp",
+        "nmr_spectrum",
+    ]:
+        return [data_object, no_update]
     return [data_object, local_processed_data.to_dict(update_timestamp=True)]
 
 
