@@ -203,12 +203,24 @@ def feature_orientation_collapsible(key_dict, id_label):
 
     @app.callback(
         Output(f"{id_label}-orientation-collapse", "is_open"),
-        [Input(f"{id_label}-orientation-button", "n_clicks")],
-        [State(f"{id_label}-orientation-collapse", "is_open")],
+        [
+            Input(f"{id_label}-orientation-button", "n_clicks"),
+            # *[
+            #     Input(f"{id_label}-{key}", "value")
+            #     for key in feature_dict.keys()
+            # ]
+        ],
+        [
+            State(f"{id_label}-orientation-collapse", "is_open"),
+            *[State(f"{id_label}-{key}", "value") for key in feature_dict.keys()],
+        ],
     )
-    def toggle_orientation_collapsible(n, is_open):
+    def toggle_orientation_collapsible(n, is_open, attribute_1, attribute_2):
+        if attribute_1 == None or attribute_2 == None:
+            return False
         if n is None:
             raise PreventUpdate
+
         return not is_open
 
     @app.callback(
@@ -346,10 +358,13 @@ isotopomer_dropdown = dcc.Dropdown(
 
 # isotopomer abundance
 isotopomer_abundance_field = custom_input_group(
+    append_label="%",
     prepend_label="Abundance",
     placeholder="Isotopomer abundance",
     id="isotopomer-abundance",
     debounce=True,
+    max=100,
+    min=0,
 )
 
 # metadata
