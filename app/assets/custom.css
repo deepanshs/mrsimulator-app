@@ -275,15 +275,15 @@ input[type="number"]::-webkit-outer-spin-button {
   #dimension-card-body,
   #spectrum-body,
   #isotopomer-card-body {
-    min-height: 34rem;
+    min-height: 40rem;
     height: 80vh;
   }
   #isotopomer-form-content {
-    min-height: calc(34rem - 180px);
+    min-height: calc(40rem - 190px);
     height: calc(80vh - 180px);
   }
   .tab-scroll {
-    min-height: calc(34rem - 314px);
+    min-height: calc(40rem - 314px);
     height: calc(80vh - 314px);
     overflow-y: scroll;
   }
@@ -295,7 +295,7 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: space-between;
   }
   #nmr_spectrum {
-    min-height: calc(34rem - 80px);
+    min-height: calc(40rem - 80px);
     height: calc(80vh - 80px);
   }
 }
