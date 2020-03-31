@@ -189,7 +189,7 @@ def feature_orientation_collapsible(key_dict, id_label):
         ],
     )
     def toggle_orientation_collapsible(n, is_open, attribute_1, attribute_2):
-        if attribute_1 == None or attribute_2 == None:
+        if attribute_1 is None or attribute_2 is None:
             return False
         if n is None:
             raise PreventUpdate

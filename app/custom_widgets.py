@@ -328,8 +328,6 @@ def custom_collapsible(
 
 
 def print_info(json_data):
-    html_tab_sequence = ""  # "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-    html_line_break = ""  #'&nbsp;'
     output = []
     keys = json_data.keys()
     label_dictionary = {
