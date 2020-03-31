@@ -55,7 +55,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             dcc.Dropdown(
                 id=f"example-{prepend_id}-dropbox",
                 options=options,
-                searchable=True,
+                searchable=False,
                 clearable=True,
                 placeholder="Select an example ... ",
                 style={"zIndex": "10"},

@@ -300,7 +300,6 @@ def populate_key_value_from_object(object_dict):
     lst = []
 
     for key, value in object_dict.items():  # keys():
-        print("initialize", key, value)
         if isinstance(object_dict[key], dict):
             lst.append(feature_orientation_collapsible(object_dict[key], key))
         elif key == "isotope":
