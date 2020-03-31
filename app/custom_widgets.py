@@ -328,7 +328,8 @@ def custom_collapsible(
 
 
 def print_info(json_data):
-    html_tab_sequence = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    html_tab_sequence = ""  # "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    html_line_break = ""  #'&nbsp;'
     output = []
     keys = json_data.keys()
     label_dictionary = {
@@ -365,25 +366,36 @@ def print_info(json_data):
                 name = isotopomer["name"]
             else:
                 name = ""
-            output.append(f"\nIsotopomer {i + 1}: {name}")
+            output.append(html.Div(f"Isotopomer {i + 1}: {name}", className=""))
 
             if "sites" in isotopomer:
                 for site in isotopomer["sites"]:
                     for site_attribute, val in site.items():
                         if isinstance(val, dict):
                             output.append(
-                                f"\n{html_tab_sequence}{label_dictionary[site_attribute]}: \n"
+                                html.Div(
+                                    f"{label_dictionary[site_attribute]}: ",
+                                    className="pl-2",
+                                )
                             )
                             for key, value in val.items():
                                 if value != None:
                                     if key == "Cq":
                                         value = value * 1e-6
                                     output.append(
-                                        f"{html_tab_sequence}{html_tab_sequence}{label_dictionary[key]}: {value} {default_unit[key]}\n"
+                                        html.Div(
+                                            f"{label_dictionary[key]}: {value} {default_unit[key]}",
+                                            className="pl-4",
+                                        )
                                     )
                         else:
                             output.append(
-                                f"\n{html_tab_sequence}{label_dictionary[site_attribute]}: {val} {default_unit[site_attribute]}\n"
+                                html.Div(
+                                    f"{label_dictionary[site_attribute]}: {val} {default_unit[site_attribute]}",
+                                    className="pl-2",
+                                )
                             )
-                    # output.append('\n')
-    return output
+            output.append(html.Br())
+    # output = html.Div([html.Div(item) for item in output])
+
+    return html.Div(output)
