@@ -376,10 +376,10 @@ def display_relayout_data(relayoutData, dimension_data):
     return ["{0:.5f}".format(ref_offset / 1000.0), "{0:.5f}".format(abs(sw_) / 1000.0)]
 
 
-@app.callback(Output("buffer", "children"), [Input("nmr_spectrum", "restyleData")])
-def getSelectedLegend(selected):
-    print("restyleData", selected)
-    raise PreventUpdate
+# @app.callback(Output("buffer", "children"), [Input("nmr_spectrum", "restyleData")])
+# def getSelectedLegend(selected):
+#     print("restyleData", selected)
+#     raise PreventUpdate
 
 
 @app.callback(
@@ -528,7 +528,8 @@ def plot_1D(
     if clickData is not None and decompose:
         index = clickData["points"][0]["curveNumber"]
         # data[index], data[-1] = data[-1], data[index]
-        data[index].line["width"] = 3.0
+        if index < len(data):
+            data[index].line["width"] = 3.0
         # print("fillcolor", data[index].fillcolor)
         # for i in range(len(data)):
         #     if i != index:
@@ -543,14 +544,8 @@ def plot_1D(
         "nmr_spectrum",
     ]:
         return [data_object, no_update]
-    return [data_object, local_processed_data.to_dict(update_timestamp=True)]
+    return [data_object, local_processed_data.to_dict()]
 
 
 if __name__ == "__main__":
-    app.run_server(
-        # host="0.0.0.0",
-        # port=5001,
-        debug=False,  # True,
-        dev_tools_ui=True,
-        dev_tools_hot_reload=True,
-    )
+    app.run_server(host="0.0.0.0", port=5001, debug=True)

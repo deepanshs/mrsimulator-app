@@ -24,23 +24,26 @@ __email__ = ["deepansh2012@gmail.com"]
 # The dimension and isotopomer cards are place at the front and back of a master
 # card
 card_flip = html.Div(
-    dbc.Row(
-        [
-            dbc.Col(
-                dimension_body_card, className="card-face", sm=6, md=12, lg=12, xl=6
-            ),
-            dbc.Col(
-                isotopomer_body_card,
-                className="card-face card-face-back",
-                sm=6,
-                md=12,
-                lg=12,
-                xl=6,
-            ),
-        ],
-        id="card-flip",
-        className="card-3D",
-    ),
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    dimension_body_card, className="card-face", sm=6, md=12, lg=12, xl=6
+                ),
+                dbc.Col(
+                    isotopomer_body_card,
+                    className="card-face card-face-back",
+                    sm=6,
+                    md=12,
+                    lg=12,
+                    xl=6,
+                ),
+            ],
+            id="card-flip",
+            className="card-3D",
+        ),
+        html.Div(className="buffer"),
+    ],
     className="scene",
     id="interface-dimension-isotopomer",
 )
@@ -128,7 +131,6 @@ app_1 = html.Div(
         ),
         sidebar.sidebar,
         body,
-        html.Div(className="buffer"),
         storage_div,
         # dcc.Location(id="download-csdm-file", refresh=True),
         # dcc.Location(id="download-csv-file", refresh=True),

@@ -37,9 +37,10 @@ def coordinate_grid(i):
         prepend_label="Number of points",
         value=2048,
         min=2,
+        # step=1,
         id=f"dim-number_of_points-{i}",
         debounce=True,
-        inputMode="numeric",
+        pattern="[0-9]*",
     )
 
     # spectral width
