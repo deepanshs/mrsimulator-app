@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 import csdmpy as cp
 import dash
 import dash_html_components as html
@@ -19,8 +21,6 @@ from app.body import app_1
 from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
-
-# import dash_core_components as dcc
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -548,4 +548,4 @@ def plot_1D(
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=5001, debug=True)
+    app.run_server(host="0.0.0.0", port=5002, debug=sys.argv[1])
