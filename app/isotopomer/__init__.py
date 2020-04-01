@@ -272,6 +272,7 @@ isotopomer_name_field = custom_input_group(
     placeholder="Add name",
     value="Isotopomer Name",
     id="isotopomer-name",
+    debounce=True,
 )
 
 isotopomer_description_field = html.Div(
