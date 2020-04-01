@@ -326,74 +326,68 @@ def custom_collapsible(
 #     )
 #     return layout
 
+label_dictionary = {
+    "isotope": "Isotope",
+    "shielding_symmetric": "Symmetric Shielding",
+    "quadrupolar": "Quadrupolar",
+    "alpha": "α",
+    "beta": "β",
+    "gamma": "γ",
+    "zeta": "Anisotropy (ζ)",
+    "eta": "Asymmetry (η)",
+    "isotropic_chemical_shift": "Isotropic shift (δ)",
+    "Cq": "Coupling constant (Cq)",
+}
+default_unit = {
+    "isotope": "",
+    "isotropic_chemical_shift": "ppm",
+    "Cq": "MHz",
+    "zeta": "ppm",
+    "eta": "",
+    "alpha": "deg",
+    "beta": "deg",
+    "gamma": "deg",
+}
+
+
+def attribute_value_pair(key, value, space):
+    return html.Div(
+        f"{label_dictionary[key]}: {value} {default_unit[key]}",
+        className=f"pl-{space}"
+        # [html.Div(label_dictionary[key]), html.Div(f"{value} {default_unit[key]}"),],
+        # className=f"pl-{space} d-flex justify-content-between",
+    )
+
 
 def print_info(json_data):
     output = []
     keys = json_data.keys()
-    label_dictionary = {
-        "isotope": "Isotope",
-        "shielding_symmetric": "Symmetric Shielding",
-        "quadrupolar": "Quadrupolar",
-        "alpha": "α",
-        "beta": "β",
-        "gamma": "γ",
-        "zeta": "Anisotropy (ζ)",
-        "eta": "Asymmetry (η)",
-        "isotropic_chemical_shift": "Isotropic shift (δ)",
-        "Cq": "Coupling constant (Cq)",
-    }
-    default_unit = {
-        "isotope": "",
-        "isotropic_chemical_shift": "ppm",
-        "Cq": "MHz",
-        "zeta": "ppm",
-        "eta": "",
-        "alpha": "deg",
-        "beta": "deg",
-        "gamma": "deg",
-    }
 
-    # if "name" in keys:
-    #     output.append(f"{json_data['name']}")
-    # if "description" in keys:
-    #     output.append(f"\n{json_data['description']}")
+    if "isotopomers" not in keys:
+        return html.Div()
 
-    if "isotopomers" in keys:
-        for i, isotopomer in enumerate(json_data["isotopomers"]):
-            if "name" in isotopomer:
-                name = isotopomer["name"]
-            else:
-                name = ""
-            output.append(html.Div(f"Isotopomer {i + 1}: {name}", className=""))
+    for i, isotopomer in enumerate(json_data["isotopomers"]):
+        local = [html.Br()]
+        name = "" if "name" not in isotopomer else isotopomer["name"]
 
-            if "sites" in isotopomer:
-                for site in isotopomer["sites"]:
-                    for site_attribute, val in site.items():
-                        if isinstance(val, dict):
-                            output.append(
-                                html.Div(
-                                    f"{label_dictionary[site_attribute]}: ",
-                                    className="pl-2",
-                                )
+        local.append(html.H5(f"Isotopomer {i}: {name}", className=""))
+
+        if "sites" in isotopomer:
+            for site in isotopomer["sites"]:
+                for site_attribute, val in site.items():
+                    if isinstance(val, dict):
+                        local.append(
+                            html.Div(
+                                f"{label_dictionary[site_attribute]}", className="pl-2"
                             )
-                            for key, value in val.items():
-                                if value != None:
-                                    if key == "Cq":
-                                        value = value * 1e-6
-                                    output.append(
-                                        html.Div(
-                                            f"{label_dictionary[key]}: {value} {default_unit[key]}",
-                                            className="pl-4",
-                                        )
-                                    )
-                        else:
-                            output.append(
-                                html.Div(
-                                    f"{label_dictionary[site_attribute]}: {val} {default_unit[site_attribute]}",
-                                    className="pl-2",
-                                )
-                            )
-            output.append(html.Br())
-    # output = html.Div([html.Div(item) for item in output])
+                        )
+                        for key, value in val.items():
+                            if value is not None:
+                                value = value * 1e-6 if key == "Cq" else value
+                                local.append(attribute_value_pair(key, value, 4))
+                    else:
+                        local.append(attribute_value_pair(site_attribute, val, 2))
+        local.append(html.Br())
+        output.append(html.Li(local))
 
-    return html.Div(output)
+    return html.Div(html.Ul(output), className="display-form")
