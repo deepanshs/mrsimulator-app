@@ -2,9 +2,8 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from app.custom_widgets import custom_button
 from app.custom_widgets import custom_switch
-from app.modal.download import download_modal
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -16,7 +15,7 @@ scale_amplitude_button = custom_switch(
     icon_classname="fas fa-arrows-alt-v",
     id="normalize_amp",
     # size="sm",
-    # tooltip="Scale maximum amplitude to one.",
+    tooltip="Scale maximum amplitude to one.",
     outline=True,
     color="dark",
     style={"zIndex": 0},
@@ -29,7 +28,7 @@ decompose_button = custom_switch(
     icon_classname="fac fa-decompose",
     id="decompose",
     # size="sm",
-    # tooltip="Show simulation from individual isotopomers.",
+    tooltip="Show simulation from individual isotopomers.",
     outline=True,
     color="dark",
     style={"zIndex": 0},
@@ -51,24 +50,8 @@ decompose_button = custom_switch(
 group_1_buttons = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
 
 
-# layout for the button
-download_layout = [
-    custom_button(
-        icon_classname="fas fa-download",
-        id="download-button",
-        # tooltip="Download dataset",
-        outline=True,
-        color="dark",
-    ),
-    download_modal,
-]
-
-
-# Button group 1 -------------------------------------------------------------------- #
-group_2_buttons = dbc.ButtonGroup(download_layout)
-
 # toolbar icons --------------------------------------------------------------------- #
-toolbar = html.Div([group_1_buttons, group_2_buttons], className="toolbar")
+toolbar = html.Div(group_1_buttons)
 
 
 # # add callback for toggling the collapse on small screens

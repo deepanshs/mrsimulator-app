@@ -8,7 +8,6 @@
 """
 import json
 import os
-import uuid
 
 import csdmpy as cp
 import dash_bootstrap_components as dbc
@@ -20,6 +19,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
+from mrsimulator import Isotopomer
 
 from app.app import app
 
@@ -30,13 +30,13 @@ __email__ = ["deepansh2012@gmail.com"]
 select_format = dcc.Dropdown(
     id="select-format",
     options=[
-        {"label": "Comma Separated Values, (.csv)", "value": "csv"},
-        {"label": "Core Scientific Dataset Format, (.csdf)", "value": "csdf"},
+        {"label": "Spectrum (Comma Separated Values, .csv)", "value": "csv"},
+        {"label": "Spectrum (Core Scientific Dataset Format, .csdf)", "value": "csdf"},
+        {"label": "Isotopomer (.JSON)", "value": "json"},
     ],
     value="csdf",
     clearable=False,
     searchable=False,
-    className="justify-content-between align-items-center",
 )
 
 # Download link
@@ -58,16 +58,38 @@ def serve_static(path):
 
 # update the link to the downloadable serialized file.
 @app.callback(
-    Output("download-div", "children"),
+    Output("download-href", "href"),
     [Input("select-format", "value"), Input("download-button", "n_clicks")],
-    [State("local-processed-data", "data"), State("decompose", "active")],
+    [
+        State("local-processed-data", "data"),
+        State("decompose", "active"),
+        State("local-isotopomers-data", "data"),
+    ],
 )
-def file_download_link(format_value, fill, local_processed_data, decompose):
+def file_download_link(
+    format_value, fill, local_processed_data, decompose, isotopomers_data
+):
     """Update the link to the downloadable file."""
-    if local_processed_data is None:
+    if isotopomers_data is None:
         raise PreventUpdate
 
-    uuid_1 = uuid.uuid1()
+    # uuid_1 = uuid.uuid1()
+    name = f"-{isotopomers_data['name']}" if "name" in isotopomers_data else ""
+
+    if format_value == "json":
+        filename = f"Isotopomer{name}.json"
+        relative_filename = os.path.join("downloads", filename)
+
+        isotopomers_data["isotopomers"] = [
+            Isotopomer(**item).to_dict_with_units()
+            for item in isotopomers_data["isotopomers"]
+        ]
+        with open(relative_filename, "w") as f:
+            json.dump(isotopomers_data, f)
+        return relative_filename
+
+    if local_processed_data is None:
+        raise PreventUpdate
 
     content = local_processed_data
     if not decompose:
@@ -78,13 +100,14 @@ def file_download_link(format_value, fill, local_processed_data, decompose):
         content = d_.to_dict(update_timestamp=True)
 
     if format_value == "csdf":
-        filename = f"{uuid_1}.csdf"
+        filename = f"Spectrum{name}.csdf"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
             json.dump(content, f)
+        return relative_filename
 
     if format_value == "csv":
-        filename = f"{uuid_1}.csv"
+        filename = f"Spectrum{name}.csv"
         relative_filename = os.path.join("downloads", filename)
         obj = cp.parse_dict(content)
         lst = []
@@ -101,28 +124,31 @@ def file_download_link(format_value, fill, local_processed_data, decompose):
         header = ", ".join(header)
         np.savetxt(relative_filename, np.asarray(lst).T, delimiter=",", header=header)
 
-    html_link = html.A(
-        html.I(className="fas fa-download fa-2x"),
-        href=relative_filename,
-        className="download-csdm-style",
-    )
-    return html_link
+        return relative_filename
 
 
 # Layout ----------------------------------------------------------------------
 # model user-interface
 download_modal = dbc.Modal(
     [
-        dbc.ModalHeader("Select download format"),
+        dbc.ModalHeader("Select download type"),
         dbc.ModalBody(dbc.FormGroup([select_format, link])),
         dbc.ModalFooter(
-            dbc.Button(
-                "Close",
-                id="close_download_setting",
-                color="dark",
-                className="ml-auto",
-                outline=True,
-            )
+            [
+                dbc.Button(
+                    "Close",
+                    id="close_download_setting",
+                    color="dark",
+                    className="mr-auto",
+                    outline=True,
+                ),
+                html.A(
+                    ["Download  ", html.I(className="fas fa-download fa-lg")],
+                    href="",
+                    id="download-href",
+                    className="download-csdm-style",
+                ),
+            ]
         ),
     ],
     id="download-modal",

@@ -12,7 +12,9 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 from app.custom_widgets import custom_button
-from app.modal.file_info import file_info
+from app.modal.download import download_modal
+
+# from app.modal.file_info import file_info
 
 # from dash.dependencies import ClientsideFunction
 
@@ -27,18 +29,11 @@ isotopomers_info_button = custom_button(
     color="dark",
 )
 
-filename_datetime = html.Div(
+data_info = html.Div(
     [
-        html.H5("Add a title", id="filename_dataset"),
-        # html.Div(
-        #     [
-        #         dbc.Button("Open Data", id="read_only_data"),
-        #         dbc.Modal(id="read_only_data_contents", is_open=False),
-        #     ]
-        # ),
-        file_info,
+        html.H5("Sample", id="filename_dataset"),
         html.P(
-            "Add a description ... ",
+            "Sample description ... ",
             id="data_description",
             style={"textAlign": "left", "color": colors["text"]},
         ),
@@ -138,7 +133,7 @@ def update_json_file_editor_from_isotopomer_dropdown(
     if not is_advanced_editor_open:
         raise PreventUpdate
     if local_isotopomer_data is None:
-        return PreventUpdate
+        raise PreventUpdate
     if index is None:
         return ""
 
@@ -164,9 +159,25 @@ def update_json_file_editor_from_isotopomer_dropdown(
 #     [Input("local-isotopomers-data", "data")],
 # )
 
+# download
+download_layout = html.Div(
+    [
+        custom_button(
+            # text="Download",
+            icon_classname="fas fa-download",
+            id="download-button",
+            tooltip="Download spectrum and isotopomers",
+            outline=True,
+            color="dark",
+        ),
+        download_modal,
+    ]
+)
 
 sidebar = dbc.Card(
-    dbc.CardBody(filename_datetime),
+    dbc.CardBody(
+        [data_info, download_layout], className="d-flex justify-content-between"
+    ),
     className="my-card-sidebar",
     inverse=False,
     id="sidebar",

@@ -223,10 +223,27 @@ input[type="number"]::-webkit-outer-spin-button {
   transition: all 0.3s ease;
 }
 
-/* #dimension-tab-scroll-0 {
-  max-height: calc(75vh - 95px);
+#isotopomer-form-content {
+  min-height: calc(40rem - 190px);
+  height: calc(80vh - 190px);
+}
+.tab-scroll {
+  min-height: calc(40rem - 325px);
+  height: calc(80vh - 325px);
   overflow-y: scroll;
-}  */
+}
+/* #dimension-tab-scroll-0 {
+  height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+} */
+#dimension-card-body,
+#isotopomer-card-body {
+  min-height: 40rem;
+  height: 80vh;
+}
 
 @media only screen and (max-width: 992px) {
   .card-face {
@@ -254,23 +271,10 @@ input[type="number"]::-webkit-outer-spin-button {
     padding-bottom: 1rem;
   }
   #dimension-card-body {
-    min-height: 40rem;
     padding-right: 3px;
-    height: 80vh;
   }
   #isotopomer-card-body {
-    min-height: 40rem;
     padding-left: 3px;
-    height: 80vh;
-  }
-  #isotopomer-form-content {
-    min-height: calc(40rem - 190px);
-    height: calc(80vh - 180px);
-  }
-  .tab-scroll {
-    min-height: calc(40rem - 314px);
-    height: calc(80vh - 314px);
-    overflow-y: scroll;
   }
   .hide-label {
     display: none;
@@ -284,28 +288,11 @@ input[type="number"]::-webkit-outer-spin-button {
 @media only screen and (min-width: 768px) {
   /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
 
-  #dimension-card-body,
-  #spectrum-body,
-  #isotopomer-card-body {
+  #spectrum-body {
     min-height: 40rem;
     height: 80vh;
   }
-  #isotopomer-form-content {
-    min-height: calc(40rem - 190px);
-    height: calc(80vh - 180px);
-  }
-  .tab-scroll {
-    min-height: calc(40rem - 314px);
-    height: calc(80vh - 314px);
-    overflow-y: scroll;
-  }
-  #dimension-tab-scroll-0 {
-    height: 100%;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+
   #nmr_spectrum {
     min-height: calc(40rem - 80px);
     height: calc(80vh - 80px);
@@ -581,3 +568,22 @@ textarea {
   );
   color: rgb(22, 22, 22);
 } */
+
+.download-csdm-style {
+  color: rgb(80, 80, 80);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  border-radius: 0.3rem;
+  border: 1px solid rgb(80, 80, 80);
+  transition: all 0.2s ease;
+}
+.download-csdm-style:hover {
+  color: rgb(243, 243, 243);
+  background-color: rgb(61, 61, 61);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
