@@ -355,7 +355,7 @@ isotopomer_form = dbc.Collapse(
                 [isotopomer_title, isotopomer_abundance_field],
                 className="collapsible-body-control",
             ),
-            dbc.Tabs([widgets, transition_tab, metadata]),
+            dbc.Tabs([widgets, metadata]),
         ],
         id="isotopomer-form-content",
         className="active",
