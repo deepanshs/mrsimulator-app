@@ -543,12 +543,7 @@ textarea {
   height: 100%;
   width: 100%;
 }
-.slider1 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-left: 1rem;
-  padding-right: 0;
-}
+
 .slider1,
 #isotopomer-read-only {
   box-sizing: border-box;
@@ -557,6 +552,32 @@ textarea {
   background: transparent;
 }
 #isotopomer-read-only {
-  padding-right: 1rem;
   overflow-y: scroll;
 }
+.display-form ul {
+  padding: 0;
+  font-size: 0.95rem;
+  color: rgb(53, 53, 53);
+  list-style: none;
+}
+.display-form li {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  outline: 1px solid silver;
+}
+/* .display-form li:hover {
+  background: linear-gradient(
+    to bottom,
+    rgb(189, 230, 255) 0%,
+    rgb(189, 230, 255) 100%
+  );
+  color: rgb(22, 22, 22);
+} */
+/* .display-form a:focus {
+  background: linear-gradient(
+    to bottom,
+    rgb(189, 230, 255) 0%,
+    rgb(189, 230, 255) 100%
+  );
+  color: rgb(22, 22, 22);
+} */
