@@ -18,53 +18,17 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
-
-  /* #dimension-body {
-    min-height: 50vh;
+}
+@media only screen and (max-device-width: 400px) and (orientation: portrait) {
+  #nmr_spectrum {
+    min-height: calc(50vh - 58px);
+    height: calc(50vh - 58px);
   }
-  #mrsimulator-logo {
-    height: 44px;
-  }
-  #top-navbar {
-    position: fixed;
-    z-index: 5;
-    min-height: 60px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-  }
-
-  #spectrum-body {
-    border-radius: 0px;
-    position: fixed;
-    top: 55px;
-    z-index: 4;
-    width: 100vw;
-    will-change: transform;
-    box-shadow: 0 4px 15px 0px #d6d6d6;
-  } */
-
-  /* drawer and navbar imports */
-  #import-navbar,
-  #drawers-import {
-    position: fixed !important;
-    z-index: 5;
-    background-color: #343942;
-    width: 100vw;
-    border-radius: 0px;
-  }
-  #import-navbar {
-    bottom: 0;
-    height: 40px;
-  }
-  #drawers-import {
-    bottom: 40px;
-  }
-  .grow {
-    height: 262px;
-  }
-
-  .bottom-navbar .div {
-    display: none;
+}
+@media only screen and (max-device-width: 400px) and (orientation: landscape) {
+  #nmr_spectrum {
+    min-height: calc(90vh - 58px);
+    height: calc(90vh - 58px);
   }
 }
 /* iphone layout landscape */
