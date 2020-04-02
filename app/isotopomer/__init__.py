@@ -474,10 +474,7 @@ def extract_site_dictionary_from_dash_triggers(states):
         else:
             site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
             for angle in ["alpha", "beta", "gamma"]:
-                if site["quadrupolar"][angle] is not None:
-                    site["quadrupolar"][angle] = math.radians(
-                        site["quadrupolar"][angle]
-                    )
+                site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle]) or None
 
     return site
 
