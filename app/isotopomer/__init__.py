@@ -458,14 +458,11 @@ def extract_site_dictionary_from_dash_triggers(states):
     # Before returning the site dict, check if the site isotope is quadrupolar. If
     # false, delete the quadrupolar key, else, convert Cq from Hz to MHz.
     isotope = states["isotope.value"]
-    for angle in ["alpha", "beta", "gamma"]:
-        if (
-            "shielding_symmetric" in site.keys()
-            and angle in site["shielding_symmetric"].keys()
-        ):
-            site["shielding_symmetric"][angle] = math.radians(
-                site["shielding_symmetric"][angle]
-            )
+    
+    if "shielding_symmetric" in site.keys():
+        for angle in ["alpha", "beta", "gamma"]:
+            if angle in site["shielding_symmetric"].keys():
+                site["shielding_symmetric"][angle] = math.radians(site["shielding_symmetric"][angle])
 
     if "quadrupolar" in site.keys():
         if ISOTOPE_DATA[isotope]["spin"] == 1:
@@ -474,7 +471,7 @@ def extract_site_dictionary_from_dash_triggers(states):
             site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
             for angle in ["alpha", "beta", "gamma"]:
                 if angle in site["quadrupolar"].keys():
-                    site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle]) or None
+                    site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle])
 
     return site
 
