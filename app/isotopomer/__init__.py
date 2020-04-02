@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -435,6 +437,7 @@ def extract_site_dictionary_from_dash_triggers(states):
         "shielding_symmetric": {},
         "quadrupolar": {},
     }
+
     for item in all_keys:
         value = states[f"{item}.value"]
         if value is not None:
@@ -450,16 +453,32 @@ def extract_site_dictionary_from_dash_triggers(states):
 
     # Remove any instance of dict key with value as {}
     site = dict([(k, v) for k, v in site.items() if v != {}])
+    print("Max was here: ", site)
 
     # The input may contain value form all fields, some of which might not accurate.
     # Before returning the site dict, check if the site isotope is quadrupolar. If
     # false, delete the quadrupolar key, else, convert Cq from Hz to MHz.
     isotope = states["isotope.value"]
+    for angle in ["alpha", "beta", "gamma"]:
+        if (
+            "shielding_symmetric" in site.keys()
+            and site["shielding_symmetric"][angle] is not None
+        ):
+            site["shielding_symmetric"][angle] = math.radians(
+                site["shielding_symmetric"][angle]
+            )
+
     if "quadrupolar" in site.keys():
         if ISOTOPE_DATA[isotope]["spin"] == 1:
             del site["quadrupolar"]  # delete quadrupolar dict for spin 1/2
         else:
             site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
+            for angle in ["alpha", "beta", "gamma"]:
+                if site["quadrupolar"][angle] is not None:
+                    site["quadrupolar"][angle] = math.radians(
+                        site["quadrupolar"][angle]
+                    )
+
     return site
 
 
@@ -495,6 +514,10 @@ def extract_isotopomer_UI_field_values_from_dictionary(site):
     # convert trigger index 7 => quadrupolar coupling constant from Hz to MHz.
     if trigger_values[7] is not None:
         trigger_values[7] /= 1.0e6
+    # convert trigger indexes 4-6, 9-11 => Euler angles from radians to degrees
+    for angle in [4, 5, 6, 9, 10, 11]:
+        if trigger_values[angle] is not None:
+            trigger_values[angle] = math.degrees(trigger_values[angle])
     return trigger_values
 
 

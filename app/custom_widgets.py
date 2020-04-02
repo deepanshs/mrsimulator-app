@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -383,6 +385,11 @@ def print_info(json_data):
                         )
                         for key, value in val.items():
                             if value is not None:
+                                value = (
+                                    math.degrees(value)
+                                    if key in ["alpha", "beta", "gamma"]
+                                    else value
+                                )
                                 value = value * 1e-6 if key == "Cq" else value
                                 local.append(attribute_value_pair(key, value, 4))
                     else:
