@@ -96,16 +96,11 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
     )
 
-    @app.callback(
-        Output(f"{id}", "active"),
-        [Input(f"{id}", "n_clicks")],
-        [State(f"{id}", "active")],
-    )
+    @app.callback(Output(id, "active"), [Input(id, "n_clicks")], [State(id, "active")])
     def toggle_boolean_button(n, status):
         """Toggle decompose button."""
         if n is None:
             raise PreventUpdate
-
         return not status
 
     return button
