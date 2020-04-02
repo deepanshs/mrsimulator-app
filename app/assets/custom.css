@@ -228,24 +228,17 @@ input[type="number"]::-webkit-outer-spin-button {
 
 #isotopomer-form-content {
   min-height: calc(40rem - 190px);
-  height: calc(80vh - 190px);
+  height: calc(60vh - 190px);
 }
 .tab-scroll {
   min-height: calc(40rem - 325px);
-  height: calc(80vh - 325px);
+  height: calc(60vh - 325px);
   overflow-y: scroll;
 }
-/* #dimension-tab-scroll-0 {
-  height: 100%;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-} */
 #dimension-card-body,
 #isotopomer-card-body {
   min-height: 40rem;
-  height: 80vh;
+  height: 60vh;
 }
 
 /* dash-bootstrap customize */
@@ -548,21 +541,25 @@ textarea {
   .hide-label {
     display: none;
   }
+  #spectrum-body {
+    height: 40vh;
+    min-height: 25rem;
+  }
   #nmr_spectrum {
-    min-height: calc(30rem - 55px);
-    height: calc(50vh - 55px);
+    min-height: calc(25rem - 70px);
+    height: calc(40vh - 70px);
   }
 }
 
 @media only screen and (min-width: 768px) {
   /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
   #spectrum-body {
+    height: 60vh;
     min-height: 40rem;
-    height: 80vh;
   }
   #nmr_spectrum {
     min-height: calc(40rem - 80px);
-    height: calc(80vh - 80px);
+    height: calc(60vh - 80px);
   }
 }
 
@@ -579,6 +576,6 @@ textarea {
   .buffer,
   #dimension-card-body {
     min-height: 40rem;
-    height: 80vh;
+    height: 60vh;
   }
 }
