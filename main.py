@@ -183,7 +183,7 @@ def simulation(
     if isotope_id is None:
         if previous_local_computed_data is not None:
             print("simulation cleared because isotope id is", isotope_id)
-            return [[], no_update, no_update]
+            return [None, no_update, no_update]
         raise PreventUpdate
 
     ctx = dash.callback_context
@@ -323,6 +323,11 @@ def simulation(
 
     dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
     local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
+
+    if trigger_id != "isotope_id-0":
+        local_computed_data["trigger-isotopomer"] = False
+    else:
+        local_computed_data["trigger-isotopomer"] = True
     print(
         "check with previous data",
         previous_local_computed_data == local_isotopomers_data,
@@ -388,49 +393,58 @@ def display_relayout_data(relayoutData, dimension_data):
         Input("local-computed-data", "modified_timestamp"),
         Input("decompose", "active"),
         Input("local-exp-external-data", "modified_timestamp"),
-        Input("normalize_amp", "active"),
+        Input("normalize_amp", "n_clicks"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
         Input("nmr_spectrum", "clickData"),
     ],
     [
+        State("normalize_amp", "active"),
         State("local-computed-data", "data"),
         State("local-exp-external-data", "data"),
         State("isotope_id-0", "value"),
         State("nmr_spectrum", "figure"),
+        State("config", "data"),
     ],
 )
 def plot_1D(
     time_of_computation,
     decompose,
     csdm_upload_time,
-    normalized,
+    normalized_clicked,
     broadening,
     apodization,
     clickData,
     # state
+    normalized,
     local_computed_data,
     local_exp_external_data,
     isotope_id,
     figure,
+    config,
 ):
     """Generate and return a one-dimensional plot instance."""
     print("inside plot, time of computation", time_of_computation)
     if local_computed_data is None and local_exp_external_data is None:
-        raise PreventUpdate
+        return [DEFAULT_FIGURE, no_update]
 
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("plot trigger id", trigger_id)
 
-    if isotope_id is None:
-        if local_exp_external_data is None:
-            return [DEFAULT_FIGURE, None]
-        if local_exp_external_data["isotopomers"] == []:
-            return [DEFAULT_FIGURE, None]
+    trigger = ctx.triggered[0]["prop_id"]
 
+    if trigger == "normalize_amp.n_clicks":
+        normalized = not normalized
+
+    trigger_id = trigger.split(".")[0]
+    print("plot trigger, trigger id", trigger, trigger_id)
+
+    trigger_isotopomer = (
+        True
+        if local_computed_data is None
+        else local_computed_data["trigger-isotopomer"]
+    )
     data = []
     if local_computed_data is not None:
 
@@ -518,8 +532,19 @@ def plot_1D(
         )
 
     layout = figure["layout"]
-    layout["xaxis"]["autorange"] = True
-    layout["yaxis"]["autorange"] = True
+
+    if config is None or trigger in [
+        "normalize_amp.n_clicks",
+        "local-exp-external-data.modified_timestamp",
+    ]:
+        print("axis update is True", config, trigger)
+        layout["xaxis"]["autorange"] = True
+        layout["yaxis"]["autorange"] = True
+    elif config["is_new_data"] and trigger_isotopomer:
+        print("axis update is True", config)
+        layout["xaxis"]["autorange"] = True
+        layout["yaxis"]["autorange"] = True
+
     layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
     print("isotope_id", isotope_id)
@@ -544,9 +569,29 @@ def plot_1D(
         "nmr_spectrum",
     ]:
         return [data_object, no_update]
+    if local_computed_data is None:
+        return [data_object, no_update]
     return [data_object, local_processed_data.to_dict()]
 
 
 if __name__ == "__main__":
-    app.run_server(#host="0.0.0.0", port=5001,
-    debug=sys.argv[1])
+    host = "127.0.0.1"
+    is_host = ["--host" in arg for arg in sys.argv]
+    if any(is_host):
+        host_index = np.where(np.asarray(is_host))[0][0]
+        host = sys.argv[host_index].split("=")[1]
+
+    port = 8050
+    is_port = ["--port" in arg for arg in sys.argv]
+    if any(is_port):
+        port_index = np.where(np.asarray(is_port))[0][0]
+        port = int(sys.argv[port_index].split("=")[1])
+
+    debug = False
+    is_debug = ["--debug" in arg for arg in sys.argv]
+    if any(is_debug):
+        debug_index = np.where(np.asarray(is_debug))[0][0]
+        debug = bool(sys.argv[debug_index].split("=")[1])
+
+    print(host, port, debug)
+    app.run_server(host=host, port=port, debug=debug)
