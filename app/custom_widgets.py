@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -96,16 +98,11 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
     )
 
-    @app.callback(
-        Output(f"{id}", "active"),
-        [Input(f"{id}", "n_clicks")],
-        [State(f"{id}", "active")],
-    )
+    @app.callback(Output(id, "active"), [Input(id, "n_clicks")], [State(id, "active")])
     def toggle_boolean_button(n, status):
         """Toggle decompose button."""
         if n is None:
             raise PreventUpdate
-
         return not status
 
     return button
@@ -325,3 +322,74 @@ def custom_collapsible(
 #         ],
 #     )
 #     return layout
+
+label_dictionary = {
+    "isotope": "Isotope",
+    "shielding_symmetric": "Symmetric Shielding",
+    "quadrupolar": "Quadrupolar",
+    "alpha": "α",
+    "beta": "β",
+    "gamma": "γ",
+    "zeta": "Anisotropy (ζ)",
+    "eta": "Asymmetry (η)",
+    "isotropic_chemical_shift": "Isotropic shift (δ)",
+    "Cq": "Coupling constant (Cq)",
+}
+default_unit = {
+    "isotope": "",
+    "isotropic_chemical_shift": "ppm",
+    "Cq": "MHz",
+    "zeta": "ppm",
+    "eta": "",
+    "alpha": "deg",
+    "beta": "deg",
+    "gamma": "deg",
+}
+
+
+def attribute_value_pair(key, value, space):
+    return html.Div(
+        f"{label_dictionary[key]}: {value} {default_unit[key]}",
+        className=f"pl-{space}"
+        # [html.Div(label_dictionary[key]), html.Div(f"{value} {default_unit[key]}"),],
+        # className=f"pl-{space} d-flex justify-content-between",
+    )
+
+
+def print_info(json_data):
+    output = []
+    keys = json_data.keys()
+
+    if "isotopomers" not in keys:
+        return html.Div()
+
+    for i, isotopomer in enumerate(json_data["isotopomers"]):
+        local = [html.Br()]
+        name = "" if "name" not in isotopomer else isotopomer["name"]
+
+        local.append(html.H5(f"Isotopomer {i}: {name}", className=""))
+
+        if "sites" in isotopomer:
+            for site in isotopomer["sites"]:
+                for site_attribute, val in site.items():
+                    if isinstance(val, dict):
+                        local.append(
+                            html.Div(
+                                f"{label_dictionary[site_attribute]}", className="pl-2"
+                            )
+                        )
+                        for key, value in val.items():
+                            if value is not None:
+                                value = (
+                                    math.degrees(value)
+                                    if key in ["alpha", "beta", "gamma"]
+                                    else value
+                                )
+                                value = value * 1e-6 if key == "Cq" else value
+                                local.append(attribute_value_pair(key, value, 4))
+                    else:
+                        local.append(attribute_value_pair(site_attribute, val, 2))
+        local.append(html.Br())
+        output.append(html.Li(local))
+
+    return html.Div(html.Ul(output), className="display-form")

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -58,27 +60,6 @@ default_unit = {
         "gamma": "deg",
     },
 }
-
-# def custom_form_group(prepend_label="", **kwargs):
-#     if "step" not in kwargs.keys():
-#         kwargs["step"] = 1e-5
-#     return dbc.InputGroup(
-#         [
-#             dbc.Label(
-#                 prepend_label,
-#                 className="append-addon form-control .form-control-sm, tree-control",
-#                 size="sm",
-#                 style={"width": "30%"},
-#             ),
-#             dbc.Input(
-#                 type="text",
-#                 bs_size="sm",
-#                 className=("append-addon form-control .form-control-sm ",
-#                           "tree-control tree-control-input"),
-#                 **kwargs,
-#             ),
-#         ]
-#     )
 
 
 def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
@@ -204,11 +185,17 @@ def feature_orientation_collapsible(key_dict, id_label):
     @app.callback(
         Output(f"{id_label}-orientation-collapse", "is_open"),
         [Input(f"{id_label}-orientation-button", "n_clicks")],
-        [State(f"{id_label}-orientation-collapse", "is_open")],
+        [
+            State(f"{id_label}-orientation-collapse", "is_open"),
+            *[State(f"{id_label}-{key}", "value") for key in feature_dict.keys()],
+        ],
     )
-    def toggle_orientation_collapsible(n, is_open):
+    def toggle_orientation_collapsible(n, is_open, attribute_1, attribute_2):
+        if attribute_1 is None or attribute_2 is None:
+            return False
         if n is None:
             raise PreventUpdate
+
         return not is_open
 
     @app.callback(
@@ -219,87 +206,13 @@ def feature_orientation_collapsible(key_dict, id_label):
             raise PreventUpdate
         return False if ISOTOPE_DATA[isotope]["spin"] == 1 else True
 
-    # @app.callback(
-    #     [
-    #         Output(f"{id_label}-feature-collapse", "is_open"),
-    #         Output(f"{id_label}-orientation-collapse", "is_open"),
-    #     ],
-    #     [
-    #         Input(f"{id_label}-button", "n_clicks"),
-    #         Input(f"{id_label}-orientation-button", "n_clicks"),
-    #         Input(f"isotope", "value"),
-    #         Input(f"{id_label}-button", "children"),
-    #         *[
-    #             Input(f"{site_number}-{id_label}-{key}", "value")
-    #             for key in feature_dict.keys()
-    #         ],
-    #     ],
-    #     [
-    #         State(f"{id_label}-feature-collapse", "is_open"),
-    #         State(f"{id_label}-orientation-collapse", "is_open"),
-    #     ],
-    # )
-    # def toggle_feature_buttons(
-    #     n1, n2, isotope, feature_label, data1, data2, feature_active,
-    #     orientation_active
-    # ):
-    #     # Closes quad buttons if non-quad nuclei. A separate callback will disable
-    #     # the buttons
-    #     print("in toggle", dash.callback_context.triggered)
-    #     dim = Dimension(isotope=isotope, spectral_width=50000)
-    #     if dim.spin == 0.5 and feature_label == "q":
-    #         return False, False
-
-    #     ctx = dash.callback_context
-    #     if not ctx.triggered:
-    #         return [no_update, no_update]
-
-    #     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    #     # toggles buttons
-    #     if button_id == f"{id_label}-button":
-    #         return not feature_active, orientation_active
-    #     if button_id == f"{id_label}-orientation-button":
-    #         return True, not orientation_active
-
-    #     if None in [data1, data2]:  # and feature_active == True:
-    #         return True, False
-
-    #     return True, False
-
-    # @app.callback(
-    #     Output(f"{id_label}-orientation-button", "disabled"),
-    #     [
-    #         *[
-    #             Input(f"{site_number}-{id_label}-{key}", "value")
-    #             for key in feature_dict.keys()
-    #         ],
-    #         Input(f"{id_label}-button", "disabled"),
-    #     ],
-    # )
-    # def freeze_orientation_button(*args):
-    #     print(f"My data for {id_label}", args[0], args[1])
-    #     if args[0] is None or args[1] is None:
-    #         return True
-    #     if args[-1]:
-    #         return True
-    #     return False
-
     return lst_collapsible
-
-
-# @app.callback(Output(f"quadrupolar-button", "disabled"), [Input("isotope", "value")])
-# def freeze_quad_button(isotope):
-#     dim = Dimension(isotope=isotope, spectral_width=50000)
-#     if dim.spin == 0.5:
-#         return True
-#     return False
 
 
 def populate_key_value_from_object(object_dict):
     lst = []
 
-    for key, value in object_dict.items():  # keys():
+    for key, value in object_dict.items():
         if isinstance(object_dict[key], dict):
             lst.append(feature_orientation_collapsible(object_dict[key], key))
         elif key == "isotope":
@@ -345,10 +258,13 @@ isotopomer_dropdown = dcc.Dropdown(
 
 # isotopomer abundance
 isotopomer_abundance_field = custom_input_group(
+    append_label="%",
     prepend_label="Abundance",
     placeholder="Isotopomer abundance",
     id="isotopomer-abundance",
     debounce=True,
+    max=100,
+    min=0,
 )
 
 # metadata
@@ -358,6 +274,7 @@ isotopomer_name_field = custom_input_group(
     placeholder="Add name",
     value="Isotopomer Name",
     id="isotopomer-name",
+    debounce=True,
 )
 
 isotopomer_description_field = html.Div(
@@ -430,7 +347,9 @@ def toggle_classname(n, previous_class):
 
 
 # isotopomer read-only section
-isotopomer_read_only = dcc.Markdown(id="isotopomer-read-only")
+isotopomer_read_only = html.Div(
+    id="isotopomer-read-only"
+)  # dcc.Markdown(id="isotopomer-read-only",)
 # isotopomer section
 isotopomer_form = dbc.Collapse(
     html.Div(
@@ -439,7 +358,7 @@ isotopomer_form = dbc.Collapse(
                 [isotopomer_title, isotopomer_abundance_field],
                 className="collapsible-body-control",
             ),
-            dbc.Tabs([widgets, transition_tab, metadata]),
+            dbc.Tabs([widgets, metadata]),
         ],
         id="isotopomer-form-content",
         className="active",
@@ -518,6 +437,7 @@ def extract_site_dictionary_from_dash_triggers(states):
         "shielding_symmetric": {},
         "quadrupolar": {},
     }
+
     for item in all_keys:
         value = states[f"{item}.value"]
         if value is not None:
@@ -538,11 +458,21 @@ def extract_site_dictionary_from_dash_triggers(states):
     # Before returning the site dict, check if the site isotope is quadrupolar. If
     # false, delete the quadrupolar key, else, convert Cq from Hz to MHz.
     isotope = states["isotope.value"]
+    
+    if "shielding_symmetric" in site.keys():
+        for angle in ["alpha", "beta", "gamma"]:
+            if angle in site["shielding_symmetric"].keys():
+                site["shielding_symmetric"][angle] = math.radians(site["shielding_symmetric"][angle])
+
     if "quadrupolar" in site.keys():
         if ISOTOPE_DATA[isotope]["spin"] == 1:
             del site["quadrupolar"]  # delete quadrupolar dict for spin 1/2
         else:
             site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
+            for angle in ["alpha", "beta", "gamma"]:
+                if angle in site["quadrupolar"].keys():
+                    site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle])
+
     return site
 
 
@@ -578,6 +508,10 @@ def extract_isotopomer_UI_field_values_from_dictionary(site):
     # convert trigger index 7 => quadrupolar coupling constant from Hz to MHz.
     if trigger_values[7] is not None:
         trigger_values[7] /= 1.0e6
+    # convert trigger indexes 4-6, 9-11 => Euler angles from radians to degrees
+    for angle in [4, 5, 6, 9, 10, 11]:
+        if trigger_values[angle] is not None:
+            trigger_values[angle] = math.degrees(trigger_values[angle])
     return trigger_values
 
 

@@ -68,11 +68,19 @@ input[type="number"]::-webkit-outer-spin-button {
 /* card properties */
 .my-card {
   overflow: hidden;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   border: 1px solid silver;
   background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%);
   height: 100%;
-  box-shadow: 0 0 20px 0px rgb(187, 187, 187);
+  box-shadow: 0 0 5px 0px rgb(187, 187, 187);
+}
+.my-sub-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: transparent;
+  margin-top: 1rem;
 }
 .my-sub-card-title {
   display: flex;
@@ -85,14 +93,6 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-bottom: auto;
   font-weight: 600;
   color: rgb(131, 60, 12);
-}
-.my-sub-card {
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  background: transparent;
-  margin-top: 1rem;
 }
 .my-sub-card-title:after {
   content: "";
@@ -217,7 +217,10 @@ input[type="number"]::-webkit-outer-spin-button {
 #isotopomer_form-collapse {
   margin-top: 1rem;
   border: 1px solid #632e0f7e;
-  border-radius: 1.5rem;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 1.5rem;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
   box-shadow: 6px -2px 15px 0 gray;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -225,104 +228,20 @@ input[type="number"]::-webkit-outer-spin-button {
 
 #isotopomer-form-content {
   min-height: calc(40rem - 190px);
-  height: calc(80vh - 190px);
+  height: calc(60vh - 190px);
 }
 .tab-scroll {
   min-height: calc(40rem - 325px);
-  height: calc(80vh - 325px);
+  height: calc(60vh - 325px);
   overflow-y: scroll;
 }
-/* #dimension-tab-scroll-0 {
-  height: 100%;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-} */
 #dimension-card-body,
 #isotopomer-card-body {
   min-height: 40rem;
-  height: 80vh;
+  height: 60vh;
 }
 
-@media only screen and (max-width: 992px) {
-  .card-face {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-  .col-left {
-    padding-left: 3px;
-    padding-right: 3px;
-  }
-  .col-right {
-    padding-left: 3px;
-    padding-right: 3px;
-  }
-}
-@media only screen and (max-width: 767px) {
-  .card-face {
-    padding: 0;
-  }
-  .col-left,
-  .col-right {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-  #dimension-card-body {
-    padding-right: 3px;
-  }
-  #isotopomer-card-body {
-    padding-left: 3px;
-  }
-  .hide-label {
-    display: none;
-  }
-  #nmr_spectrum {
-    min-height: calc(30rem - 55px);
-    height: calc(50vh - 55px);
-  }
-}
-
-@media only screen and (min-width: 768px) {
-  /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
-
-  #spectrum-body {
-    min-height: 40rem;
-    height: 80vh;
-  }
-
-  #nmr_spectrum {
-    min-height: calc(40rem - 80px);
-    height: calc(80vh - 80px);
-  }
-}
-
-@media only screen and (max-width: 575px) {
-  .card-face,
-  .col-left,
-  .col-right {
-    padding-bottom: 0;
-  }
-  #dimension-card-body,
-  #isotopomer-card-body {
-    padding: 0;
-    height: auto;
-  }
-  .buffer,
-  #dimension-card-body {
-    min-height: 40rem;
-    height: 80vh;
-  }
-}
 /* dash-bootstrap customize */
-
-/* .dash-bootstrap .is-open>.Select-control {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 1em;
-} */
-
 .input-group-append {
   width: 3.5rem;
   display: flex;
@@ -468,7 +387,7 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 2.7rem;
   transform: translateY(-0.5rem) translateX(-1rem);
   border-top-right-radius: 1.5rem;
-  border-top-left-radius: 1.5rem;
+  border-top-left-radius: 0.75rem;
   background-color: #f7f0e9ea;
   display: flex;
   justify-content: space-between;
@@ -530,23 +449,44 @@ textarea {
   height: 100%;
   width: 100%;
 }
-.slider1 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-left: 1rem;
-  padding-right: 0;
-}
+
 .slider1,
-.slider1 div {
+#isotopomer-read-only {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   background: transparent;
 }
-.slider1 div {
-  padding-right: 1rem;
+#isotopomer-read-only {
   overflow-y: scroll;
 }
+.display-form ul {
+  padding: 0;
+  font-size: 0.95rem;
+  color: rgb(53, 53, 53);
+  list-style: none;
+}
+.display-form li {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  outline: 1px solid silver;
+}
+/* .display-form li:hover {
+  background: linear-gradient(
+    to bottom,
+    rgb(189, 230, 255) 0%,
+    rgb(189, 230, 255) 100%
+  );
+  color: rgb(22, 22, 22);
+} */
+/* .display-form a:focus {
+  background: linear-gradient(
+    to bottom,
+    rgb(189, 230, 255) 0%,
+    rgb(189, 230, 255) 100%
+  );
+  color: rgb(22, 22, 22);
+} */
 
 .download-csdm-style {
   color: rgb(80, 80, 80);
@@ -565,4 +505,77 @@ textarea {
   background-color: rgb(61, 61, 61);
   text-decoration: none;
   transition: all 0.2s ease;
+}
+
+@media only screen and (max-width: 992px) {
+  .card-face {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+  .col-left {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  .col-right {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .card-face {
+    padding: 0;
+  }
+  .col-left,
+  .col-right {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  #dimension-card-body {
+    padding-right: 3px;
+  }
+  #isotopomer-card-body {
+    padding-left: 3px;
+  }
+  .hide-label {
+    display: none;
+  }
+  #spectrum-body {
+    height: 40vh;
+    min-height: 25rem;
+  }
+  #nmr_spectrum {
+    min-height: calc(25rem - 70px);
+    height: calc(40vh - 70px);
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  /* 115px (header), 113px (info at-least), 40px (footer), 27px (buffer)*/
+  #spectrum-body {
+    height: 60vh;
+    min-height: 40rem;
+  }
+  #nmr_spectrum {
+    min-height: calc(40rem - 80px);
+    height: calc(60vh - 80px);
+  }
+}
+
+@media only screen and (max-width: 575px) {
+  .card-face,
+  .col-left,
+  .col-right {
+    padding-bottom: 0;
+  }
+  #dimension-card-body,
+  #isotopomer-card-body {
+    padding: 0;
+  }
+  .buffer,
+  #dimension-card-body {
+    min-height: 40rem;
+    height: 60vh;
+  }
 }
