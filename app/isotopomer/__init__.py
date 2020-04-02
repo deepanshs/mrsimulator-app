@@ -453,7 +453,6 @@ def extract_site_dictionary_from_dash_triggers(states):
 
     # Remove any instance of dict key with value as {}
     site = dict([(k, v) for k, v in site.items() if v != {}])
-    print("Max was here: ", site)
 
     # The input may contain value form all fields, some of which might not accurate.
     # Before returning the site dict, check if the site isotope is quadrupolar. If
@@ -462,7 +461,7 @@ def extract_site_dictionary_from_dash_triggers(states):
     for angle in ["alpha", "beta", "gamma"]:
         if (
             "shielding_symmetric" in site.keys()
-            and site["shielding_symmetric"][angle] is not None
+            and angle in site["shielding_symmetric"].keys()
         ):
             site["shielding_symmetric"][angle] = math.radians(
                 site["shielding_symmetric"][angle]
@@ -474,7 +473,8 @@ def extract_site_dictionary_from_dash_triggers(states):
         else:
             site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
             for angle in ["alpha", "beta", "gamma"]:
-                site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle]) or None
+                if angle in site["quadrupolar"].keys():
+                    site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle]) or None
 
     return site
 
