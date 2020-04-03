@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+from dash import callback_context as ctx
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.exceptions import PreventUpdate
@@ -64,7 +64,6 @@ def flip(n1, n2):
     """Flips the card between the isotopomer and dimension cards."""
     if n1 is None and n2 is None:
         raise PreventUpdate
-    ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
 

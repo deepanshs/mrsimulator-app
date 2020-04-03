@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash import callback_context as ctx
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -181,7 +181,6 @@ def toggle_import_file_collapse(n1, n2, n4, n5, c1, c2):
     if n1 is n2 is n4 is n5 is None:
         raise PreventUpdate
 
-    ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
     else:

@@ -5,11 +5,11 @@ import os
 from urllib.request import urlopen
 
 import csdmpy as cp
-import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from csdmpy.dependent_variables.download import get_absolute_url_path
+from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -20,6 +20,7 @@ from mrsimulator import Isotopomer
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
+from .isotopomer.util import blank_display
 from .isotopomer.util import get_all_isotopomer_dropdown_options
 from .isotopomer.util import print_info
 
@@ -208,19 +209,13 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
 
     @app.callback(
         [
-            *[
-                Output(fields[j]["id"] + "-collapse", "is_open")
-                for j in range(len(fields))
-            ],
-            *[Output(fields[j]["id"], "active") for j in range(len(fields))],
+            *[Output(f"{item['id']}-collapse", "is_open") for item in fields],
+            *[Output(item["id"], "active") for item in fields],
         ],
-        [Input(fields[j]["id"], "n_clicks") for j in range(len(fields))],
+        [Input(item["id"], "n_clicks") for item in fields],
         [
-            *[
-                State(fields[j]["id"] + "-collapse", "is_open")
-                for j in range(len(fields))
-            ],
-            *[State(fields[j]["id"], "active") for j in range(len(fields))],
+            *[State(f"{item['id']}-collapse", "is_open") for item in fields],
+            *[State(item["id"], "active") for item in fields],
         ],
     )
     def toggle_collapsible_input(n1, n2, n3, c1, c2, c3, a1, a2, a3):
@@ -228,7 +223,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         if n1 is n2 is n3 is None:
             return [False, True, False, False, True, False]
 
-        ctx = dash.callback_context
         if not ctx.triggered:
             raise PreventUpdate
         else:
@@ -349,7 +343,6 @@ def update_isotopomers(
     old_isotope,
 ):
     """Update the local isotopomers when a new file is imported."""
-    ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
 
@@ -588,15 +581,12 @@ def parse_contents(contents, filename):
     else:
         raise Exception("File not recognized.")
 
-    # except Exception:
-    #     return default_data
-
 
 def update_dropdown_options(local_isotopomer_data, old_isotope, config):
     if local_isotopomer_data is None:
         raise PreventUpdate
     if local_isotopomer_data["isotopomers"] == []:
-        return [[], None, [], "inactive"]
+        return [[], None, [], blank_display]
 
     # extracting a list of unique isotopes from the list of isotopes
     isotopes = set(
@@ -652,7 +642,6 @@ def update_dropdown_options(local_isotopomer_data, old_isotope, config):
 )
 def update_exp_external_file(csdm_upload_content, csdm_upload_content_graph, *args):
     """Update a local CSDM file."""
-    ctx = dash.callback_context
     if csdm_upload_content is None and csdm_upload_content_graph is None:
         raise PreventUpdate
 
@@ -660,7 +649,7 @@ def update_exp_external_file(csdm_upload_content, csdm_upload_content_graph, *ar
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    states = dash.callback_context.states
+    states = ctx.states
 
     filename = states[f"{trigger_id}.filename"]
     file_extension = filename.split(".")[1]

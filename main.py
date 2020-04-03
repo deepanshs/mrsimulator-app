@@ -2,10 +2,10 @@
 import sys
 
 import csdmpy as cp
-import dash
 import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
+from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -186,8 +186,6 @@ def simulation(
             return [None, no_update, no_update]
         raise PreventUpdate
 
-    ctx = dash.callback_context
-
     if not ctx.triggered:
         print("simulation stopped, ctx not triggered")
         raise PreventUpdate
@@ -241,7 +239,7 @@ def simulation(
     # def check_val(val):
     #     return val if val not in [None, ""] else 0
 
-    # states = dash.callback_context.states
+    # states = ctx.states
     # site = {
     #     "isotope": states[f"{i}-isotope"],
     #     "isotropic_chemical_shift": check_val(
@@ -428,7 +426,6 @@ def plot_1D(
     if local_computed_data is None and local_exp_external_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
 

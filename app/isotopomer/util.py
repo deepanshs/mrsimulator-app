@@ -2,6 +2,12 @@
 import math
 
 import dash_html_components as html
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
+from dash.exceptions import PreventUpdate
+
+from app.app import app
 
 label_dictionary = {
     "isotope": "Isotope",
@@ -78,21 +84,28 @@ def attribute_value_pair(key, value, space):
     )
 
 
-def blank_display():
-    title = html.H5("Load an isotopomer or create your own")
-    icon = html.Span(
-        html.I(className="fac fa-isotopomers fa-4x"), id="open-load_isotopomer"
-    )
-    return html.Div([title, icon], className="blank-isotopomer-display")
+title = html.H5("Load isotopomers or create your own")
+icon = html.Span(
+    [html.I(className="fac fa-isotopomers fa-4x"), html.H6("Create isotopomers")],
+    id="open-edit_isotopomer",
+)
+blank_display = html.Div([title, icon], className="blank-isotopomer-display")
+
+
+@app.callback(
+    Output("edit_isotopomer", "n_clicks"),
+    [Input("open-edit_isotopomer", "n_clicks")],
+    [State("edit_isotopomer", "n_clicks")],
+)
+def open_edit_isotopomer(_, n):
+    if _ is None:
+        raise PreventUpdate
+    return n + 1 if n is not None else 1
 
 
 def print_info(json_data):
     """Return a html for rendering the display in the read-only isotopomer section."""
     output = []
-    keys = json_data.keys()
-
-    if "isotopomers" not in keys:
-        return blank_display()
 
     for i, isotopomer in enumerate(json_data["isotopomers"]):
         local = [html.Br()]

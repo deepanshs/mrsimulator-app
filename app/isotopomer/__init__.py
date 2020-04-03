@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import math
 
-import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+from dash import callback_context as ctx
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -347,7 +347,7 @@ def toggle_classname(n, previous_class):
 # isotopomer read-only section
 # By default, display a custom screen so that the user doesn't see a blank card.
 # See blank_dispaly function for details.
-isotopomer_read_only = html.Div(blank_display(), id="isotopomer-read-only")
+isotopomer_read_only = html.Div(blank_display, id="isotopomer-read-only")
 
 
 # isotopomer section
@@ -592,7 +592,7 @@ def create_json(n, *args):
     if n is None:
         raise PreventUpdate
 
-    states = dash.callback_context.states
+    states = ctx.states
     data = states["local-isotopomers-data.data"]
     if data is None:
         raise PreventUpdate

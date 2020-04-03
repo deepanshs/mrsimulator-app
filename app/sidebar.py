@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 
-import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -66,7 +66,6 @@ def update_isotopomer_dropdown_index(
                 old value is greater than the length of new options, else return the
                 old value
     """
-    ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate
 
