@@ -187,9 +187,9 @@ def simulation(
         raise PreventUpdate
 
     ctx = dash.callback_context
-    # print(ctx.triggered)
+
     if not ctx.triggered:
-        print("simulation stopped ctx not triggered")
+        print("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -207,25 +207,25 @@ def simulation(
 
     value = ctx.triggered[0]["value"]
     if value in [".", "-"]:
-        print("simulation stopped triggered value is", value)
+        print("simulation stopped, triggered value is", value)
         raise PreventUpdate
 
     if "isotope" not in trigger_id:
         try:
             float(value)
         except (ValueError, TypeError):
-            print("simulation stopped triggered value is", value)
+            print("simulation stopped, triggered value is", value)
             raise PreventUpdate
 
     if spectral_width == 0:
-        print("simulation stopped spectral_width is 0")
+        print("simulation stopped, spectral_width is 0")
         raise PreventUpdate
 
     # magnetic_flux_density = spectrometer_frequency / 42.57748
 
     if "dim" in trigger_id:
         if value in [None, ""]:
-            print("simulation stopped trigger value is", value)
+            print("simulation stopped, trigger value is", value)
             raise PreventUpdate
 
     dim = {
@@ -549,7 +549,7 @@ def plot_1D(
 
     print("isotope_id", isotope_id)
     print("clickData", clickData)
-    # if trigger_id == "nmr_spectrum" and decompose:
+
     if clickData is not None and decompose:
         index = clickData["points"][0]["curveNumber"]
         # data[index], data[-1] = data[-1], data[index]
@@ -591,7 +591,6 @@ if __name__ == "__main__":
     is_debug = ["--debug" in arg for arg in sys.argv]
     if any(is_debug):
         debug_index = np.where(np.asarray(is_debug))[0][0]
-        debug = bool(sys.argv[debug_index].split("=")[1])
+        debug = True if sys.argv[debug_index].split("=")[1] == "True" else False
 
-    print(host, port, debug)
     app.run_server(host=host, port=port, debug=debug)

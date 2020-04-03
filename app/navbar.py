@@ -7,8 +7,8 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from app.app import app
-from app.app import year
+from .app import app
+from .app import year
 
 
 __author__ = "Deepansh J. Srivastava"

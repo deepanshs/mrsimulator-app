@@ -4,9 +4,6 @@ import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
 
-# from app.custom_widgets import custom_slider
-
-
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 

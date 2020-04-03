@@ -6,13 +6,10 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 
-from app.app import app
-from app.modal.help import simulation_help
-from app.toolbar import toolbar
+from .app import app
+from .modal.help import simulation_help
+from .toolbar import toolbar
 
-# from app.toolbar import collapsible_download_menu
-
-# from app.custom_widgets import custom_hover_help
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]

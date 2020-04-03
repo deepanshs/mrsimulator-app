@@ -7,14 +7,14 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.exceptions import PreventUpdate
 
-from app import importer
-from app import navbar
-from app import sidebar
-from app.app import app
-from app.dimension import dimension_body_card
-from app.graph import spectrum_body
-from app.isotopomer import isotopomer_body_card
-from app.modal.about import about_modal
+from . import importer
+from . import navbar
+from . import sidebar
+from .app import app
+from .dimension import dimension_body_card
+from .graph import spectrum_body
+from .isotopomer import isotopomer_body_card
+from .modal.about import about_modal
 
 # from dash.dependencies import ClientsideFunction
 
@@ -84,6 +84,7 @@ body = dbc.Row(
     className="col-grid",
 )
 
+# storage data
 storage_div = html.Div(
     [
         # memory for holding the isotopomers data

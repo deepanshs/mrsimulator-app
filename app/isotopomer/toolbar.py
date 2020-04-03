@@ -4,7 +4,7 @@ import dash_html_components as html
 
 from app.custom_widgets import custom_button
 
-
+# button to activate a json text editor
 advanced_isotopomer_editor_button = custom_button(
     icon_classname="fas fa-edit",
     id="json-file-editor-button",
@@ -14,6 +14,7 @@ advanced_isotopomer_editor_button = custom_button(
     active=False,
 )
 
+# the json text editor area
 advanced_isotopomer_text_area = dbc.Textarea(
     className="m-0 p-2",
     id="json-file-editor",
@@ -25,10 +26,12 @@ advanced_isotopomer_text_area = dbc.Textarea(
     value="",
 )
 
+
 advanced_isotopomer_text_area_collapsible = dbc.Collapse(
     advanced_isotopomer_text_area, id="json-file-editor-collapse"
 )
 
+# button to create a new isotopomer
 new_isotopomer = custom_button(
     icon_classname="fas fa-plus-circle",
     id="add-isotopomer-button",
@@ -37,6 +40,7 @@ new_isotopomer = custom_button(
     color="dark",
 )
 
+# button to duplicate an isotopomer
 duplicate_isotopomer = custom_button(
     icon_classname="fas fa-clone",
     id="duplicate-isotopomer-button",
@@ -45,6 +49,7 @@ duplicate_isotopomer = custom_button(
     color="dark",
 )
 
+# button to delete an isotopomer
 trash_isotopomer = custom_button(
     icon_classname="fas fa-trash",
     id="trash-isotopomer-button",

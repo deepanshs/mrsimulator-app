@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import math
-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,9 +7,7 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from app.app import app
-
-# import dash_daq as daq
+from .app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -302,94 +298,3 @@ def custom_collapsible(
     ]
 
     return html.Div(layout)
-
-
-# def custom_dropdown():
-#     layout = html.Div(
-#         className="btn-group",
-#         children=[
-#             html.A(
-#                 type="button", color="primary",
-#                 className="dropdown-toggle waves-light"
-#             ),
-#             html.Div(
-#                 className="dropdown-menu dropdown-primary",
-#                 children=[
-#                     html.A("CSDM", className="dropdown-item", href="#"),
-#                     html.A("CSV", className="dropdown-item", href="#"),
-#                 ],
-#             ),
-#         ],
-#     )
-#     return layout
-
-label_dictionary = {
-    "isotope": "Isotope",
-    "shielding_symmetric": "Symmetric Shielding",
-    "quadrupolar": "Quadrupolar",
-    "alpha": "α",
-    "beta": "β",
-    "gamma": "γ",
-    "zeta": "Anisotropy (ζ)",
-    "eta": "Asymmetry (η)",
-    "isotropic_chemical_shift": "Isotropic shift (δ)",
-    "Cq": "Coupling constant (Cq)",
-}
-default_unit = {
-    "isotope": "",
-    "isotropic_chemical_shift": "ppm",
-    "Cq": "MHz",
-    "zeta": "ppm",
-    "eta": "",
-    "alpha": "deg",
-    "beta": "deg",
-    "gamma": "deg",
-}
-
-
-def attribute_value_pair(key, value, space):
-    return html.Div(
-        f"{label_dictionary[key]}: {value} {default_unit[key]}",
-        className=f"pl-{space}"
-        # [html.Div(label_dictionary[key]), html.Div(f"{value} {default_unit[key]}"),],
-        # className=f"pl-{space} d-flex justify-content-between",
-    )
-
-
-def print_info(json_data):
-    output = []
-    keys = json_data.keys()
-
-    if "isotopomers" not in keys:
-        return html.Div()
-
-    for i, isotopomer in enumerate(json_data["isotopomers"]):
-        local = [html.Br()]
-        name = "" if "name" not in isotopomer else isotopomer["name"]
-
-        local.append(html.H5(f"Isotopomer {i}: {name}", className=""))
-
-        if "sites" in isotopomer:
-            for site in isotopomer["sites"]:
-                for site_attribute, val in site.items():
-                    if isinstance(val, dict):
-                        local.append(
-                            html.Div(
-                                f"{label_dictionary[site_attribute]}", className="pl-2"
-                            )
-                        )
-                        for key, value in val.items():
-                            if value is not None:
-                                value = (
-                                    math.degrees(value)
-                                    if key in ["alpha", "beta", "gamma"]
-                                    else value
-                                )
-                                value = value * 1e-6 if key == "Cq" else value
-                                local.append(attribute_value_pair(key, value, 4))
-                    else:
-                        local.append(attribute_value_pair(site_attribute, val, 2))
-        local.append(html.Br())
-        output.append(html.Li(local))
-
-    return html.Div(html.Ul(output), className="display-form")

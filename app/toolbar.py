@@ -2,7 +2,7 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
-from app.custom_widgets import custom_switch
+from .custom_widgets import custom_switch
 
 
 __author__ = "Deepansh J. Srivastava"

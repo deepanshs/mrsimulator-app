@@ -12,11 +12,12 @@ from dash.exceptions import PreventUpdate
 from mrsimulator import Isotopomer
 from mrsimulator.dimension import ISOTOPE_DATA
 
+from .toolbar import advanced_isotopomer_text_area_collapsible
+from .toolbar import toolbar
+from .util import blank_display
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
-from app.isotopomer.toolbar import advanced_isotopomer_text_area_collapsible
-from app.isotopomer.toolbar import toolbar
 
 # from dash.dependencies import ClientsideFunction
 
@@ -34,12 +35,12 @@ isotopomer_prepend_labels = {
     "Cq": "Coupling constant (Cq)",
 }
 
-greek_list = ["eta", "alpha", "beta", "gamma"]
+euler_angles = ["alpha", "beta", "gamma"]
 base_keys = ["isotope", "isotropic_chemical_shift"]
 shielding_symmertic_keys = [
-    f"shielding_symmetric-{item}" for item in ["zeta", *greek_list]
+    f"shielding_symmetric-{item}" for item in ["zeta", "eta", *euler_angles]
 ]
-quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", *greek_list]]
+quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", "eta", *euler_angles]]
 all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
 
 default_unit = {
@@ -121,8 +122,7 @@ def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
     #     [State("local-isotopomers-data", "data")],
     # )
     # def update_isotopomers_data(value, local_isotopomer_data):
-    #     key = id_.split("_")[1].replace("%", ".")
-    #     print(key)
+    #     key = id_.split("_")[1].replace("%", "."))
     #     local_isotopomer_data[key] = value
     #     return local_isotopomer_data
 
@@ -240,8 +240,6 @@ def populate_key_value_from_object(object_dict):
                 )
             )
     return html.Div(lst, className="collapsible-body-control form")
-    # html.Div(lst_button, className="button-toolbar"),
-    # ]
 
 
 lst = populate_key_value_from_object(default_unit)
@@ -347,9 +345,11 @@ def toggle_classname(n, previous_class):
 
 
 # isotopomer read-only section
-isotopomer_read_only = html.Div(
-    id="isotopomer-read-only"
-)  # dcc.Markdown(id="isotopomer-read-only",)
+# By default, display a custom screen so that the user doesn't see a blank card.
+# See blank_dispaly function for details.
+isotopomer_read_only = html.Div(blank_display(), id="isotopomer-read-only")
+
+
 # isotopomer section
 isotopomer_form = dbc.Collapse(
     html.Div(
@@ -454,26 +454,34 @@ def extract_site_dictionary_from_dash_triggers(states):
     # Remove any instance of dict key with value as {}
     site = dict([(k, v) for k, v in site.items() if v != {}])
 
-    # The input may contain value form all fields, some of which might not accurate.
-    # Before returning the site dict, check if the site isotope is quadrupolar. If
-    # false, delete the quadrupolar key, else, convert Cq from Hz to MHz.
+    # The input may contain value form all fields, some of which might not be accurate.
+    # Before returning the site dictionary, check if the site isotope is quadrupolar.
+    # If false, delete the quadrupolar key, else, convert Cq from MHz to Hz.
+    # Additionally convert all instance of Euler angles (alpha, beta, and gamma) from
+    # deg to rad.
     isotope = states["isotope.value"]
-    
+
+    # convert Euler angles from deg to rad for the shielding symmetric tensor.
     if "shielding_symmetric" in site.keys():
-        for angle in ["alpha", "beta", "gamma"]:
-            if angle in site["shielding_symmetric"].keys():
-                site["shielding_symmetric"][angle] = math.radians(site["shielding_symmetric"][angle])
+        euler_angles_deg_to_rad(site["shielding_symmetric"])
 
     if "quadrupolar" in site.keys():
         if ISOTOPE_DATA[isotope]["spin"] == 1:
-            del site["quadrupolar"]  # delete quadrupolar dict for spin 1/2
-        else:
-            site["quadrupolar"]["Cq"] *= 1.0e6  # Cq in MHz
-            for angle in ["alpha", "beta", "gamma"]:
-                if angle in site["quadrupolar"].keys():
-                    site["quadrupolar"][angle] = math.radians(site["quadrupolar"][angle])
+            del site["quadrupolar"]  # delete quadrupolar dictionary for spin 1/2
+            return site
 
+        # convert Cq from MHz to Hz
+        site["quadrupolar"]["Cq"] *= 1.0e6
+        # convert Euler angles from deg to rad for the quadrupolar tensor.
+        euler_angles_deg_to_rad(site["quadrupolar"])
     return site
+
+
+def euler_angles_deg_to_rad(obj):
+    """Convert Euler angles (alpha, beta, gamma) from degree to radians."""
+    for angle in euler_angles:
+        if angle in obj.keys():
+            obj[angle] = math.radians(obj[angle])
 
 
 def extract_isotopomer_UI_field_values_from_dictionary(site):
@@ -511,7 +519,7 @@ def extract_isotopomer_UI_field_values_from_dictionary(site):
     # convert trigger indexes 4-6, 9-11 => Euler angles from radians to degrees
     for angle in [4, 5, 6, 9, 10, 11]:
         if trigger_values[angle] is not None:
-            trigger_values[angle] = math.degrees(trigger_values[angle])
+            trigger_values[angle] = round(math.degrees(trigger_values[angle]), 12)
     return trigger_values
 
 

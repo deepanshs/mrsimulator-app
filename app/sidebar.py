@@ -10,11 +10,9 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from app.app import app
-from app.custom_widgets import custom_button
-from app.modal.download import download_modal
-
-# from app.modal.file_info import file_info
+from .app import app
+from .custom_widgets import custom_button
+from .modal.download import download_modal
 
 # from dash.dependencies import ClientsideFunction
 
@@ -39,22 +37,6 @@ data_info = html.Div(
         ),
     ]
 )
-
-
-# @app.callback(
-#     [
-#         Output("read_only_data_contents", "children"),
-#         Output("read_only_data_contents", "is_open"),
-#     ],
-#     [Input("read_only_data", "n_clicks")],
-#     [
-#         State("local-isotopomers-data", "data"),
-#         State("read_only_data_contents", "is_open"),
-#     ],
-# )
-# def data_modal(n1, data, is_open):
-#     if n1:
-#         return [print_info(data), not is_open]
 
 
 @app.callback(
