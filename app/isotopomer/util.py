@@ -113,6 +113,12 @@ def print_info(json_data):
 
         local.append(html.H5(f"Isotopomer {i}: {name}", className=""))
 
+        description = (
+            "" if "description" not in isotopomer else isotopomer["description"]
+        )
+
+        local.append(html.H6(description, className=""))
+
         if "sites" in isotopomer:
             for site in isotopomer["sites"]:
                 for site_attribute, val in site.items():
@@ -133,6 +139,10 @@ def print_info(json_data):
                                 local.append(attribute_value_pair(key, value, 4))
                     else:
                         local.append(attribute_value_pair(site_attribute, val, 2))
+
+        abundance = "100" if "abundance" not in isotopomer else isotopomer["abundance"]
+        local.append(html.Div(f"Abundance: {abundance} %", className="pl-2"))
+
         local.append(html.Br())
         output.append(html.Li(local))
 
