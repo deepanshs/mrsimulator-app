@@ -75,19 +75,31 @@ def flip(n1, n2):
     return ["card-3D card-3D-is-flipped", "card-flip-hide", "card-flip-show"]
 
 
-body = dbc.Row(
-    [
-        dbc.Col(spectrum_body, xs=12, sm=12, md=7, lg=7, xl=5, className="col-left"),
-        dbc.Col(card_flip, xs=12, sm=12, md=5, lg=5, xl=7, className="col-right"),
-    ],
-    className="col-grid",
-)
+# body = dbc.Row(
+#     [
+#         dbc.Col(spectrum_body, xs=12, sm=12, md=7, lg=7, xl=5, className="col-left"),
+#         dbc.Col(card_flip, xs=12, sm=12, md=5, lg=5, xl=7, className="col-right"),
+#     ],
+#     className="col-grid",
+# )
 
+body = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(isotopomer_body_card, md=6, className="col-left"),
+                dbc.Col(spectrum_body, md=6, className="col-right"),
+            ]
+        ),
+        dbc.Row(dbc.Col(dimension_body_card, md=6, className="col-left")),
+    ]
+)
 # storage data
 storage_div = html.Div(
     [
         # memory for holding the isotopomers data
-        dcc.Store(id="local-isotopomers-data", storage_type="memory"),
+        dcc.Store(id="local-isotopomers-data", storage_type="session"),
+        dcc.Store(id="dash-current-isotopomer-index"),
         # memory for holding the exp data
         dcc.Store(id="local-exp-external-data", storage_type="memory"),
         # memory for holding the computationally expensive computed data.
@@ -134,14 +146,10 @@ app_1 = html.Div(
         storage_div,
         # dcc.Location(id="download-csdm-file", refresh=True),
         # dcc.Location(id="download-csv-file", refresh=True),
+        html.Div(id="temp1"),
+        html.Div(id="temp2"),
+        html.Div(id="temp3"),
         navbar.navbar_bottom,
     ],
     className="app-1",
 )
-
-
-# app.clientside_callback(
-#     ClientsideFunction(namespace="clientside", function_name="display"),
-#     Output("output-clientside", "children"),
-#     [Input("my-input", "value")],
-# )

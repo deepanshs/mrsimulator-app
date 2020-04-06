@@ -118,7 +118,7 @@ spectrum_body = html.Div(
         [
             html.Div(
                 [html.H4(["Simulation", button], className="title-with-help"), toolbar],
-                className="card-header toolbar toolbar-header",
+                className="card-header",
             ),
             html.Div(plotly_graph),
             simulation_help,

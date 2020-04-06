@@ -2,6 +2,7 @@
 import math
 
 import dash_html_components as html
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -16,10 +17,10 @@ label_dictionary = {
     "alpha": "α",
     "beta": "β",
     "gamma": "γ",
-    "zeta": "Anisotropy (ζ)",
-    "eta": "Asymmetry (η)",
+    "zeta": "ζ",
+    "eta": "η",
     "isotropic_chemical_shift": "Isotropic shift (δ)",
-    "Cq": "Coupling constant (Cq)",
+    "Cq": "Cq",
 }
 default_unit = {
     "isotope": "",
@@ -27,9 +28,9 @@ default_unit = {
     "Cq": "MHz",
     "zeta": "ppm",
     "eta": "",
-    "alpha": "deg",
-    "beta": "deg",
-    "gamma": "deg",
+    "alpha": "°",
+    "beta": "°",
+    "gamma": "°",
 }
 
 
@@ -109,15 +110,20 @@ def print_info(json_data):
 
     for i, isotopomer in enumerate(json_data["isotopomers"]):
         local = [html.Br()]
-        name = "" if "name" not in isotopomer else isotopomer["name"]
 
-        local.append(html.H5(f"Isotopomer {i}: {name}", className=""))
+        name_div = html.B(f"Isotopomer {i}", className="")
+        if "name" in isotopomer:
+            if isotopomer["name"] not in ["", None]:
+                name_div = html.B(isotopomer["name"], className="")
 
-        description = (
-            "" if "description" not in isotopomer else isotopomer["description"]
-        )
+        local.append(name_div)
 
-        local.append(html.H6(description, className=""))
+        if "description" in isotopomer:
+            if isotopomer["description"] not in ["", None]:
+                local.append(html.Div(isotopomer["description"], className=""))
+
+        abundance = "100" if "abundance" not in isotopomer else isotopomer["abundance"]
+        local.append(html.Div(f"Abundance: {abundance} %", className=""))
 
         if "sites" in isotopomer:
             for site in isotopomer["sites"]:
@@ -140,10 +146,15 @@ def print_info(json_data):
                     else:
                         local.append(attribute_value_pair(site_attribute, val, 2))
 
-        abundance = "100" if "abundance" not in isotopomer else isotopomer["abundance"]
-        local.append(html.Div(f"Abundance: {abundance} %", className="pl-2"))
-
         local.append(html.Br())
         output.append(html.Li(local))
 
     return html.Div(html.Ul(output), className="display-form")
+
+
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="on_load"),
+    Output("temp2", "children"),
+    [Input("isotopomer-read-only", "children")],
+    [State("config", "data")],
+)

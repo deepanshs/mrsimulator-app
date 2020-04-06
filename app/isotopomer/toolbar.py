@@ -51,7 +51,7 @@ duplicate_isotopomer = custom_button(
 
 # button to delete an isotopomer
 trash_isotopomer = custom_button(
-    icon_classname="fas fa-trash",
+    icon_classname="fas fa-minus-circle",
     id="trash-isotopomer-button",
     tooltip="Remove",
     outline=True,

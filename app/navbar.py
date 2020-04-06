@@ -2,6 +2,7 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -156,6 +157,14 @@ navbar_bottom = dbc.Navbar(
     # sticky="bottom",
     dark=None,
     className="bottom-navbar",
+    id="mrsimulator-bottom",
+)
+
+
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="initialize"),
+    Output("temp1", "children"),
+    [Input("mrsimulator-bottom", "children")],
 )
 
 

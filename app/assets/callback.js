@@ -1,151 +1,360 @@
+// clear session storage on refresh
+window.sessionStorage.clear();
+window.sessionStorage.setItem('current-isotopomer-index', 0)
 
+const ISOTOPE_DATA = ['1H',
+    '3He',
+    '13C',
+    '15N',
+    '19F',
+    '29Si',
+    '31P',
+    '57Fe',
+    '77Se',
+    '89Y',
+    '103Rh',
+    '109Ag',
+    '107Ag',
+    '111Cd',
+    '119Sn',
+    '117Sn',
+    '115Sn',
+    '125Te',
+    '129Xe',
+    '169Tm',
+    '171Yb',
+    '183W',
+    '187Os',
+    '195Pt',
+    '199Hg',
+    '205Tl',
+    '203Tl',
+    '207Pb',
+]
+
+
+const to_deg = 180 / 3.14159265359;
 const ATTR_PER_SITE = 12;
 var i, j;
+const euler_angle = ['alpha', 'beta', 'gamma'];
 const ALL_KEYS = ["isotope", "isotropic_chemical_shift", "shielding_symmetric-zeta", "shielding_symmetric-eta", "shielding_symmetric-alpha", "shielding_symmetric-beta", "shielding_symmetric-gamma", "quadrupolar-Cq",
     "quadrupolar-eta", "quadrupolar-alpha", "quadrupolar-beta", "quadrupolar-gamma"
 ];
 
 if (!window.dash_clientside) { window.dash_clientside = {}; }
 window.dash_clientside.clientside = {
-    update_isotopomer_dropdown_options: function (local_isotopomer_data) {
-        var options = [];
-        if (local_isotopomer_data == null) {
-            return options;
-        }
-        var isotopomer = local_isotopomer_data["isotopomers"]
-        var site_isotope;
-        for (i = 0; i < isotopomer.length; i++) {
-            site_isotope = "Isotopomer-" + i.toString() + ' (';
-            for (j = 0; j < isotopomer[i]['sites'].length; j++) {
-                site_isotope += isotopomer[i]['sites'][j]['isotope'] + '-';
-            }
-            site_isotope = site_isotope.slice(0, -1) + ')'
-            options.push({
-                "label": site_isotope,
-                "value": i,
+    initialize: function (x) {
+        // Hide quadrupolar section if the isotope is spin 1/2
+        $('#isotope').on('change', function (e) {
+            var val;
+            $("#isotope option:selected").each(function () {
+                val = $(this).text();
             });
+            val = this.value;
+            console.log('value', val);
+            hide_quad();
+            e.preventDefault();
+        });
+        window.onscroll = function () {
+            var graph = document.getElementById("spectrum-body");
+            var sticky = graph.parentElement.offsetTop;
+            if (window.pageYOffset > sticky - 40) {
+                graph.classList.add("sticky");
+            } else {
+                graph.classList.remove("sticky");
+            }
         }
-        return options;
+        // // Toggle orientation collapsible
+        // $('#quadrupolar-orientation-collapse').on('click', function (e) {
+        //     var val;
+        //     $("#isotope option:selected").each(function () {
+        //         val = $(this).text();
+        //     });
+        //     val = this.value;
+        //     console.log('value', val);
+        //     hide_quad();
+        //     e.preventDefault();
+        // });
+        return null;
     },
-    populate_isotopomer_fields: function (index, is_advanced_editor_open, local_isotopomer_data) {
-        // Extract the values from the local isotopomer data and populate the input fields
-        // in the isotopomer UI.
-        // # The argument `is_advanced_editor_open` is for checking if the fields are in view.
-        // # If this argument is true, the advanced editor is open and, therefore, the
-        // # isotopomer UI fields are hidden. In this case, we want to prevent any updates
-        // # from the `populate_isotopomer_fields` (this function) to improve the performance.
-        var trigger_values = [];
-        if (is_advanced_editor_open) {
+    on_load: function (x, config) {
+        // console.log(x);
+        var listomers = $('#isotopomer-read-only div.display-form ul li');
+
+        // Clear all previous selections and unbind the click event.
+        listomers.each(function () {
+            $(this).unbind('click');
+        });
+
+        // Add a fresh bind events.
+        listomers.each(function () {
+            var index = 0;
+            $(this).click(function (e) {
+                // Toggle classname to slide the contents on smaller screens
+                document.getElementById('slide').classList.toggle("slide-offset");
+
+                // Remove all highlights.
+                var ul = this.parentElement;
+                for (i = 0; i < ul.childNodes.length; i++) {
+                    ul.childNodes[i].classList.remove("display-form-checked");
+                }
+
+                // store the current-isotopomer-index in the session
+                index = $(this).index();
+                window.sessionStorage.setItem('current-isotopomer-index', index)
+
+                // Update the isotopomer fields
+                update_field_from_isotopomer_at_index(index);
+
+                // Trigger hide quad for spin-1/2
+                hide_quad();
+
+                // Scroll to the selection.
+                scrollTo(this.parentElement.parentElement.parentElement, this.offsetTop - 50, 300);
+
+                // Highlight the selected list.
+                this.classList.toggle("display-form-checked");
+                e.preventDefault();
+            });
+        });
+
+        // Select the entry at index 0 by initiating a click.
+        var index = parseInt(window.sessionStorage.getItem('current-isotopomer-index'));
+        if (config == null) { select_isotopomer(listomers, 0); return null; }
+        if (config['is_new_data']) { select_isotopomer(listomers, 0); return null; }
+
+        select_isotopomer(listomers, index);
+
+        return null;
+    },
+    create_json: function (n) {
+        if (n === null) {
             throw window.dash_clientside.PreventUpdate;
         }
-        if (local_isotopomer_data == null) {
-            for (i = 0; i < ATTR_PER_SITE; i++) {
-                trigger_values.push(window.dash_clientside.no_update);
-            }
-            return trigger_values;
+        return [extract_site_object_from_fields(), get_isotopomer_index()];
+    },
+    selected_isotopomer: function (clickData, map, decompose) {
+        if (clickData == null) { throw window.dash_clientside.PreventUpdate };
+        var index = (decompose) ? clickData["points"][0]["curveNumber"] : null;
+
+        var listomers = $('#isotopomer-read-only div.display-form ul li')
+        var length = listomers.length
+
+        if (index == null || index >= length) {
+            throw window.dash_clientside.PreventUpdate;
         }
 
-        for (i = 0; i < ATTR_PER_SITE; i++) {
-            trigger_values.push(null);
-        }
-        if (is_advanced_editor_open | local_isotopomer_data == null | index == null) {
-            return trigger_values;
-        }
+        // get the correct index from the mapping array
+        index = map[index];
 
+        // highlight the corrresponding isotopomer by initialing a click.
+        listomers[index].click();
 
-        var site = local_isotopomer_data["isotopomers"][index]["sites"][0]
-        var root_keys = Object.keys(site);
-        i = 0;
-        var k0, k1;
-        for (ids in ALL_KEYS) {
-            keys = ALL_KEYS[ids].split("-");
-            k0 = keys[0];
-            // when only one key is present, use the value of site[site_index][key1]
-            if (keys.length == 1) {
-                if (root_keys.includes(k0)) {
-                    trigger_values[i] = site[k0]
-                }
-            }
-
-            // when two keys are present, use the value of site[site_index][key1][key2]
-            if (keys.length == 2) {
-                k1 = keys[1];
-                if (root_keys.includes(k0)) {
-                    if (site[k0] != null) {
-                        if (Object.keys(site[k0]).includes(k1)) {
-                            trigger_values[i] = site[k0][k1];
-                        }
-                    }
-                }
-            }
-            i += 1;
-        }
-        // values = extract_isotopomer_UI_field_values_from_dictionary(
-        //     local_isotopomer_data["isotopomers"][index]["sites"][0]
-        // )
-        return trigger_values;
+        return null;
     }
 }
 
-// import React from 'react';
-// class Input extends React.Component {
-//     componentDidMount() {
-//         jQuery('.numbersOnly').keyup(function () {
-//             window.write('blah')
-//             this.value = this.value.replace(/[^0-9\.]/g, '');
-//         });
-//     }
-// }
+/* Hides the quadrupolar attribute from the user, if the isotope is not  quadrupolar. */
+var hide_quad = function () {
+    var isotope_id = getValue('isotope');
+    if (isotope_id === null) { window.dash_clientside.PreventUpdate; }
+    quad_collapse = document.getElementById('quadrupolar-feature-collapse');
+    if (quad_collapse === null) { window.dash_clientside.PreventUpdate; }
+    check_quad = (ISOTOPE_DATA.includes(isotope_id)) ? false : true;
+    if (check_quad) {
+        quad_collapse.classList.add('show');
+        quad_collapse.attributes[2].value = 'true';
+    }
+    else {
+        quad_collapse.classList.remove('show');
+        quad_collapse.attributes[2].value = 'false';
+    }
+}
 
+/* Return the selected li index from the session storage. */
+var get_isotopomer_index = function () {
+    return parseInt(window.sessionStorage.getItem('current-isotopomer-index'));
+}
 
+/* Intiate a click event for the li.
+ * @param listomer: A list of li, each summarizing an isotopomer.
+ * @param index: The index of li to initiate the click.
+ */
+var select_isotopomer = function (listomers, index) {
+    if (listomers.length > 0) { listomers[index].click(); }
+}
 
-// function init() {
-//     mouseCtrl("ictrl", getFloatCtrl, scaledIntCtrl);
-// }
-// function getFloatCtrl(o) { return (parseFloat(o.value)); }
-// function getIntCtrl(o) { return (parseInt(o.value)); }
-// function mouseCtrl(n, getCtrl, setCtrl) {
-//     var ctrl; // DOM object for the input control
-//     var startpos; // starting mouse position
-//     var startval; // starting input control value
-//     // find the input element to allow mouse control on
-//     ctrl = document.getElementById(n);
-//     // on mousedown start tracking mouse relative position
-//     ctrl.onmousedown = function (e) {
-//         startpos = e.clientX;
-//         startval = getCtrl(ctrl);
-//         if (isNaN(startval)) startval = 0;
-//         document.onmousemove = function (e) {
-//             var delta = Math.ceil(e.clientX - startpos);
-//             setCtrl(ctrl, startval, delta);
-//         };
-//         document.onmouseup = function () {
-//             document.onmousemove = null; // remove mousemove to stop tracking
-//         };
-//     };
-//     /*
-//     ctrl.addEventListener('touchstart', function(e) {
-//       e.preventDefault();
-//       startpos = e.touches[0].pageX;
-//       startval = getCtrl(ctrl);
-//     }, false);
-//     ctrl.addEventListener('touchmove', function(e) {
-//       e.preventDefault();
-//       var delta = Math.ceil(e.touches[0].clientX - startpos);
-//       setCtrl(ctrl, startval, delta);
-//     }, false);
-//     */
-// }
+/* Assign the value to the UI fields using UI id.
+ * @param id: The id of the UI field.
+ * @param val: The value to assign.
+ */
+var setValue = function (id, val) { document.getElementById(id).value = val; }
 
-// // takes current value and relative mouse coordinate as arguments
-// function scaledIntCtrl(o, i, x) {
-//     var incVal = Math.round(Math.sign(x) * Math.pow(Math.abs(x) / 10, 1.6));
-//     document.getElementById("log").innerHTML = (x + ' ' + incVal + ", i=" + i);
-//     var newVal = i + incVal;
-//     if (newVal < 0) newVal = 0;
-//     if (Math.abs(incVal) > 1) o.value = newVal; // allow small deadzone
-// }
+/* Get the value from the UI fields using UI id. Convert the value from string to
+ * float, if possible.
+ * @param id: The id of the UI field.
+ */
+var getValue = function (id) {
+    var val = document.getElementById(id).value;
+    if (val.trim() === "") { return null };
+    return (isNaN(+(val))) ? val : +(val)
+}
 
-// if (window.addEventListener) { /*W3C*/ window.addEventListener('load', init, false) }
-// else if (window.attachEvent) { /*MS*/  window.attachEvent('onload', init) }
-// else { /*def*/ window.onload = init }
+/* Extract the site attributes and set it to the UI fields.
+ * @param site: The site dictionary.
+ */
+var set_site_attributes = function (site) {
+    // isotope and isotropic chemical shift
+    setValue('isotope', site['isotope']);
+    setValue('isotropic_chemical_shift', site['isotropic_chemical_shift']);
+
+    // shielding symmetric
+    var key = 'shielding_symmetric';
+    if (site.hasOwnProperty(key)) {
+        var ss = site[key];
+        setValue(`${key}-zeta`, ss['zeta']);
+        setValue(`${key}-eta`, ss['eta']);
+        // Convert Euler angles in radians.
+        setValue(`${key}-alpha`, (ss.hasOwnProperty('alpha')) ? ss['alpha'] * to_deg : null);
+        setValue(`${key}-beta`, (ss.hasOwnProperty('beta')) ? ss['beta'] * to_deg : null);
+        setValue(`${key}-gamma`, (ss.hasOwnProperty('gamma')) ? ss['gamma'] * to_deg : null);
+    }
+    else {
+        setValue(`${key}-zeta`, null);
+        setValue(`${key}-eta`, null);
+        setValue(`${key}-alpha`, null);
+        setValue(`${key}-beta`, null);
+        setValue(`${key}-gamma`, null);
+    }
+
+    // quadrupolar
+    key = 'quadrupolar';
+    if (site.hasOwnProperty(key)) {
+        var ss = site[key];
+        setValue(`${key}-Cq`, ss['Cq'] / 1e6); // Convert Cq in MHz.
+        setValue(`${key}-eta`, ss['eta']);
+        // Convert Euler angles in radians.
+        setValue(`${key}-alpha`, (ss.hasOwnProperty('alpha')) ? ss['alpha'] * to_deg : null);
+        setValue(`${key}-beta`, (ss.hasOwnProperty('beta')) ? ss['beta'] * to_deg : null);
+        setValue(`${key}-gamma`, (ss.hasOwnProperty('gamma')) ? ss['gamma'] * to_deg : null);
+    }
+    else {
+        setValue(`${key}-Cq`, null);
+        setValue(`${key}-eta`, null);
+        setValue(`${key}-alpha`, null);
+        setValue(`${key}-beta`, null);
+        setValue(`${key}-gamma`, null);
+    }
+}
+
+/* Update the isotopomer UI field using the data from the isotopomers dictionary
+ * at index, `index`.
+ * @param index: The index of the isotopomer.
+ */
+var update_field_from_isotopomer_at_index = function (index) {
+    // get the isotopomer dictionary from the session storage
+    var data = window.sessionStorage.getItem('local-isotopomers-data');
+    var isotopomer = JSON.parse(data)['isotopomers'][index];
+
+    // name, description, and abundance of the isotopomer
+    setValue('isotopomer-name', isotopomer['name']);
+    setValue('isotopomer-description', isotopomer['description']);
+    setValue('isotopomer-abundance', isotopomer['abundance']);
+
+    // extract site information
+    var site = isotopomer['sites'][0];
+    set_site_attributes(site);
+}
+
+/* Convert Euler angles from degrees to radians.
+ * @params obj: An object dictionary holding the three Euler angles
+ */
+var euler_angle_deg_to_rad = function (obj) {
+    for (i = 0; i < euler_angle.length; i++) {
+        if (obj.hasOwnProperty(euler_angle[i])) {
+            obj[euler_angle[i]] /= to_deg;
+        }
+    }
+}
+
+/* Extract the site dictionary from the UI field using the UI ids. */
+var extract_site_object_from_fields = function () {
+    // Get the isotopomers data from the session storage.
+    var data = window.sessionStorage.getItem('local-isotopomers-data');
+    if (data === null) {
+        throw window.dash_clientside.PreventUpdate;
+    }
+    // Extract the current isotopomer index, and get the respective isotopomer.
+    var index = window.sessionStorage.getItem('current-isotopomer-index');
+    var isotopomer = JSON.parse(data)['isotopomers'][index];
+
+    // Extract name and description information from the states and update the
+    // isotopomer object
+    isotopomer["name"] = getValue("isotopomer-name");
+    isotopomer["description"] = getValue("isotopomer-description");
+    isotopomer["abundance"] = getValue("isotopomer-abundance");
+
+    // Set up a default site dictionary and then populate the key-value pairs.
+    var site = {
+        'isotope': null, 'isotropic_chemical_shift': null,
+        'shielding_symmetric': {}, 'quadrupolar': {}
+    };
+    var val, id;
+    for (i = 0; i < ATTR_PER_SITE; i++) {
+        id = ALL_KEYS[i];
+        val = getValue(id);
+        if (val != null) {
+            key = id.split("-");
+            if (key.length === 1) { site[key[0]] = val; }
+            if (key.length === 2) { site[key[0]][key[1]] = val; }
+        }
+    }
+    // Convert Euler angles from degrees to radians.
+    euler_angle_deg_to_rad(site['shielding_symmetric']);
+    euler_angle_deg_to_rad(site['quadrupolar']);
+
+    // Convert Cq from MHz to Hz.
+    if (site['quadrupolar'].hasOwnProperty('Cq')) {
+        site["quadrupolar"]["Cq"] *= 1.0e6;
+    }
+
+    // Check if the value of a key is an empty dictionary. If true, remove the
+    // respective key-value pair.
+    if (Object.keys(site['shielding_symmetric']).length === 0) {
+        delete site['shielding_symmetric'];
+    }
+    if (Object.keys(site['quadrupolar']).length === 0) { delete site['quadrupolar']; }
+
+    // Assign the new site object to the isotopomers at site index 0.
+    isotopomer['sites'][0] = site;
+    // console.log(isotopomer);
+    return isotopomer;
+}
+
+/* Creates a smooth scroll based on the selected index of li. */
+function scrollTo(element, to, duration) {
+    var start = element.scrollTop,
+        change = to - start,
+        currentTime = 0,
+        increment = 20;
+
+    var animateScroll = function () {
+        currentTime += increment;
+        var val = Math.easeInOutQuad(currentTime, start, change, duration);
+        element.scrollTop = val;
+        if (currentTime < duration) {
+            setTimeout(animateScroll, increment);
+        }
+    };
+    animateScroll();
+}
+//t = current time
+//b = start value
+//c = change in value
+//d = duration
+Math.easeInOutQuad = function (t, b, c, d) {
+    t /= d / 2;
+    if (t < 1) return c / 2 * t * t + b;
+    t--;
+    return -c / 2 * (t * (t - 2) - 1) + b;
+};

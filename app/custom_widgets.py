@@ -269,9 +269,6 @@ def custom_collapsible(
             button_classname: String. css classnames for button toggler.
             collapse_classname: String. css classnames for collapsible.
     """
-    options = {"data-toggle": "collapse", "data-target": f"#{identity}-collapse"}
-    options["aria-expanded"] = str(is_open)
-
     collapse_classname = "panel-collapse collapse in content"
     if is_open:
         collapse_classname += " show"

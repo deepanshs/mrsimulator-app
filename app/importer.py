@@ -20,8 +20,6 @@ from mrsimulator import Isotopomer
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
-from .isotopomer.util import blank_display
-from .isotopomer.util import get_all_isotopomer_dropdown_options
 from .isotopomer.util import print_info
 
 __author__ = "Deepansh J. Srivastava"
@@ -289,9 +287,6 @@ spectrum_import_layout = upload_data(
         Output("data_description", "children"),
         Output("local-isotopomers-data", "data"),
         Output("config", "data"),
-        Output("isotope_id-0", "options"),
-        Output("isotope_id-0", "value"),
-        Output("isotopomer-dropdown", "options"),
         Output("isotopomer-read-only", "children"),
     ],
     [
@@ -314,7 +309,7 @@ spectrum_import_layout = upload_data(
         State("data_description", "children"),
         State("upload-from-graph", "filename"),
         State("local-isotopomer-index-map", "data"),
-        State("isotopomer-dropdown", "value"),
+        State("dash-current-isotopomer-index", "data"),
         State("new-json", "data"),
         State("isotope_id-0", "value"),
     ],
@@ -338,7 +333,7 @@ def update_isotopomers(
     data_info,
     from_graph_filename,
     index_map,
-    isotopomer_dropdown_value,
+    isotopomer_index,
     new_json_data,
     old_isotope,
 ):
@@ -363,10 +358,10 @@ def update_isotopomers(
         if existing_isotopomers_data is None:
             raise PreventUpdate
         data = existing_isotopomers_data
-        data["isotopomers"][isotopomer_dropdown_value] = new_json_data
-        config["index_last_modified"] = isotopomer_dropdown_value
-        dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, *dropdown_options]
+        data["isotopomers"][isotopomer_index] = new_json_data
+        config["index_last_modified"] = isotopomer_index
+        # dropdown_options = update_dropdown_options(data, old_isotope, config)
+        return [*no_updates, data, config, print_info(data)]
 
     # Add a new isotopomer
     # The following section applies to when the a new isotopomers is added from
@@ -392,8 +387,8 @@ def update_isotopomers(
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
         config["index_last_modified"] = data_len
-        dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, *dropdown_options]
+        # dropdown_options = update_dropdown_options(data, old_isotope, config)
+        return [*no_updates, data, config, print_info(data)]
 
     # Copy an existing isotopomer
     # The following section applies to when a request to duplicate the isotopomers is
@@ -402,43 +397,38 @@ def update_isotopomers(
         if existing_isotopomers_data is None:
             raise PreventUpdate
         data = existing_isotopomers_data
-        # the index to copy is given by isotopomer_dropdown_value
-        isotopomer_to_copy = data["isotopomers"][isotopomer_dropdown_value].copy()
+        # the index to copy is given by isotopomer_index
+        isotopomer_to_copy = data["isotopomers"][isotopomer_index].copy()
         data["isotopomers"] += [isotopomer_to_copy]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in isotopomer_to_copy["sites"]]
         config["index_last_modified"] = len(data["isotopomers"]) - 1
-        dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, *dropdown_options]
+        # dropdown_options = update_dropdown_options(data, old_isotope, config)
+        return [*no_updates, data, config, print_info(data)]
 
     # Delete an isotopomer
     # The following section applies to when a request to remove an isotopomers is
     # initiated using the trash-isotopomer-button.
     if trigger_id == "trash-isotopomer-button":
-        if isotopomer_dropdown_value is None:
+        if isotopomer_index is None:
             raise PreventUpdate
         if existing_isotopomers_data is None:
             raise PreventUpdate
         data = existing_isotopomers_data
-        # the index to remove is given by isotopomer_dropdown_value
+        # the index to remove is given by isotopomer_index
         config["removed"] = [
-            site["isotope"]
-            for site in data["isotopomers"][isotopomer_dropdown_value]["sites"]
+            site["isotope"] for site in data["isotopomers"][isotopomer_index]["sites"]
         ]
 
-        del data["isotopomers"][isotopomer_dropdown_value]
+        del data["isotopomers"][isotopomer_index]
         new_length = len(data["isotopomers"]) - 1
         config["length_changed"] = True
-        index = (
-            isotopomer_dropdown_value
-            if isotopomer_dropdown_value < new_length
-            else new_length
-        )
+        index = isotopomer_index if isotopomer_index < new_length else new_length
         index = None if new_length < 0 else index
 
         config["index_last_modified"] = index
-        dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, *dropdown_options]
+        # dropdown_options = update_dropdown_options(data, old_isotope, config)
+        return [*no_updates, data, config, print_info(data)]
 
     # Modify isotopomer directly from json input
     # The following section applies to when the isotopomers update is triggered when
@@ -450,10 +440,10 @@ def update_isotopomers(
             raise PreventUpdate
         isotopomers = json.loads(editor_value)
         data = existing_isotopomers_data
-        data["isotopomers"][isotopomer_dropdown_value] = isotopomers
-        config["index_last_modified"] = isotopomer_dropdown_value
-        dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, *dropdown_options]
+        data["isotopomers"][isotopomer_index] = isotopomers
+        config["index_last_modified"] = isotopomer_index
+        # dropdown_options = update_dropdown_options(data, old_isotope, config)
+        return [*no_updates, data, config, print_info(data)]
 
     if_error_occurred = [
         True,
@@ -543,7 +533,7 @@ def assemble_data(data, old_isotope):
 
     config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
 
-    dropdown_options = update_dropdown_options(data, old_isotope, config)
+    # dropdown_options = update_dropdown_options(data, old_isotope, config)
     return [
         "",
         False,
@@ -551,7 +541,7 @@ def assemble_data(data, old_isotope):
         data["description"],
         data,
         config,
-        *dropdown_options,
+        print_info(data),
     ]
 
 
@@ -582,11 +572,17 @@ def parse_contents(contents, filename):
         raise Exception("File not recognized.")
 
 
-def update_dropdown_options(local_isotopomer_data, old_isotope, config):
+@app.callback(
+    [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
+    [Input("local-isotopomers-data", "modified_timestamp")],
+    [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+)
+def update_dropdown_options(t, local_isotopomer_data, old_isotope):
+    print("update_dropdown_options", old_isotope)
     if local_isotopomer_data is None:
         raise PreventUpdate
     if local_isotopomer_data["isotopomers"] == []:
-        return [[], None, [], blank_display]
+        return [[], None]
 
     # extracting a list of unique isotopes from the list of isotopes
     isotopes = set(
@@ -610,17 +606,17 @@ def update_dropdown_options(local_isotopomer_data, old_isotope, config):
         old_isotope if old_isotope in isotopes else isotope_dropdown_options[0]["value"]
     )
 
+    print(local_isotopomer_data["isotopomers"])
     # Output isotopomer-dropdown -> options
     # Update isotopomer dropdown options base on local isotopomers data
-    isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
-        local_isotopomer_data["isotopomers"]
-    )
+    # isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
+    #     local_isotopomer_data["isotopomers"]
+    # )
 
     return [
         isotope_dropdown_options,
         isotope,
-        isotopomer_dropdown_options,
-        print_info(local_isotopomer_data),
+        # print_info(local_isotopomer_data),
     ]
 
 
