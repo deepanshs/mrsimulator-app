@@ -1,0 +1,113 @@
+/* input groups */
+
+.input-form-2 {
+  width: 100%;
+  justify-content: start;
+  display: flex;
+}
+
+.input-form-2 .label-left {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-right: 0.5rem;
+  color: rgb(59, 59, 59);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.input-form-2 .label-right {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-left: 0.25rem;
+  min-width: 2.5rem;
+  text-align: right;
+  color: rgb(59, 59, 59);
+}
+.input-form-2 input {
+  cursor: pointer;
+  text-align: right;
+  min-width: 20%;
+  max-width: 100%;
+  margin-left: auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  border-radius: 0rem;
+  background-color: transparent;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+.input-form-2 input:valid {
+  color: rgb(0, 37, 160);
+  text-decoration: underline;
+}
+.input-form-2 input:invalid {
+  color: rgba(196, 56, 100, 0.795);
+  text-decoration: underline;
+}
+
+.input-form-2 input:focus,
+.input-text:focus {
+  color: black;
+  text-decoration: none;
+  cursor: text;
+  background-color: white;
+  border: 2px solid rgb(218, 161, 115);
+  transition: all 0.3s ease;
+}
+.input-form-2 input:invalid {
+  color: rgba(196, 56, 100, 0.795);
+  outline: none;
+  box-shadow: none;
+}
+.input-text {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  width: 100%;
+  margin-left: auto;
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0rem;
+  background-color: transparent;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+.input-text-group {
+  margin: 1px;
+  width: calc(100% + 2rem);
+  height: 2.7rem;
+  transform: translateY(-0.5rem) translateX(-1rem);
+  /* border-top-right-radius: 1.5rem;
+    border-top-left-radius: 0.75rem; */
+  background-color: #f7f0e9ea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.input-text-group label {
+  color: rgb(66, 66, 66);
+  text-align: center;
+  font-weight: 600;
+  flex: 2;
+  margin: auto;
+}
+.input-text-group button {
+  background-color: rgb(88, 6, 6);
+  color: rgb(228, 228, 228);
+  font-weight: bolder;
+  height: 2.7rem;
+  padding-right: 1.25rem;
+  border-top-left-radius: 0;
+}
+.input-text-group button:hover {
+  background-color: rgb(141, 15, 15);
+}
+
+.input-text-description {
+  color: rgb(77, 77, 77);
+  font-size: 0.95rem;
+}
+
+textarea {
+  height: 100%;
+  width: 100%;
+}

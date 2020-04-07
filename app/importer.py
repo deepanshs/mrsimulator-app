@@ -294,22 +294,18 @@ spectrum_import_layout = upload_data(
         Input("upload-isotopomer-url-submit", "n_clicks"),
         Input("example-isotopomer-dropbox", "value"),
         Input("upload-from-graph", "contents"),
-        Input("json-file-editor", "n_blur_timestamp"),
+        # Input("json-file-editor", "n_blur_timestamp"),
         Input("new-json", "modified_timestamp"),
-        Input("add-isotopomer-button", "n_clicks"),
-        Input("duplicate-isotopomer-button", "n_clicks"),
-        Input("trash-isotopomer-button", "n_clicks"),
     ],
     [
         State("upload-isotopomer-url", "value"),
         State("upload-isotopomer-local", "filename"),
-        State("json-file-editor", "value"),
+        # State("json-file-editor", "value"),
         State("local-isotopomers-data", "data"),
         State("filename_dataset", "children"),
         State("data_description", "children"),
         State("upload-from-graph", "filename"),
         State("local-isotopomer-index-map", "data"),
-        State("dash-current-isotopomer-index", "data"),
         State("new-json", "data"),
         State("isotope_id-0", "value"),
     ],
@@ -319,21 +315,17 @@ def update_isotopomers(
     n_click,
     example,
     from_graph_content,
-    time_of_editor_trigger,
+    # time_of_editor_trigger,
     time_of_new_json_data_trigger,
-    new_isotopomer_button,
-    duplicate_isotopomer_button,
-    trash_isotopomer_button,
     # states
     isotopomer_url,
     isotopomer_filename,
-    editor_value,
+    # editor_value,
     existing_isotopomers_data,
     data_title,
     data_info,
     from_graph_filename,
     index_map,
-    isotopomer_index,
     new_json_data,
     old_isotope,
 ):
@@ -353,97 +345,97 @@ def update_isotopomers(
     # The following section applies to when the isotopomers update is triggered from
     # the GUI fields. This is a very common trigger, so we place it at the start.
     if trigger_id == "new-json":
-        if new_json_data in ["", None]:
-            raise PreventUpdate
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        data = existing_isotopomers_data
-        data["isotopomers"][isotopomer_index] = new_json_data
-        config["index_last_modified"] = isotopomer_index
-        # dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, print_info(data)]
+        isotopomer_index = new_json_data["index"]
+        if new_json_data["operation"] == "modify":
+            modified_data = new_json_data["data"]
+            if modified_data in ["", None]:
+                raise PreventUpdate
+            if existing_isotopomers_data is None:
+                raise PreventUpdate
+            data = existing_isotopomers_data
+            data["isotopomers"][isotopomer_index] = modified_data
+            config["index_last_modified"] = isotopomer_index
+            return [*no_updates, data, config, print_info(data)]
 
-    # Add a new isotopomer
-    # The following section applies to when the a new isotopomers is added from
-    # add-isotopomer-button.
-    if trigger_id == "add-isotopomer-button":
-        data_len = (
-            len(existing_isotopomers_data["isotopomers"])
-            if existing_isotopomers_data is not None
-            else 0
-        )
-        new_isotopomer = {
-            "name": f"Isotopomer-{data_len}",
-            "description": "Add description ...",
-            "abundance": 1,
-            "sites": [{"isotope": "1H", "isotropic_chemical_shift": 0}],
-        }
-        data = (
-            existing_isotopomers_data
-            if existing_isotopomers_data is not None
-            else {"name": "", "description": "", "isotopomers": []}
-        )
-        data["isotopomers"] += [new_isotopomer]
-        config["length_changed"] = True
-        config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
-        config["index_last_modified"] = data_len
-        # dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, print_info(data)]
+        # Add a new isotopomer
+        # The following section applies to when the a new isotopomers is added from
+        # add-isotopomer-button.
+        # if trigger_id == "add-isotopomer-button":
+        if new_json_data["operation"] == "add":
+            data_len = (
+                len(existing_isotopomers_data["isotopomers"])
+                if existing_isotopomers_data is not None
+                else 0
+            )
+            new_isotopomer = {
+                "name": f"Isotopomer-{data_len}",
+                "description": "Add description ...",
+                "abundance": 1,
+                "sites": [{"isotope": "1H", "isotropic_chemical_shift": 0}],
+            }
+            data = (
+                existing_isotopomers_data
+                if existing_isotopomers_data is not None
+                else {"name": "", "description": "", "isotopomers": []}
+            )
+            data["isotopomers"] += [new_isotopomer]
+            config["length_changed"] = True
+            config["added"] = [site["isotope"] for site in new_isotopomer["sites"]]
+            config["index_last_modified"] = data_len
+            return [*no_updates, data, config, print_info(data)]
 
-    # Copy an existing isotopomer
-    # The following section applies to when a request to duplicate the isotopomers is
-    # initiated using the duplicate-isotopomer-button.
-    if trigger_id == "duplicate-isotopomer-button":
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        data = existing_isotopomers_data
-        # the index to copy is given by isotopomer_index
-        isotopomer_to_copy = data["isotopomers"][isotopomer_index].copy()
-        data["isotopomers"] += [isotopomer_to_copy]
-        config["length_changed"] = True
-        config["added"] = [site["isotope"] for site in isotopomer_to_copy["sites"]]
-        config["index_last_modified"] = len(data["isotopomers"]) - 1
-        # dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, print_info(data)]
+        # Copy an existing isotopomer
+        # The following section applies to when a request to duplicate the isotopomers
+        # is initiated using the duplicate-isotopomer-button.
+        if new_json_data["operation"] == "duplicate":
+            if existing_isotopomers_data is None:
+                raise PreventUpdate
+            data = existing_isotopomers_data
+            # the index to copy is given by isotopomer_index
+            isotopomer_to_copy = data["isotopomers"][isotopomer_index].copy()
+            data["isotopomers"] += [isotopomer_to_copy]
+            config["length_changed"] = True
+            config["added"] = [site["isotope"] for site in isotopomer_to_copy["sites"]]
+            config["index_last_modified"] = len(data["isotopomers"]) - 1
+            return [*no_updates, data, config, print_info(data)]
 
-    # Delete an isotopomer
-    # The following section applies to when a request to remove an isotopomers is
-    # initiated using the trash-isotopomer-button.
-    if trigger_id == "trash-isotopomer-button":
-        if isotopomer_index is None:
-            raise PreventUpdate
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        data = existing_isotopomers_data
-        # the index to remove is given by isotopomer_index
-        config["removed"] = [
-            site["isotope"] for site in data["isotopomers"][isotopomer_index]["sites"]
-        ]
+        # Delete an isotopomer
+        # The following section applies to when a request to remove an isotopomers is
+        # initiated using the trash-isotopomer-button.
+        if new_json_data["operation"] == "delete":
+            if isotopomer_index is None:
+                raise PreventUpdate
+            if existing_isotopomers_data is None:
+                raise PreventUpdate
+            data = existing_isotopomers_data
+            # the index to remove is given by isotopomer_index
+            config["removed"] = [
+                site["isotope"]
+                for site in data["isotopomers"][isotopomer_index]["sites"]
+            ]
 
-        del data["isotopomers"][isotopomer_index]
-        new_length = len(data["isotopomers"]) - 1
-        config["length_changed"] = True
-        index = isotopomer_index if isotopomer_index < new_length else new_length
-        index = None if new_length < 0 else index
+            del data["isotopomers"][isotopomer_index]
+            new_length = len(data["isotopomers"]) - 1
+            config["length_changed"] = True
+            index = isotopomer_index if isotopomer_index < new_length else new_length
+            index = None if new_length < 0 else index
 
-        config["index_last_modified"] = index
-        # dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, print_info(data)]
+            config["index_last_modified"] = index
+            return [*no_updates, data, config, print_info(data)]
 
-    # Modify isotopomer directly from json input
-    # The following section applies to when the isotopomers update is triggered when
-    # user edits the loaded isotopomer file.
-    if trigger_id == "json-file-editor":
-        if editor_value in ["", None]:
-            raise PreventUpdate
-        if existing_isotopomers_data is None:
-            raise PreventUpdate
-        isotopomers = json.loads(editor_value)
-        data = existing_isotopomers_data
-        data["isotopomers"][isotopomer_index] = isotopomers
-        config["index_last_modified"] = isotopomer_index
-        # dropdown_options = update_dropdown_options(data, old_isotope, config)
-        return [*no_updates, data, config, print_info(data)]
+    # # Modify isotopomer directly from json input
+    # # The following section applies to when the isotopomers update is triggered when
+    # # user edits the loaded isotopomer file.
+    # if trigger_id == "json-file-editor":
+    #     if editor_value in ["", None]:
+    #         raise PreventUpdate
+    #     if existing_isotopomers_data is None:
+    #         raise PreventUpdate
+    #     isotopomers = json.loads(editor_value)
+    #     data = existing_isotopomers_data
+    #     data["isotopomers"][isotopomer_index] = isotopomers
+    #     config["index_last_modified"] = isotopomer_index
+    #     return [*no_updates, data, config, print_info(data)]
 
     if_error_occurred = [
         True,
@@ -533,7 +525,6 @@ def assemble_data(data, old_isotope):
 
     config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
 
-    # dropdown_options = update_dropdown_options(data, old_isotope, config)
     return [
         "",
         False,

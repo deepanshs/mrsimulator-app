@@ -9,12 +9,13 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator.dimension import ISOTOPE_DATA
 
-from .toolbar import advanced_isotopomer_text_area_collapsible
 from .toolbar import toolbar
 from .util import blank_display
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
+
+# from .toolbar import advanced_isotopomer_text_area_collapsible
 
 ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
@@ -354,30 +355,34 @@ isotopomer_form = dbc.Collapse(
 )
 
 
-@app.callback(
-    [
-        Output("json-file-editor-collapse", "is_open"),
-        Output("json-file-editor-button", "active"),
-        Output("isotopomer_form-collapse", "is_open"),
-    ],
-    [Input("json-file-editor-button", "n_clicks")],
-    [State("json-file-editor-button", "active")],
-)
-def toggle_json_file_editor_collapse(n, active):
-    """Callback for toggling collapsible json editor."""
-    if n is None:
-        raise PreventUpdate
-    if active:
-        return [False, False, True]
-    return [True, True, False]
+# @app.callback(
+#     [
+#         Output("json-file-editor-collapse", "is_open"),
+#         Output("json-file-editor-button", "active"),
+#         Output("isotopomer_form-collapse", "is_open"),
+#     ],
+#     [Input("json-file-editor-button", "n_clicks")],
+#     [State("json-file-editor-button", "active")],
+# )
+# def toggle_json_file_editor_collapse(n, active):
+#     """Callback for toggling collapsible json editor."""
+#     if n is None:
+#         raise PreventUpdate
+#     if active:
+#         return [False, False, True]
+#     return [True, True, False]
 
 
 # slides
 slide_1 = html.Div(isotopomer_read_only, className="slider1")
 slide_2 = html.Div(
-    [advanced_isotopomer_text_area_collapsible, isotopomer_form], className="slider2"
+    [
+        # advanced_isotopomer_text_area_collapsible,
+        isotopomer_form
+    ],
+    className="slider2",
 )
-slide = html.Div([slide_1, slide_2], id="slide", className="slide")
+slide = html.Div([slide_1, slide_2], id="slide", className="slide-offset")
 
 # Isotopomer layout
 isotopomer_body = html.Div(
@@ -404,6 +409,11 @@ isotopomer_body_card = html.Div(isotopomer_body, id="isotopomer-card-body")
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_json"),
-    [Output("new-json", "data"), Output("dash-current-isotopomer-index", "data")],
-    [Input("apply-isotopomer-changes", "n_clicks")],
+    Output("new-json", "data"),
+    [
+        Input("apply-isotopomer-changes", "n_clicks_timestamp"),
+        Input("add-isotopomer-button", "n_clicks_timestamp"),
+        Input("duplicate-isotopomer-button", "n_clicks_timestamp"),
+        Input("trash-isotopomer-button", "n_clicks_timestamp"),
+    ],
 )

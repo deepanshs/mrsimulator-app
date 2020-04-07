@@ -82,24 +82,24 @@ def flip(n1, n2):
 #     ],
 #     className="col-grid",
 # )
-
-body = html.Div(
+help_line = html.Div("", id="help-line")
+body = dbc.Row(
     [
-        dbc.Row(
-            [
-                dbc.Col(isotopomer_body_card, md=6, className="col-left"),
-                dbc.Col(spectrum_body, md=6, className="col-right"),
-            ]
+        dbc.Col(
+            [isotopomer_body_card, html.Br(), dimension_body_card],
+            md=6,
+            className="col-left",
         ),
-        dbc.Row(dbc.Col(dimension_body_card, md=6, className="col-left")),
+        dbc.Col([help_line, spectrum_body], md=6, className="col-right"),
     ]
 )
+# dbc.Row(dbc.Col(dimension_body_card, md=6, className="col-left")),
+
 # storage data
 storage_div = html.Div(
     [
         # memory for holding the isotopomers data
         dcc.Store(id="local-isotopomers-data", storage_type="session"),
-        dcc.Store(id="dash-current-isotopomer-index"),
         # memory for holding the exp data
         dcc.Store(id="local-exp-external-data", storage_type="memory"),
         # memory for holding the computationally expensive computed data.

@@ -58,27 +58,21 @@ window.dash_clientside.clientside = {
         window.onscroll = function () {
             var graph = document.getElementById("spectrum-body");
             var sticky = graph.parentElement.offsetTop;
-            if (window.pageYOffset > sticky - 40) {
+
+            if (window.pageYOffset > sticky - 5) {
                 graph.classList.add("sticky");
             } else {
                 graph.classList.remove("sticky");
             }
-        }
-        // // Toggle orientation collapsible
-        // $('#quadrupolar-orientation-collapse').on('click', function (e) {
-        //     var val;
-        //     $("#isotope option:selected").each(function () {
-        //         val = $(this).text();
-        //     });
-        //     val = this.value;
-        //     console.log('value', val);
-        //     hide_quad();
-        //     e.preventDefault();
-        // });
+
+            var h = document.getElementById("dimension-body").offsetTop;
+            if (window.pageYOffset > h) {
+                graph.classList.remove('hide-display')
+            }
+        };
         return null;
     },
     on_load: function (x, config) {
-        // console.log(x);
         var listomers = $('#isotopomer-read-only div.display-form ul li');
 
         // Clear all previous selections and unbind the click event.
@@ -91,7 +85,10 @@ window.dash_clientside.clientside = {
             var index = 0;
             $(this).click(function (e) {
                 // Toggle classname to slide the contents on smaller screens
-                document.getElementById('slide').classList.toggle("slide-offset");
+                if (document.getElementById('slide').classList.contains("slide-offset")) {
+                    document.getElementById('slide').classList.toggle("slide-offset");
+                    document.getElementById('slide').classList.toggle("slide");
+                }
 
                 // Remove all highlights.
                 var ul = this.parentElement;
@@ -101,7 +98,7 @@ window.dash_clientside.clientside = {
 
                 // store the current-isotopomer-index in the session
                 index = $(this).index();
-                window.sessionStorage.setItem('current-isotopomer-index', index)
+                set_isotopomer_index(index);
 
                 // Update the isotopomer fields
                 update_field_from_isotopomer_at_index(index);
@@ -119,19 +116,58 @@ window.dash_clientside.clientside = {
         });
 
         // Select the entry at index 0 by initiating a click.
-        var index = parseInt(window.sessionStorage.getItem('current-isotopomer-index'));
+        var index = get_isotopomer_index();
         if (config == null) { select_isotopomer(listomers, 0); return null; }
         if (config['is_new_data']) { select_isotopomer(listomers, 0); return null; }
-
+        if (index == null) { return null; }
         select_isotopomer(listomers, index);
 
         return null;
     },
-    create_json: function (n) {
-        if (n === null) {
+    create_json: function (n1, n2, n3, n4) {
+        // n1 is the trigger time for apply isotopomer changes.
+        // n2 is the trigger time for add new isotopomer.
+        // n3 is the trigger time for duplicate isotopomer.
+        // n4 is the trigger time for delete isotopomer.\
+        var max, l, new_val;
+        if (n1 == null && n2 == null && n3 == null && n4 == null) {
             throw window.dash_clientside.PreventUpdate;
         }
-        return [extract_site_object_from_fields(), get_isotopomer_index()];
+        if (n1 == null) { n1 = -1; }
+        if (n2 == null) { n2 = -1; }
+        if (n3 == null) { n3 = -1; }
+        if (n4 == null) { n4 = -1; }
+
+        max = Math.max(n1, n2, n3, n4);
+        var data = JSON.parse(window.sessionStorage.getItem('local-isotopomers-data'));
+
+        l = (data == null) ? 0 : data['isotopomers'].length;
+        var result = {};
+        if (n1 == max) { // modify
+            result['data'] = extract_site_object_from_fields();
+            result['index'] = get_isotopomer_index();
+            result['operation'] = 'modify';
+        }
+        if (n2 == max) { // add
+            result['data'] = n2;
+            result['index'] = get_isotopomer_index();
+            result['operation'] = 'add';
+            set_isotopomer_index(l);
+        }
+        if (n3 == max) { // duplicate
+            result['data'] = n3;
+            result['index'] = get_isotopomer_index();
+            result['operation'] = 'duplicate';
+            set_isotopomer_index(l);
+        }
+        if (n4 == max) { // delete
+            result['data'] = n4;
+            result['index'] = get_isotopomer_index();
+            result['operation'] = 'delete';
+            new_val = (result['index'] == l - 1) ? result['index'] - 1 : result['index']
+            set_isotopomer_index((new_val < 0) ? null : new_val);
+        }
+        return result;
     },
     selected_isotopomer: function (clickData, map, decompose) {
         if (clickData == null) { throw window.dash_clientside.PreventUpdate };
@@ -174,6 +210,10 @@ var hide_quad = function () {
 /* Return the selected li index from the session storage. */
 var get_isotopomer_index = function () {
     return parseInt(window.sessionStorage.getItem('current-isotopomer-index'));
+}
+
+var set_isotopomer_index = function (index) {
+    return window.sessionStorage.setItem('current-isotopomer-index', index);
 }
 
 /* Intiate a click event for the li.
@@ -285,7 +325,7 @@ var extract_site_object_from_fields = function () {
         throw window.dash_clientside.PreventUpdate;
     }
     // Extract the current isotopomer index, and get the respective isotopomer.
-    var index = window.sessionStorage.getItem('current-isotopomer-index');
+    var index = get_isotopomer_index();
     var isotopomer = JSON.parse(data)['isotopomers'][index];
 
     // Extract name and description information from the states and update the
@@ -327,7 +367,6 @@ var extract_site_object_from_fields = function () {
 
     // Assign the new site object to the isotopomers at site index 0.
     isotopomer['sites'][0] = site;
-    // console.log(isotopomer);
     return isotopomer;
 }
 

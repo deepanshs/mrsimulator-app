@@ -113,7 +113,7 @@ plotly_graph = dcc.Graph(
 className = "align-items-center"
 spectrum_body = html.Div(
     id="spectrum-body",
-    className="my-card",
+    className="my-card hide-display",
     children=dcc.Upload(
         [
             html.Div(

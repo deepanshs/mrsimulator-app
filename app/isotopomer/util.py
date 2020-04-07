@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
+from datetime import datetime
 
 import dash_html_components as html
 from dash.dependencies import ClientsideFunction
@@ -90,18 +91,21 @@ icon = html.Span(
     [html.I(className="fac fa-isotopomers fa-4x"), html.H6("Create isotopomers")],
     id="open-edit_isotopomer",
 )
-blank_display = html.Div([title, icon], className="blank-isotopomer-display")
+section1 = html.Section([title, icon])
+
+# section2 = html.Section(examples)
+blank_display = html.Div([section1], className="blank-isotopomer-display")
 
 
 @app.callback(
-    Output("edit_isotopomer", "n_clicks"),
+    Output("add-isotopomer-button", "n_clicks_timestamp"),
     [Input("open-edit_isotopomer", "n_clicks")],
-    [State("edit_isotopomer", "n_clicks")],
+    [State("add-isotopomer-button", "n_clicks_timestamp")],
 )
 def open_edit_isotopomer(_, n):
     if _ is None:
         raise PreventUpdate
-    return n + 1 if n is not None else 1
+    return int(datetime.utcnow().timestamp())
 
 
 def print_info(json_data):
