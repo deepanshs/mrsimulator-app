@@ -7,7 +7,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator.dimension import ISOTOPE_DATA
+from mrsimulator.isotope import ISOTOPE_DATA
 
 from .toolbar import toolbar
 from .util import blank_display
@@ -15,9 +15,9 @@ from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 
-# from .toolbar import advanced_isotopomer_text_area_collapsible
+__author__ = ["Deepansh J. Srivastava", "Maxwell C. Venetos"]
+__email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
 
-ATTR_PER_SITE = 12
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 
 isotopomer_prepend_labels = {
@@ -30,13 +30,13 @@ isotopomer_prepend_labels = {
     "Cq": "Coupling constant (Cq)",
 }
 
-euler_angles = ["alpha", "beta", "gamma"]
-base_keys = ["isotope", "isotropic_chemical_shift"]
-shielding_symmertic_keys = [
-    f"shielding_symmetric-{item}" for item in ["zeta", "eta", *euler_angles]
-]
-quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", "eta", *euler_angles]]
-all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
+# euler_angles = ["alpha", "beta", "gamma"]
+# base_keys = ["isotope", "isotropic_chemical_shift"]
+# shielding_symmertic_keys = [
+#     f"shielding_symmetric-{item}" for item in ["zeta", "eta", *euler_angles]
+# ]
+# quadrupolar_keys = [f"quadrupolar-{item}" for item in ["Cq", "eta", *euler_angles]]
+# all_keys = [*base_keys, *shielding_symmertic_keys, *quadrupolar_keys]
 
 default_unit = {
     "isotope": None,
@@ -58,68 +58,68 @@ default_unit = {
 }
 
 
-def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
-    """
-        A custom dash bootstrap component input-group widget with a prepend-label,
-        followed by an Input box, and an append-label.
+# def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
+#     """
+#         A custom dash bootstrap component input-group widget with a prepend-label,
+#         followed by an Input box, and an append-label.
 
-        Args:
-            prepend_label: A string to prepend dash-bootstrap-component Input widget.
-            append_label: A string to append dash-bootstrap-component Input widget.
-            kwargs: additional keyward arguments for dash-bootstrap-component Input.
-    """
-    id_ = kwargs["id"]
-    # custom collapsible into here
-    group = [
-        dbc.Button(
-            prepend_label,
-            className="input-group-prepend",
-            id=f"{id_}-fit-collapse-button",
-        ),
-        dcc.Input(
-            type="number",
-            # pattern="?[0-9]*\\.?[0-9]",
-            n_submit=0,
-            **kwargs,
-        ),
-    ]
-    if append_label != "":
-        return html.Div(
-            [
-                *group,
-                html.Div(
-                    html.Span(append_label, className="input-group-text"),
-                    className="input-group-append",
-                ),
-            ],
-            className="input-group d-flex",
-        )
-    else:
-        return html.Div(group, className="input-group p1 d-flex")
+#         Args:
+#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
+#             append_label: A string to append dash-bootstrap-component Input widget.
+#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
+#     """
+#     id_ = kwargs["id"]
+#     # custom collapsible into here
+#     group = [
+#         dbc.Button(
+#             prepend_label,
+#             className="input-group-prepend",
+#             id=f"{id_}-fit-collapse-button",
+#         ),
+#         dcc.Input(
+#             type="number",
+#             # pattern="?[0-9]*\\.?[0-9]",
+#             n_submit=0,
+#             **kwargs,
+#         ),
+#     ]
+#     if append_label != "":
+#         return html.Div(
+#             [
+#                 *group,
+#                 html.Div(
+#                     html.Span(append_label, className="input-group-text"),
+#                     className="input-group-append",
+#                 ),
+#             ],
+#             className="input-group d-flex",
+#         )
+#     else:
+#         return html.Div(group, className="input-group p1 d-flex")
 
 
-def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
-    """
-        A custom dash bootstrap component input-group widget with a prepend-label,
-        followed by an Input box, and an append-label.
+# def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
+#     """
+#         A custom dash bootstrap component input-group widget with a prepend-label,
+#         followed by an Input box, and an append-label.
 
-        Args:
-            prepend_label: A string to prepend dash-bootstrap-component Input widget.
-            append_label: A string to append dash-bootstrap-component Input widget.
-            kwargs: additional keyward arguments for dash-bootstrap-component Input.
-    """
-    # id_ = kwargs["id"]
-    custom_fitting_input_group(prepend_label, append_label, **kwargs)
+#         Args:
+#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
+#             append_label: A string to append dash-bootstrap-component Input widget.
+#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
+#     """
+#     # id_ = kwargs["id"]
+#     custom_fitting_input_group(prepend_label, append_label, **kwargs)
 
-    # @app.callback(
-    #     Output("local-isotopomers-data", "data"),
-    #     [Input(f"{id_}", "value")],  # id belongs to the input field
-    #     [State("local-isotopomers-data", "data")],
-    # )
-    # def update_isotopomers_data(value, local_isotopomer_data):
-    #     key = id_.split("_")[1].replace("%", "."))
-    #     local_isotopomer_data[key] = value
-    #     return local_isotopomer_data
+#     # @app.callback(
+#     #     Output("local-isotopomers-data", "data"),
+#     #     [Input(f"{id_}", "value")],  # id belongs to the input field
+#     #     [State("local-isotopomers-data", "data")],
+#     # )
+#     # def update_isotopomers_data(value, local_isotopomer_data):
+#     #     key = id_.split("_")[1].replace("%", "."))
+#     #     local_isotopomer_data[key] = value
+#     #     return local_isotopomer_data
 
 
 def feature_orientation_collapsible(key_dict, id_label):
@@ -153,28 +153,37 @@ def feature_orientation_collapsible(key_dict, id_label):
                 debounce=True,
             )
         )
-    lst_button = dbc.Button(
-        f"Euler Angles", id=f"{id_label}-orientation-button", size="sm", outline=True
+    lst_button = custom_button(
+        icon_classname="fas fa-book",
+        id=f"{id_label}-orientation-button",
+        tooltip="Show Euler angles",
+        outline=True,
+        color="dark",
     )
+    # dbc.Button(
+    #     f"Euler Angles",
+    #     id=f"{id_label}-orientation-button",
+    #     size="sm",
+    #     outline=False,
+    #     color="info",
+    # )
 
     lst_collapsible = dbc.Collapse(
-        dbc.Card(
-            [
-                html.Div(
-                    [html.P(f"{id_label.replace('_',' ')}"), lst_button],
-                    className="my-sub-card-title",
-                ),
-                html.Div(feature_input_fields),
-                dbc.Collapse(
-                    orientation_input_fields,
-                    id=f"{id_label}-orientation-collapse",
-                    is_open=False,
-                ),
-            ],
-            className="my-sub-card",
-        ),
+        [
+            html.Div(
+                [html.P(f"{id_label.replace('_',' ')}"), lst_button],
+                className="isotopomer-tensor-title",
+            ),
+            html.Div(feature_input_fields),
+            dbc.Collapse(
+                orientation_input_fields,
+                id=f"{id_label}-orientation-collapse",
+                is_open=False,
+            ),
+        ],
         id=f"{id_label}-feature-collapse",
         is_open=True,
+        className="sub-isotopomer-card",
     )
 
     @app.callback(
@@ -235,21 +244,24 @@ def populate_key_value_from_object(object_dict):
                     ]
                 )
             )
-    return html.Div(lst, className="collapsible-body-control form")
+    return html.Div(lst, className="container")
 
 
 lst = populate_key_value_from_object(default_unit)
 widgets = dbc.Tab(label=f"Site", children=lst, className="tab-scroll")
 
 # isotopomer abundance
-isotopomer_abundance_field = custom_input_group(
-    append_label="%",
-    prepend_label="Abundance",
-    placeholder="Isotopomer abundance",
-    id="isotopomer-abundance",
-    debounce=True,
-    max=100,
-    min=0,
+isotopomer_abundance_field = html.Div(
+    custom_input_group(
+        append_label="%",
+        prepend_label="Abundance",
+        placeholder="Isotopomer abundance",
+        id="isotopomer-abundance",
+        debounce=True,
+        max=100,
+        min=0,
+    ),
+    className="container",
 )
 
 # metadata
@@ -272,64 +284,22 @@ isotopomer_description_field = html.Div(
 metadata = dcc.Tab(
     label="Metadata",
     children=html.Div(
-        [isotopomer_name_field, isotopomer_description_field], className="p-2"
+        [isotopomer_name_field, isotopomer_description_field], className="container"
     ),
 )
 
-# spin transition
-transition = dcc.Dropdown(
-    value=None,
-    options=[],
-    multi=True,
-    id="isotopomer-transitions",
-    searchable=True,
-    clearable=False,
-)
-transition_group = html.Label("Spin transition")
-transition_tab = dcc.Tab(
-    label="Properties",
-    children=html.Div([transition_group, transition], className="p-2"),
-)
+# submit_button = custom_button(
+#     text="Submit", id="apply-isotopomer-changes", color="primary"
+# )
 
 # isotopomer-title
 isotopomer_title = html.Div(
     [
         html.Label(id="isotopomer-title"),
-        custom_button(text="Apply", id="apply-isotopomer-changes"),
+        custom_button(text="Submit", id="apply-isotopomer-changes", color="primary"),
     ],
-    className="input-text-group",
+    className="isotopomer-title",
 )
-
-
-@app.callback(
-    Output("isotopomer-title", "children"), [Input("isotopomer-name", "value")]
-)
-def update_isotopomer_title(value):
-    value = value if value is not None else "Name"
-    return value
-
-
-isotopomer_edit_button = custom_button(
-    icon_classname="fas fa-pencil-alt",
-    id="edit_isotopomer",
-    tooltip="Edit",
-    outline=True,
-    color="dark",
-)
-
-
-@app.callback(
-    [Output("slide", "className"), Output("edit_isotopomer", "active")],
-    [Input("edit_isotopomer", "n_clicks")],
-    [State("slide", "className")],
-)
-def toggle_classname(n, previous_class):
-    if n is None:
-        raise PreventUpdate
-    if previous_class == "slide":
-        return ["slide-offset", True]
-    return ["slide", False]
-
 
 # isotopomer read-only section
 # By default, display a custom screen so that the user doesn't see a blank card.
@@ -338,74 +308,63 @@ isotopomer_read_only = html.Div(blank_display, id="isotopomer-read-only")
 
 
 # isotopomer section
-isotopomer_form = dbc.Collapse(
-    html.Div(
-        [
-            html.Div(
-                [isotopomer_title, isotopomer_abundance_field],
-                className="collapsible-body-control",
-            ),
-            dbc.Tabs([widgets, metadata]),
-        ],
-        id="isotopomer-form-content",
-        className="active",
-    ),
-    id="isotopomer_form-collapse",
-    is_open=True,
+isotopomer_editor = html.Form(
+    [
+        isotopomer_title,
+        isotopomer_abundance_field,
+        dbc.Tabs([widgets, metadata]),
+        # submit_button,
+    ],
+    id="isotopomer-editor-content",
 )
-
-
-# @app.callback(
-#     [
-#         Output("json-file-editor-collapse", "is_open"),
-#         Output("json-file-editor-button", "active"),
-#         Output("isotopomer_form-collapse", "is_open"),
-#     ],
-#     [Input("json-file-editor-button", "n_clicks")],
-#     [State("json-file-editor-button", "active")],
-# )
-# def toggle_json_file_editor_collapse(n, active):
-#     """Callback for toggling collapsible json editor."""
-#     if n is None:
-#         raise PreventUpdate
-#     if active:
-#         return [False, False, True]
-#     return [True, True, False]
 
 
 # slides
-slide_1 = html.Div(isotopomer_read_only, className="slider1")
-slide_2 = html.Div(
-    [
-        # advanced_isotopomer_text_area_collapsible,
-        isotopomer_form
-    ],
-    className="slider2",
+isotopomer_slide_1 = html.Div(isotopomer_read_only, className="slider1")
+isotopomer_slide_2 = html.Div(isotopomer_editor, className="slider2")
+isotopomer_slide = html.Div(
+    [isotopomer_slide_1, isotopomer_slide_2],
+    id="iso-slide",
+    className="iso-slide-offset",
 )
-slide = html.Div([slide_1, slide_2], id="slide", className="slide-offset")
+
+isotopomer_title = html.Div(
+    [
+        html.I(className="fac fa-isotopomers fa-2x"),
+        html.H4("Isotopomers", className="hide-label-sm pl-3"),
+    ],
+    id="isotopomer-card-title",
+    className="d-flex justify-items-around align-items-center",
+)
 
 # Isotopomer layout
 isotopomer_body = html.Div(
     className="my-card",
-    children=[
-        html.Div(
-            [
-                html.H4("Isotopomers", id="isotopomer-card-title"),
-                isotopomer_edit_button,
-            ],
-            className="card-header",
-        ),
-        html.Div(className="color-gradient-2"),
-        html.Div(toolbar),
-        slide,
-    ],
+    children=dcc.Upload(
+        [
+            html.Div(isotopomer_title, className="card-header"),
+            html.Div(toolbar),
+            isotopomer_slide,
+        ],
+        id="upload-isotopomer-local",
+        disable_click=True,
+        multiple=False,
+        style_active={
+            "border": "1px solid rgb(78, 196, 78)",
+            "backgroundColor": "rgb(225, 255, 225)",
+            "opacity": "0.75",
+        },
+    ),
     id="isotopomer-body",
 )
 
-isotopomer_body_card = html.Div(isotopomer_body, id="isotopomer-card-body")
-
 
 # callback code section =======================================================
+# app.clientside_callback(
+#     ClientsideFunction(namespace="clientside", function_name="submit"),
+#     Output("temp-json", "data"),
+#     [Input("apply-isotopomer-changes", "n_clicks_timestamp")],
+# )
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_json"),

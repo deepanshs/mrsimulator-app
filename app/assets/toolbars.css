@@ -5,8 +5,17 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem;
-  box-shadow: 0 0 2px 0 gray;
-  z-index: 10;
+  box-shadow: 0 3px 5px 0 rgba(112, 112, 112, 0.4);
+  border-top: 1px solid silver;
+  /* z-index: 2; */
+  /* border-bottom: 1px solid silver; */
+  /* z-index: 2; */
+  /* background: transparent; */
+  /* background-image: linear-gradient(to right, #f3f3f3 0%, rgb(250, 250, 250) 100%); */
+}
+
+.toolbar #select-method {
+  width: 18rem;
 }
 
 .title-with-help {
@@ -14,4 +23,16 @@
   align-items: center;
   justify-content: left;
   width: 300%;
+}
+
+
+.master-toolbar {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.5rem;
+  /* box-shadow: 0 1px 5px 0 rgba(78, 78, 78, 1); */
+  /* z-index: 2; */
 }

@@ -11,6 +11,9 @@ from dash.exceptions import PreventUpdate
 
 from app.app import app
 
+__author__ = ["Deepansh J. Srivastava", "Maxwell C. Venetos"]
+__email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
+
 label_dictionary = {
     "isotope": "Isotope",
     "shielding_symmetric": "Symmetric Shielding",
@@ -20,7 +23,7 @@ label_dictionary = {
     "gamma": "γ",
     "zeta": "ζ",
     "eta": "η",
-    "isotropic_chemical_shift": "Isotropic shift (δ)",
+    "isotropic_chemical_shift": "Shift (δ)",
     "Cq": "Cq",
 }
 default_unit = {
@@ -78,6 +81,8 @@ def get_all_isotopomer_dropdown_options(isotopomers):
 
 
 def attribute_value_pair(key, value, space):
+    if not isinstance(value, str):
+        value = round(value, 10)
     return html.Div(
         f"{label_dictionary[key]}: {value} {default_unit[key]}",
         className=f"pl-{space}"
@@ -86,15 +91,12 @@ def attribute_value_pair(key, value, space):
     )
 
 
-title = html.H5("Load isotopomers or create your own")
+title = html.H5("Load isotopomers or start creating")
 icon = html.Span(
     [html.I(className="fac fa-isotopomers fa-4x"), html.H6("Create isotopomers")],
     id="open-edit_isotopomer",
 )
-section1 = html.Section([title, icon])
-
-# section2 = html.Section(examples)
-blank_display = html.Div([section1], className="blank-isotopomer-display")
+section1 = html.Div([title, icon])
 
 
 @app.callback(
@@ -105,15 +107,19 @@ blank_display = html.Div([section1], className="blank-isotopomer-display")
 def open_edit_isotopomer(_, n):
     if _ is None:
         raise PreventUpdate
-    return int(datetime.utcnow().timestamp())
+    return int(datetime.now().timestamp() * 1000)
 
 
-def print_info(json_data):
+# section2 = html.Section(examples)
+blank_display = html.Div([section1], className="blank-isotopomer-display")
+
+
+def print_isotopomer_info(json_data):
     """Return a html for rendering the display in the read-only isotopomer section."""
     output = []
 
-    for i, isotopomer in enumerate(json_data["isotopomers"]):
-        local = [html.Br()]
+    for i, isotopomer in enumerate(json_data):
+        local = []
 
         name_div = html.B(f"Isotopomer {i}", className="")
         if "name" in isotopomer:
@@ -124,7 +130,9 @@ def print_info(json_data):
 
         if "description" in isotopomer:
             if isotopomer["description"] not in ["", None]:
-                local.append(html.Div(isotopomer["description"], className=""))
+                local.append(
+                    html.Div(isotopomer["description"][:25] + " ... ", className="")
+                )
 
         abundance = "100" if "abundance" not in isotopomer else isotopomer["abundance"]
         local.append(html.Div(f"Abundance: {abundance} %", className=""))
@@ -150,14 +158,44 @@ def print_info(json_data):
                     else:
                         local.append(attribute_value_pair(site_attribute, val, 2))
 
-        local.append(html.Br())
-        output.append(html.Li(local))
+        # local.append(html.Br())
+        output.append(
+            html.Li(
+                html.Div(
+                    [
+                        html.A(local),
+                        # dbc.Button(
+                        #     "X",
+                        #     color="danger",
+                        #     block=True,
+                        #     id={"type": "initiate-remove-isotopomer", "index": i},
+                        # ),
+                    ]
+                ),
+                className="list-group-item",
+            )
+        )
 
-    return html.Div(html.Ul(output), className="display-form")
+    # output.append(html.Li(icon))
+
+    return html.Div([html.Ul(output, className="list-group")], className="display-form")
+
+
+# @app.callback(
+#     Output("trash-isotopomer-button", "n_clicks_timestamp"),
+#     [Input({"type": "initiate-remove-isotopomer", "index": ALL}, "n_clicks")],
+#     [State("trash-isotopomer-button", "n_clicks_timestamp")],
+# )
+# def initiate_remove_isotopomer(_, n):
+#     print("initiate", _, n)
+#     if _.count(None) == len(_):
+#         raise PreventUpdate
+#     print("remove isotopomer", n, int(datetime.now().timestamp() * 1000))
+#     return int(datetime.now().timestamp() * 1000)
 
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="on_load"),
+    ClientsideFunction(namespace="clientside", function_name="on_isotopomers_load"),
     Output("temp2", "children"),
     [Input("isotopomer-read-only", "children")],
     [State("config", "data")],

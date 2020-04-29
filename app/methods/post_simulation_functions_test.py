@@ -4,6 +4,9 @@ import numpy as np
 
 from app.methods.post_simulation_functions import line_broadening
 
+__author__ = ["Maxwell C. Venetos"]
+__email__ = ["venetos.5@buckeyemail.osu.edu"]
+
 
 def test_1():
     data = cp.new(description="A new test dataset")

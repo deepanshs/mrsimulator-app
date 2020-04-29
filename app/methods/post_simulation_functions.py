@@ -5,6 +5,9 @@ from numpy.fft import fftshift
 from numpy.fft import ifft
 from numpy.fft import ifftshift
 
+__author__ = ["Maxwell C. Venetos"]
+__email__ = ["venetos.5@buckeyemail.osu.edu"]
+
 
 def line_broadening(x, amp, sigma, broadType):
     """

@@ -2,6 +2,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -9,6 +10,7 @@ from dash.dependencies import State
 from .app import app
 from .modal.help import simulation_help
 from .toolbar import toolbar
+from .toolbar import toolbar_select_method
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -110,33 +112,43 @@ plotly_graph = dcc.Graph(
     },
 )
 
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="initialize"),
+    Output("temp1", "children"),
+    [Input("nmr_spectrum", "figure")],
+)
+
+title = html.H4(["Simulation", button], className="title-with-help")
 className = "align-items-center"
 spectrum_body = html.Div(
-    id="spectrum-body",
-    className="my-card hide-display",
-    children=dcc.Upload(
-        [
-            html.Div(
-                [html.H4(["Simulation", button], className="title-with-help"), toolbar],
-                className="card-header",
+    [
+        html.Div(
+            id="spectrum-body",
+            className="my-card",
+            children=dcc.Upload(
+                [
+                    html.Div([title, toolbar], className="card-header"),
+                    toolbar_select_method,
+                    plotly_graph,
+                    simulation_help,
+                ],
+                id="upload-from-graph",
+                disable_click=True,
+                # accept="application/json, text/plain, .csdf",
+                style_active={
+                    "border": "1px solid rgb(78, 196, 78)",
+                    "backgroundColor": "rgb(225, 255, 225)",
+                    "opacity": "0.75",
+                },
+                # style_reject={
+                #     "border": "1px solid rgb(196, 78, 78)",
+                #     "backgroundColor": "rgb(255, 225, 225)",
+                #     "opacity": "0.75",
+                #     "borderRadius": "0.8em",
+                # },
             ),
-            html.Div(plotly_graph),
-            simulation_help,
-        ],
-        id="upload-from-graph",
-        disable_click=True,
-        # accept="application/json, text/plain, .csdf",
-        style_active={
-            "border": "1px solid rgb(78, 196, 78)",
-            "backgroundColor": "rgb(225, 255, 225)",
-            "opacity": "0.75",
-            "borderRadius": "0.8em",
-        },
-        # style_reject={
-        #     "border": "1px solid rgb(196, 78, 78)",
-        #     "backgroundColor": "rgb(255, 225, 225)",
-        #     "opacity": "0.75",
-        #     "borderRadius": "0.8em",
-        # },
-    ),
+        )
+    ],
+    id="floating-card",
+    className="float-card",
 )

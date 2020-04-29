@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash import callback_context as ctx
-from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -95,7 +93,7 @@ navbar = dbc.Navbar(
                 dbc.NavbarBrand(
                     html.Img(
                         src="/assets/mrsimulator-logo-dark.svg",
-                        height="80px",
+                        height="50rem",
                         alt="Mrsimulator",
                     )
                 ),
@@ -118,7 +116,7 @@ navbar = dbc.Navbar(
                     id="navbar-collapse",
                     navbar=True,
                 ),
-                import_options,
+                # import_options,
             ],
             className="nav-composite",
         ),
@@ -157,52 +155,44 @@ navbar_bottom = dbc.Navbar(
     # sticky="bottom",
     dark=None,
     className="bottom-navbar",
-    id="mrsimulator-bottom",
 )
 
 
-app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="initialize"),
-    Output("temp1", "children"),
-    [Input("mrsimulator-bottom", "children")],
-)
+# @app.callback(
+#     [
+#         Output("upload-isotopomer-master-collapse", "is_open"),
+#         Output("upload-spectrum-master-collapse", "is_open"),
+#     ],
+#     [
+#         Input("import-isotopomer-toggler", "n_clicks"),
+#         Input("import-spectrum-toggler", "n_clicks"),
+#         Input("upload-isotopomer-panel-hide-button", "n_clicks"),
+#         Input("upload-spectrum-panel-hide-button", "n_clicks"),
+#     ],
+#     [
+#         State("upload-isotopomer-master-collapse", "is_open"),
+#         State("upload-spectrum-master-collapse", "is_open"),
+#     ],
+# )
+# def toggle_import_file_collapse(n1, n2, n4, n5, c1, c2):
+#     """callback to toggle collapse import and example widgets with their
+#     respective buttons."""
+#     if n1 is n2 is n4 is n5 is None:
+#         raise PreventUpdate
 
+#     if not ctx.triggered:
+#         raise PreventUpdate
+#     else:
+#         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-@app.callback(
-    [
-        Output("upload-isotopomer-master-collapse", "is_open"),
-        Output("upload-spectrum-master-collapse", "is_open"),
-    ],
-    [
-        Input("import-isotopomer-toggler", "n_clicks"),
-        Input("import-spectrum-toggler", "n_clicks"),
-        Input("upload-isotopomer-panel-hide-button", "n_clicks"),
-        Input("upload-spectrum-panel-hide-button", "n_clicks"),
-    ],
-    [
-        State("upload-isotopomer-master-collapse", "is_open"),
-        State("upload-spectrum-master-collapse", "is_open"),
-    ],
-)
-def toggle_import_file_collapse(n1, n2, n4, n5, c1, c2):
-    """callback to toggle collapse import and example widgets with their
-    respective buttons."""
-    if n1 is n2 is n4 is n5 is None:
-        raise PreventUpdate
-
-    if not ctx.triggered:
-        raise PreventUpdate
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id in [
-        "import-isotopomer-toggler",
-        "upload-isotopomer-panel-hide-button",
-    ]:
-        return [not c1, False]
-    if button_id in ["import-spectrum-toggler", "upload-spectrum-panel-hide-button"]:
-        return [False, not c2]
-    return [False, False]
+#     if button_id in [
+#         "import-isotopomer-toggler",
+#         "upload-isotopomer-panel-hide-button",
+#     ]:
+#         return [not c1, False]
+#     if button_id in ["import-spectrum-toggler", "upload-spectrum-panel-hide-button"]:
+#         return [False, not c2]
+#     return [False, False]
 
 
 # side panel with documentation and github information.

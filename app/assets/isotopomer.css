@@ -1,0 +1,268 @@
+/* Slider offset for isotopomer split screen */
+.iso-slide,
+.iso-slide-offset,
+.iso-slide .slider1,
+.iso-slide .slider2,
+.iso-slide-offset .slider1,
+.iso-slide-offset .slider2 {
+  height: calc(var(--isotopomer-content-max-height) - 95px);
+}
+
+.iso-slide-offset {
+  display: flex;
+  width: 200%;
+  justify-content: space-evenly;
+  transition: all 0.3s ease;
+}
+
+.iso-slide-offset .slider1,
+.iso-slide-offset .slider2 {
+  overflow-x: scroll;
+  width: 100%;
+}
+
+.iso-slide {
+  display: flex;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.iso-slide .slider1 {
+  position: relative;
+  width: var(--opt-side-scroll-width);
+  border-right: 1px solid #58270abe;
+}
+
+.iso-slide .slider2 {
+  position: relative;
+  width: calc(100% - var(--opt-side-scroll-width));
+  box-shadow: 0px 0px 0px 0px rgba(71, 71, 71, 0.5);
+}
+
+#isotopomer-editor-content,
+#isotopomer-read-only {
+  min-height: calc(var(--content-min-height) - 6.5rem);
+  height: calc(var(--content-max-height) - 6.5rem);
+  scrollbar-width: thin;
+}
+
+/* #isotopomer-editor-content::-webkit-scrollbar,
+#isotopomer-read-only::-webkit-scrollbar {
+  display: none;
+} */
+
+.tab-scroll {
+  min-height: calc(var(--content-min-height) - 15.55rem);
+  height: calc(var(--content-max-height) - 15.55rem);
+  overflow-y: scroll;
+  /* scrollbar-width: none; */
+  border-bottom: 1px solid silver;
+}
+
+/* .tab-scroll::-webkit-scrollbar {
+  display: none;
+} */
+
+/* Set height for the isotopomer scroll view. Isotopomer side view customize. */
+#isotopomer-read-only {
+  width: 100%;
+  background: transparent;
+  overflow-y: scroll;
+}
+
+.display-form ul {
+  background: transparent;
+  height: 100%;
+  width: 100%;
+  padding: auto;
+  font-size: 0.82rem;
+  line-height: 1.05;
+  font-weight: 300;
+  color: rgb(53, 53, 53);
+  list-style: none;
+  cursor: default;
+  margin: auto;
+}
+
+.display-form li {
+  background: transparent;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  position: relative;
+  padding: 0;
+  margin-left: -1px;
+  width: 100%;
+  scrollbar-width: none;
+}
+
+.display-form li::-webkit-scrollbar {
+  display: none;
+}
+
+.display-form li div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.display-form li a {
+  scroll-snap-align: start;
+  padding: 1rem;
+  width: var(--opt-side-scroll-width);
+}
+
+/* .display-form li button {
+  margin-left: -5px;
+  scroll-snap-align: end;
+  position: absolute;
+  border-radius: 0;
+  right: -33.33%;
+  width: 33.33%;
+  height: 100%;
+  cursor: pointer;
+} */
+
+/* .display-form li:before {
+  content: "";
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  top: 0.5rem;
+  right: -50px;
+  border: solid 15px transparent;
+  border-left-color: red;
+} */
+.display-form li::-webkit-scrollbar {
+  display: none;
+}
+
+.display-form li.active a {
+  background-color: rgb(0, 115, 230);
+  color: rgb(255, 255, 255);
+  /* text-shadow: rgb(58, 58, 58) 0px 1px; */
+}
+
+/* .display-form-checked:before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  right: 0px;
+  z-index: 1000;
+  border: solid 15px transparent;
+  border-right-color: white;
+} */
+
+.sub-isotopomer-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: transparent;
+  margin-top: 1rem;
+}
+
+.isotopomer-tensor-title {
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-0.5rem);
+  transition: all 0.3s ease;
+  background-color: rgb(224, 226, 252);
+  margin-left: -0.96rem;
+  margin-right: -0.96rem;
+}
+
+.isotopomer-tensor-title p {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-weight: 600;
+  color: rgb(12, 44, 131);
+  text-transform: capitalize;
+  padding-left: 1rem;
+}
+
+.isotopomer-tensor-title:after {
+  content: "";
+  width: 100%;
+  right: 0;
+  height: 1px;
+  background: rgb(25, 3, 124);
+  position: absolute;
+}
+
+.isotopomer-tensor-title button {
+  /* margin-top: auto;
+  margin-bottom: auto;
+  font-weight: 600;
+  color: rgb(12, 44, 131);
+  text-transform: capitalize; */
+  margin-right: 1px;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* display when isotopomer is empty */
+.blank-isotopomer-display {
+  height: 100%;
+  padding: 2rem;
+}
+
+.blank-isotopomer-display h5,
+.blank-isotopomer-display span {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.blank-isotopomer-display h5 {
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(134, 55, 10);
+  text-align: center;
+}
+
+.blank-isotopomer-display span:hover {
+  transform: scale(1.1);
+  color: rgb(136, 9, 30);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.isotopomer-title {
+  /* transform: translateY(-0.1rem); */
+  background-color: #f7f0e9ea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.isotopomer-title label {
+  color: rgb(66, 66, 66);
+  text-align: center;
+  font-weight: 600;
+  flex: 2;
+  margin: auto;
+}
+
+.isotopomer-title button {
+  /* background-color: rgb(88, 6, 6); */
+  /* color: rgb(228, 228, 228); */
+  font-weight: bolder;
+  height: 2.7rem;
+  padding-right: 1rem;
+  border-top-left-radius: 0;
+}
+
+/* .isotopomer-title button:hover {
+  background-color: rgb(141, 15, 15);
+} */
+
+.input-text-description {
+  color: rgb(77, 77, 77);
+  font-size: 0.95rem;
+}

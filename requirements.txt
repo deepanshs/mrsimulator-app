@@ -5,5 +5,5 @@ plotly>=4.5.4
 dash>=1.9.1
 dash_bootstrap_components>=0.9.1
 gunicorn>=20.0.4
-mrsimulator>=0.2.1
+mrsimulator>=0.2.2
 csdmpy>=0.2

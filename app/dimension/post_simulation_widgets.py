@@ -48,8 +48,6 @@ def gaussian_linebroadening_widget(i):
         debounce=True,
     )
 
-    return html.Div(
-        [broadeningFunction, line_broadening], className="collapsible-body-control form"
-    )
+    return html.Div([broadeningFunction, line_broadening], className="container")
 
     # return [line_broadening]

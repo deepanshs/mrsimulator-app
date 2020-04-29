@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 
 from .custom_widgets import custom_switch
@@ -45,13 +46,24 @@ decompose_button = custom_switch(
 #     color="dark",
 #     style={"zIndex": 0},
 # )
+# select method  -------------------------------------------------------------------- #
+select_method = dcc.Dropdown(
+    id=f"select-method",
+    value=0,
+    searchable=False,
+    clearable=False,
+    placeholder="View spectrum from method ...",
+)
 
 # Button group ---------------------------------------------------------------------- #
-group_1_buttons = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
+toolbar = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
 
 
 # toolbar icons --------------------------------------------------------------------- #
-toolbar = html.Div(group_1_buttons)
+toolbar_select_method = html.Div(
+    ["Select simulation", select_method],
+    className="d-flex align-items-center justify-items-between toolbar",
+)
 
 
 # # add callback for toggling the collapse on small screens

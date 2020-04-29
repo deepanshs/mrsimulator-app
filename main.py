@@ -11,23 +11,33 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Dimension
 from mrsimulator import Isotopomer
+from mrsimulator import Method
 from mrsimulator import Simulator
-from mrsimulator.methods import one_d_spectrum
 
 from app.app import app
 from app.body import app_1
+from app.body import nav_group
+from app.body import sidebar
 from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
+
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
 
-RAD_FACTOR = np.pi / 180.0
-app.layout = html.Div(app_1, id="article1", **{"data-role": "page"})
+def update_page():
+    html_body = html.Div(
+        [nav_group, html.Div([sidebar, app_1], className="main-split")],
+        id="article1",
+        className="main",
+    )
+    return html_body
+
+
+app.layout = update_page()
 
 
 server = app.server
@@ -132,24 +142,14 @@ def check_for_simulation_update(
 @app.callback(
     [
         Output("local-computed-data", "data"),
-        Output("local-dimension-data", "data"),
+        Output("local-simulator-data", "data"),
         Output("local-isotopomer-index-map", "data"),
     ],
-    [
-        Input("dim-rotor_frequency-0", "value"),
-        Input("dim-rotor_angle-0", "value"),
-        Input("dim-number_of_points-0", "value"),
-        Input("dim-spectral_width-0", "value"),
-        Input("dim-reference_offset-0", "value"),
-        Input("dim-flux_density-0", "value"),
-        Input("isotope_id-0", "value"),
-        Input("close_setting", "n_clicks"),
-    ],
+    [Input("close_setting", "n_clicks"), Input("local-isotopomers-data", "data")],
     [
         State("integration_density", "value"),
         State("integration_volume", "value"),
         State("number_of_sidebands", "value"),
-        State("local-isotopomers-data", "data"),
         State("local-computed-data", "data"),
         State("local-isotopomer-index-map", "data"),
         State("config", "data"),
@@ -158,19 +158,12 @@ def check_for_simulation_update(
 )
 def simulation(
     # input
-    rotor_frequency,
-    rotor_angle,
-    number_of_points,
-    spectral_width,
-    reference_offset,
-    magnetic_flux_density,
-    isotope_id,
     close_setting_model,
+    local_isotopomers_data,
     # state
     integration_density,
     integration_volume,
     number_of_sidebands,
-    local_isotopomers_data,
     previous_local_computed_data,
     previous_local_isotopomer_index_map,
     config,
@@ -180,203 +173,106 @@ def simulation(
     # if "removed" in config.keys():
     #     raise PreventUpdate
     # exit when the following conditions are True
-    if isotope_id is None:
-        if previous_local_computed_data is not None:
-            print("simulation cleared because isotope id is", isotope_id)
-            return [None, no_update, no_update]
-        raise PreventUpdate
+    # if isotope_id is None:
+    #     if previous_local_computed_data is not None:
+    #         print("simulation cleared because isotope id is", isotope_id)
+    #         return [None, no_update, no_update]
+    #     raise PreventUpdate
 
     if not ctx.triggered:
         print("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    # if the data is new, skip the check and simulate the spectrum.
-    # if "isotope" in trigger_id and not config["is_new_data"]:
-    #     check_for_simulation_update(
-    #         isotope_id,
-    #         config,
-    #         local_isotopomers_data,
-    #         previous_local_computed_data,
-    #         previous_local_isotopomer_index_map,
-    #         figure,
-    #     )
-
-    value = ctx.triggered[0]["value"]
-    if value in [".", "-"]:
-        print("simulation stopped, triggered value is", value)
+    if local_isotopomers_data is None:
         raise PreventUpdate
 
-    if "isotope" not in trigger_id:
-        try:
-            float(value)
-        except (ValueError, TypeError):
-            print("simulation stopped, triggered value is", value)
-            raise PreventUpdate
-
-    if spectral_width == 0:
-        print("simulation stopped, spectral_width is 0")
+    if len(local_isotopomers_data["methods"]) == 0:
         raise PreventUpdate
 
-    # magnetic_flux_density = spectrometer_frequency / 42.57748
+    if len(local_isotopomers_data["isotopomers"]) == 0:
+        raise PreventUpdate
 
-    if "dim" in trigger_id:
-        if value in [None, ""]:
-            print("simulation stopped, trigger value is", value)
-            raise PreventUpdate
-
-    dim = {
-        "isotope": isotope_id,
-        "magnetic_flux_density": float(magnetic_flux_density),  # in T
-        "rotor_frequency": float(rotor_frequency) * 1000,  # in Hz
-        "rotor_angle": float(rotor_angle) * RAD_FACTOR,  # in rad
-        "number_of_points": int(number_of_points),
-        "spectral_width": float(spectral_width) * 1000,  # in Hz
-        "reference_offset": float(reference_offset) * 1000,  # in Hz
-    }
-
-    # def check_val(val):
-    #     return val if val not in [None, ""] else 0
-
-    # states = ctx.states
-    # site = {
-    #     "isotope": states[f"{i}-isotope"],
-    #     "isotropic_chemical_shift": check_val(
-    #         states[f"{i}-isotropic_chemical_shift"]
-    #     ),  # in ppm
-    #     "shielding_symmetric": {
-    #         "zeta": check_val(states[f"{i}-shielding_symmetric-zeta"]),  # in ppm
-    #         "eta": check_val(states[f"{i}-shielding_symmetric-eta"]),
-    #         "alpha": check_val(states[f"{i}-shielding_symmetric-alpha"])
-    #         * RAD_FACTOR,  # in rad
-    #         "beta": check_val(states[f"{i}-shielding_symmetric-beta"])
-    #         * RAD_FACTOR,  # in rad
-    #         "gamma": check_val(states[f"{i}-shielding_symmetric-gamma"])
-    #         * RAD_FACTOR,  # in rad
-    #     },
-    #     "quadrupolar": {
-    #         "Cq": check_val(states[f"{i}-quadrupolar-Cq"]) * 1e6,  # in Hz
-    #         "eta": check_val(states[f"{i}-quadrupolar-eta"]),
-    #         "alpha": check_val(states[f"{i}-quadrupolar-alpha"])*RAD_FACTOR,# in rad
-    #         "beta": check_val(states[f"{i}-quadrupolar-beta"])*RAD_FACTOR,# in rad
-    #         "gamma": check_val(states[f"{i}-quadrupolar-gamma"])*RAD_FACTOR,# in rad
-    #     },
-    # }
-
-    # true_index = [False] * len(local_isotopomers_data['isotopomers'])
-    # if trigger_id not in [
-    #     "dim-rotor_frequency-0",
-    #     "dim-rotor_angle-0",
-    #     "dim-number_of_points-0",
-    #     "dim-spectral_width-0",
-    #     "dim-reference_offset-0",
-    #     "dim-spectrometer_frequency-0",
-    #     "isotope_id-0",
-    #     "close_setting",
-    # ]:
-    #     true_index = check_if_old_and_new_isotopomers_data_are_equal(
-    #         local_isotopomers_data, old_local_isotopomers_data
-    #     )
-
-    # if np.all(true_index):
-    #     raise PreventUpdate
     print("simulate")
     sim = Simulator()
-    sim.dimensions = [Dimension(**dim)]
-
-    mapping = []
-    # for i, item in enumerate(true_index):
-    #     if not item:
-    #         site_isotope = [site["isotope"] for site in
-    #                   local_isotopomers_data["isotopomers"][i]["sites"]]
-    #         if isotope_id in site_isotope:
-    #             sim.isotopomers.append(Isotopomer.parse_dict_with_units(
-    #                           local_isotopomers_data["isotopomers"][i])
-    #               )
-    #             # print(item)
-    #             mapping.append(i)
-
-    for i, item in enumerate(local_isotopomers_data["isotopomers"]):
-        site_isotope = [site["isotope"] for site in item["sites"]]
-        if isotope_id in site_isotope:
-            sim.isotopomers.append(Isotopomer(**item))
-            mapping.append(i)
-
-    # filter_isotopomers = [
-    #     Isotopomer.parse_dict_with_units(item)
-    #     for item in local_isotopomers_data["isotopomers"]
-    # ]
-    # sim.isotopomers = [
-    #     Isotopomer.parse_dict_with_units(item)
-    #     for item in local_isotopomers_data["isotopomers"]
-    # ]
+    sim.methods = [Method(**item) for item in local_isotopomers_data["methods"]]
+    sim.isotopomers = [Isotopomer(**i) for i in local_isotopomers_data["isotopomers"]]
 
     sim.config.integration_density = integration_density
     sim.config.decompose = True
     sim.config.integration_volume = integration_volume
     sim.config.number_of_sidebands = number_of_sidebands
+    sim.run()
 
-    sim.run(one_d_spectrum)
+    # larmor_frequency = -sim.methods[0].channel.gyromagnetic_ratio * B0  # in MHz
+    # method = sim.methods[0].dict()
+    # method.update({"larmor_frequency": 1})
+    local_computed_data = [
+        item.simulation.to_dict(update_timestamp=True) for item in sim.methods
+    ]
 
-    dim.update({"larmor_frequency": sim.dimensions[0].larmor_frequency})
-    local_computed_data = sim.as_csdm_object().to_dict(update_timestamp=True)
-
-    if trigger_id != "isotope_id-0":
-        local_computed_data["trigger-isotopomer"] = False
-    else:
-        local_computed_data["trigger-isotopomer"] = True
+    # if trigger_id != "isotope_id-0":
+    #     local_computed_data["trigger-isotopomer"] = False
+    # else:
+    #     local_computed_data["trigger-isotopomer"] = True
     print(
         "check with previous data",
         previous_local_computed_data == local_isotopomers_data,
     )
-    return [local_computed_data, dim, mapping]
+    return [
+        local_computed_data,
+        sim.to_dict_with_units(include_methods=True),
+        sim.indexes,
+    ]
 
 
-@app.callback(
-    [
-        Output("dim-reference_offset-0", "value"),
-        Output("dim-spectral_width-0", "value"),
-    ],
-    [Input("nmr_spectrum", "relayoutData")],
-    [State("local-dimension-data", "data")],
-)
-def display_relayout_data(relayoutData, dimension_data):
-    if None in [relayoutData, dimension_data]:
-        raise PreventUpdate
+# @app.callback(
+#     [
+#         Output("dim-reference_offset-0", "value"),
+#         Output("dim-spectral_width-0", "value"),
+#     ],
+#     [Input("nmr_spectrum", "relayoutData")],
+#     [State("local-method-data", "data")],
+# )
+# def display_relayout_data(relayoutData, method_data):
+#     if None in [relayoutData, method_data]:
+#         raise PreventUpdate
 
-    keys = relayoutData.keys()
+#     keys = relayoutData.keys()
 
-    if dimension_data["larmor_frequency"] is None:
-        raise PreventUpdate
-    if "yaxis.range[0]" in keys or "yaxis.range[1]" in keys:
-        raise PreventUpdate
-    if "xaxis.range[0]" not in keys and "xaxis.range[1]" not in keys:
-        raise PreventUpdate
+#     if method_data["larmor_frequency"] is None:
+#         raise PreventUpdate
+#     if "yaxis.range[0]" in keys or "yaxis.range[1]" in keys:
+#         raise PreventUpdate
+#     if "xaxis.range[0]" not in keys and "xaxis.range[1]" not in keys:
+#         raise PreventUpdate
 
-    larmor_frequency = abs(dimension_data["larmor_frequency"] / 1e6)  # to MHz
+#     # Check larmor frequency and ppm scale. Current scale is in Hz
+#     larmor_frequency = 1
+#     # larmor_frequency = abs(method_data["larmor_frequency"])  # in MHz
 
-    # old increment
-    sw = float(dimension_data["spectral_width"])  # in Hz
-    rf = float(dimension_data["reference_offset"])  # in Hz
-    increment = sw / dimension_data["number_of_points"]  # in Hz
+#     # old increment
+#     dim = method_data["spectral_dimensions"][0]
+#     sw = float(dim["spectral_width"])  # in Hz
+#     increment = float(sw / dim["count"])  # in Hz
+#     rf = float(dim["reference_offset"])  # in Hz
 
-    # new x-min in Hz, larmor_frequency is in MHz
-    if "xaxis.range[0]" in keys and relayoutData["xaxis.range[0]"] is not None:
-        x_min = relayoutData["xaxis.range[0]"] * larmor_frequency
-    else:
-        x_min = sw / 2.0 + rf - increment
+#     # new x-min in Hz, larmor_frequency is in MHz
+#     if "xaxis.range[0]" in keys and relayoutData["xaxis.range[0]"] is not None:
+#         x_min = relayoutData["xaxis.range[0]"] * larmor_frequency
+#     else:
+#         x_min = sw / 2.0 + rf - increment
 
-    # new x-max in Hz, larmor_frequency is in MHz
-    if "xaxis.range[1]" in keys and relayoutData["xaxis.range[1]"] is not None:
-        x_max = relayoutData["xaxis.range[1]"] * larmor_frequency
-    else:
-        x_max = -sw / 2.0 + rf
+#     # new x-max in Hz, larmor_frequency is in MHz
+#     if "xaxis.range[1]" in keys and relayoutData["xaxis.range[1]"] is not None:
+#         x_max = relayoutData["xaxis.range[1]"] * larmor_frequency
+#     else:
+#         x_max = -sw / 2.0 + rf
 
-    # new spectral-width and reference offset in Hz
-    sw_ = x_min - x_max + increment
-    ref_offset = x_max + sw_ / 2.0
-    return ["{0:.5f}".format(ref_offset / 1000.0), "{0:.5f}".format(abs(sw_) / 1000.0)]
+#     # new spectral-width and reference offset in Hz
+#     sw_ = x_min - x_max + increment
+#     ref_offset = x_max + sw_ / 2.0
+#     return ["{0:.5f}".format(ref_offset / 1000.0),
+#               "{0:.5f}".format(abs(sw_) / 1000.0)]
 
 
 # @app.callback(Output("buffer", "children"), [Input("nmr_spectrum", "restyleData")])
@@ -395,12 +291,12 @@ def display_relayout_data(relayoutData, dimension_data):
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
         Input("nmr_spectrum", "clickData"),
+        Input("select-method", "value"),
     ],
     [
         State("normalize_amp", "active"),
         State("local-computed-data", "data"),
         State("local-exp-external-data", "data"),
-        State("isotope_id-0", "value"),
         State("nmr_spectrum", "figure"),
         State("config", "data"),
     ],
@@ -413,16 +309,19 @@ def plot_1D(
     broadening,
     apodization,
     clickData,
+    method_index,
     # state
     normalized,
     local_computed_data,
     local_exp_external_data,
-    isotope_id,
     figure,
     config,
 ):
     """Generate and return a one-dimensional plot instance."""
     print("inside plot, time of computation", time_of_computation)
+    if method_index is None:
+        return [DEFAULT_FIGURE, no_update]
+
     if local_computed_data is None and local_exp_external_data is None:
         return [DEFAULT_FIGURE, no_update]
 
@@ -437,15 +336,16 @@ def plot_1D(
     trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
-    trigger_isotopomer = (
-        True
-        if local_computed_data is None
-        else local_computed_data["trigger-isotopomer"]
-    )
+    # trigger_isotopomer = (
+    #     True
+    #     if local_computed_data is None
+    #     else local_computed_data["trigger-isotopomer"]
+    # )
+    # print("local_computed_data", local_computed_data)
     data = []
     if local_computed_data is not None:
 
-        local_computed_data = cp.parse_dict(local_computed_data)
+        local_computed_data = cp.parse_dict(local_computed_data[method_index])
 
         local_processed_data = post_simulation(
             line_broadening,
@@ -453,12 +353,12 @@ def plot_1D(
             sigma=broadening,
             broadType=apodization,
         )
-
-        try:
-            local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-            x = local_processed_data.dimensions[0].coordinates.value
-        except (ZeroDivisionError, ValueError):
-            pass
+        x = local_processed_data.dimensions[0].coordinates.to("Hz").value
+        # try:
+        #     local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+        #     x = local_processed_data.dimensions[0].coordinates.value
+        # except (ZeroDivisionError, ValueError):
+        #     pass
 
         x0 = x[0]
         dx = x[1] - x[0]
@@ -506,6 +406,7 @@ def plot_1D(
     if local_exp_external_data is not None:
         local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
+        x_spectrum = local_exp_external_data.dimensions[0].to("Hz").coordinates.value
         try:
             local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
             x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
@@ -530,21 +431,23 @@ def plot_1D(
 
     layout = figure["layout"]
 
-    if config is None or trigger in [
-        "normalize_amp.n_clicks",
-        "local-exp-external-data.modified_timestamp",
-    ]:
-        print("axis update is True", config, trigger)
-        layout["xaxis"]["autorange"] = True
-        layout["yaxis"]["autorange"] = True
-    elif config["is_new_data"] and trigger_isotopomer:
-        print("axis update is True", config)
-        layout["xaxis"]["autorange"] = True
-        layout["yaxis"]["autorange"] = True
+    # if config is None or trigger in [
+    #     "normalize_amp.n_clicks",
+    #     "local-exp-external-data.modified_timestamp",
+    # ]:
+    #     print("axis update is True", config, trigger)
+    #     layout["xaxis"]["autorange"] = True
+    #     layout["yaxis"]["autorange"] = True
+    # elif config["is_new_data"] and trigger_isotopomer:
+    #     print("axis update is True", config)
+    #     layout["xaxis"]["autorange"] = True
+    #     layout["yaxis"]["autorange"] = True
 
-    layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
+    layout["xaxis"]["autorange"] = True
+    layout["yaxis"]["autorange"] = True
+    # layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
-    print("isotope_id", isotope_id)
+    # print("isotope_id", isotope_id)
     print("clickData", clickData)
 
     if clickData is not None and decompose:

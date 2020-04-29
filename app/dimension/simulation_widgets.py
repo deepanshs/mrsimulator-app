@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
+from app.isotopomer import isotope_options_list
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -35,7 +36,7 @@ def coordinate_grid(i):
         value=2048,
         min=2,
         # step=1,
-        id=f"dim-number_of_points-{i}",
+        id=f"count-{i}",
         debounce=True,
         pattern="[0-9]*",
     )
@@ -46,7 +47,7 @@ def coordinate_grid(i):
         append_label="kHz",
         value=25.0,
         min=1e-6,
-        id=f"dim-spectral_width-{i}",
+        id=f"spectral_width-{i}",
         debounce=True,
     )
 
@@ -55,13 +56,12 @@ def coordinate_grid(i):
         prepend_label="Reference offset",
         append_label="kHz",
         value=0.0,
-        id=f"dim-reference_offset-{i}",
+        id=f"reference_offset-{i}",
         debounce=True,
     )
 
     return html.Div(
-        [number_of_points, spectral_width, reference_offset],
-        className="collapsible-body-control dimension-class",
+        [number_of_points, spectral_width, reference_offset], className="container"
     )
 
 
@@ -93,20 +93,20 @@ def environment(i):
     #     id=f"dim-spectrometer_frequency-{i}",
     # )
     flux_density = custom_input_group(
-        prepend_label="Magnetic flux density",
+        prepend_label="Magnetic flux density (H₀)",
         append_label="T",
         value=9.4,
-        id=f"dim-flux_density-{i}",
+        id=f"magnetic_flux_density-{i}",
         min=0.0,
         debounce=True,
     )
 
     # rotor frequency
     rotor_frequency = custom_input_group(
-        prepend_label="Rotor frequency",
+        prepend_label="Rotor frequency (𝜈ᵣ)",
         append_label="kHz",
         value=0.0,
-        id=f"dim-rotor_frequency-{i}",
+        id=f"rotor_frequency-{i}",
         min=0.0,
         debounce=True,
         # list=["0", "54.7356", "30", "60", "90"],
@@ -114,29 +114,35 @@ def environment(i):
 
     # rotor angle
     rotor_angle = custom_input_group(
-        prepend_label="Rotor angle",
+        prepend_label="Rotor angle (θᵣ)",
         append_label="deg",
         value=54.735,
-        id=f"dim-rotor_angle-{i}",
+        id=f"rotor_angle-{i}",
         max=90,
         min=0,
         debounce=True,
     )
 
-    isotope_and_filter = html.Div(
+    channel = dbc.InputGroup(
         [
-            "Isotope",
-            dcc.Dropdown(
-                id=f"isotope_id-{i}",
-                searchable=False,
-                clearable=False,
-                placeholder="Select an isotope...",
-            ),
-        ],
-        className="justify-items-stretch form-group",
+            dbc.InputGroupAddon("Channel", addon_type="prepend"),
+            dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
+        ]
     )
 
+    # isotope_and_filter = html.Div(
+    #     [
+    #         "Isotope",
+    #         dcc.Dropdown(
+    #             id=f"isotope_id-{i}",
+    #             searchable=False,
+    #             clearable=False,
+    #             placeholder="Select an isotope...",
+    #         ),
+    #     ],
+    #     className="justify-items-stretch form-group",
+    # )
+
     return html.Div(
-        [isotope_and_filter, flux_density, rotor_frequency, rotor_angle],
-        className="collapsible-body-control dimension-class",
+        [channel, flux_density, rotor_frequency, rotor_angle], className="container"
     )

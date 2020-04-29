@@ -19,7 +19,6 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Isotopomer
 
 from app.app import app
 
@@ -63,29 +62,29 @@ def serve_static(path):
     [
         State("local-processed-data", "data"),
         State("decompose", "active"),
-        State("local-isotopomers-data", "data"),
+        State("local-simulator-data", "data"),
     ],
 )
 def file_download_link(
-    format_value, fill, local_processed_data, decompose, isotopomers_data
+    format_value, fill, local_processed_data, decompose, simulator_data
 ):
     """Update the link to the downloadable file."""
-    if isotopomers_data is None:
+    if simulator_data is None:
         raise PreventUpdate
 
     # uuid_1 = uuid.uuid1()
-    name = f"-{isotopomers_data['name']}" if "name" in isotopomers_data else ""
+    name = simulator_data["name"]
+    name = f"-{name}" if name != "" else ""
+
+    for item in simulator_data["methods"]:
+        for dv in item["simulation"]["csdm"]["dependent_variables"]:
+            dv.pop("application")
 
     if format_value == "json":
         filename = f"Isotopomer{name}.json"
         relative_filename = os.path.join("downloads", filename)
-
-        isotopomers_data["isotopomers"] = [
-            Isotopomer(**item).to_dict_with_units()
-            for item in isotopomers_data["isotopomers"]
-        ]
         with open(relative_filename, "w") as f:
-            json.dump(isotopomers_data, f)
+            json.dump(simulator_data, f)
         return relative_filename
 
     if local_processed_data is None:

@@ -54,7 +54,9 @@ def custom_hover_help(message="", id=None):
     return button
 
 
-def custom_button(text="", icon_classname="", id=None, tooltip=None, **kwargs):
+def custom_button(
+    text="", children="", icon_classname="", id=None, tooltip=None, **kwargs
+):
     """A custom dash bootstrap component button with added tooltip and icon option.
 
     Args:
@@ -66,7 +68,7 @@ def custom_button(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         kwargs: additional keyward arguments for dash-bootstrap-component button.
     """
 
-    label = html.Span(text, className="hide-label-sm pl-1")
+    label = html.Span([text, children], className="hide-label-sm pl-1")
     if icon_classname != "":
         label = html.Span(
             [html.I(className=icon_classname), label],
