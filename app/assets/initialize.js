@@ -103,7 +103,8 @@ var init = function() {
 /* Hide the quadrupolar attribute from the user, if the isotope is not
  * quadrupolar. */
 var hide_quad = function() {
-  var isotope_id = getValue('isotope');
+  var isotope_id, quad_collapse, check_quad;
+  isotope_id = getValue('isotope');
   if (isotope_id === null) {
     window.dash_clientside.PreventUpdate;
   }

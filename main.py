@@ -406,12 +406,12 @@ def plot_1D(
     if local_exp_external_data is not None:
         local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
-        x_spectrum = local_exp_external_data.dimensions[0].to("Hz").coordinates.value
-        try:
-            local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-            x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
-        except (ZeroDivisionError, ValueError):
-            pass
+        x_spectrum = local_exp_external_data.dimensions[0].coordinates.to("Hz").value
+        # try:
+        #     local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+        #     x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
+        # except (ZeroDivisionError, ValueError):
+        #     pass
 
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]

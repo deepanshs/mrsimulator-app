@@ -18,7 +18,9 @@ def print_methods_info(methods):
     for i, method in enumerate(methods):
         local = []
         local.append(html.B(method["name"], className=""))
-        local.append(html.Div(["Channel: ", method["channel"]], className="pl-2"))
+        local.append(
+            html.Div(["Channel: ", ", ".join(method["channels"])], className="pl-2")
+        )
 
         # local.append(html.Br())
 

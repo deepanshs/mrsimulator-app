@@ -135,15 +135,13 @@ var euler_angle_deg_to_rad = function(obj) {
 /* Extract the site dictionary from the UI field using the UI ids. */
 var extract_site_object_from_fields = function() {
   // Get the isotopomers data from the session storage.
-  var data =
-      storeData['data'];  // window.sessionStorage.getItem('local-isotopomers-data');
+  var data = storeData['data'];
   if (data === null) {
     throw window.dash_clientside.PreventUpdate;
   }
   // Extract the current isotopomer index, and get the respective isotopomer.
   var index = get_isotopomer_index();
-  var isotopomer =
-      data['isotopomers'][index];  // JSON.parse(data)['isotopomers'][index];
+  var isotopomer = data['isotopomers'][index];
 
   // Extract name and description information from the states and update the
   // isotopomer object
@@ -158,7 +156,7 @@ var extract_site_object_from_fields = function() {
     'shielding_symmetric': {},
     'quadrupolar': {}
   };
-  var val, id;
+  var val, id, key;
   for (i = 0; i < ATTR_PER_SITE; i++) {
     id = ALL_KEYS[i];
     val = getValue(id);
@@ -202,7 +200,7 @@ unit = [null, 'ppm', 'ppm', '', '°', '°', '°', 'MHz', '', '°', '°', '°'];
 
 var update_info = function(ito, i) {
   var output = `<div><a>`;
-  var s_len, sto, sti, temp;
+  var s_len, sto, sti, temp, sites, key, val;
   console.log(ito);
 
   // name
@@ -232,9 +230,6 @@ var update_info = function(ito, i) {
 
     output += `<div class="pl-2">Isotope: ${sto['isotope']}</div>`;
 
-    temp = (sto.hasOwnProperty('isotropic_chemical_shift')) ?
-        sto['isotropic_chemical_shift'] :
-        '0';
     output += `<div class="pl-2">${print_label[1]}: ${
         sto['isotropic_chemical_shift']} ${unit[1]}</div>`;
 
@@ -289,11 +284,10 @@ var update_info = function(ito, i) {
 
 
 function search() {
-  var input, filter, ul, li, a, i, j, elements1, elements2, elements, txtValue;
+  var input, filter, li, i, j, elements1, elements2, elements, txtValue;
   input = document.getElementById('search-isotopomer');
   console.log(input);
   filter = input.value.toUpperCase();
-  ul = $('#isotopomer-read-only div.display-form ul');
   li = $('#isotopomer-read-only div.display-form ul li');
 
   // Loop through all list items, and hide those who don't match the search
@@ -329,7 +323,7 @@ var isotopomerOnClick = function(obj) {
 };
 
 var addNewIsotopomer = function() {
-  var data = storeData['data'], result;
+  var data = storeData['data'], result, l;
   l = (data == null) ? 0 : data['isotopomers'].length;
   result = {
     'name': `Isotopomer-${l}`,

@@ -591,8 +591,12 @@ def filter_dict(dict1):
         if key in ["simulation", "experiment", "property_units"] or val is None:
             continue
 
-        if key in ["isotope", "channel"]:
+        if key == "isotope":
             dict_new[key] = val["symbol"]
+            continue
+
+        if key == "channels":
+            dict_new[key] = [item["symbol"] for item in val]
             continue
 
         dict_new[key] = val
@@ -662,7 +666,7 @@ def update_list_of_methods(data):
     if data["methods"] is None:
         raise PreventUpdate
     options = [
-        {"label": f'{k["name"]} (Channel-{k["channel"]})', "value": i}
+        {"label": f'{k["name"]} (Channel-{", ".join( k["channels"] )})', "value": i}
         for i, k in enumerate(data["methods"])
     ]
     return options

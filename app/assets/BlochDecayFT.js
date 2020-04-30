@@ -32,10 +32,9 @@ if (!window.methods) {
 window.methods = {
   BlochDecayFT: {
     setData: function(index) {
-      var data = storeData['data'];
-      var method = data['methods'][index], sd;
+      var data = storeData['data'], method = data['methods'][index], sd, i;
 
-      setValue(`channel`, method.channel);
+      setValue(`channel`, method.channels[0]);
       for (i = 0; i < method.spectral_dimensions.length; i++) {
         sd = method.spectral_dimensions[i];
         setValue(`count-${i}`, sd.count);
@@ -51,15 +50,15 @@ window.methods = {
       }
     },
     getData: function() {
-      channel = getValue(`channel`);
+      var channel = getValue(`channel`);
 
-      count = getValue(`count-0`);
-      reference_offset = getValue(`reference_offset-0`);
-      spectral_width = getValue(`spectral_width-0`);
-      magnetic_flux_density = getValue(`magnetic_flux_density-0`);
-      rotor_angle = getValue(`rotor_angle-0`);
-      rotor_frequency = getValue(`rotor_frequency-0`);
-      dimensions = [{
+      var count = getValue(`count-0`);
+      var reference_offset = getValue(`reference_offset-0`);
+      var spectral_width = getValue(`spectral_width-0`);
+      var magnetic_flux_density = getValue(`magnetic_flux_density-0`);
+      var rotor_angle = getValue(`rotor_angle-0`);
+      var rotor_frequency = getValue(`rotor_frequency-0`);
+      var dimensions = [{
         'count': count,
         'spectral_width': spectral_width,
         'reference_offset': reference_offset
@@ -76,10 +75,10 @@ window.methods = {
     generateMethod: function(
         dimensions, magnetic_flux_density, rotor_angle, rotor_frequency,
         channel) {
-      var method = {}, sd, ev;
+      var method = {}, sd, ev, i, j;
       method.name = 'BlochDecayFT';
       method.description = 'Bloch decay Fourier Transform';
-      method.channel = channel;
+      method.channels = [channel];
       method.spectral_dimensions = [];
       for (i = 0; i < 1; i++) {
         sd = {};

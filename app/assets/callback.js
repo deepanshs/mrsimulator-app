@@ -292,7 +292,7 @@ var default_li_action = function(listomers) {
 };
 
 var default_li_item_action = function(obj) {
-  var ul = obj.parentElement, element;
+  var ul = obj.parentElement, element, i;
 
   for (i = 0; i < ul.childNodes.length; i++) {
     element = ul.childNodes[i];
