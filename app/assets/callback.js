@@ -13,15 +13,14 @@ var storeData = {
   'data': {'name': '', 'description': [], 'isotopomers': [], 'methods': []}
 };
 
-
+var previous_timestamps = [-1, -1, -1, -1];
 var last_li_scroll_index = 0;
-
+let initial = 0;
 // var createLists = function (isotopomers) {
 //     var root = $('#isotopomer-read-only');
 //     var div = document.createElement('div');
 //     div.className = 'display-form';
 //     var ul = document.createElement('ul');
-//     // console.log('before', ul);
 //     // ul.empty();
 //     var li;
 //     for (i = 0; i < isotopomers.length; i++) {
@@ -36,7 +35,6 @@ var last_li_scroll_index = 0;
 //     }
 //     div.appendChild(ul);
 //     root[0].appendChild(div);
-//     console.log('after', ul);
 // }
 
 if (!window.dash_clientside) {
@@ -55,10 +53,10 @@ window.dash_clientside.clientside = {
   on_isotopomers_load: function(x, config) {
     storeData['data'] =
         JSON.parse(window.sessionStorage.getItem('local-isotopomers-data'));
-    var listomers = $('#isotopomer-read-only div.display-form ul li');
+    let listomers = $('#isotopomer-read-only div.display-form ul li');
 
     // Toggle classname to slide the contents on smaller screens
-    var element = document.getElementById('iso-slide');
+    let element = document.getElementById('iso-slide');
     if (element.classList.contains('iso-slide-offset')) {
       element.classList.toggle('iso-slide-offset');
       element.classList.toggle('iso-slide');
@@ -85,20 +83,17 @@ window.dash_clientside.clientside = {
     });
 
     // Select the entry at index 0 by initiating a click.
-    var index = get_isotopomer_index();
-    console.log(listomers, index);
-    select_isotopomer(listomers, index);
+    select_isotopomer(listomers, get_isotopomer_index());
     return null;
   },
 
   on_methods_load: function(x, config) {
     storeData['data'] =
         JSON.parse(window.sessionStorage.getItem('local-isotopomers-data'));
-    // var ul = $('#method-read-only div.display-form ul');
-    var listomers = $('#method-read-only div.display-form ul li');
+    let listomers = $('#method-read-only div.display-form ul li');
 
     // Toggle classname to slide the contents on smaller screens
-    var element = document.getElementById('met-slide');
+    let element = document.getElementById('met-slide');
     if (element.classList.contains('met-slide-offset')) {
       element.classList.toggle('met-slide-offset');
       element.classList.toggle('met-slide');
@@ -114,7 +109,7 @@ window.dash_clientside.clientside = {
 
     // Add a fresh bind event to the list.
     listomers.each(function() {
-      var index = 0;
+      let index = 0;
       $(this).click(function(e) {
         // isotopomer_on_click(this);
         default_li_item_action(this);
@@ -131,9 +126,7 @@ window.dash_clientside.clientside = {
     });
 
     // Select the entry at index 0 by initiating a click.
-    var index = get_method_index();
-    console.log('index', index);
-    select_method(listomers, index);
+    select_method(listomers, get_method_index());
     return null;
   },
 
@@ -141,40 +134,50 @@ window.dash_clientside.clientside = {
     return storeData['data'];
   },
 
-  create_json: function(n1, n2, n3, n4) {
+  create_json: function() {
     // n1 is the trigger time for apply isotopomer changes.
     // n2 is the trigger time for add new isotopomer.
     // n3 is the trigger time for duplicate isotopomer.
     // n4 is the trigger time for delete isotopomer.\
-    var max, l, new_val;
-    if (n1 == null && n2 == null && n3 == null && n4 == null) {
+
+    let max_index, l, new_val;
+
+    let new_list = [];
+    for (i = 0; i < 4; i++) {
+      if (arguments[i] == null) {
+        new_list.push(-1);
+      } else {
+        new_list.push(arguments[i]);
+      }
+    }
+
+    console.log('previous_timestamps', previous_timestamps);
+    console.log('new_list', new_list);
+    console.log('equal?', checkArrayEquality(new_list, previous_timestamps));
+
+    let max_value = Math.max(...new_list);
+    if (max_value === -1 && initial === 0) {
+      initial = 1;
       throw window.dash_clientside.PreventUpdate;
     }
-    if (n1 == null) {
-      n1 = -1;
-    }
-    if (n2 == null) {
-      n2 = -1;
-    }
-    if (n3 == null) {
-      n3 = -1;
-    }
-    if (n4 == null) {
-      n4 = -1;
+
+    if (checkArrayEquality(new_list, previous_timestamps)) {
+      max_index = 0;
+    } else {
+      previous_timestamps = new_list;
+      max_index = new_list.indexOf(max_value);
     }
 
-    max = Math.max(n1, n2, n3, n4);
-    console.log(n1, n2, n3, n4);
-    var data = storeData['data'];
+    let data = storeData['data'];
 
-    l = (data == null) ? 0 : data['isotopomers'].length;
-    var result = {};
-    if (n1 == max) {  // modify
+    l = data['isotopomers'].length;
+    let result = {};
+    if (max_index === 0) {  // modify
       result['data'] = extract_site_object_from_fields();
       result['index'] = get_isotopomer_index();
       result['operation'] = 'modify';
     }
-    if (n2 == max) {  // add
+    if (max_index === 1) {  // add
       result['data'] = {
         'name': `Isotopomer-${l}`,
         'description': '',
@@ -185,15 +188,17 @@ window.dash_clientside.clientside = {
       result['operation'] = 'add';
       set_isotopomer_index(l);
     }
-    if (n3 == max) {  // duplicate
+    if (max_index === 2) {  // duplicate
+      checkForEmptyListForOperation('copy', 'isotopomer', l)
       result['data'] = data['isotopomers'][get_isotopomer_index()];
       result['index'] = l;
       result['operation'] = 'duplicate';
       set_isotopomer_index(l);
     }
-    if (n4 == max) {  // delete
+    if (max_index === 3) {  // delete
+      checkForEmptyListForOperation('delete', 'isotopomer', l)
       new_val = get_isotopomer_index();
-      result['data'] = n4;
+      result['data'] = max_value;
       result['index'] = new_val;
       result['operation'] = 'delete';
       new_val -= 1;
@@ -208,7 +213,7 @@ window.dash_clientside.clientside = {
     // n2 is the trigger time for add new method.
     // n3 is the trigger time for duplicate method.
     // n4 is the trigger time for delete method.\
-    var max, l, new_val;
+    let max, l, new_val;
     if (n1 == null && n2 == null && n3 == null && n4 == null) {
       throw window.dash_clientside.PreventUpdate;
     }
@@ -226,11 +231,10 @@ window.dash_clientside.clientside = {
     }
 
     max = Math.max(n1, n2, n3, n4);
-    console.log(n1, n2, n3, n4);
-    var data = storeData['data'];
+    let data = storeData['data'];
 
-    l = (data == null) ? 0 : data['methods'].length;
-    var result = {};
+    l = data['methods'].length;
+    let result = {};
     if (n1 == max) {  // modify
       result['data'] = window.methods.BlochDecayFT.getData();
       result['index'] = get_method_index();
@@ -243,12 +247,14 @@ window.dash_clientside.clientside = {
       set_method_index(l);
     }
     if (n3 == max) {  // duplicate
+      checkForEmptyListForOperation('copy', 'method', l)
       result['data'] = data['methods'][get_method_index()];
       result['index'] = l;
       result['operation'] = 'duplicate';
       set_method_index(l);
     }
     if (n4 == max) {  // delete
+      checkForEmptyListForOperation('delete', 'method', l)
       new_val = get_method_index();
       result['data'] = n4;
       result['index'] = new_val;
@@ -264,10 +270,10 @@ window.dash_clientside.clientside = {
     if (clickData == null) {
       throw window.dash_clientside.PreventUpdate;
     };
-    var index = (decompose) ? clickData['points'][0]['curveNumber'] : null;
+    let index = (decompose) ? clickData['points'][0]['curveNumber'] : null;
 
-    var listomers = $('#isotopomer-read-only div.display-form ul li');
-    var length = listomers.length;
+    let listomers = $('#isotopomer-read-only div.display-form ul li');
+    let length = listomers.length;
 
     if (index == null || index >= length) {
       throw window.dash_clientside.PreventUpdate;
@@ -280,6 +286,14 @@ window.dash_clientside.clientside = {
     listomers[index].click();
 
     return null;
+  }
+};
+
+function checkForEmptyListForOperation(operation, list, l) {
+  if (l === 0) {
+    alert(`Cannot ${operation} ${list} from an empty list. Try adding a ${
+        list} first.`);
+    throw window.dash_clientside.PreventUpdate;
   }
 };
 

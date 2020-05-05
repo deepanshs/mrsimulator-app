@@ -1,0 +1,105 @@
+/* .default-box {
+    display: flex;
+    align-items: center;
+    text-indent: 50%;
+} */
+
+.top-toolbar-left,
+.top-toolbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    justify-items: center;
+}
+
+.default-menu {
+    display: flex;
+}
+
+[class$="-menu"] {
+    position: relative;
+}
+
+[class$="-menu"] ul {
+    position: absolute;
+    left: 0px;
+    background: white;
+    width: 190px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    list-style: none;
+    border-radius: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    box-shadow: 0 0 5px 0 lightgray;
+}
+
+[class$="-menu"] ul {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+[class$="-menu"] a {
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    width: 100%;
+}
+
+.help-menu h6 {
+    padding: 0.5rem;
+    padding-left: 1rem;
+}
+
+[class$="-menu"] li {
+    cursor: pointer;
+    align-items: start;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 0.25rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 0.95rem;
+    color: rgb(73, 73, 73);
+}
+
+[class$="-menu"] hr {
+    height: 0;
+    width: 100%;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+[class$="-menu"] li:hover {
+    background-color: rgba(211, 211, 211, 0.5);
+}
+
+[class$="-menu"]:hover ul {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0px);
+}
+
+[class$="-menu"] label {
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    margin: auto;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    color: rgb(65, 65, 65);
+    font-size: 0.95rem;
+    border-radius: 0.15rem;
+}
+
+[class$="-menu"]:hover label {
+    background-color: rgb(235, 235, 235);
+}

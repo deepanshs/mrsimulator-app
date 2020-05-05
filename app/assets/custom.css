@@ -21,34 +21,34 @@
   color: #ffffff;
 }
 
-.card-body div:nth-child(1) {
-  /* #data_description { */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 /* card properties */
-#dimension-body,
+#method-body,
 #isotopomer-body {
-  background-image: linear-gradient(to top, #f3f3f3 0%, white 100%);
-  /* background-blend-mode: screen; */
+  /* background-image: linear-gradient(to top, #f3f3f3 0%, white 100%); */
+  background-blend-mode: screen;
+}
+
+#info-body.my-card h4 {
+  padding-bottom: 1rem;
 }
 
 #isotopomer-body.my-card,
-#dimension-body.my-card,
-#spectrum-body.my-card {
+#method-body.my-card,
+#spectrum-body.my-card,
+#info-body.my-card {
   overflow: hidden;
   border: 1px solid silver;
   min-height: var(--content-min-height);
   height: var(--content-max-height);
   margin: auto;
-  border-radius: 1rem;
-  /* margin-left: 0; */
-  margin-bottom: 1rem;
-  margin-top: 1rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(211, 211, 211, 0.5);
+  margin: 0.5rem;
+  /* margin-bottom: 0.5rem;
+  margin-top: 0.5rem; */
   /* justify-content: space-around; */
-  box-shadow: 0 0 30px 0 rgba(71, 71, 71, 0.3);
+  box-shadow: 0 0 3px 0 lightgray;
 }
 
 #spectrum-body.my-card {
@@ -57,19 +57,10 @@
 }
 
 #isotopomer-body.my-card,
-#dimension-body.my-card {
+#method-body.my-card {
   max-width: 45rem;
 }
 
-#isotopomer-body.my-card:hover,
-#dimension-body.my-card:hover,
-#spectrum-body.my-card:hover {
-  box-shadow: 0 0 12px 0 rgba(71, 71, 71, 0.3);
-}
-
-/* #spectrum-body.my-card {
-  height: 100%;
-} */
 /*
 .float-card {
   box-shadow: 0 0 5px 0 rgb(194, 194, 194);
@@ -83,25 +74,78 @@
   height: calc(var(--content-max-height) - 7.25rem);
 }
 
-/* .my-card-sidebar {
-  width: var(--opt-width);
-  justify-content: space-around;
-  border-radius: 0rem;
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
-} */
-
 .card-header {
+  z-index: 10;
+  height: 3.4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem;
-  padding-left: 1.5rem;
-  z-index: 3;
+  padding: 0.5rem;
+  padding-left: 1rem;
   border-bottom: none;
-  /* border-bottom: 1px solid brown; */
-  /* box-shadow: 0 0px 5px 0px rgba(58, 58, 58, 0.75); */
+  border-bottom: 1px solid silver;
+  box-shadow: 0 0px 15px 0 rgba(112, 112, 112, 0.4);
+}
+
+.card-header input {
+  width: 40vw;
+  max-width: 20rem;
+  border-radius: 0.35rem;
+  border: 1px solid silver;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin: 0;
+}
+
+.card-header h4 {
+  padding-left: 0.75rem;
+  margin: 0;
+}
+
+.card-header div {
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  justify-items: center;
+}
+
+.scroll-cards {
+  border-top: 1px solid lightgrey;
+}
+
+.scroll-cards:hover {
+  background-color: rgb(245, 245, 245);
+}
+
+
+/* .scroll-cards:last-child {
+  border-bottom: 1px solid lightgrey;
+} */
+
+.scroll-cards h6 {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-transform: capitalize;
+  /* padding-bottom: 0; */
+}
+
+.scroll-cards h6 div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.scroll-cards h6 div svg {
+  cursor: pointer;
+}
+
+.container {
+  padding: 1rem;
+  padding-top: 0.5rem;
 }
 
 /* collapsible group handle */
@@ -117,13 +161,6 @@
 .collapsible:hover {
   box-shadow: 0 0px 3px 0px #979797;
   background-color: #f3e7e0;
-}
-
-.container {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  /* width: 100%; */
-  /* margin: 0; */
 }
 
 .panel-collapse {

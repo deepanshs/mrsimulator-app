@@ -36,3 +36,17 @@ function deg_to_rad(angle) {
   angle /= to_deg;
   return angle;
 }
+
+/* Check if two arrays are equal. */
+function checkArrayEquality(a, b) {
+  if (a.length !== b.length) {
+    return false
+  };
+  let len = a.length;
+  for (var i = 0; i < len; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+}

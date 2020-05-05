@@ -7,7 +7,7 @@ var init = function() {
   console.log($('#isotope'));
   /* Hide quadrupolar section if the isotope is spin 1/2. */
   $('#isotope').on('change', function(e) {
-    hide_quad();
+    hideQuad();
     e.preventDefault();
   });
 
@@ -55,54 +55,193 @@ var init = function() {
   });
 
   // Search and filter isotopomers
-  // $('#search-isotopomer').on = search;
-  $('#search-isotopomer').on('input', search);
+  $('#search-isotopomer').on('input', searchIsotopomers);
+
+  // Search and filter methods
+  $('#search-method').on('input', searchMethods);
 
   // Toggle isotopomer window with view-isotopomers button
   $('#view-isotopomers').on('click', function(e) {
-    var element1 = $('#isotopomer-body')[0].classList;
-    var element2 = $('#dimension-body')[0].classList;
+    let element1 = $('#isotopomer-body')[0].classList;
+    let element2 = $('#method-body')[0].classList;
+    let element3 = $('#info-body')[0].classList;
+
     element1.remove('hide-window');
     element2.add('hide-window');
+    element3.add('hide-window');
+
+    let isotopomer_tools = $('#isotopomer-edit-tools')[0];
+    let method_tools = $('#method-edit-tools')[0];
+    isotopomer_tools.style.display = 'flex';
+    method_tools.style.display = 'none';
+
     e.preventDefault();
   });
 
   // Toggle methods window with view-methods button
   $('#view-methods').on('click', function(e) {
-    var element1 = $('#isotopomer-body')[0].classList;
-    var element2 = $('#dimension-body')[0].classList;
+    let element1 = $('#isotopomer-body')[0].classList;
+    let element2 = $('#method-body')[0].classList;
+    let element3 = $('#info-body')[0].classList;
+
     element1.add('hide-window');
     element2.remove('hide-window');
+    element3.add('hide-window');
+
+    let isotopomer_tools = $('#isotopomer-edit-tools')[0];
+    let method_tools = $('#method-edit-tools')[0];
+    isotopomer_tools.style.display = 'none';
+    method_tools.style.display = 'flex';
+
     e.preventDefault();
   });
+
+  // Toggle info window with view-info button
+  $('#view-info').on('click', function(e) {
+    let element1 = $('#isotopomer-body')[0].classList;
+    let element2 = $('#method-body')[0].classList;
+    let element3 = $('#info-body')[0].classList;
+
+    element1.add('hide-window');
+    element2.add('hide-window');
+    element3.remove('hide-window');
+
+    let isotopomer_tools = $('#isotopomer-edit-tools')[0];
+    let method_tools = $('#method-edit-tools')[0];
+    isotopomer_tools.style.display = 'none';
+    method_tools.style.display = 'none';
+    e.preventDefault();
+  });
+
+  // MenuBar items default action
+  // show menu when hover.
+  $('[class$="-menu"] label').each(function() {
+    $(this).hover(function(e) {
+      this.nextElementSibling.style.display = 'flex';
+      e.preventDefault();
+    });
+  });
+  // hide menu.
+  $('[class$="-menu"] li').each(function() {
+    $(this).click(function(e) {
+      this.parentElement.style.display = 'none';
+      // e.preventDefault();
+    });
+  });
+
+  // View menu callbacks.
+  $('.view-menu li').each(function() {
+    $(this).click(function(e) {
+      let index = $(this).index();
+      if (index === 0) {
+        $('#view-info')[0].click();
+      }
+      if (index === 1) {
+        $('#view-isotopomers')[0].click();
+      }
+      if (index === 2) {
+        $('#view-methods')[0].click();
+      }
+
+      e.preventDefault();
+    });
+  });
+
+  // Isotopomer menu callbacks.
+  $('.isotopomer-menu li').each(function() {
+    $(this).click(function(e) {
+      let index = $(this).index();
+      if (index === 0) {
+        $('#add-isotopomer-button')[0].click()
+      }
+      if (index === 1) {
+        $('#duplicate-isotopomer-button')[0].click()
+      }
+      if (index === 2) {
+        $('#remove-isotopomer-button')[0].click()
+      }
+      e.preventDefault();
+    });
+  });
+
+  // Method menu callbacks.
+  $('.method-menu li').each(function() {
+    $(this).click(function(e) {
+      let index = $(this).index();
+      if (index === 0) {
+        $('#add-method-button')[0].click()
+      }
+      if (index === 1) {
+        $('#duplicate-method-button')[0].click()
+      }
+      if (index === 2) {
+        $('#remove-method-button')[0].click()
+      }
+      e.preventDefault();
+    });
+  });
+
+  // $('#open-mrsimulator-file').on('click', function(e) {
+  //   $('#upload-isotopomer-local-button input')[0].click();
+  //   e.preventDefault();
+  // });
+
+  // $('#upload_isotopomer_button').on('click', function(e) {
+  //   $('#upload-isotopomer-local input')[0].click();
+  //   e.preventDefault();
+  // });
+
+
+
+  // $('.view-menu button').on('click', function(e) {
+  //   var viewUl = $('.view-menu ul')[0];
+  //   if (viewUl.style.opacity === '1') {
+  //     viewUl.style.opacity = 0;
+  //     viewUl.style.pointerEvents = 'none';
+  //     viewUl.style.transform = 'translateY(-10px)';
+  //   } else {
+  //     viewUl.style.opacity = 1;
+  //     viewUl.style.pointerEvents = 'all';
+  //     viewUl.style.transform = 'translateY(0px)';
+  //   }
+  // });
+
+  // $('.main').on('click', function(e) {
+  //   var viewUl = $('.view-menu ul')[0];
+  //   if (viewUl.style.opacity === '1') {
+  //     viewUl.style.opacity = 0;
+  //     viewUl.style.pointerEvents = 'none';
+  //     viewUl.style.transform = 'translateY(-10px)';
+  //   }
+  // });
 
   // $('#add-isotopomer-button').on('click', addNewIsotopomer);
 
 
   // var app1 = document.getElementsByClassName("app-1");
-  // console.log(app1);
   // app1[0].onscroll = function () {
   //     var graph = document.getElementById("floating-card");
   //     var sticky = graph.offsetTop;
 
-  //     // console.log(app1[0]);
   //     if (app1[0].scrollTop > sticky - 5) {
   //         graph.classList.add("sticky");
   //     } else {
   //         graph.classList.remove("sticky");
   //     }
 
-  //     var h = document.getElementById("dimension-body").offsetTop;
+  //     var h = document.getElementById("method-body").offsetTop;
   //     if (app1[0].scrollTop > h) {
   //         graph.classList.remove('hide-display')
   //     }
   // };
+
+  $('#view-info')[0].click();
   return null;
 };
 
 /* Hide the quadrupolar attribute from the user, if the isotope is not
  * quadrupolar. */
-var hide_quad = function() {
+var hideQuad = function() {
   var isotope_id, quad_collapse, check_quad;
   isotope_id = getValue('isotope');
   if (isotope_id === null) {
@@ -121,3 +260,9 @@ var hide_quad = function() {
     quad_collapse.attributes[2].value = 'false';
   }
 };
+
+// var hideMenu = function(element) {
+//   element.style.opacity = 0;
+//   element.style.pointerEvents = 'none';
+//   element.style.transform = 'translateY(-10px)';
+// }

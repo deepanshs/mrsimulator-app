@@ -11,10 +11,10 @@
   padding-top: 4px;
 }
 
-.color-gradient {
+/* .color-gradient {
   height: 10px;
   background: linear-gradient(to right, #ff8a00 0%, #e52e71 100%);
-}
+} */
 
 /* burger for mobile screens */
 .burger {
@@ -44,7 +44,13 @@
 }
 
 .nav-composite {
+  z-index: 1;
+  height: 100%;
   width: 100%;
+  background-color: white;
+  border-top-left-radius: 2rem;
+  transform: translateY(34%);
+  /* transition: all 0.3s ease; */
 }
 
 /* logo animation */
@@ -164,7 +170,7 @@
   }
 }
 
-@media only screen and (max-width: 575px) {
+@media only screen and (max-width: 767px) {
   .burger {
     display: block;
     top: 2.5rem;

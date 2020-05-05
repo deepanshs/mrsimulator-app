@@ -100,7 +100,7 @@ def update_number_of_orientations(integration_density, integration_volume):
 # model user-interface
 advance_settings = dbc.Modal(
     [
-        dbc.ModalHeader("Advance setting"),
+        dbc.ModalHeader("Advanced setting"),
         dbc.ModalBody(
             dbc.FormGroup(
                 [

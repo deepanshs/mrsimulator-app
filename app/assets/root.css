@@ -1,10 +1,10 @@
 :root {
   /* --element-bg-color: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%); */
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 15.5rem);
-  --content-min-height: calc(55.5rem - 15.5rem);
+  --content-max-height: calc(100vh - 9rem);
+  --content-min-height: calc(55.5rem - 19.4rem);
   --opt-width: 50vw;
-  --opt-side-scroll-width: 11rem;
+  --opt-side-scroll-width: 11.5rem;
 }
 
 * {
@@ -57,20 +57,124 @@ section {
 }
 
 .main-split .sidebar {
-  z-index: 1;
-  border-right: 1px solid silver;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
-  padding-top: 1rem;
-  box-shadow: 0 0 2px 0 rgba(71, 71, 71, 0.5);
+}
+
+.main-split .sidebar:nth-child(2),
+.main-split .sidebar:nth-child(3) {
+  display: none;
 }
 
 .main-split .sidebar button {
   padding: 0.5rem;
+  border-radius: 0;
+  border-top: none;
+}
+
+.main-split .sidebar button:first-child {
+  border-top-left-radius: 0.2rem;
+  border-top-right-radius: 0.2rem;
+  border-top: 1px solid gray;
+}
+
+.main-split .sidebar button:last-child {
+  border-bottom-left-radius: 0.2rem;
+  border-bottom-right-radius: 0.2rem;
 }
 
 .main-split .app-1 {
+  border-left: 1px solid silver;
   width: 100%;
   overflow-x: hidden;
   transition: all 0.3s ease;
+}
+
+@media only screen and (max-width: 767px) {
+  .mobile-scroll {
+    display: flex;
+    /* min-width: 100vw; */
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+
+  #info-body.my-card,
+  #isotopomer-body.my-card,
+  #method-body.my-card {
+    position: relative;
+    margin-left: 0rem;
+    margin-right: 0rem;
+    min-width: calc(100vw - 0.25rem);
+    scroll-snap-align: center;
+  }
+}
+
+/*
+@media only screen and (max-width: 991px) and (min-width: 768px) {
+  .mobile-scroll {
+    display: flex;
+    min-width: 100vw;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+
+  #info-body.my-card,
+  #isotopomer-body.my-card,
+  #method-body.my-card {
+    position: relative;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    min-width: calc(100vw - 2.25rem);
+    scroll-snap-align: center;
+  }
+} */
+
+@media only screen and (max-width: 767px) {
+  .main-split {
+    display: block;
+  }
+
+  .main-split .sidebar-master {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .main-split .sidebar {
+    margin-top: 0.5rem;
+    margin-bottom: 0rem;
+    margin-left: 2rem;
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    justify-content: space-between;
+  }
+
+  .main-split .sidebar button {
+    border-left: none;
+    border-top: 1px solid gray;
+  }
+
+  .main-split .sidebar button:first-child {
+    border-top-left-radius: 0.2rem;
+    border-top-right-radius: 0rem;
+    border-bottom-right-radius: 0rem;
+    border-bottom-left-radius: 0.2rem;
+    border-left: 1px solid gray;
+  }
+
+  .main-split .sidebar button:last-child {
+    border-bottom-left-radius: 0rem;
+    border-bottom-right-radius: 0.2rem;
+    border-top-right-radius: 0.2rem;
+    border-top-left-radius: 0rem;
+  }
 }

@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 
-from .toolbar import method_toolbar
+from .toolbar import search_method
 from app.app import app
 from app.custom_widgets import custom_button
-from app.custom_widgets import custom_collapsible
+from app.custom_widgets import custom_card
 from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
 from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
+from app.isotopomer import isotope_options_list
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
@@ -19,58 +21,88 @@ __email__ = ["deepansh2012@gmail.com"]
 # dimension parameters
 def make_dimension(i):
     """Create a spectral dimension interface."""
-    row1 = html.Div(
+    return html.Div(
         [
+            # channel
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupAddon("Channel", addon_type="prepend"),
+                    dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
+                ],
+                className="container scroll-cards",
+            ),
             # create environment => widgets for
-            # 1) isotope,
-            # 2) magnetic flux density,
-            # 3) rotor frequency, and
-            # 4) rotor angle
-            custom_collapsible(
+            # 1) magnetic flux density,
+            # 2) rotor frequency, and
+            # 3) rotor angle
+            custom_card(
                 text="Environment",
-                identity=f"environment_id-{i}",
+                # identity=f"environment_id-{i}",
                 children=environment(i),
             ),
             # html.Div(["Environment", environment(i)]),
             # create coordinate grid => widgets for
             # 1) number of points,
-            # 2) spectral width, and
-            # 3) reference offset
-            custom_collapsible(
+            # 2) spectral width,
+            # 3) reference offset, and
+            # 4) origin offset
+            custom_card(
                 text="Coordinate grid",
-                identity=f"coordinate_grid_id-{i}",
+                # identity=f"coordinate_grid_id-{i}",
                 children=coordinate_grid(i),
             ),
             # create line broadening => widgets for
             # 1) apodization function and
             # 2) apodization factor,
-            custom_collapsible(
+            custom_card(
                 text="Line broadening",
-                identity=f"post_simulation_id-{i}",
+                # identity=f"post_simulation_id-{i}",
                 children=gaussian_linebroadening_widget(i),
             ),
         ],
         id=f"dimension-tab-scroll-{i}",
     )
-    dimension_contents = html.Div(children=[row1])
-    return dimension_contents
+    # dimension_contents = html.Div(children=[row1])
+    # return dimension_contents
 
 
 # method-title
 method_title = html.Div(
     [
         html.Label(id="method-title"),
-        custom_button(text="Submit", id="apply-method-changes", color="primary"),
+        custom_button(
+            text="Submit",
+            id="apply-method-changes",
+            color="primary",
+            # className="hide-window",
+        ),
     ],
     className="isotopomer-title",
 )
 
-# method contents
-method_contents = html.Div(
-    children=[make_dimension(i) for i in range(1)], id="dimension-tabs"
+# method metadata
+method_description = html.Div(
+    [
+        html.Label("Description"),
+        dbc.Textarea(placeholder="Add a description ... ", id="method-description"),
+    ]
 )
-# method editor
 
+# method contents
+method_contents = dbc.Tabs(
+    children=[
+        dbc.Tab(
+            label="Properties", children=html.Div([make_dimension(i) for i in range(1)])
+        ),
+        dbc.Tab(
+            label="Metadata",
+            children=html.Div([method_description], className="container"),
+        ),
+    ],
+    id="dimension-tabs",
+)
+
+# method editor
 method_editor = html.Div([method_title, method_contents], id="method-editor-content")
 
 # method read only section
@@ -83,29 +115,19 @@ method_slide = html.Div(
     [method_slide_1, method_slide_2], id="met-slide", className="met-slide-offset"
 )
 
-
+method_header = html.Div(
+    [html.I(className="fas fa-cube"), html.H4("Methods", className="hide-label-sm")]
+)
 # dimension layout
 dimension_body = html.Div(
     className="my-card hide-window",
     children=[
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.I(className="fas fa-cube fa-2x"),
-                        html.H4("Methods", className="hide-label-sm pl-3"),
-                    ],
-                    id="dimension-card-title",
-                    className="d-flex justify-items-around align-items-center",
-                )
-            ],
-            className="card-header",
-        ),
+        html.Div([method_header, search_method], className="card-header"),
         # html.Div(className="color-gradient-2"),
-        html.Div(method_toolbar),
+        # html.Div(method_toolbar),
         method_slide,
     ],
-    id="dimension-body",
+    id="method-body",
 )
 
 # callback code section =======================================================
@@ -189,6 +211,6 @@ app.clientside_callback(
         Input("apply-method-changes", "n_clicks_timestamp"),
         Input("add-method-button", "n_clicks_timestamp"),
         Input("duplicate-method-button", "n_clicks_timestamp"),
-        Input("trash-method-button", "n_clicks_timestamp"),
+        Input("remove-method-button", "n_clicks_timestamp"),
     ],
 )

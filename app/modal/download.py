@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     Model page layout and callbacks for advance settings.
-    Advance setting includes:
+    Advanced setting includes:
         - Integration density: Number of triangles along the edge of octahedron.
         - Integration volume: Enumeration with literals, 'octant', 'hemisphere'.
         - Number of sidebands: Number of sidebands to evaluate.

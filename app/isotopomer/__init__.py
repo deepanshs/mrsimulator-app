@@ -9,10 +9,11 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator.isotope import ISOTOPE_DATA
 
-from .toolbar import toolbar
+from .toolbar import search_isotopomer
 from .util import blank_display
 from app.app import app
 from app.custom_widgets import custom_button
+from app.custom_widgets import custom_card
 from app.custom_widgets import custom_input_group
 
 __author__ = ["Deepansh J. Srivastava", "Maxwell C. Venetos"]
@@ -153,12 +154,12 @@ def feature_orientation_collapsible(key_dict, id_label):
                 debounce=True,
             )
         )
-    lst_button = custom_button(
-        icon_classname="fas fa-book",
+    lst_button = html.Label(
+        [
+            html.I(className="fas fa-chevron-down"),
+            dbc.Tooltip("Show Euler angles", target=f"{id_label}-orientation-button"),
+        ],
         id=f"{id_label}-orientation-button",
-        tooltip="Show Euler angles",
-        outline=True,
-        color="dark",
     )
     # dbc.Button(
     #     f"Euler Angles",
@@ -169,21 +170,23 @@ def feature_orientation_collapsible(key_dict, id_label):
     # )
 
     lst_collapsible = dbc.Collapse(
-        [
-            html.Div(
-                [html.P(f"{id_label.replace('_',' ')}"), lst_button],
-                className="isotopomer-tensor-title",
+        custom_card(
+            text=html.Div([f"{id_label.replace('_',' ')}", lst_button]),
+            children=html.Div(
+                [
+                    html.Div(feature_input_fields),
+                    dbc.Collapse(
+                        orientation_input_fields,
+                        id=f"{id_label}-orientation-collapse",
+                        is_open=False,
+                    ),
+                ],
+                className="container",
             ),
-            html.Div(feature_input_fields),
-            dbc.Collapse(
-                orientation_input_fields,
-                id=f"{id_label}-orientation-collapse",
-                is_open=False,
-            ),
-        ],
+        ),
         id=f"{id_label}-feature-collapse",
         is_open=True,
-        className="sub-isotopomer-card",
+        # className="sub-isotopomer-card",
     )
 
     @app.callback(
@@ -203,48 +206,61 @@ def feature_orientation_collapsible(key_dict, id_label):
 
         return not is_open
 
-    # @app.callback(
-    #     Output(f"{id_label}-feature-collapse", "is_open"), [Input("isotope", "value")]
-    # )
-    # def hide_quad(isotope):
-    #     if id_label != "quadrupolar" or isotope is None:
-    #         raise PreventUpdate
-    #     return False if ISOTOPE_DATA[isotope]["spin"] == 1 else True
-
     return lst_collapsible
+
+
+isotope_and_shift = html.Div(
+    [
+        dbc.InputGroup(
+            [
+                dbc.InputGroupAddon("Isotope", addon_type="prepend"),
+                dbc.Select(options=isotope_options_list, value="1H", id="isotope"),
+            ]
+        ),
+        custom_input_group(
+            prepend_label="Isotropic shift (δ)",
+            append_label="ppm",
+            value="",
+            id="isotropic_chemical_shift",
+            debounce=True,
+        ),
+    ],
+    className="container scroll-cards",
+)
 
 
 def populate_key_value_from_object(object_dict):
     lst = []
-
-    for key, value in object_dict.items():
+    lst.append(isotope_and_shift)
+    for key in object_dict.keys():
         if isinstance(object_dict[key], dict):
             lst.append(feature_orientation_collapsible(object_dict[key], key))
-        elif key == "isotope":
-            lst.append(
-                dbc.InputGroup(
-                    [
-                        dbc.InputGroupAddon("Isotope", addon_type="prepend"),
-                        dbc.Select(options=isotope_options_list, value=value, id=key),
-                    ]
-                )
-            )
-        else:
-            lst.append(
-                html.Div(
-                    [
-                        custom_input_group(
-                            prepend_label=isotopomer_prepend_labels[key],
-                            append_label=value,
-                            value="",
-                            id=key,
-                            debounce=True,
-                        ),
-                        # fitting_collapsible(key, value, identity=key),
-                    ]
-                )
-            )
-    return html.Div(lst, className="container")
+
+    # elif key == "isotope":
+    #     lst.append(
+    #         dbc.InputGroup(
+    #             [
+    #                 dbc.InputGroupAddon("Isotope", addon_type="prepend"),
+    #                 dbc.Select(options=isotope_options_list, value=value, id=key),
+    #             ]
+    #         )
+    #     )
+    # else:
+    #     lst.append(
+    #         html.Div(
+    #             [
+    #                 custom_input_group(
+    #                     prepend_label=isotopomer_prepend_labels[key],
+    #                     append_label=value,
+    #                     value="",
+    #                     id=key,
+    #                     debounce=True,
+    #                 ),
+    #                 # fitting_collapsible(key, value, identity=key),
+    #             ]
+    #         )
+    #     )
+    return html.Div(lst)
 
 
 lst = populate_key_value_from_object(default_unit)
@@ -277,7 +293,11 @@ isotopomer_name_field = custom_input_group(
 isotopomer_description_field = html.Div(
     [
         html.Label("Description"),
-        dbc.Textarea(placeholder="Add description ... ", id="isotopomer-description"),
+        dbc.Textarea(
+            placeholder="Add a description ... ",
+            id="isotopomer-description",
+            debounce=True,
+        ),
     ]
 )
 
@@ -296,7 +316,12 @@ metadata = dcc.Tab(
 isotopomer_title = html.Div(
     [
         html.Label(id="isotopomer-title"),
-        custom_button(text="Submit", id="apply-isotopomer-changes", color="primary"),
+        custom_button(
+            text="Submit",
+            id="apply-isotopomer-changes",
+            color="primary",
+            className="hide-window",
+        ),
     ],
     className="isotopomer-title",
 )
@@ -330,20 +355,17 @@ isotopomer_slide = html.Div(
 
 isotopomer_title = html.Div(
     [
-        html.I(className="fac fa-isotopomers fa-2x"),
-        html.H4("Isotopomers", className="hide-label-sm pl-3"),
-    ],
-    id="isotopomer-card-title",
-    className="d-flex justify-items-around align-items-center",
+        html.I(className="fac fa-isotopomers"),
+        html.H4("Isotopomers", className="hide-label-sm"),
+    ]
 )
 
 # Isotopomer layout
 isotopomer_body = html.Div(
-    className="my-card",
+    className="my-card hide-window",
     children=dcc.Upload(
         [
-            html.Div(isotopomer_title, className="card-header"),
-            html.Div(toolbar),
+            html.Div([isotopomer_title, search_isotopomer], className="card-header"),
             isotopomer_slide,
         ],
         id="upload-isotopomer-local",
@@ -373,6 +395,21 @@ app.clientside_callback(
         Input("apply-isotopomer-changes", "n_clicks_timestamp"),
         Input("add-isotopomer-button", "n_clicks_timestamp"),
         Input("duplicate-isotopomer-button", "n_clicks_timestamp"),
-        Input("trash-isotopomer-button", "n_clicks_timestamp"),
+        Input("remove-isotopomer-button", "n_clicks_timestamp"),
+        Input("isotopomer-name", "value"),
+        Input("isotopomer-description", "value"),
+        Input("isotope", "value"),
+        Input("isotropic_chemical_shift", "value"),
+        Input("shielding_symmetric-zeta", "value"),
+        Input("shielding_symmetric-eta", "value"),
+        Input("shielding_symmetric-alpha", "value"),
+        Input("shielding_symmetric-beta", "value"),
+        Input("shielding_symmetric-gamma", "value"),
+        Input("quadrupolar-Cq", "value"),
+        Input("quadrupolar-eta", "value"),
+        Input("quadrupolar-alpha", "value"),
+        Input("quadrupolar-beta", "value"),
+        Input("quadrupolar-gamma", "value"),
     ],
+    # [State('live-update', 'value')]
 )

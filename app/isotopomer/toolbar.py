@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 
@@ -35,6 +34,14 @@ __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 #     advanced_isotopomer_text_area, id="json-file-editor-collapse"
 # )
 
+button = custom_button(
+    icon_classname="fac fa-isotopomers",
+    outline=True,
+    color="dark",
+    disabled=True,
+    id="__isotopomer__",
+)
+
 # button to create a new isotopomer
 new_isotopomer = custom_button(
     # text="Add",
@@ -59,23 +66,10 @@ duplicate_isotopomer = custom_button(
 trash_isotopomer = custom_button(
     # text="Remove",
     icon_classname="fas fa-minus-circle",
-    id="trash-isotopomer-button",
+    id="remove-isotopomer-button",
     tooltip="Remove selected isotopomer",
     outline=True,
     color="dark",
-)
-
-# button to import an isotopomer
-import_isotopomer = dcc.Upload(
-    custom_button(
-        # text="Remove",
-        icon_classname="fas fa-hdd",
-        tooltip="Import isotopomers from file",
-        outline=True,
-        color="dark",
-        id="_upload_isotopomer_button",
-    ),
-    id="upload-isotopomer-local-button",
 )
 
 
@@ -83,8 +77,8 @@ search_isotopomer = dcc.Input(
     value="", id="search-isotopomer", placeholder="Search isotopomers", type="search"
 )
 
-edit_tools = dbc.ButtonGroup([new_isotopomer, duplicate_isotopomer, trash_isotopomer])
-
-toolbar = html.Div(
-    [edit_tools, import_isotopomer, search_isotopomer], className="toolbar"
+isotopomer_edit_tools = html.Div(
+    [button, new_isotopomer, duplicate_isotopomer, trash_isotopomer],
+    className="sidebar hide-window",
+    id="isotopomer-edit-tools",
 )

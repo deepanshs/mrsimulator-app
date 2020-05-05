@@ -17,7 +17,7 @@
 
 .iso-slide-offset .slider1,
 .iso-slide-offset .slider2 {
-  overflow-x: scroll;
+  overflow-x: hidden;
   width: 100%;
 }
 
@@ -31,18 +31,19 @@
   position: relative;
   width: var(--opt-side-scroll-width);
   border-right: 1px solid #58270abe;
+  transition: all 0.3s ease;
 }
 
 .iso-slide .slider2 {
   position: relative;
   width: calc(100% - var(--opt-side-scroll-width));
-  box-shadow: 0px 0px 0px 0px rgba(71, 71, 71, 0.5);
+  transition: all 0.3s ease;
 }
 
 #isotopomer-editor-content,
 #isotopomer-read-only {
-  min-height: calc(var(--content-min-height) - 6.5rem);
-  height: calc(var(--content-max-height) - 6.5rem);
+  min-height: calc(var(--content-min-height) - 3.5rem);
+  height: calc(var(--content-max-height) - 3.5rem);
   scrollbar-width: thin;
 }
 
@@ -52,8 +53,8 @@
 } */
 
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 15.55rem);
-  height: calc(var(--content-max-height) - 15.55rem);
+  min-height: calc(var(--content-min-height) - 11.5rem);
+  height: calc(var(--content-max-height) - 11.5rem);
   overflow-y: scroll;
   /* scrollbar-width: none; */
   border-bottom: 1px solid silver;
@@ -74,14 +75,12 @@
   background: transparent;
   height: 100%;
   width: 100%;
-  padding: auto;
-  font-size: 0.82rem;
-  line-height: 1.05;
+  font-size: 0.9rem;
+  line-height: 1.3;
   font-weight: 300;
   color: rgb(53, 53, 53);
   list-style: none;
   cursor: default;
-  margin: auto;
 }
 
 .display-form li {
@@ -90,12 +89,18 @@
   overflow-y: hidden;
   position: relative;
   padding: 0;
-  margin-left: -1px;
+  border-left: none;
+  border-right: none;
   width: 100%;
   scrollbar-width: none;
+  border-radius: none;
 }
 
 .display-form li::-webkit-scrollbar {
+  display: none;
+}
+
+.display-form li h6 {
   display: none;
 }
 
@@ -168,30 +173,33 @@
 .isotopomer-tensor-title {
   display: flex;
   justify-content: space-between;
-  transform: translateY(-0.5rem);
-  transition: all 0.3s ease;
-  background-color: rgb(224, 226, 252);
-  margin-left: -0.96rem;
-  margin-right: -0.96rem;
+  /* transform: translateY(-0.5rem); */
+  /* transition: all 0.3s ease; */
+  /* margin-top: 0.5rem; */
+  margin-bottom: 1rem;
+  /* padding: 0.25rem; */
+  background-color: #f7f1ea;
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 
 .isotopomer-tensor-title p {
   margin-top: auto;
   margin-bottom: auto;
-  font-weight: 600;
-  color: rgb(12, 44, 131);
+  /* font-weight: 600; */
+  color: black;
   text-transform: capitalize;
   padding-left: 1rem;
 }
 
-.isotopomer-tensor-title:after {
+/* .isotopomer-tensor-title:after {
   content: "";
   width: 100%;
   right: 0;
   height: 1px;
   background: rgb(25, 3, 124);
   position: absolute;
-}
+} */
 
 .isotopomer-tensor-title button {
   /* margin-top: auto;
@@ -242,6 +250,7 @@
 }
 
 .isotopomer-title label {
+  padding: 0.25rem;
   color: rgb(66, 66, 66);
   text-align: center;
   font-weight: 600;
@@ -265,4 +274,28 @@
 .input-text-description {
   color: rgb(77, 77, 77);
   font-size: 0.95rem;
+}
+
+/* media for isotopomers and methods*/
+@media only screen and (max-width: 575px),
+(min-width: 992px) and (max-width: 1100px) {
+  .display-form li div {
+    display: none;
+  }
+
+  .display-form li h6 {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    padding: 0.75rem;
+  }
+
+  .iso-slide .slider1 {
+    width: 4rem;
+  }
+
+  .iso-slide .slider2 {
+    width: calc(100% - 4rem);
+  }
 }

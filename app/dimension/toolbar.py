@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 
@@ -8,12 +7,21 @@ from app.custom_widgets import custom_button
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
 
+
+button = custom_button(
+    icon_classname="fas fa-cube",
+    outline=True,
+    color="dark",
+    disabled=True,
+    id="__method__",
+)
+
 # button to create a new method
 new_method = custom_button(
     # text="Add",
     icon_classname="fas fa-plus-circle",
     id="add-method-button",
-    tooltip="Add",
+    tooltip="Add a method",
     outline=True,
     color="dark",
 )
@@ -23,7 +31,7 @@ duplicate_method = custom_button(
     # text="Duplicate",
     icon_classname="fas fa-clone",
     id="duplicate-method-button",
-    tooltip="Duplicate",
+    tooltip="Duplicate selected method",
     outline=True,
     color="dark",
 )
@@ -32,8 +40,8 @@ duplicate_method = custom_button(
 trash_method = custom_button(
     # text="Remove",
     icon_classname="fas fa-minus-circle",
-    id="trash-method-button",
-    tooltip="Remove",
+    id="remove-method-button",
+    tooltip="Remove selected method",
     outline=True,
     color="dark",
 )
@@ -56,5 +64,9 @@ search_method = dcc.Input(
     value="", id="search-method", placeholder="Search methods", type="search"
 )
 
-edit_tools = dbc.ButtonGroup([new_method, duplicate_method, trash_method])
-method_toolbar = html.Div([edit_tools, search_method], className="toolbar")
+method_edit_tools = html.Div(
+    className="sidebar hide-window",
+    children=[button, new_method, duplicate_method, trash_method],
+    id="method-edit-tools",
+)
+# method_toolbar = html.Div([search_method], className="toolbar")

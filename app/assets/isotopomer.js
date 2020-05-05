@@ -13,7 +13,6 @@ const ISOTOPE_DATA = [
 
 const to_deg = 180 / 3.14159265359;
 const ATTR_PER_SITE = 12;
-var i, j, k;
 const euler_angle = ['alpha', 'beta', 'gamma'];
 const ALL_KEYS = [
   'isotope', 'isotropic_chemical_shift', 'shielding_symmetric-zeta',
@@ -52,9 +51,9 @@ var set_site_attributes = function(site) {
   setValue('isotropic_chemical_shift', site['isotropic_chemical_shift']);
 
   // shielding symmetric
-  var key = 'shielding_symmetric';
+  let key = 'shielding_symmetric';
   if (site.hasOwnProperty(key)) {
-    var ss = site[key];
+    let ss = site[key];
     setValue(`${key}-zeta`, ss['zeta']);
     setValue(`${key}-eta`, ss['eta']);
     // Convert Euler angles in radians.
@@ -78,7 +77,7 @@ var set_site_attributes = function(site) {
   // quadrupolar
   key = 'quadrupolar';
   if (site.hasOwnProperty(key)) {
-    var ss = site[key];
+    let ss = site[key];
     setValue(`${key}-Cq`, ss['Cq'] / 1e6);  // Convert Cq in MHz.
     setValue(`${key}-eta`, ss['eta']);
     // Convert Euler angles in radians.
@@ -105,19 +104,20 @@ var set_site_attributes = function(site) {
  * @param index: The index of the isotopomer.
  */
 var update_field_from_isotopomer_at_index = function(index) {
-  var data = storeData['data'];
-  var isotopomer = data['isotopomers'][index];
+  let data = storeData['data'];
+  let isotopomer = data['isotopomers'][index];
 
   // name, description, and abundance of the isotopomer
 
-  var name = isotopomer['name'];
+  let name = isotopomer['name'];
   setValue('isotopomer-name', name);
   $('#isotopomer-title')[0].innerHTML = (name == '') ? `Isotopomer ${index}` : name;
+  console.log('index', index, isotopomer['description']);
   setValue('isotopomer-description', isotopomer['description']);
   setValue('isotopomer-abundance', isotopomer['abundance']);
 
   // extract site information
-  var site = isotopomer['sites'][0];
+  let site = isotopomer['sites'][0];
   set_site_attributes(site);
 };
 
@@ -125,7 +125,7 @@ var update_field_from_isotopomer_at_index = function(index) {
  * @params obj: An object dictionary holding the three Euler angles
  */
 var euler_angle_deg_to_rad = function(obj) {
-  for (i = 0; i < euler_angle.length; i++) {
+  for (let i = 0; i < euler_angle.length; i++) {
     if (obj.hasOwnProperty(euler_angle[i])) {
       obj[euler_angle[i]] /= to_deg;
     }
@@ -135,28 +135,29 @@ var euler_angle_deg_to_rad = function(obj) {
 /* Extract the site dictionary from the UI field using the UI ids. */
 var extract_site_object_from_fields = function() {
   // Get the isotopomers data from the session storage.
-  var data = storeData['data'];
+  let data = storeData['data'];
   if (data === null) {
     throw window.dash_clientside.PreventUpdate;
   }
   // Extract the current isotopomer index, and get the respective isotopomer.
-  var index = get_isotopomer_index();
-  var isotopomer = data['isotopomers'][index];
+  let index = get_isotopomer_index();
+  let isotopomer = data['isotopomers'][index];
 
   // Extract name and description information from the states and update the
   // isotopomer object
   isotopomer['name'] = getValue('isotopomer-name');
+  console.log('pack dict', index, getValue('isotopomer-description'));
   isotopomer['description'] = getValue('isotopomer-description');
   isotopomer['abundance'] = getValue('isotopomer-abundance');
 
   // Set up a default site dictionary and then populate the key-value pairs.
-  var site = {
+  let site = {
     'isotope': null,
     'isotropic_chemical_shift': null,
     'shielding_symmetric': {},
     'quadrupolar': {}
   };
-  var val, id, key;
+  let val, id, key, i;
   for (i = 0; i < ATTR_PER_SITE; i++) {
     id = ALL_KEYS[i];
     val = getValue(id);
@@ -199,9 +200,8 @@ print_label =
 unit = [null, 'ppm', 'ppm', '', '°', '°', '°', 'MHz', '', '°', '°', '°'];
 
 var update_info = function(ito, i) {
-  var output = `<div><a>`;
-  var s_len, sto, sti, temp, sites, key, val;
-  console.log(ito);
+  let output = `<div><a>`;
+  let s_len, sto, sti, temp, sites, key, val, j, k;
 
   // name
   temp = `Isotopomer ${i}`;
@@ -283,10 +283,9 @@ var update_info = function(ito, i) {
 };
 
 
-function search() {
-  var input, filter, li, i, j, elements1, elements2, elements, txtValue;
+function searchIsotopomers() {
+  let input, filter, li, i, j, elements1, elements2, elements, txtValue;
   input = document.getElementById('search-isotopomer');
-  console.log(input);
   filter = input.value.toUpperCase();
   li = $('#isotopomer-read-only div.display-form ul li');
 
@@ -312,18 +311,18 @@ var isotopomerOnClick = function(obj) {
   default_li_item_action(obj);
 
   // store the current-isotopomer-index in the session
-  var index = $(obj).index();
+  let index = $(obj).index();
   set_isotopomer_index(index);
 
   // Update the isotopomer fields
   update_field_from_isotopomer_at_index(index);
 
   // Trigger hide quad for spin-1/2
-  hide_quad();
+  hideQuad();
 };
 
 var addNewIsotopomer = function() {
-  var data = storeData['data'], result, l;
+  let data = storeData['data'], result, l;
   l = (data == null) ? 0 : data['isotopomers'].length;
   result = {
     'name': `Isotopomer-${l}`,
@@ -334,11 +333,10 @@ var addNewIsotopomer = function() {
   data['isotopomers'].push(result);
   // set_isotopomer_index(l);
 
-  var ul = $('#isotopomer-read-only div.display-form ul');
-  var li = document.createElement('li');
+  let ul = $('#isotopomer-read-only div.display-form ul');
+  let li = document.createElement('li');
   li.innerHTML = update_info(result, l);
   li.className = 'list-group-item';
-  console.log(ul);
   ul[0].appendChild(li);
   $(li).click(function() {
     isotopomerOnClick(li)

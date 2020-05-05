@@ -7,13 +7,12 @@ from . import importer
 from . import navbar
 from .custom_widgets import custom_button
 from .dimension import dimension_body
+from .dimension.toolbar import method_edit_tools
 from .graph import spectrum_body
 from .isotopomer import isotopomer_body
-from .modal.about import about_modal
-from .sidebar import master_toolbar
-from .sidebar import sample_info
+from .isotopomer.toolbar import isotopomer_edit_tools
+from .menubar import sample_info
 
-# from . import sidebar
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -115,8 +114,6 @@ storage_div = html.Div(
 nav_group = html.Div(
     [
         navbar.navbar_group,
-        about_modal,
-        # navbar.side_panel,
         html.Div(
             [importer.isotopomer_import_layout, importer.spectrum_import_layout],
             id="drawers-import",
@@ -135,14 +132,17 @@ nav_group = html.Div(
             fade=True,
             is_open=False,
         ),
-        master_toolbar,
-        sample_info,
-    ],
-    # className="fixed-top",
+    ]
 )
 
-sidebar = html.Div(
+view_tools = html.Div(
     [
+        custom_button(
+            icon_classname="fas fa-info-circle",
+            id="view-info",
+            tooltip="Info",
+            outline=True,
+        ),
         custom_button(
             icon_classname="fac fa-isotopomers",
             id="view-isotopomers",
@@ -159,6 +159,10 @@ sidebar = html.Div(
     className="sidebar",
 )
 
+sidebar = html.Div(
+    [view_tools, method_edit_tools, isotopomer_edit_tools], className="sidebar-master"
+)
+
 app_1 = html.Div(
     [
         html.Div(id="temp1"),
@@ -167,7 +171,12 @@ app_1 = html.Div(
         html.Div(id="temp4"),
         dbc.Row(
             [
-                dbc.Col([isotopomer_body, dimension_body], md=12, lg=6),
+                dbc.Col(
+                    [sample_info, isotopomer_body, dimension_body],
+                    md=12,
+                    lg=6,
+                    className="mobile-scroll",
+                ),
                 dbc.Col(spectrum_body, md=12, lg=6),
             ]
         ),

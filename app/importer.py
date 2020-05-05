@@ -6,7 +6,6 @@ from urllib.request import urlopen
 
 import csdmpy as cp
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 import dash_html_components as html
 from csdmpy.dependent_variables.download import get_absolute_url_path
 from dash import callback_context as ctx
@@ -28,43 +27,11 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-# The following are a set of widgets used to load data from file. =====================
-# Method 1. From pre-defined set of examples. -----------------------------------------
-# Load a list of pre-defined examples from the example_link.json file.
-with open("examples/example_link.json", "r") as f:
-    mrsimulator_examples = json.load(f)
-
-
-# =====================================================================================
-
-
 def upload_data(prepend_id, message_for_URL, message_for_upload):
     """User uploaded files.
     Args:
         prepend_id: Prepends to the designated it.
     """
-
-    if prepend_id == "isotopomer":
-        options = mrsimulator_examples
-    else:
-        options = []
-
-    # Method 1: A dropdown menu list with example isotopomers.
-    # -------------------------------------------------------------------------
-    select_examples_dropdown = html.Div(
-        [
-            dbc.Label(f"Select an example {prepend_id}.", className="formtext"),
-            dcc.Dropdown(
-                id=f"example-{prepend_id}-dropbox",
-                options=options,
-                searchable=False,
-                clearable=True,
-                placeholder="Select an example ... ",
-                style={"zIndex": "10"},
-            ),
-        ],
-        className="d-flex flex-column grow",
-    )
 
     # Method 2. From URL address
     # -------------------------------------------------------------------------
@@ -92,60 +59,8 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         className="d-flex flex-column",
     )
 
-    # Method 3. From a local file (Drag and drop). ------------------------------------
-    # Using the dcc upload method.
-    # upload_local_file_widget = html.Div(
-    #     [
-    #         label_with_help_button(
-    #             *message_for_upload, id=f"upload-{prepend_id}-local-help"
-    #         ),
-    #         dcc.Upload(
-    #             id=f"upload-{prepend_id}-local",
-    #             children=html.Div(
-    #                 [
-    #                     "Drag and drop, or ",
-    #                     html.A(
-    #                         [html.I(className="fas fa-upload"), " select"], href="#"
-    #                     ),
-    #                 ],
-    #                 className="formtext",
-    #             ),
-    #             style={
-    #                 "lineHeight": "55px",
-    #                 "borderWidth": ".85px",
-    #                 "borderStyle": "dashed",
-    #                 "borderRadius": "7px",
-    #                 "textAlign": "center",
-    #                 "color": "silver",
-    #             },
-    #             # Allow multiple files to be uploaded
-    #             multiple=False,
-    #         ),
-    #     ],
-    #     className="d-flex flex-column pb-1",
-    # )
-
-    # Layout for the url and upload-a-file input methods. Each input method is wrapped
-    # in a collapsible widget which is activated with the following buttons
-
     # presetting the fields for generating buttons
     fields = [
-        {
-            "text": "Example",
-            "icon_classname": "fac fa-isotopomers",
-            "id": f"example-{prepend_id}-button",
-            "tooltip": "Select an example.",
-            "active": False,
-            "collapsable": select_examples_dropdown,
-        },
-        # {
-        #     "text": "Local",
-        #     "icon_classname": "fas fa-hdd",
-        #     "id": f"upload-{prepend_id}-local-button",
-        #     "tooltip": "Upload a local JSON file containing isotopomers.",
-        #     "active": False,
-        #     "collapsable": upload_local_file_widget,
-        # },
         {
             "text": "URL",
             "icon_classname": "fas fa-at",
@@ -153,7 +68,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             "tooltip": "Retrieve isotopomers from a remote JSON file.",
             "active": False,
             "collapsable": data_from_url,
-        },
+        }
     ]
 
     # Now generating buttons
@@ -177,12 +92,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         id_ = item["id"]
         input_layout_0.append(dbc.Collapse(item["collapsable"], id=f"{id_}-collapse"))
 
-    # layout for the input panel. The two buttons are packed as vertical button group,
-    # followed by the two collapsible widgets.
-    # if prepend_id == "isotopomer":
-    #     addon = [select_examples_dropdown]
-    # else:
-    #     addon = []
     input_layout = html.Div(
         [
             html.Div(
@@ -206,40 +115,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         ],
         className="navbar-reveal",
     )
-
-    @app.callback(
-        [
-            *[Output(f"{item['id']}-collapse", "is_open") for item in fields],
-            *[Output(item["id"], "active") for item in fields],
-        ],
-        [Input(item["id"], "n_clicks") for item in fields],
-        [
-            *[State(f"{item['id']}-collapse", "is_open") for item in fields],
-            *[State(item["id"], "active") for item in fields],
-        ],
-    )
-    def toggle_collapsible_input(n1, n3, c1, c3, a1, a3):
-        """Toggle collapsible widget form url and upload-a-file button fields."""
-        if n1 is n3 is None:
-            return [False, True, False, True]
-
-        if not ctx.triggered:
-            raise PreventUpdate
-        else:
-            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        if button_id == fields[0]["id"]:
-            if not c1:
-                return [not c1, False, not a1, False]
-            return [c1, False, a1, False]
-        # if button_id == fields[1]["id"]:
-        #     if not c2:
-        #         return [False, not c2, False, False, not a2, False]
-        #     return [False, c2, False, False, a2, False]
-        if button_id == fields[1]["id"]:
-            if not c3:
-                return [False, not c3, False, not a3]
-            return [False, c3, False, a3]
 
     # The input drawers are further wrapper as a collapsible. This collapsible widget
     # is activate from the navigation menu.
@@ -294,19 +169,19 @@ spectrum_import_layout = upload_data(
     ],
     [
         Input("upload-isotopomer-local", "contents"),
+        Input("open-mrsimulator-file", "contents"),
         Input("upload-isotopomer-local-button", "contents"),
         Input("upload-isotopomer-url-submit", "n_clicks"),
-        Input("example-isotopomer-dropbox", "value"),
+        Input("selected-example", "value"),
         Input("new-json", "modified_timestamp"),
         Input("temp-json", "modified_timestamp"),
         Input("new-method-json", "modified_timestamp"),
-        Input("open-mrsimulator-file", "contents"),
     ],
     [
         State("upload-isotopomer-url", "value"),
+        State("open-mrsimulator-file", "filename"),
         State("upload-isotopomer-local", "filename"),
         State("upload-isotopomer-local-button", "filename"),
-        State("open-mrsimulator-file", "filename"),
         State("local-isotopomers-data", "data"),
         State("new-json", "data"),
         State("temp-json", "data"),
@@ -333,7 +208,7 @@ def update_isotopomers(*args):
         return modified_method(existing_data, new_method_data)
 
     # old_isotope = ctx.states["isotope_id-0.value"]
-    no_updates = [no_update, no_update, no_update, no_update]
+    no_updates = [no_update, no_update, no_update]
     if_error_occurred = [True, no_update, no_update, existing_data, *no_updates]
 
     if trigger_id == "temp-json":
@@ -351,30 +226,16 @@ def update_isotopomers(*args):
             print_methods_info(data["methods"]),
         ]
 
-    # Load a mrsimulator file
-    if trigger_id == "open-mrsimulator-file":
-        filename = ctx.states[f"{trigger_id}.filename"]
-        contents = ctx.inputs[f"{trigger_id}.contents"]
-        print(trigger_id, "inside", filename)
-        if contents is None:
-            raise PreventUpdate
-        try:
-            data = parse_contents(contents, filename)
-        except Exception:
-            message = "Error reading isotopomers."
-            return [message, *if_error_occurred]
-        return assemble_data(data)
-
     # Load a sample from pre-defined examples
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
-    if trigger_id == "example-isotopomer-dropbox":
-        example = ctx.inputs["example-isotopomer-dropbox.value"]
+    if trigger_id == "selected-example":
+        example = ctx.inputs["selected-example.value"]
         path = os.path.split(__file__)[0]
         if example in ["", None]:
             raise PreventUpdate
         response = urlopen(get_absolute_url_path(example, path))
-        data = json.loads(response.read())
+        data = fix_missing_keys(json.loads(response.read()))
         return assemble_data(data)
 
     # Request and load a sample from URL
@@ -386,7 +247,7 @@ def update_isotopomers(*args):
             raise PreventUpdate
         response = urlopen(url)
         try:
-            data = json.loads(response.read())
+            data = fix_missing_keys(json.loads(response.read()))
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
@@ -395,14 +256,18 @@ def update_isotopomers(*args):
     # Load a sample from drag and drop
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
-    if trigger_id in ["upload-isotopomer-local", "upload-isotopomer-local-button"]:
+    if trigger_id in [
+        "upload-isotopomer-local",
+        "upload-isotopomer-local-button",
+        "open-mrsimulator-file",
+    ]:
         filename = ctx.states[f"{trigger_id}.filename"]
         contents = ctx.inputs[f"{trigger_id}.contents"]
         print(trigger_id, "inside", filename)
         if contents is None:
             raise PreventUpdate
         try:
-            data = parse_contents(contents, filename)
+            data = fix_missing_keys(parse_contents(contents, filename))
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
@@ -517,7 +382,7 @@ def modified_isotopomer(existing_data, new_json_data):
 
     # Delete an isotopomer
     # The following section applies to when a request to remove an isotopomers is
-    # initiated using the trash-isotopomer-button.
+    # initiated using the remove-isotopomer-button.
     if new_json_data["operation"] == "delete":
         if index is None:
             raise PreventUpdate
@@ -533,30 +398,30 @@ def modified_isotopomer(existing_data, new_json_data):
         return [*no_updates, data, config, isotopomers_info, no_update]
 
 
-def parse_contents(contents, filename):
-    """Parse contents from the isotopomers file."""
+def fix_missing_keys(json_data):
     default_data = {
-        "name": filename,
+        "name": "",
         "description": "Add a description ...",
         "isotopomers": [],
         "methods": [],
         "config": {},
     }
+    data_keys = json_data.keys()
+    for k in default_data.keys():
+        if k not in data_keys:
+            json_data[k] = default_data[k]
+    return json_data
+
+
+def parse_contents(contents, filename):
+    """Parse contents from the isotopomers file."""
     if filename is None:
-        return default_data
+        raise PreventUpdate
 
-    if "json" in filename:
-        content_string = contents.split(",")[1]
-        decoded = base64.b64decode(content_string)
-        data = json.loads(str(decoded, encoding="UTF-8"))
-
-        data_keys = data.keys()
-        for k in default_data.keys():
-            if k not in data_keys:
-                data[k] = default_data[k]
-        return data
-
-    raise Exception("File not recognized.")
+    content_string = contents.split(",")[1]
+    decoded = base64.b64decode(content_string)
+    data = json.loads(str(decoded, encoding="UTF-8"))
+    return data
 
 
 def assemble_data(data):

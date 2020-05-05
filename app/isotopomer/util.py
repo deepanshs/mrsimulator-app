@@ -161,17 +161,20 @@ def print_isotopomer_info(json_data):
         # local.append(html.Br())
         output.append(
             html.Li(
-                html.Div(
-                    [
-                        html.A(local),
-                        # dbc.Button(
-                        #     "X",
-                        #     color="danger",
-                        #     block=True,
-                        #     id={"type": "initiate-remove-isotopomer", "index": i},
-                        # ),
-                    ]
-                ),
+                [
+                    html.H6(i),
+                    html.Div(
+                        [
+                            html.A(local),
+                            # dbc.Button(
+                            #     "X",
+                            #     color="danger",
+                            #     block=True,
+                            #     id={"type": "initiate-remove-isotopomer", "index": i},
+                            # ),
+                        ]
+                    ),
+                ],
                 className="list-group-item",
             )
         )
@@ -182,9 +185,9 @@ def print_isotopomer_info(json_data):
 
 
 # @app.callback(
-#     Output("trash-isotopomer-button", "n_clicks_timestamp"),
+#     Output("remove-isotopomer-button", "n_clicks_timestamp"),
 #     [Input({"type": "initiate-remove-isotopomer", "index": ALL}, "n_clicks")],
-#     [State("trash-isotopomer-button", "n_clicks_timestamp")],
+#     [State("remove-isotopomer-button", "n_clicks_timestamp")],
 # )
 # def initiate_remove_isotopomer(_, n):
 #     print("initiate", _, n)

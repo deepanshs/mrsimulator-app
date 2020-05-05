@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
-from app.isotopomer import isotope_options_list
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -60,8 +58,18 @@ def coordinate_grid(i):
         debounce=True,
     )
 
+    # origin offset
+    origin_offset = custom_input_group(
+        prepend_label="Origin offset",
+        append_label="MHz",
+        value=0.0,
+        id=f"origin_offset-{i}",
+        debounce=True,
+    )
+
     return html.Div(
-        [number_of_points, spectral_width, reference_offset], className="container"
+        [number_of_points, spectral_width, reference_offset, origin_offset],
+        className="container",
     )
 
 
@@ -123,13 +131,6 @@ def environment(i):
         debounce=True,
     )
 
-    channel = dbc.InputGroup(
-        [
-            dbc.InputGroupAddon("Channel", addon_type="prepend"),
-            dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
-        ]
-    )
-
     # isotope_and_filter = html.Div(
     #     [
     #         "Isotope",
@@ -143,6 +144,4 @@ def environment(i):
     #     className="justify-items-stretch form-group",
     # )
 
-    return html.Div(
-        [channel, flux_density, rotor_frequency, rotor_angle], className="container"
-    )
+    return html.Div([flux_density, rotor_frequency, rotor_angle], className="container")

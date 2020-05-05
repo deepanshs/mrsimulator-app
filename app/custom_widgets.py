@@ -106,6 +106,10 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     return button
 
 
+def custom_card(text, children):
+    return html.Div([html.H6(text), children], className="scroll-cards")
+
+
 def custom_slider(label="", return_function=None, **kwargs):
     """
         A custom dash bootstrap component slider with added components-

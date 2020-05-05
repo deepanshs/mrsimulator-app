@@ -5,7 +5,7 @@
   justify-content: start;
   display: flex;
   font-weight: 300;
-  line-height: 1.4rem;
+  line-height: 1.5rem;
 }
 
 .input-form-2 .label-left {
@@ -37,8 +37,7 @@
   padding-right: 0.5rem;
   border-radius: 0.2rem;
   background-color: transparent;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
+  border: 1px solid transparent;
 }
 
 .input-form-2 input:valid {
@@ -47,8 +46,16 @@
 }
 
 .input-form-2 input:invalid {
-  color: rgba(196, 56, 100, 0.795);
+  color: rgba(236, 26, 54, 0.918);
   text-decoration: line-through;
+  outline: none;
+}
+
+.input-form-2 input:invalid .input-form-2 input:after {
+  content: "invalid";
+  /* color: rgba(236, 26, 54, 0.918);
+  text-decoration: line-through;
+  outline: none; */
 }
 
 .input-form-2 input:focus,
@@ -57,14 +64,8 @@
   text-decoration: none;
   cursor: text;
   background-color: white;
-  border: 2px solid rgb(72, 163, 255);
+  border: 1px solid rgb(72, 163, 255);
   transition: all 0.3s ease;
-}
-
-.input-form-2 input:invalid {
-  color: rgba(173, 3, 57, 0.795);
-  outline: none;
-  box-shadow: none;
 }
 
 .input-text {
@@ -77,7 +78,7 @@
   padding-right: 0;
   border-radius: 0rem;
   /* background-color: transparent; */
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   transition: all 0.3s ease;
 }
 

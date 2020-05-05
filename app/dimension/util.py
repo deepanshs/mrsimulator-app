@@ -18,25 +18,27 @@ def print_methods_info(methods):
     for i, method in enumerate(methods):
         local = []
         local.append(html.B(method["name"], className=""))
-        local.append(
-            html.Div(["Channel: ", ", ".join(method["channels"])], className="pl-2")
-        )
+        channels = ", ".join(method["channels"])
+        local.append(html.Div(["Channel: ", channels], className="pl-2"))
 
         # local.append(html.Br())
 
         output.append(
             html.Li(
-                html.Div(
-                    [
-                        html.A(local),
-                        # dbc.Button(
-                        #     "X",
-                        #     color="danger",
-                        #     block=True,
-                        #     id={"type": "initiate-remove-isotopomer", "index": i},
-                        # ),
-                    ]
-                ),
+                [
+                    html.H6(i),
+                    html.Div(
+                        [
+                            html.A(local),
+                            # dbc.Button(
+                            #     "X",
+                            #     color="danger",
+                            #     block=True,
+                            #     id={"type": "initiate-remove-isotopomer", "index": i},
+                            # ),
+                        ]
+                    ),
+                ],
                 className="list-group-item",
             )
         )
