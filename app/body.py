@@ -104,10 +104,10 @@ storage_div = html.Div(
         dcc.Store(id="local-isotopomer-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
         dcc.Store(id="new-json", storage_type="memory"),
-        dcc.Store(id="temp-json", storage_type="memory"),
         dcc.Store(id="new-method-json", storage_type="memory"),
         # store a bool indicating if the data is from an external file
         dcc.Store(id="config", storage_type="memory"),
+        dcc.Store(id="user-config", storage_type="local"),
     ]
 )
 
@@ -169,16 +169,10 @@ app_1 = html.Div(
         html.Div(id="temp2"),
         html.Div(id="temp3"),
         html.Div(id="temp4"),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [sample_info, isotopomer_body, dimension_body],
-                    md=12,
-                    lg=6,
-                    className="mobile-scroll",
-                ),
-                dbc.Col(spectrum_body, md=12, lg=6),
-            ]
+        html.Div(id="temp5"),
+        html.Div(
+            [sample_info, isotopomer_body, dimension_body, spectrum_body],
+            className="mobile-scroll",
         ),
         storage_div,
         navbar.navbar_bottom,

@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash.dependencies import Input
-from dash.dependencies import Output
-from dash.dependencies import State
-from dash.exceptions import PreventUpdate
 
-from .app import app
 from .app import year
 from .menubar import master_menubar
 
@@ -62,50 +57,41 @@ navbar = dbc.Navbar(
                         alt="Mrsimulator",
                     )
                 ),
-                html.Div(
-                    id="burger",
-                    className="burger",
-                    children=[
-                        html.Div(className="line1"),
-                        html.Div(className="line2"),
-                        html.Div(className="line3"),
-                    ],
-                ),
+                # html.Div(
+                #     id="burger",
+                #     className="burger",
+                #     children=[
+                #         html.Div(className="line1"),
+                #         html.Div(className="line2"),
+                #         html.Div(className="line3"),
+                #     ],
+                # ),
             ],
             className="nav-burger",
         ),
-        html.Div(
-            [
-                dbc.Collapse([master_menubar], id="navbar-collapse", navbar=True),
-                # import_options,
-            ],
-            className="nav-composite",
-        ),
+        html.Div(master_menubar, className="nav-composite"),
     ],
     color=None,
     # sticky="top",
     # fixed="top",
     dark=None,
     expand="md",
-    # className="flex-fill align-item-right",
 )
 
-navbar_group = html.Div(
-    [navbar, html.Div(className="color-gradient")], id="navbar-group"
-)
+navbar_group = html.Div(navbar)
 
 
-@app.callback(
-    [Output("navbar-collapse", "is_open"), Output("burger", "className")],
-    [Input("burger", "n_clicks")],
-    [State("navbar-collapse", "is_open")],
-)
-def toggle_navbar_collapse(n, is_open):
-    if n is None:
-        raise PreventUpdate
-    if is_open:
-        return [not is_open, "burger"]
-    return [not is_open, "burger toggle"]
+# @app.callback(
+#     [Output("navbar-collapse", "is_open"), Output("burger", "className")],
+#     [Input("burger", "n_clicks")],
+#     [State("navbar-collapse", "is_open")],
+# )
+# def toggle_navbar_collapse(n, is_open):
+#     if n is None:
+#         raise PreventUpdate
+#     if is_open:
+#         return [not is_open, "burger"]
+#     return [not is_open, "burger toggle"]
 
 
 # The navgation bar displayed at the bottom of the web app.

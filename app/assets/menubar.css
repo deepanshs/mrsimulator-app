@@ -12,7 +12,7 @@
     justify-items: center;
 }
 
-.default-menu {
+.default-button {
     display: flex;
 }
 
@@ -22,18 +22,34 @@
 
 [class$="-menu"] ul {
     position: absolute;
-    left: 0px;
+    left: 0;
     background: white;
-    width: 190px;
+    min-width: 180px;
+    max-height: 265px;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
     flex-direction: column;
     list-style: none;
     border-radius: 0.5rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-    box-shadow: 0 0 5px 0 lightgray;
+    box-shadow: 0 12px 50px 0 rgba(0, 0, 0, 0.3);
+}
+
+[class$="-menu"]:nth-child(2) ul {
+    width: 285px;
+}
+
+[class$="-menu"]:nth-child(3) ul {
+    width: 285px;
+}
+
+[class$="-menu"]:nth-child(4) ul {
+    width: 200px;
+    overflow-y: scroll;
+}
+
+[class$="-menu"]:nth-child(4) ul::-webkit-scrollbar {
+    display: none;
 }
 
 [class$="-menu"] ul {
@@ -41,6 +57,10 @@
     pointer-events: none;
     transform: translateY(-10px);
     transition: all 0.3s ease;
+}
+
+[class$="-menu"]:nth-child(1) li ul {
+    display: none;
 }
 
 [class$="-menu"] a {
@@ -59,14 +79,25 @@
     cursor: pointer;
     align-items: start;
     width: 100%;
+    min-height: 30px;
     display: flex;
     align-items: center;
     justify-content: start;
-    padding: 0.25rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     font-size: 0.95rem;
     color: rgb(73, 73, 73);
+}
+
+[class$="-menu"] li>a>div,
+[class$="-menu"] li>div>div>div {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    height: 30px;
 }
 
 [class$="-menu"] hr {
@@ -77,7 +108,15 @@
 }
 
 [class$="-menu"] li:hover {
-    background-color: rgba(211, 211, 211, 0.5);
+    background-color: var(--select-blue);
+    color: white;
+}
+
+[class$="-menu"]:nth-child(1) li:hover ul {
+    position: absolute;
+    display: block;
+    left: 180px;
+    top: calc(2 * 30px);
 }
 
 [class$="-menu"]:hover ul {
@@ -86,6 +125,7 @@
     transform: translateY(0px);
 }
 
+.default-button label,
 [class$="-menu"] label {
     cursor: pointer;
     height: 100%;
@@ -100,6 +140,38 @@
     border-radius: 0.15rem;
 }
 
+.default-button:hover label,
 [class$="-menu"]:hover label {
     background-color: rgb(235, 235, 235);
+}
+
+@media only screen and (max-width: 500px) {
+    [class$="-menu"]:nth-child(6) ul {
+        left: -130px;
+    }
+
+    [class$="-menu"]:nth-child(4) ul {
+        left: -115px;
+    }
+
+    [class$="-menu"]:nth-child(3) ul {
+        left: -110px;
+    }
+}
+
+@media only screen and (max-width: 991px) {
+    [class$="-menu"]:nth-child(5) {
+        display: none;
+    }
+
+    .top-toolbar-left,
+    .top-toolbar-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: start;
+        justify-items: left;
+        /* overflow-x: hidden; */
+        /* overflow-y: visible; */
+    }
 }

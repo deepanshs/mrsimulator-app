@@ -19,63 +19,59 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 # dimension parameters
-def make_dimension(i):
+def generate_parameters(n_dimensions):
     """Create a spectral dimension interface."""
+    # channel
+    channel_ = dbc.InputGroup(
+        [
+            dbc.InputGroupAddon("Channel", addon_type="prepend"),
+            dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
+        ],
+        className="container scroll-cards",
+    )
+
+    # create environment => widgets for
+    # 1) magnetic flux density,
+    # 2) rotor frequency, and
+    # 3) rotor angle
+    environment_ = custom_card(text="Environment", children=environment(0))
+
+    # create coordinate grid => widgets for
+    # 1) number of points,
+    # 2) spectral width,
+    # 3) reference offset, and
+    # 4) origin offset
+    coordinate_grid_ = [
+        custom_card(text=f"Coordinate grid - {i}", children=coordinate_grid(i))
+        for i in range(n_dimensions)
+    ]
+
+    return html.Div(
+        [channel_, environment_, *coordinate_grid_], className="method-scroll"
+    )
+
+
+def post_simulation(n_dimensions):
+    # create line broadening => widgets for
+    # 1) apodization function and
+    # 2) apodization factor,
     return html.Div(
         [
-            # channel
-            dbc.InputGroup(
-                [
-                    dbc.InputGroupAddon("Channel", addon_type="prepend"),
-                    dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
-                ],
-                className="container scroll-cards",
-            ),
-            # create environment => widgets for
-            # 1) magnetic flux density,
-            # 2) rotor frequency, and
-            # 3) rotor angle
             custom_card(
-                text="Environment",
-                # identity=f"environment_id-{i}",
-                children=environment(i),
-            ),
-            # html.Div(["Environment", environment(i)]),
-            # create coordinate grid => widgets for
-            # 1) number of points,
-            # 2) spectral width,
-            # 3) reference offset, and
-            # 4) origin offset
-            custom_card(
-                text="Coordinate grid",
-                # identity=f"coordinate_grid_id-{i}",
-                children=coordinate_grid(i),
-            ),
-            # create line broadening => widgets for
-            # 1) apodization function and
-            # 2) apodization factor,
-            custom_card(
-                text="Line broadening",
-                # identity=f"post_simulation_id-{i}",
+                text=f"Line broadening - {i}",
                 children=gaussian_linebroadening_widget(i),
-            ),
+            )
+            for i in range(n_dimensions)
         ],
-        id=f"dimension-tab-scroll-{i}",
+        className="method-scroll",
     )
-    # dimension_contents = html.Div(children=[row1])
-    # return dimension_contents
 
 
 # method-title
 method_title = html.Div(
     [
         html.Label(id="method-title"),
-        custom_button(
-            text="Submit",
-            id="apply-method-changes",
-            color="primary",
-            # className="hide-window",
-        ),
+        custom_button(text="Submit", id="apply-method-changes", color="primary"),
     ],
     className="isotopomer-title",
 )
@@ -91,13 +87,14 @@ method_description = html.Div(
 # method contents
 method_contents = dbc.Tabs(
     children=[
-        dbc.Tab(
-            label="Properties", children=html.Div([make_dimension(i) for i in range(1)])
-        ),
+        dbc.Tab(label="Properties", children=html.Div(generate_parameters(1))),
         dbc.Tab(
             label="Metadata",
-            children=html.Div([method_description], className="container"),
+            children=html.Div(
+                [method_description], className="method-scroll scroll-cards container"
+            ),
         ),
+        dbc.Tab(label="Post Simulation", children=html.Div(post_simulation(1))),
     ],
     id="dimension-tabs",
 )

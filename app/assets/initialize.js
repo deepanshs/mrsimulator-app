@@ -182,7 +182,7 @@ var init = function() {
   });
 
   // $('#open-mrsimulator-file').on('click', function(e) {
-  //   $('#upload-isotopomer-local-button input')[0].click();
+  //   $('#upload-and-add-isotopomer-button input')[0].click();
   //   e.preventDefault();
   // });
 
@@ -234,7 +234,6 @@ var init = function() {
   //         graph.classList.remove('hide-display')
   //     }
   // };
-
   $('#view-info')[0].click();
   return null;
 };

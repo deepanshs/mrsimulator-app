@@ -86,7 +86,7 @@ def label_icon_text_display(icon, text, id=None):
 # Advanced settings ----------------------------------------------------------------- #
 advance_setting_button = html.Div(
     label_icon_text_display(icon="fas fa-cog", text="Setting", id="advance_setting"),
-    className="default-menu",
+    className="default-button",
 )
 
 # File menu ----------------------------------------------------------------- #
@@ -98,10 +98,41 @@ mrsimulator_new = html.A(
     div_icon_text_display("fas fa-file", "New"), href="/", target="_blank"
 )
 mrsimulator_open = dcc.Upload(
-    div_icon_text_display(icon="fas fa-folder-open", text="Open"),
+    div_icon_text_display(icon="fas fa-folder-open", text="Open..."),
     id="open-mrsimulator-file",
     # accept=".mrsims",
 )
+# open_recent = html.Div(
+#     [
+#         div_icon_text_display(icon="fas fa-folder-open", text="Open Recent"),
+#         html.Ul([html.Li("Item-1")], id="open-recent-id"),
+#     ]
+# )
+
+# app.clientside_callback(
+#     """
+#     function (data) {
+#         console.log('data_py', data);
+#         if (data == null){
+#             throw window.dash_clientside.PreventUpdate;
+#         }
+#         let len = data.open_recent.length;
+#         if (len === 0) {
+#             return [];
+#         }
+#         let li, li_array = [];
+#         for(let i=0; i<len; i++){
+#             li = document.createElement("li");
+#             li.value = data.open_recent[i].path;
+#             li_array.push(li);
+#         }
+#         return li_array;
+#     }
+#     """,
+#     Output("open-recent-id", "children"),
+#     [Input("user-config", "data")],
+# )
+
 mrsimulator_download = div_icon_text_display(
     icon="fas fa-download", text="Download", id="download-button"
 )
@@ -112,6 +143,7 @@ file_menu = html.Div(
             [
                 html.Li(mrsimulator_new),
                 html.Li(mrsimulator_open),
+                # html.Li(open_recent),
                 html.Li(mrsimulator_download),
             ]
         ),
@@ -188,18 +220,28 @@ isotopomer_menu = html.Div(
         html.Label("Isotopomer"),
         html.Ul(
             [
-                html.Li(div_icon_text_display("fas fa-plus-circle", "Add")),
-                html.Li(div_icon_text_display("fas fa-clone", "Duplicate")),
-                html.Li(div_icon_text_display("fas fa-minus-circle", "Remove")),
-                html.Hr(),
+                html.Li(div_icon_text_display("fas fa-plus-circle", "Add isotopomer")),
                 html.Li(
-                    dcc.Upload(
-                        div_icon_text_display("fas fa-hdd", "Import"),
-                        id="upload-isotopomer-local-button",
+                    div_icon_text_display(
+                        "fas fa-clone", "Duplicate selected isotopomer"
+                    )
+                ),
+                html.Li(
+                    div_icon_text_display(
+                        "fas fa-minus-circle", "Remove selected isotopomer"
                     )
                 ),
                 html.Hr(),
-                html.Li(html.Div("Clear isotopomers")),
+                html.Li(
+                    dcc.Upload(
+                        div_icon_text_display(
+                            "fas fa-hdd", "Import and add isotopomers"
+                        ),
+                        id="upload-and-add-isotopomer-button",
+                    )
+                ),
+                html.Hr(),
+                html.Li(html.Div("Clear isotopomers"), id="clear-isotopomers"),
             ]
         ),
     ],
@@ -218,11 +260,17 @@ method_menu = html.Div(
         html.Label("Method"),
         html.Ul(
             [
-                html.Li(div_icon_text_display("fas fa-plus-circle", "Add")),
-                html.Li(div_icon_text_display("fas fa-clone", "Duplicate")),
-                html.Li(div_icon_text_display("fas fa-minus-circle", "Remove")),
+                html.Li(div_icon_text_display("fas fa-plus-circle", "Add method")),
+                html.Li(
+                    div_icon_text_display("fas fa-clone", "Duplicate selected method")
+                ),
+                html.Li(
+                    div_icon_text_display(
+                        "fas fa-minus-circle", "Remove selected method"
+                    )
+                ),
                 html.Hr(),
-                html.Li(html.Div("Clear methods")),
+                html.Li(html.Div("Clear methods"), id="clear-methods"),
             ]
         ),
     ],

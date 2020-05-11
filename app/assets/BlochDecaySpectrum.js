@@ -54,11 +54,11 @@ function searchMethods() {
 };
 
 window.methods = {
-  BlochDecayFT: {
+  BlochDecaySpectrum: {
     setData: function(index) {
       let data = storeData['data'], method = data['methods'][index], sd, i;
 
-      $('#method-title')[0].innerHTML = 'BlochDecayFT';
+      $('#method-title')[0].innerHTML = 'Bloch Decay Spectrum';
 
       setValue(`method-description`, method.description);
       setValue(`channel`, method.channels[0]);
@@ -98,13 +98,13 @@ window.methods = {
     defaultMethod: function() {
       return this.generateMethod(
           [{'count': 2048, 'spectral_width': 25, 'reference_offset': 0}], 9.6,
-          MAGIC_ANGLE, 0, '1H', 'Bloch decay Fourier Transform');
+          MAGIC_ANGLE, 0, '1H', 'Bloch decay spectrum');
     },
     generateMethod: function(
         dimensions, magnetic_flux_density, rotor_angle, rotor_frequency,
         channel, description) {
       let method = {}, sd, ev, i, j;
-      method.name = 'BlochDecayFT';
+      method.name = 'BlochDecaySpectrum';
       method.description = description;
       method.channels = [channel];
       method.spectral_dimensions = [];
@@ -121,6 +121,7 @@ window.methods = {
           ev.magnetic_flux_density = magnetic_flux_density;  // in T
           ev.rotor_angle = deg_to_rad(rotor_angle);          // in rad
           ev.rotor_frequency = rotor_frequency * 1e3;        // in Hz
+          ev.transition_query = {'P': {'channel-1': [[-1.0]]}};
           sd.events.push(ev);
         }
         method.spectral_dimensions.push(sd);

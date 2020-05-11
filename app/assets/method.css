@@ -32,6 +32,9 @@
   width: var(--opt-side-scroll-width);
   border-right: 1px solid silver;
   transition: all 0.3s ease;
+  margin-left: -1px;
+  margin-top: -1px;
+  box-shadow: 0 4px 4px 0 rgba(39, 39, 39, 0.4);
 }
 
 .met-slide .slider2 {
@@ -40,7 +43,7 @@
   transition: all 0.3s ease;
 }
 
-[id^="dimension-tab-scroll-"] {
+.method-scroll {
   /* padding: 10rem; */
   min-height: calc(var(--content-min-height) - 8.8rem);
   height: calc(var(--content-max-height) - 8.8rem);
@@ -48,26 +51,15 @@
   overflow-x: hidden;
 }
 
+
 /* media for isotopomers and methods*/
 @media only screen and (max-width: 575px),
-(min-width: 992px) and (max-width: 1100px) {
-  .display-form li div {
-    display: none;
-  }
-
-  .display-form li h6 {
-    display: block;
-    width: 100%;
-    height: 100%;
-    margin: auto;
-    padding: 0.75rem;
-  }
-
+(min-width: 991px) and (max-width: 1100px) {
   .met-slide .slider1 {
-    width: 4rem;
+    width: var(--opt-side-scroll-min-width);
   }
 
   .met-slide .slider2 {
-    width: calc(100% - 4rem);
+    width: calc(100% - var(--opt-side-scroll-min-width));
   }
 }

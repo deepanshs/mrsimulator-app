@@ -170,23 +170,19 @@ spectrum_import_layout = upload_data(
     [
         Input("upload-isotopomer-local", "contents"),
         Input("open-mrsimulator-file", "contents"),
-        Input("upload-isotopomer-local-button", "contents"),
+        Input("upload-and-add-isotopomer-button", "contents"),
         Input("upload-isotopomer-url-submit", "n_clicks"),
         Input("selected-example", "value"),
         Input("new-json", "modified_timestamp"),
-        Input("temp-json", "modified_timestamp"),
         Input("new-method-json", "modified_timestamp"),
+        Input("clear-isotopomers", "n_clicks"),
+        Input("clear-methods", "n_clicks"),
     ],
     [
         State("upload-isotopomer-url", "value"),
-        State("open-mrsimulator-file", "filename"),
-        State("upload-isotopomer-local", "filename"),
-        State("upload-isotopomer-local-button", "filename"),
         State("local-isotopomers-data", "data"),
         State("new-json", "data"),
-        State("temp-json", "data"),
         State("new-method-json", "data"),
-        # State("isotope_id-0", "value"),
     ],
 )
 def update_isotopomers(*args):
@@ -211,21 +207,6 @@ def update_isotopomers(*args):
     no_updates = [no_update, no_update, no_update]
     if_error_occurred = [True, no_update, no_update, existing_data, *no_updates]
 
-    if trigger_id == "temp-json":
-        data = ctx.states["temp-json.data"]
-        if data is None:
-            raise PreventUpdate
-        return [
-            "",
-            False,
-            data["name"],
-            data["description"],
-            data,
-            no_update,
-            print_isotopomer_info(data["isotopomers"]),
-            print_methods_info(data["methods"]),
-        ]
-
     # Load a sample from pre-defined examples
     # The following section applies to when the isotopomers update is triggered from
     # set of pre-defined examples.
@@ -236,7 +217,7 @@ def update_isotopomers(*args):
             raise PreventUpdate
         response = urlopen(get_absolute_url_path(example, path))
         data = fix_missing_keys(json.loads(response.read()))
-        return assemble_data(data)
+        return assemble_data(parse_data(data))
 
     # Request and load a sample from URL
     # The following section applies to when the isotopomers update is triggered from
@@ -251,27 +232,42 @@ def update_isotopomers(*args):
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
-        return assemble_data(data)
+        return assemble_data(parse_data(data))
+
+    if trigger_id == "clear-isotopomers":
+        existing_data["isotopomers"] = []
+        return assemble_data(existing_data)
+
+    if trigger_id == "clear-methods":
+        existing_data["methods"] = []
+        return assemble_data(existing_data)
+
+    if trigger_id == "upload-and-add-isotopomer-button":
+        contents = ctx.inputs[f"{trigger_id}.contents"]
+        if contents is None:
+            raise PreventUpdate
+        try:
+            data = fix_missing_keys(parse_contents(contents))
+        except Exception:
+            message = "Error reading isotopomers."
+            return [message, *if_error_occurred]
+        data = parse_data(data, parse_method=False)
+        existing_data["isotopomers"] += data["isotopomers"]
+        return assemble_data(existing_data)
 
     # Load a sample from drag and drop
     # The following section applies to when the isotopomers update is triggered from
     # a user uploaded file.
-    if trigger_id in [
-        "upload-isotopomer-local",
-        "upload-isotopomer-local-button",
-        "open-mrsimulator-file",
-    ]:
-        filename = ctx.states[f"{trigger_id}.filename"]
+    if trigger_id in ["upload-isotopomer-local", "open-mrsimulator-file"]:
         contents = ctx.inputs[f"{trigger_id}.contents"]
-        print(trigger_id, "inside", filename)
         if contents is None:
             raise PreventUpdate
         try:
-            data = fix_missing_keys(parse_contents(contents, filename))
+            data = fix_missing_keys(parse_contents(contents))
         except Exception:
             message = "Error reading isotopomers."
             return [message, *if_error_occurred]
-        return assemble_data(data)
+        return assemble_data(parse_data(data))
 
     # Load a sample from drag and drop on the graph reqion
     # The following section applies to when the isotopomers update is triggered from
@@ -413,31 +409,34 @@ def fix_missing_keys(json_data):
     return json_data
 
 
-def parse_contents(contents, filename):
+def parse_contents(contents):
     """Parse contents from the isotopomers file."""
-    if filename is None:
-        raise PreventUpdate
-
     content_string = contents.split(",")[1]
     decoded = base64.b64decode(content_string)
     data = json.loads(str(decoded, encoding="UTF-8"))
     return data
 
 
-def assemble_data(data):
+def parse_data(data, parse_method=True, parse_isotopomer=True):
     data_keys = data.keys()
-    if "isotopomers" in data_keys:
-        a = [Isotopomer.parse_dict_with_units(_).dict() for _ in data["isotopomers"]]
-        data["isotopomers"] = [filter_dict(_) for _ in a]
+    if parse_isotopomer:
+        if "isotopomers" in data_keys:
+            a = [
+                Isotopomer.parse_dict_with_units(_).dict() for _ in data["isotopomers"]
+            ]
+            data["isotopomers"] = [filter_dict(_) for _ in a]
 
-    if "methods" in data_keys:
-        a = [Method.parse_dict_with_units(_).dict() for _ in data["methods"]]
-        # sim = [_["simulation"] for _ in a]
-        # exp = [_["experiment"] for _ in a]
-        data["methods"] = [filter_dict(_) for _ in a]
+    if parse_method:
+        if "methods" in data_keys:
+            a = [Method.parse_dict_with_units(_).dict() for _ in data["methods"]]
+            # sim = [_["simulation"] for _ in a]
+            # exp = [_["experiment"] for _ in a]
+            data["methods"] = [filter_dict(_) for _ in a]
+    return data
 
+
+def assemble_data(data):
     config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
-
     return [
         "",
         False,
@@ -531,7 +530,7 @@ def update_list_of_methods(data):
     if data["methods"] is None:
         raise PreventUpdate
     options = [
-        {"label": f'{k["name"]} (Channel-{", ".join( k["channels"] )})', "value": i}
+        {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
         for i, k in enumerate(data["methods"])
     ]
     return options

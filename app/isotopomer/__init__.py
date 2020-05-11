@@ -304,7 +304,8 @@ isotopomer_description_field = html.Div(
 metadata = dcc.Tab(
     label="Metadata",
     children=html.Div(
-        [isotopomer_name_field, isotopomer_description_field], className="container"
+        [isotopomer_name_field, isotopomer_description_field],
+        className="tab-scroll scroll-cards container",
     ),
 )
 
@@ -316,12 +317,7 @@ metadata = dcc.Tab(
 isotopomer_title = html.Div(
     [
         html.Label(id="isotopomer-title"),
-        custom_button(
-            text="Submit",
-            id="apply-isotopomer-changes",
-            color="primary",
-            className="hide-window",
-        ),
+        custom_button(text="Submit", id="apply-isotopomer-changes", color="primary"),
     ],
     className="isotopomer-title",
 )
@@ -396,20 +392,20 @@ app.clientside_callback(
         Input("add-isotopomer-button", "n_clicks_timestamp"),
         Input("duplicate-isotopomer-button", "n_clicks_timestamp"),
         Input("remove-isotopomer-button", "n_clicks_timestamp"),
-        Input("isotopomer-name", "value"),
-        Input("isotopomer-description", "value"),
-        Input("isotope", "value"),
-        Input("isotropic_chemical_shift", "value"),
-        Input("shielding_symmetric-zeta", "value"),
-        Input("shielding_symmetric-eta", "value"),
-        Input("shielding_symmetric-alpha", "value"),
-        Input("shielding_symmetric-beta", "value"),
-        Input("shielding_symmetric-gamma", "value"),
-        Input("quadrupolar-Cq", "value"),
-        Input("quadrupolar-eta", "value"),
-        Input("quadrupolar-alpha", "value"),
-        Input("quadrupolar-beta", "value"),
-        Input("quadrupolar-gamma", "value"),
+        # Input("isotopomer-name", "value"),
+        # Input("isotopomer-description", "value"),
+        # Input("isotope", "value"),
+        # Input("isotropic_chemical_shift", "value"),
+        # Input("shielding_symmetric-zeta", "value"),
+        # Input("shielding_symmetric-eta", "value"),
+        # Input("shielding_symmetric-alpha", "value"),
+        # Input("shielding_symmetric-beta", "value"),
+        # Input("shielding_symmetric-gamma", "value"),
+        # Input("quadrupolar-Cq", "value"),
+        # Input("quadrupolar-eta", "value"),
+        # Input("quadrupolar-alpha", "value"),
+        # Input("quadrupolar-beta", "value"),
+        # Input("quadrupolar-gamma", "value"),
     ],
     # [State('live-update', 'value')]
 )

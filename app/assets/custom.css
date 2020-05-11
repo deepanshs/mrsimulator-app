@@ -10,6 +10,24 @@
 
 /* #download-div */
 /* formtest contents */
+
+
+.nav-tabs {
+  flex-wrap: nowrap;
+}
+
+.nav-item a {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgb(68, 68, 68);
+}
+
+/* .nav-item .active {
+  color: black;
+} */
+
 .formtext,
 .formtext a {
   font-size: 0.9rem;
@@ -33,10 +51,8 @@
   padding-bottom: 1rem;
 }
 
-#isotopomer-body.my-card,
-#method-body.my-card,
-#spectrum-body.my-card,
-#info-body.my-card {
+[id$="-body"].my-card {
+  width: 48vw;
   overflow: hidden;
   border: 1px solid silver;
   min-height: var(--content-min-height);
@@ -45,21 +61,21 @@
   border-radius: 0.3rem;
   border: 1px solid rgba(211, 211, 211, 0.5);
   margin: 0.5rem;
+  background: var(--element-bg-color);
   /* margin-bottom: 0.5rem;
   margin-top: 0.5rem; */
   /* justify-content: space-around; */
-  box-shadow: 0 0 3px 0 lightgray;
+  box-shadow: 0 0 3px 0 rgba(44, 44, 44, 0.336);
 }
 
-#spectrum-body.my-card {
-  background: var(--element-bg-color);
-  max-width: 45rem;
+.dark-mode [id$="-body"].my-card {
+  background: rgb(218, 218, 218);
 }
 
-#isotopomer-body.my-card,
+/* #isotopomer-body.my-card,
 #method-body.my-card {
   max-width: 45rem;
-}
+} */
 
 /*
 .float-card {
@@ -75,7 +91,7 @@
 }
 
 .card-header {
-  z-index: 10;
+  z-index: 100;
   height: 3.4rem;
   display: flex;
   align-items: center;
@@ -84,12 +100,12 @@
   padding-left: 1rem;
   border-bottom: none;
   border-bottom: 1px solid silver;
-  box-shadow: 0 0px 15px 0 rgba(112, 112, 112, 0.4);
+  box-shadow: 0 0px 8px 0 rgba(39, 39, 39, 0.4);
 }
 
 .card-header input {
-  width: 40vw;
-  max-width: 20rem;
+  /* width: 40vw; */
+  /* max-width: 20rem; */
   border-radius: 0.35rem;
   border: 1px solid silver;
   padding-left: 0.5rem;
@@ -113,25 +129,31 @@
 }
 
 .scroll-cards {
-  border-top: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
 }
 
 .scroll-cards:hover {
   background-color: rgb(245, 245, 245);
 }
 
+.dark-mode .scroll-cards:hover {
+  background-color: rgb(212, 212, 212);
+}
 
 /* .scroll-cards:last-child {
   border-bottom: 1px solid lightgrey;
 } */
 
 .scroll-cards h6 {
-  margin-top: 1rem;
+  padding-top: 1rem;
   margin-bottom: 0;
   padding-left: 1rem;
   padding-right: 1rem;
   text-transform: capitalize;
-  /* padding-bottom: 0; */
+}
+
+.scroll-cards label {
+  margin: 0;
 }
 
 .scroll-cards h6 div {

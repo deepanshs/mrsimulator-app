@@ -175,6 +175,7 @@ def print_isotopomer_info(json_data):
                         ]
                     ),
                 ],
+                # draggable="true",
                 className="list-group-item",
             )
         )

@@ -1,10 +1,12 @@
 :root {
   /* --element-bg-color: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%); */
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 9rem);
-  --content-min-height: calc(55.5rem - 19.4rem);
+  --content-max-height: calc(100vh - 7.5rem);
+  --content-min-height: calc(55.5rem - 17.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 11.5rem;
+  --opt-side-scroll-min-width: 3rem;
+  --select-blue: rgb(8, 124, 240);
 }
 
 * {
@@ -22,16 +24,13 @@ body {
 
 html {
   scroll-behavior: smooth;
-  --text-color-normal: #0a244d;
-  --text-color-light: #8cabd9;
   -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+
 }
 
-html[data-theme="dark"] {
-  --text-color-normal: hsl(210, 10%, 62%);
-  --text-color-light: hsl(210, 15%, 35%);
-  --text-color-richer: hsl(210, 50%, 72%);
-  --text-color-highlight: hsl(25, 70%, 45%);
+.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 h4 {
@@ -92,51 +91,41 @@ section {
   transition: all 0.3s ease;
 }
 
-@media only screen and (max-width: 767px) {
+.mobile-scroll {
+  display: flex;
+}
+
+@media only screen and (max-width: 991px) {
+
   .mobile-scroll {
     display: flex;
-    /* min-width: 100vw; */
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
-    margin-right: 1rem;
-    margin-left: 1rem;
+    margin: auto;
+    padding: 0;
+    scrollbar-width: thin;
   }
 
-  #info-body.my-card,
-  #isotopomer-body.my-card,
-  #method-body.my-card {
+  .mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* #info-body.my-card,
+  #spectrum-body.my-card,
+  #isotopomer-body.my-card, */
+  [id$="-body"].my-card {
     position: relative;
-    margin-left: 0rem;
-    margin-right: 0rem;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
     min-width: calc(100vw - 0.25rem);
     scroll-snap-align: center;
   }
-}
 
-/*
-@media only screen and (max-width: 991px) and (min-width: 768px) {
-  .mobile-scroll {
-    display: flex;
-    min-width: 100vw;
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    margin-right: 1rem;
-    margin-left: 1rem;
+  .main-split .sidebar-master {
+    display: none;
   }
 
-  #info-body.my-card,
-  #isotopomer-body.my-card,
-  #method-body.my-card {
-    position: relative;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    min-width: calc(100vw - 2.25rem);
-    scroll-snap-align: center;
-  }
-} */
-
-@media only screen and (max-width: 767px) {
-  .main-split {
+  /* .main-split {
     display: block;
   }
 
@@ -176,5 +165,27 @@ section {
     border-bottom-right-radius: 0.2rem;
     border-top-right-radius: 0.2rem;
     border-top-left-radius: 0rem;
-  }
+  } */
 }
+
+/*
+@media only screen and (max-width: 991px) and (min-width: 768px) {
+  .mobile-scroll {
+    display: flex;
+    min-width: 100vw;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+
+  #info-body.my-card,
+  #isotopomer-body.my-card,
+  #method-body.my-card {
+    position: relative;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    min-width: calc(100vw - 2.25rem);
+    scroll-snap-align: center;
+  }
+} */

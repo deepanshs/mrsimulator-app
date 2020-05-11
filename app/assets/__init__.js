@@ -2,10 +2,20 @@
  * Author = "Deepansh J. Srivastava"
  * Email = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
  */
+// local storage holds user configuration
+console.log('store', window.localStorage.getItem('user-config'));
+if (!window.localStorage.getItem('user-config')) {
+  window.localStorage.setItem('user-config', JSON.stringify({
+    'auto_update': true,
+    // 'open_recent': [{'path': 'test'}],
+    // 'number_of_sidebands': 12
+  }));
+}
 
 // clear session storage on refresh
 window.sessionStorage.clear();
 window.sessionStorage.setItem('current-isotopomer-index', 0);
+
 var storeData = {
   'previousIndex': 0,
   'isotopomer_index': 0,
@@ -82,8 +92,11 @@ window.dash_clientside.clientside = {
       //   });
     });
 
-    // Select the entry at index 0 by initiating a click.
-    select_isotopomer(listomers, get_isotopomer_index());
+    // Select the entry at current index by initiating a click. If the current
+    // index is greater then the length of the li, select 0;
+    let index = get_isotopomer_index();
+    index = (index >= listomers.length) ? 0 : index;
+    select_isotopomer(listomers, index);
     return null;
   },
 
@@ -119,14 +132,17 @@ window.dash_clientside.clientside = {
         set_method_index(index);
 
         // Update the method fields
-        window.methods.BlochDecayFT.setData(index);
+        window.methods.BlochDecaySpectrum.setData(index);
 
         e.preventDefault();
       });
     });
 
-    // Select the entry at index 0 by initiating a click.
-    select_method(listomers, get_method_index());
+    // Select the entry at current index by initiating a click. If the current
+    // index is greater then the length of the li, select 0;
+    let index = get_method_index();
+    index = (index >= listomers.length) ? 0 : index;
+    select_method(listomers, index);
     return null;
   },
 
@@ -176,6 +192,10 @@ window.dash_clientside.clientside = {
       result['data'] = extract_site_object_from_fields();
       result['index'] = get_isotopomer_index();
       result['operation'] = 'modify';
+      // if (checkObjectEquality(result.data, data.isotopomers[result.index])) {
+      //   throw window.dash_clientside.PreventUpdate;
+      // }
+      // data.isotopomers[result.index] = result.data;
     }
     if (max_index === 1) {  // add
       result['data'] = {
@@ -236,12 +256,12 @@ window.dash_clientside.clientside = {
     l = data['methods'].length;
     let result = {};
     if (n1 == max) {  // modify
-      result['data'] = window.methods.BlochDecayFT.getData();
+      result['data'] = window.methods.BlochDecaySpectrum.getData();
       result['index'] = get_method_index();
       result['operation'] = 'modify';
     }
     if (n2 == max) {  // add
-      result['data'] = window.methods.BlochDecayFT.defaultMethod();
+      result['data'] = window.methods.BlochDecaySpectrum.defaultMethod();
       result['index'] = l;
       result['operation'] = 'add';
       set_method_index(l);
@@ -286,6 +306,27 @@ window.dash_clientside.clientside = {
     listomers[index].click();
 
     return null;
+  },
+
+  openAdvancedModalWindow: function(n1, n2, is_open) {
+    if (n1 == null && n2 == null) {
+      throw window.dash_clientside.PreventUpdate;
+    }
+    if (n1 || n2) {
+      return !is_open;
+    }
+    return is_open;
+  },
+
+  setAutoUpdateOption: function(n1) {
+    if (n1 == null) {
+      throw window.dash_clientside.PreventUpdate;
+    }
+    // console.log('switch', $('#auto-update'));
+    let data = JSON.parse(window.localStorage.getItem('user-config'));
+    data.auto_update = !data.auto_update;
+    // console.log('data', data);
+    window.localStorage.setItem('user-config', JSON.stringify(data));
   }
 };
 
@@ -385,3 +426,9 @@ var contextMenu = function() {
         </ul>
     </nav>`
 };
+
+
+var darkMode = function() {
+  let element = document.body;
+  element.classList.toggle('dark-mode');
+}

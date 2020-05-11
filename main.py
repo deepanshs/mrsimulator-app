@@ -353,12 +353,12 @@ def plot_1D(
             sigma=broadening,
             broadType=apodization,
         )
-        x = local_processed_data.dimensions[0].coordinates.to("Hz").value
-        # try:
-        #     local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-        #     x = local_processed_data.dimensions[0].coordinates.value
-        # except (ZeroDivisionError, ValueError):
-        #     pass
+        # x = local_processed_data.dimensions[0].coordinates.to("Hz").value
+        try:
+            local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+            x = local_processed_data.dimensions[0].coordinates.value
+        except (ZeroDivisionError, ValueError):
+            pass
 
         x0 = x[0]
         dx = x[1] - x[0]
