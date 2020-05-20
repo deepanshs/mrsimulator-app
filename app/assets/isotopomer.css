@@ -17,6 +17,7 @@
 
 .iso-slide-offset .slider1,
 .iso-slide-offset .slider2 {
+  padding-left: 1.75rem;
   overflow-x: hidden;
   width: 100%;
 }
@@ -34,7 +35,6 @@
   transition: all 0.3s ease;
   margin-left: -1px;
   margin-top: -1px;
-  box-shadow: 0 4px 4px 0 rgba(39, 39, 39, 0.4);
 }
 
 .iso-slide .slider2 {
@@ -45,8 +45,8 @@
 
 #isotopomer-editor-content,
 #isotopomer-read-only {
-  min-height: calc(var(--content-min-height) - 3.5rem);
-  height: calc(var(--content-max-height) - 3.5rem);
+  min-height: calc(var(--content-min-height) - 4rem);
+  height: calc(var(--content-max-height) - 4rem);
   scrollbar-width: thin;
 }
 
@@ -56,11 +56,17 @@
 }
 
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 11.5rem);
-  height: calc(var(--content-max-height) - 11.5rem);
-  overflow-y: scroll;
+  min-height: calc(var(--content-min-height) - 16.62rem);
+  height: calc(var(--content-max-height) - 16.62rem);
+  overflow-y: auto;
   scrollbar-width: thin;
-  border-bottom: 1px solid silver;
+}
+
+#isotopomer-editor-content hr,
+#method-editor-content hr {
+  padding: 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
 }
 
 .tab-scroll::-webkit-scrollbar {
@@ -71,12 +77,10 @@
 #isotopomer-read-only {
   width: 100%;
   background: transparent;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .display-form ul {
-  /* z-index: -1; */
-  /* background: transparent; */
   height: 100%;
   width: 100%;
   font-size: 0.9rem;
@@ -85,10 +89,15 @@
   color: rgb(53, 53, 53);
   list-style: none;
   cursor: default;
+  border-radius: none;
 }
 
 .display-form li:nth-child(odd) {
   background-color: rgb(235, 235, 235);
+}
+
+.display-form li:nth-child(even) {
+  background-color: transparent;
 }
 
 .display-form li:hover {
@@ -96,9 +105,7 @@
 }
 
 .display-form li {
-  /* z-index: 0; */
-  /* background: transparent; */
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   position: relative;
   padding: 0;
@@ -161,7 +168,6 @@
 .display-form li.active {
   background-color: var(--select-blue);
   color: rgb(255, 255, 255);
-  z-index: 0;
   /* text-shadow: rgb(58, 58, 58) 0px 1px; */
 }
 
@@ -192,7 +198,7 @@
   /* margin-top: 0.5rem; */
   margin-bottom: 1rem;
   /* padding: 0.25rem; */
-  background-color: #f7f1ea;
+  /* background-color: #f7f1ea; */
   margin-left: -1rem;
   margin-right: -1rem;
 }
@@ -242,28 +248,29 @@
 
 .isotopomer-title {
   /* background-color: rgb(227, 242, 255); */
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
 }
 
 .isotopomer-title label {
-  padding: 0.25rem;
+  padding: 0.5rem;
   color: rgb(0, 0, 0);
   text-align: center;
   font-weight: 600;
-  flex: 2;
   margin: auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.isotopomer-title button {
+/* .isotopomer-title button {
   background-color: var(--select-blue);
-  /* color: rgb(228, 228, 228); */
   font-weight: bolder;
   height: 2.7rem;
   padding-right: 1rem;
   border-top-left-radius: 0;
-}
+} */
 
 /* .isotopomer-title button:hover {
   background-color: rgb(141, 15, 15);
@@ -276,7 +283,7 @@
 
 /* media for isotopomers and methods*/
 @media only screen and (max-width: 575px),
-(min-width: 991px) and (max-width: 1100px) {
+  (min-width: 810px) and (max-width: 1100px) {
   .display-form li div {
     display: none;
   }

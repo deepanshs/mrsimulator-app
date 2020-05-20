@@ -194,7 +194,7 @@ def simulation(
 
     print("simulate")
     sim = Simulator()
-    sim.methods = [Method(**item) for item in local_isotopomers_data["methods"]]
+    sim.methods = [Method(**i) for i in local_isotopomers_data["methods"]]
     sim.isotopomers = [Isotopomer(**i) for i in local_isotopomers_data["isotopomers"]]
 
     sim.config.integration_density = integration_density
@@ -203,17 +203,10 @@ def simulation(
     sim.config.number_of_sidebands = number_of_sidebands
     sim.run()
 
-    # larmor_frequency = -sim.methods[0].channel.gyromagnetic_ratio * B0  # in MHz
-    # method = sim.methods[0].dict()
-    # method.update({"larmor_frequency": 1})
     local_computed_data = [
         item.simulation.to_dict(update_timestamp=True) for item in sim.methods
     ]
 
-    # if trigger_id != "isotope_id-0":
-    #     local_computed_data["trigger-isotopomer"] = False
-    # else:
-    #     local_computed_data["trigger-isotopomer"] = True
     print(
         "check with previous data",
         previous_local_computed_data == local_isotopomers_data,
@@ -286,7 +279,7 @@ def simulation(
     [
         Input("local-computed-data", "modified_timestamp"),
         Input("decompose", "active"),
-        Input("local-exp-external-data", "modified_timestamp"),
+        Input("local-simulator-data", "data"),
         Input("normalize_amp", "n_clicks"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
@@ -296,7 +289,7 @@ def simulation(
     [
         State("normalize_amp", "active"),
         State("local-computed-data", "data"),
-        State("local-exp-external-data", "data"),
+        # State("local-exp-external-data", "data"),
         State("nmr_spectrum", "figure"),
         State("config", "data"),
     ],
@@ -304,7 +297,8 @@ def simulation(
 def plot_1D(
     time_of_computation,
     decompose,
-    csdm_upload_time,
+    # csdm_upload_time,
+    sim_data,
     normalized_clicked,
     broadening,
     apodization,
@@ -313,7 +307,7 @@ def plot_1D(
     # state
     normalized,
     local_computed_data,
-    local_exp_external_data,
+    # local_exp_external_data,
     figure,
     config,
 ):
@@ -322,7 +316,7 @@ def plot_1D(
     if method_index is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if local_computed_data is None and local_exp_external_data is None:
+    if local_computed_data is None and sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
     if not ctx.triggered:
@@ -345,18 +339,23 @@ def plot_1D(
     data = []
     if local_computed_data is not None:
 
-        local_computed_data = cp.parse_dict(local_computed_data[method_index])
+        local_computed_data = [cp.parse_dict(item) for item in local_computed_data]
 
-        local_processed_data = post_simulation(
-            line_broadening,
-            csdm_object=local_computed_data,
-            sigma=broadening,
-            broadType=apodization,
-        )
+        local_processed_data = [
+            post_simulation(
+                line_broadening,
+                csdm_object=item,
+                sigma=broadening,
+                broadType=apodization,
+            )
+            for item in local_computed_data
+        ]
+
+        current_data = local_processed_data[method_index]
         # x = local_processed_data.dimensions[0].coordinates.to("Hz").value
         try:
-            local_processed_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-            x = local_processed_data.dimensions[0].coordinates.value
+            current_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+            x = current_data.dimensions[0].coordinates.value
         except (ZeroDivisionError, ValueError):
             pass
 
@@ -366,7 +365,7 @@ def plot_1D(
         # get the max data point
         y_data = 0
         maximum = 1.0
-        for datum in local_processed_data.split():
+        for datum in current_data.split():
             y_data += datum
 
         if normalized:
@@ -374,7 +373,7 @@ def plot_1D(
             y_data /= maximum
 
         if decompose:
-            for datum in local_processed_data.dependent_variables:
+            for datum in current_data.dependent_variables:
                 name = datum.name
                 if name == "":
                     name = None
@@ -403,15 +402,20 @@ def plot_1D(
                 )
             )
 
+    local_exp_external_data = None
+    if "experiment" in sim_data["methods"][method_index]:
+        local_exp_external_data = sim_data["methods"][method_index]["experiment"]
+
     if local_exp_external_data is not None:
         local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
-        x_spectrum = local_exp_external_data.dimensions[0].coordinates.to("Hz").value
-        # try:
-        #     local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-        #     x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
-        # except (ZeroDivisionError, ValueError):
-        #     pass
+        if local_exp_external_data.dimensions[0].origin_offset.value != 0:
+            local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+            x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
+        else:
+            x_spectrum = (
+                local_exp_external_data.dimensions[0].coordinates.to("Hz").value
+            )
 
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]
@@ -443,7 +447,7 @@ def plot_1D(
     #     layout["xaxis"]["autorange"] = True
     #     layout["yaxis"]["autorange"] = True
 
-    layout["xaxis"]["autorange"] = True
+    layout["xaxis"]["autorange"] = "reversed"
     layout["yaxis"]["autorange"] = True
     # layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
@@ -471,7 +475,9 @@ def plot_1D(
         return [data_object, no_update]
     if local_computed_data is None:
         return [data_object, no_update]
-    return [data_object, local_processed_data.to_dict()]
+
+    local_processed_data = [item.to_dict() for item in local_processed_data]
+    return [data_object, local_processed_data]
 
 
 if __name__ == "__main__":

@@ -96,7 +96,12 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
     )
 
-    @app.callback(Output(id, "active"), [Input(id, "n_clicks")], [State(id, "active")])
+    @app.callback(
+        Output(id, "active"),
+        [Input(id, "n_clicks")],
+        [State(id, "active")],
+        prevent_initial_call=True,
+    )
     def toggle_boolean_button(n, status):
         """Toggle decompose button."""
         if n is None:
@@ -133,7 +138,11 @@ def custom_slider(label="", return_function=None, **kwargs):
         ]
     )
 
-    @app.callback([Output(id_label, "children")], [Input(kwargs["id"], "value")])
+    @app.callback(
+        [Output(id_label, "children")],
+        [Input(kwargs["id"], "value")],
+        prevent_initial_call=True,
+    )
     def update_label(value):
         if return_function is None:
             return [value]

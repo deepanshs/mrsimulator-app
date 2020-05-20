@@ -20,8 +20,9 @@ from mrsimulator import Method
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
-from .dimension.util import print_methods_info
-from .isotopomer.util import print_isotopomer_info
+from .dimension.util import update_method_info
+from .info import update_sample_info
+from .isotopomer.util import update_isotopomer_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -160,30 +161,33 @@ spectrum_import_layout = upload_data(
     [
         Output("alert-message-isotopomer", "children"),
         Output("alert-message-isotopomer", "is_open"),
-        Output("filename_dataset", "children"),
-        Output("data_description", "children"),
         Output("local-isotopomers-data", "data"),
         Output("config", "data"),
         Output("isotopomer-read-only", "children"),
         Output("method-read-only", "children"),
+        Output("info-read-only", "children"),
     ],
     [
-        Input("upload-isotopomer-local", "contents"),
-        Input("open-mrsimulator-file", "contents"),
-        Input("upload-and-add-isotopomer-button", "contents"),
+        Input("upload-isotopomer-local", "contents"),  # drag and drop
+        Input("open-mrsimulator-file", "contents"),  # from file->open
+        Input("upload-and-add-isotopomer-button", "contents"),  # isotopomer->import+add
+        Input("import-measurement-for-method", "contents"),  # method->add measurement
+        Input("upload-from-graph", "contents"),  # graph->drag and drop
         Input("upload-isotopomer-url-submit", "n_clicks"),
-        Input("selected-example", "value"),
-        Input("new-json", "modified_timestamp"),
-        Input("new-method-json", "modified_timestamp"),
-        Input("clear-isotopomers", "n_clicks"),
-        Input("clear-methods", "n_clicks"),
+        Input("selected-example", "value"),  # examples
+        Input("new-json", "modified_timestamp"),  # when isotopomer change
+        Input("new-method-json", "modified_timestamp"),  # when method change
+        Input("confirm-clear-isotopomer", "submit_n_clicks"),  # isotopomer->clear
+        Input("confirm-clear-methods", "submit_n_clicks"),  # method->clear
     ],
     [
         State("upload-isotopomer-url", "value"),
         State("local-isotopomers-data", "data"),
         State("new-json", "data"),
         State("new-method-json", "data"),
+        State("select-method", "value"),
     ],
+    prevent_initial_call=True,
 )
 def update_isotopomers(*args):
     """Update the local isotopomers when a new file is imported."""
@@ -205,7 +209,7 @@ def update_isotopomers(*args):
 
     # old_isotope = ctx.states["isotope_id-0.value"]
     no_updates = [no_update, no_update, no_update]
-    if_error_occurred = [True, no_update, no_update, existing_data, *no_updates]
+    if_error_occurred = [True, existing_data, *no_updates]
 
     # Load a sample from pre-defined examples
     # The following section applies to when the isotopomers update is triggered from
@@ -234,11 +238,15 @@ def update_isotopomers(*args):
             return [message, *if_error_occurred]
         return assemble_data(parse_data(data))
 
-    if trigger_id == "clear-isotopomers":
+    if trigger_id == "confirm-clear-isotopomer":
+        if existing_data is None:
+            raise PreventUpdate
         existing_data["isotopomers"] = []
         return assemble_data(existing_data)
 
-    if trigger_id == "clear-methods":
+    if trigger_id == "confirm-clear-methods":
+        if existing_data is None:
+            raise PreventUpdate
         existing_data["methods"] = []
         return assemble_data(existing_data)
 
@@ -269,6 +277,36 @@ def update_isotopomers(*args):
             return [message, *if_error_occurred]
         return assemble_data(parse_data(data))
 
+    if trigger_id in ["import-measurement-for-method", "upload-from-graph"]:
+        contents = ctx.inputs[f"{trigger_id}.contents"]
+        content_string = contents.split(",")[1]
+        decoded = base64.b64decode(content_string)
+        success, exp_data, error_message = load_csdm(decoded)
+
+        if not success:
+            return [
+                f"Error reading file. {error_message}",
+                True,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+            ]
+
+        index = ctx.states["select-method.value"]
+        method = existing_data["methods"][index]
+        method["experiment"] = exp_data.to_dict()
+        spectral_dim = method["spectral_dimensions"]
+        for i, dim in enumerate(exp_data.dimensions):
+            spectral_dim[i]["count"] = dim.count
+            spectral_dim[i]["spectral_width"] = dim.count * dim.increment.to("Hz").value
+            spectral_dim[i]["reference_offset"] = dim.coordinates_offset.to("Hz").value
+            spectral_dim[i]["origin_offset"] = dim.origin_offset.to("Hz").value
+
+        methods_info = update_method_info(existing_data["methods"])
+        return ["", False, existing_data, no_update, no_update, methods_info, no_update]
+
     # Load a sample from drag and drop on the graph reqion
     # The following section applies to when the isotopomers update is triggered from
     # a user drag and drop on the graph.
@@ -288,8 +326,7 @@ def update_isotopomers(*args):
 
 def modified_method(existing_method_data, new_method_data):
 
-    no_updates = [no_update, no_update, no_update, no_update]
-
+    default = [no_update for _ in range(7)]
     if new_method_data is None:
         raise PreventUpdate
 
@@ -304,34 +341,40 @@ def modified_method(existing_method_data, new_method_data):
     # Add a new method
     if new_method_data["operation"] == "add":
         data["methods"] += [method_data]
-        methods_info = print_methods_info(data["methods"])
-        return [*no_updates, data, no_update, no_update, methods_info]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
 
     # Modify a method
     if new_method_data["operation"] == "modify":
+        if "experiment" in data["methods"][index]:
+            method_data["experiment"] = data["methods"][index]["experiment"]
         data["methods"][index] = method_data
-        methods_info = print_methods_info(data["methods"])
-        return [*no_updates, data, no_update, no_update, methods_info]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
 
     # Duplicate a method
     if new_method_data["operation"] == "duplicate":
         data["methods"] += [method_data]
-        methods_info = print_methods_info(data["methods"])
-        return [*no_updates, data, no_update, no_update, methods_info]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
 
     # Delete a method
     if new_method_data["operation"] == "delete":
         if index is None:
             raise PreventUpdate
         del data["methods"][index]
-        methods_info = print_methods_info(data["methods"])
-        return [*no_updates, data, no_update, no_update, methods_info]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
 
 
 def modified_isotopomer(existing_data, new_json_data):
     """Update the local isotopomer data when an update is triggered."""
     config = {"is_new_data": False, "length_changed": False}
-    no_updates = [no_update, no_update, no_update, no_update]
+    default = [no_update for _ in range(7)]
 
     if new_json_data is None:
         raise PreventUpdate
@@ -349,8 +392,9 @@ def modified_isotopomer(existing_data, new_json_data):
         data["isotopomers"][index] = isotopomer_data
         config["index_last_modified"] = index
 
-        isotopomers_info = print_isotopomer_info(data["isotopomers"])
-        return [*no_updates, data, config, isotopomers_info, no_update]
+        isotopomers_info = update_isotopomer_info(data["isotopomers"])
+        default[2], default[3], default[4] = data, config, isotopomers_info
+        return default
 
     # Add a new isotopomer
     # The following section applies to when the a new isotopomers is added from
@@ -361,8 +405,9 @@ def modified_isotopomer(existing_data, new_json_data):
         config["added"] = [site["isotope"] for site in isotopomer_data["sites"]]
         config["index_last_modified"] = index
 
-        isotopomers_info = print_isotopomer_info(data["isotopomers"])
-        return [*no_updates, data, config, isotopomers_info, no_update]
+        isotopomers_info = update_isotopomer_info(data["isotopomers"])
+        default[2], default[3], default[4] = data, config, isotopomers_info
+        return default
 
     # Copy an existing isotopomer
     # The following section applies to when a request to duplicate the isotopomers
@@ -373,8 +418,9 @@ def modified_isotopomer(existing_data, new_json_data):
         config["added"] = [site["isotope"] for site in isotopomer_data["sites"]]
         config["index_last_modified"] = index
 
-        isotopomers_info = print_isotopomer_info(data["isotopomers"])
-        return [*no_updates, data, config, isotopomers_info, no_update]
+        isotopomers_info = update_isotopomer_info(data["isotopomers"])
+        default[2], default[3], default[4] = data, config, isotopomers_info
+        return default
 
     # Delete an isotopomer
     # The following section applies to when a request to remove an isotopomers is
@@ -390,8 +436,9 @@ def modified_isotopomer(existing_data, new_json_data):
         del data["isotopomers"][index]
         config["index_last_modified"] = index
 
-        isotopomers_info = print_isotopomer_info(data["isotopomers"])
-        return [*no_updates, data, config, isotopomers_info, no_update]
+        isotopomers_info = update_isotopomer_info(data["isotopomers"])
+        default[2], default[3], default[4] = data, config, isotopomers_info
+        return default
 
 
 def fix_missing_keys(json_data):
@@ -440,19 +487,18 @@ def assemble_data(data):
     return [
         "",
         False,
-        data["name"],
-        data["description"],
         data,
         config,
-        print_isotopomer_info(data["isotopomers"]),
-        print_methods_info(data["methods"]),
+        update_isotopomer_info(data["isotopomers"]),
+        update_method_info(data["methods"]),
+        update_sample_info(data),
     ]
 
 
 def filter_dict(dict1):
     dict_new = {}
     for key, val in dict1.items():
-        if key in ["simulation", "experiment", "property_units"] or val is None:
+        if key in ["simulation", "property_units"] or val is None:
             continue
 
         if key == "isotope":
@@ -461,6 +507,10 @@ def filter_dict(dict1):
 
         if key == "channels":
             dict_new[key] = [item["symbol"] for item in val]
+            continue
+
+        if key in ["experiment"]:
+            dict_new[key] = val
             continue
 
         dict_new[key] = val
@@ -521,8 +571,11 @@ def filter_dict(dict1):
 #     ]
 
 
+# convert client-side function
 @app.callback(
-    Output("select-method", "options"), [Input("local-isotopomers-data", "data")]
+    Output("select-method", "options"),
+    [Input("local-isotopomers-data", "data")],
+    prevent_initial_call=True,
 )
 def update_list_of_methods(data):
     if data is None:
@@ -536,57 +589,64 @@ def update_list_of_methods(data):
     return options
 
 
-# Upload a CSDM compliant NMR data file.
-@app.callback(
-    [
-        Output("alert-message-spectrum", "children"),
-        Output("alert-message-spectrum", "is_open"),
-        Output("local-exp-external-data", "data"),
-    ],
-    [
-        # Input("upload-spectrum-local", "contents"),
-        Input("upload-from-graph", "contents")
-    ],
-    [
-        # State("upload-spectrum-local", "filename"),
-        State("upload-from-graph", "filename")
-    ],
-)
-def update_exp_external_file(*args):
-    """Update a local CSDM file."""
+# # Upload a CSDM compliant NMR data file.
+# @app.callback(
+#     [
+#         Output("alert-message-spectrum", "children"),
+#         Output("alert-message-spectrum", "is_open"),
+#         Output("local-exp-external-data", "data"),
+#     ],
+#     [
+#         # Input("upload-spectrum-local", "contents"),
+#         Input("upload-from-graph", "contents"),
+#         # Input("import-measurement-for-method", "contents"),
+#     ],
+#     [
+#         # State("upload-spectrum-local", "filename"),
+#         State("upload-from-graph", "filename"),
+#         # State("import-measurement-for-method", "filename"),
+#         State("local-exp-external-data", "data"),
+#     ],
+# )
+# def update_exp_external_file(*args):
+#     """Update a local CSDM file."""
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if not ctx.triggered:
-        raise PreventUpdate
+#     if not ctx.triggered:
+#         raise PreventUpdate
 
-    content = ctx.inputs[f"{trigger_id}.contents"]
-    if content is None:
-        raise PreventUpdate
+#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+#     content = ctx.inputs[f"{trigger_id}.contents"]
+#     if content is None:
+#         raise PreventUpdate
 
-    states = ctx.states
+#     states = ctx.states
 
-    filename = states[f"{trigger_id}.filename"]
-    file_extension = filename.split(".")[1]
-    if file_extension not in ["csdf", "json"]:
-        return [f"Expecting a .csdf file, found .{file_extension}.", True, no_update]
-    if file_extension != "csdf":
-        raise PreventUpdate
+#     filename = states[f"{trigger_id}.filename"]
+#     file_extension = filename.split(".")[1]
+#     if file_extension not in ["csdf", "json"]:
+#         return [f"Expecting a .csdf file, found .{file_extension}.", True, no_update]
+#     if file_extension != "csdf":
+#         raise PreventUpdate
 
-    # if trigger_id == "upload-spectrum-local":
-    #     content_string = csdm_upload_content
-    # if trigger_id == "upload-from-graph":
-    #     content_string = csdm_upload_content_graph
+#     # if trigger_id == "upload-spectrum-local":
+#     #     content_string = csdm_upload_content
+#     # if trigger_id == "upload-from-graph":
+#     #     content_string = csdm_upload_content_graph
 
-    content = content.split(",")[1]
-    decoded = base64.b64decode(content)
-    success, data, error_message = load_json(decoded)
-    if success:
-        return ["", False, data]
-    else:
-        return [f"Invalid JSON file. {error_message}", True, no_update]
+#     content = content.split(",")[1]
+#     decoded = base64.b64decode(content)
+#     success, data, error_message = load_csdm(decoded)
+#     if success:
+#         existing_data = states["local-exp-external-data.data"]
+#         if existing_data is None:
+#             existing_data = {}
+#         existing_data["0"] = data.to_dict()
+#         return ["", False, existing_data]
+#     else:
+#         return [f"Invalid JSON file. {error_message}", True, no_update]
 
 
-def load_json(content):
+def load_csdm(content):
     """Load a JSON file. Return a list with members
         - Success: True if file is read correctly,
         - Data: File content is success, otherwise an empty string,
@@ -594,7 +654,7 @@ def load_json(content):
     """
     content = str(content, encoding="UTF-8")
     try:
-        data = cp.loads(content).to_dict()
+        data = cp.loads(content)
         return True, data, ""
     except Exception as e:
         return False, "", e

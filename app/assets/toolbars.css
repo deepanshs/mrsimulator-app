@@ -6,7 +6,12 @@
   justify-content: space-between;
   padding: 0.5rem;
   border-bottom: 1px solid silver;
-  /* box-shadow: 0 3px 5px 0 rgba(112, 112, 112, 0.4); */
+}
+
+.toolbar label {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 0.5rem;
 }
 
 .toolbar #select-method {
@@ -17,9 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: left;
-  width: 300%;
 }
-
 
 .master-toolbar {
   width: 100%;
@@ -31,6 +34,4 @@
   padding-left: 2rem;
   padding-right: 2rem;
   border-bottom: 1px solid lightgray;
-  /* box-shadow: 0 1px 5px 0 rgba(78, 78, 78, 1); */
-  /* z-index: 2; */
 }

@@ -64,6 +64,7 @@ def serve_static(path):
         State("decompose", "active"),
         State("local-simulator-data", "data"),
     ],
+    prevent_initial_call=True,
 )
 def file_download_link(
     format_value, fill, local_processed_data, decompose, simulator_data
@@ -93,7 +94,7 @@ def file_download_link(
     content = local_processed_data
     if not decompose:
         data = cp.parse_dict(local_processed_data)
-        d_ = 1
+        d_ = 0
         for item in data.split():
             d_ += item
         content = d_.to_dict(update_timestamp=True)
@@ -161,6 +162,7 @@ download_modal = dbc.Modal(
     Output("download-modal", "is_open"),
     [Input("download-button", "n_clicks"), Input("close_download_setting", "n_clicks")],
     [State("download-modal", "is_open"), State("local-processed-data", "data")],
+    prevent_initial_call=True,
 )
 def toggle_modal_setting(n1, n2, is_open, local_processed_data):
     """Model window for advance input."""

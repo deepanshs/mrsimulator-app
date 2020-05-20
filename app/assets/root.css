@@ -1,12 +1,13 @@
 :root {
   /* --element-bg-color: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%); */
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 7.5rem);
-  --content-min-height: calc(55.5rem - 17.9rem);
+  --content-max-height: calc(100vh - 8.5rem);
+  --content-min-height: calc(55.5rem - 18.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 11.5rem;
   --opt-side-scroll-min-width: 3rem;
   --select-blue: rgb(8, 124, 240);
+  --max-display-width: 1250px;
 }
 
 * {
@@ -26,7 +27,6 @@ html {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
-
 }
 
 .dark-mode {
@@ -53,6 +53,10 @@ section {
 
 .main-split {
   display: flex;
+}
+
+.main-split .sidebar-master {
+  background-color: #f1f1f183;
 }
 
 .main-split .sidebar {
@@ -93,13 +97,19 @@ section {
 
 .mobile-scroll {
   display: flex;
+  margin: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+  padding: 0;
+  max-width: var(--max-display-width);
+  box-shadow: 0 15px 25px 0 rgba(44, 44, 44, 0.35);
 }
 
-@media only screen and (max-width: 991px) {
-
+@media only screen and (max-width: 810px) {
   .mobile-scroll {
     display: flex;
-    overflow-x: scroll;
+    overflow-x: auto;
     scroll-snap-type: x mandatory;
     margin: auto;
     padding: 0;

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash import callback_context as ctx
@@ -12,49 +11,11 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from .app import app
-from .custom_widgets import custom_button
 from .modal.about import about_modals
 from .modal.advance_settings import advance_settings
 from .modal.download import download_modal
 from app.app import year
 
-colors = {"background": "#e2e2e2", "text": "#585858"}
-
-# Info ------------------------------------------------------------------------------ #
-isotopomers_info_button = custom_button(
-    icon_classname="fas fa-info-circle",
-    id="indicator_status",
-    tooltip="Isotopomers info",
-    outline=True,
-    color="dark",
-)
-
-data_info = html.Div(
-    [
-        html.H4("Sample", id="filename_dataset"),
-        html.P(
-            "Sample description ... ",
-            id="data_description",
-            style={"textAlign": "left", "color": colors["text"]},
-        ),
-    ]
-)
-
-
-app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="selected_isotopomer"),
-    Output("temp3", "children"),
-    [Input("nmr_spectrum", "clickData")],
-    [
-        State("local-isotopomer-index-map", "data"),
-        State("decompose", "active"),
-        State("select-method", "value"),
-    ],
-)
-
-sample_info = dbc.Card(
-    dbc.CardBody(data_info), className="my-card", inverse=False, id="info-body"
-)
 
 className = "d-flex align-items-center justify-items-center"
 
@@ -178,6 +139,7 @@ example_menu = html.Div(
 @app.callback(
     Output("selected-example", "value"),
     [Input(f"example-{i}", "n_clicks") for i in range(example_length)],
+    prevent_initial_call=True,
 )
 def example_callback(*args):
     if not ctx.triggered:
@@ -207,20 +169,23 @@ view_menu = html.Div(
 )
 
 # Isotopomer menu ----------------------------------------------------------- #
-# - Add isotopomer          |
-# - Duplicate isotopomer    |
-# - Remove isotopomer       |
-# - ------------------------|
-# - Import isotopomers      |
-# - ---------------------   |
-# - Clear all isotopomers   |
+# - Add a new isotopomer            |
+# - Duplicate selected isotopomer   |
+# - Remove selected isotopomer      |
+# - ------------------------------- |
+# - Import and add isotopomers      |
+# - ------------------------------- |
+# - Clear isotopomers               |
 # --------------------------------------------------------------------------- #
+message_topomer = "You are about to delete all isotopomers. Do you want to continue?"
 isotopomer_menu = html.Div(
     [
         html.Label("Isotopomer"),
         html.Ul(
             [
-                html.Li(div_icon_text_display("fas fa-plus-circle", "Add isotopomer")),
+                html.Li(
+                    div_icon_text_display("fas fa-plus-circle", "Add a new isotopomer")
+                ),
                 html.Li(
                     div_icon_text_display(
                         "fas fa-clone", "Duplicate selected isotopomer"
@@ -242,25 +207,49 @@ isotopomer_menu = html.Div(
                 ),
                 html.Hr(),
                 html.Li(html.Div("Clear isotopomers"), id="clear-isotopomers"),
+                dcc.ConfirmDialog(
+                    id="confirm-clear-isotopomer", message=message_topomer
+                ),
             ]
         ),
     ],
     className="isotopomer-menu",
 )
 
+app.clientside_callback(
+    """
+    function(n){
+        if (n == null){
+            throw window.dash_clientside.PreventUpdate;
+        }
+        return true;
+    }
+    """,
+    Output("confirm-clear-isotopomer", "displayed"),
+    [Input("clear-isotopomers", "n_clicks")],
+    prevent_initial_call=True,
+)
+
+
 # Method menu --------------------------------------------------------------- #
-# - Add method          |
-# - Duplicate method    |
-# - Remove method       |
-# - --------------------|
-# - Clear all methods   |
+# - Add a new method                        |
+# - Duplicate selected method               |
+# - Remove selected method                  |
+# - --------------------------------------- |
+# - Add measurement to the selected method  |
+# - Export simulation from selected method  |
+# - --------------------------------------- |
+# - Clear methods                           |
 # --------------------------------------------------------------------------- #
+message_method = "You are about to delete all methods. Do you want to continue?"
 method_menu = html.Div(
     [
         html.Label("Method"),
         html.Ul(
             [
-                html.Li(div_icon_text_display("fas fa-plus-circle", "Add method")),
+                html.Li(
+                    div_icon_text_display("fas fa-plus-circle", "Add a new method")
+                ),
                 html.Li(
                     div_icon_text_display("fas fa-clone", "Duplicate selected method")
                 ),
@@ -270,11 +259,53 @@ method_menu = html.Div(
                     )
                 ),
                 html.Hr(),
+                html.Li(
+                    dcc.Upload(
+                        div_icon_text_display(
+                            "fas fa-file-import",
+                            "Add a measurement to the selected method",
+                        ),
+                        id="import-measurement-for-method",
+                    )
+                ),
+                html.Li(
+                    div_icon_text_display(
+                        "fas fa-file-export",
+                        "Export simulation from the selected method",
+                    ),
+                    id="export-simulation-from-method",
+                ),
+                html.Hr(),
                 html.Li(html.Div("Clear methods"), id="clear-methods"),
+                dcc.ConfirmDialog(id="confirm-clear-methods", message=message_method),
             ]
         ),
     ],
     className="method-menu",
+)
+
+app.clientside_callback(
+    """
+    function(n){
+        if (n == null){
+            throw window.dash_clientside.PreventUpdate;
+        }
+        return true;
+    }
+    """,
+    Output("confirm-clear-methods", "displayed"),
+    [Input("clear-methods", "n_clicks")],
+    prevent_initial_call=True,
+)
+
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="method", function_name="export_simulation_from_selectred_method"
+    ),
+    Output("export-simulation-from-method-link", "href"),
+    [Input("export-simulation-from-method", "n_clicks")],
+    [State("local-processed-data", "data"), State("decompose", "active")],
+    prevent_initial_call=True,
 )
 
 # Help menu ----------------------------------------------------------------- #
@@ -302,7 +333,7 @@ help_menu = html.Div(
         html.Label("Help"),
         html.Ul(
             [
-                html.H6(f"Mrsimulator-app 2018-{year}"),
+                html.H6(f"Mrsimulator-app 2019-{year}"),
                 html.Li(documentation_link),
                 html.Li(github_link),
                 html.Li(

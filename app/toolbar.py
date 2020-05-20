@@ -48,11 +48,11 @@ decompose_button = custom_switch(
 # )
 # select method  -------------------------------------------------------------------- #
 select_method = dcc.Dropdown(
-    id=f"select-method",
+    id="select-method",
     value=0,
     searchable=False,
     clearable=False,
-    placeholder="View spectrum from method ...",
+    placeholder="View simulation from method ...",
 )
 
 # Button group ---------------------------------------------------------------------- #
@@ -61,7 +61,7 @@ toolbar = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
 
 # toolbar icons --------------------------------------------------------------------- #
 toolbar_select_method = html.Div(
-    ["Select simulation", select_method],
+    [html.Label("Select simulation"), select_method],
     className="d-flex align-items-center justify-items-between toolbar",
 )
 

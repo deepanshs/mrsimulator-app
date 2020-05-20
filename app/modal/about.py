@@ -75,6 +75,7 @@ for item in about_.keys():
         """,
         Output(f"modal-{item}", "is_open"),
         [Input(f"modal-{item}-button", "n_clicks")],
+        prevent_initial_call=True,
     )
 
 about_modals = html.Div(list_)

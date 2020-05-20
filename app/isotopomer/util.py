@@ -103,6 +103,7 @@ section1 = html.Div([title, icon])
     Output("add-isotopomer-button", "n_clicks_timestamp"),
     [Input("open-edit_isotopomer", "n_clicks")],
     [State("add-isotopomer-button", "n_clicks_timestamp")],
+    prevent_initial_call=True,
 )
 def open_edit_isotopomer(_, n):
     if _ is None:
@@ -110,11 +111,10 @@ def open_edit_isotopomer(_, n):
     return int(datetime.now().timestamp() * 1000)
 
 
-# section2 = html.Section(examples)
 blank_display = html.Div([section1], className="blank-isotopomer-display")
 
 
-def print_isotopomer_info(json_data):
+def update_isotopomer_info(json_data):
     """Return a html for rendering the display in the read-only isotopomer section."""
     output = []
 
@@ -158,7 +158,6 @@ def print_isotopomer_info(json_data):
                     else:
                         local.append(attribute_value_pair(site_attribute, val, 2))
 
-        # local.append(html.Br())
         output.append(
             html.Li(
                 [
@@ -203,4 +202,5 @@ app.clientside_callback(
     Output("temp2", "children"),
     [Input("isotopomer-read-only", "children")],
     [State("config", "data")],
+    prevent_initial_call=True,
 )

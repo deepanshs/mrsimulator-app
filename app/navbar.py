@@ -96,7 +96,7 @@ navbar_group = html.Div(navbar)
 
 # The navgation bar displayed at the bottom of the web app.
 navbar_bottom = dbc.Navbar(
-    html.Div([dbc.Label(f"@mrsimulator, 2018-{year}", color="light")]),
+    html.Div([dbc.Label(f"@mrsimulator, 2019-{year}", color="light")]),
     color=None,
     # fixed="bottom",
     # sticky="bottom",

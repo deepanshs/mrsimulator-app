@@ -2,14 +2,14 @@
 
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
+ * Email = ["srivastava.89@osu.edu"]
  */
 
 /* Assign the value to the UI fields using UI id.
  * @param id: The id of the UI field.
  * @param val: The value to assign.
  */
-var setValue = function(id, val) {
+var setValue = function (id, val) {
   document.getElementById(id).value = val;
 };
 
@@ -17,12 +17,12 @@ var setValue = function(id, val) {
  * to float, if possible.
  * @param id: The id of the UI field.
  */
-var getValue = function(id) {
+var getValue = function (id) {
   var val = document.getElementById(id).value;
-  if (val.trim() === '') {
+  if (val.trim() === "") {
     return null;
-  };
-  return (isNaN(+(val))) ? val : +(val);
+  }
+  return isNaN(+val) ? val : +val;
 };
 
 /* Convert angle from radians to degrees and round to the 10 decimal place. */
@@ -40,8 +40,8 @@ function deg_to_rad(angle) {
 /* Check if two arrays are equal. */
 function checkArrayEquality(a, b) {
   if (a.length !== b.length) {
-    return false
-  };
+    return false;
+  }
   let len = a.length;
   for (var i = 0; i < len; i++) {
     if (a[i] !== b[i]) {
@@ -52,5 +52,5 @@ function checkArrayEquality(a, b) {
 }
 
 function checkObjectEquality(obj1, obj2) {
-  return JSON.stringify(obj1) === JSON.stringify(obj2)
+  return JSON.stringify(obj1) === JSON.stringify(obj2);
 }

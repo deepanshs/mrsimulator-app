@@ -87,7 +87,6 @@ textarea {
   width: 100%;
 }
 
-
 /* dash-bootstrap customize */
 /* .input-group-append {
   width: 3.5rem;
@@ -111,6 +110,7 @@ textarea {
 }
 
 .input-group-text {
+  color: black;
   background: transparent;
   padding-left: 0;
   border: none;
@@ -132,6 +132,7 @@ textarea {
   padding-bottom: 0;
   padding-top: 0;
   margin: 0;
+  border-radius: 0.25rem;
 }
 
 .input-group select:active,

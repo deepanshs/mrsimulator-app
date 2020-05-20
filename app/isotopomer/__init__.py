@@ -196,6 +196,7 @@ def feature_orientation_collapsible(key_dict, id_label):
             State(f"{id_label}-orientation-collapse", "is_open"),
             *[State(f"{id_label}-{key}", "value") for key in feature_dict.keys()],
         ],
+        prevent_initial_call=True,
     )
     def toggle_orientation_collapsible(n, is_open, attribute_1, attribute_2):
         # print("toggle_orientation", attribute_1, attribute_2)
@@ -309,17 +310,15 @@ metadata = dcc.Tab(
     ),
 )
 
-# submit_button = custom_button(
-#     text="Submit", id="apply-isotopomer-changes", color="primary"
-# )
+
+submit_button = html.Div(
+    custom_button(text="Submit Isotopomer", id="apply-isotopomer-changes"),
+    className="submit-button",
+)
 
 # isotopomer-title
 isotopomer_title = html.Div(
-    [
-        html.Label(id="isotopomer-title"),
-        custom_button(text="Submit", id="apply-isotopomer-changes", color="primary"),
-    ],
-    className="isotopomer-title",
+    html.Label(id="isotopomer-title"), className="isotopomer-title"
 )
 
 # isotopomer read-only section
@@ -331,10 +330,14 @@ isotopomer_read_only = html.Div(blank_display, id="isotopomer-read-only")
 # isotopomer section
 isotopomer_editor = html.Form(
     [
-        isotopomer_title,
-        isotopomer_abundance_field,
-        dbc.Tabs([widgets, metadata]),
-        # submit_button,
+        dbc.Card(
+            [
+                isotopomer_title,
+                isotopomer_abundance_field,
+                dbc.Tabs([widgets, metadata]),
+            ]
+        ),
+        submit_button,
     ],
     id="isotopomer-editor-content",
 )
@@ -359,23 +362,27 @@ isotopomer_title = html.Div(
 # Isotopomer layout
 isotopomer_body = html.Div(
     className="my-card hide-window",
-    children=dcc.Upload(
+    children=html.Div(
         [
             html.Div([isotopomer_title, search_isotopomer], className="card-header"),
             isotopomer_slide,
-        ],
-        id="upload-isotopomer-local",
-        disable_click=True,
-        multiple=False,
-        style_active={
-            "border": "1px solid rgb(78, 196, 78)",
-            "backgroundColor": "rgb(225, 255, 225)",
-            "opacity": "0.75",
-        },
+        ]
     ),
     id="isotopomer-body",
 )
 
+# Select isotopomer when the respective graph is selected.
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="selected_isotopomer"),
+    Output("temp3", "children"),
+    [Input("nmr_spectrum", "clickData")],
+    [
+        State("local-isotopomer-index-map", "data"),
+        State("decompose", "active"),
+        State("select-method", "value"),
+    ],
+    prevent_initial_call=True,
+)
 
 # callback code section =======================================================
 # app.clientside_callback(
@@ -408,4 +415,5 @@ app.clientside_callback(
         # Input("quadrupolar-gamma", "value"),
     ],
     # [State('live-update', 'value')]
+    prevent_initial_call=True,
 )

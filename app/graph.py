@@ -61,6 +61,7 @@ DEFAULT_FIGURE = {
             rangemode="tozero",
         ),
         autosize=True,
+        # transition={"duration": 175, "easing": "sin-out", "ordering": "traces first"},
         transition={"duration": 300, "easing": "quad", "ordering": "traces first"},
         margin={"l": 60, "b": 45, "t": 10, "r": 10},
         legend={"x": 0, "y": 1},
@@ -118,7 +119,12 @@ app.clientside_callback(
     [Input("nmr_spectrum", "figure")],
 )
 
-title = html.H4(["Simulation", button], className="title-with-help")
+title = html.Div(
+    [
+        html.I(className="fac fa-spectrum"),
+        html.H4(["Simulation", button], className="title-with-help"),
+    ]
+)
 className = "align-items-center"
 spectrum_body = html.Div(
     [

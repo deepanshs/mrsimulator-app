@@ -116,6 +116,7 @@ app.clientside_callback(
     """,
     Output("auto-update", "children"),
     [Input("user-config", "data")],
+    prevent_initial_call=True,
 )
 
 
@@ -192,4 +193,5 @@ app.clientside_callback(
     Output("modal_setting", "is_open"),
     [Input("advance_setting", "n_clicks"), Input("close_setting", "n_clicks")],
     [State("modal_setting", "is_open")],
+    prevent_initial_call=True,
 )

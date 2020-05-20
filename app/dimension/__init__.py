@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
+import mrsimulator.methods as mt
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
+from dash.dependencies import State
+from dash.exceptions import PreventUpdate
 
 from .toolbar import search_method
 from app.app import app
@@ -13,6 +19,20 @@ from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
 from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
 from app.isotopomer import isotope_options_list
+
+METHOD_LIST = {
+    "BlochDecaySpectrum": mt.BlochDecaySpectrum().reduced_dict(),
+    "BlochDecayCTSpectrum": mt.BlochDecayCentralTransitionSpectrum().reduced_dict(),
+}
+
+
+METHOD_OPTIONS = [
+    {"label": "Bloch Decay Spectrum", "value": "BlochDecaySpectrum"},
+    {
+        "label": "Bloch Decay Central Transition Spectrum",
+        "value": "BlochDecayCTSpectrum",
+    },
+]
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
@@ -67,14 +87,13 @@ def post_simulation(n_dimensions):
     )
 
 
-# method-title
-method_title = html.Div(
-    [
-        html.Label(id="method-title"),
-        custom_button(text="Submit", id="apply-method-changes", color="primary"),
-    ],
-    className="isotopomer-title",
+submit_button = html.Div(
+    custom_button(text="Submit Method", id="apply-method-changes"),
+    className="submit-button",
 )
+
+# method-title
+method_title = html.Div(html.Label(id="method-title"), className="isotopomer-title")
 
 # method metadata
 method_description = html.Div(
@@ -87,20 +106,23 @@ method_description = html.Div(
 # method contents
 method_contents = dbc.Tabs(
     children=[
-        dbc.Tab(label="Properties", children=html.Div(generate_parameters(1))),
+        dbc.Tab(label="Properties", children=[generate_parameters(1)]),
         dbc.Tab(
             label="Metadata",
             children=html.Div(
                 [method_description], className="method-scroll scroll-cards container"
             ),
         ),
-        dbc.Tab(label="Post Simulation", children=html.Div(post_simulation(1))),
+        dbc.Tab(label="Post Simulation", children=[post_simulation(1)]),
     ],
     id="dimension-tabs",
 )
 
 # method editor
-method_editor = html.Div([method_title, method_contents], id="method-editor-content")
+method_editor = html.Div(
+    [dbc.Card([method_title, method_contents]), submit_button],
+    id="method-editor-content",
+)
 
 # method read only section
 method_read_only = html.Div(id="method-read-only")
@@ -115,17 +137,43 @@ method_slide = html.Div(
 method_header = html.Div(
     [html.I(className="fas fa-cube"), html.H4("Methods", className="hide-label-sm")]
 )
+
+# method modal list
+method_list_dropdown = dbc.Modal(
+    [
+        dbc.ModalHeader("Select a method"),
+        dbc.ModalBody(
+            [
+                dcc.Dropdown(
+                    id="method-type", options=METHOD_OPTIONS, value="BlochDecaySpectrum"
+                )
+            ]
+        ),
+        dbc.ModalFooter(
+            dbc.Button(
+                "Select",
+                id="close-method-selection",
+                color="dark",
+                className="ml-auto",
+                outline=True,
+            )
+        ),
+    ],
+    is_open=False,
+    id="method-modal",
+)
+
 # dimension layout
 dimension_body = html.Div(
     className="my-card hide-window",
     children=[
         html.Div([method_header, search_method], className="card-header"),
-        # html.Div(className="color-gradient-2"),
-        # html.Div(method_toolbar),
         method_slide,
+        method_list_dropdown,
     ],
     id="method-body",
 )
+
 
 # callback code section =======================================================
 
@@ -201,13 +249,44 @@ dimension_body = html.Div(
 #     return data
 
 
+@app.callback(
+    Output("method-from-template", "data"),
+    [Input("close-method-selection", "n_clicks")],
+    [State("method-type", "value")],
+    prevent_initial_call=True,
+)
+def get_method_json(n, value):
+    if n is None:
+        raise PreventUpdate
+    print(METHOD_LIST[value])
+    return {
+        "method": METHOD_LIST[value],
+        "time": int(datetime.now().timestamp() * 1000),
+    }
+
+
+@app.callback(
+    Output("method-modal", "is_open"),
+    [
+        Input("add-method-button", "n_clicks"),
+        Input("close-method-selection", "n_clicks"),
+    ],
+    [State("method-modal", "is_open")],
+    prevent_initial_call=True,
+)
+def open_methods_model(n1, n2, state):
+    return not state
+
+
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_method_json"),
     Output("new-method-json", "data"),
     [
         Input("apply-method-changes", "n_clicks_timestamp"),
-        Input("add-method-button", "n_clicks_timestamp"),
+        Input("method-from-template", "modified_timestamp"),
         Input("duplicate-method-button", "n_clicks_timestamp"),
         Input("remove-method-button", "n_clicks_timestamp"),
     ],
+    [State("method-from-template", "data")],
+    prevent_initial_call=True,
 )

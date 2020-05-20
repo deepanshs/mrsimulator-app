@@ -11,6 +11,9 @@
 /* #download-div */
 /* formtest contents */
 
+input[type="search"]:focus {
+  border: 1px solid rgb(72, 163, 255);
+}
 
 .nav-tabs {
   flex-wrap: nowrap;
@@ -39,33 +42,42 @@
   color: #ffffff;
 }
 
-
-/* card properties */
-#method-body,
-#isotopomer-body {
-  /* background-image: linear-gradient(to top, #f3f3f3 0%, white 100%); */
-  background-blend-mode: screen;
-}
-
 #info-body.my-card h4 {
   padding-bottom: 1rem;
 }
 
 [id$="-body"].my-card {
-  width: 48vw;
+  width: 49vw;
+  max-width: calc(0.48 * (var(--max-display-width) + 3.5rem));
   overflow: hidden;
   border: 1px solid silver;
   min-height: var(--content-min-height);
   height: var(--content-max-height);
-  margin: auto;
   border-radius: 0.3rem;
-  border: 1px solid rgba(211, 211, 211, 0.5);
-  margin: 0.5rem;
-  background: var(--element-bg-color);
-  /* margin-bottom: 0.5rem;
-  margin-top: 0.5rem; */
-  /* justify-content: space-around; */
-  box-shadow: 0 0 3px 0 rgba(44, 44, 44, 0.336);
+}
+
+#spectrum-body.my-card {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+  padding-left: 1.75rem;
+  padding-right: 0.5rem;
+  /* background-image: linear-gradient(-50deg, rgba(250, 250, 250, 1) 0%, rgb(246, 249, 250) 70%, rgba(233, 237, 240, 0.8) 90%); */
+}
+
+#isotopomer-body.my-card,
+#method-body.my-card,
+#info-body.my-card {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0;
+  padding-right: 1.75rem;
+  background-image: linear-gradient(
+    110deg,
+    rgba(250, 250, 250, 1) 0%,
+    rgb(246, 249, 250) 70%,
+    rgba(230, 235, 238, 0.8) 90%
+  );
 }
 
 .dark-mode [id$="-body"].my-card {
@@ -86,26 +98,29 @@
   justify-content: space-between;
 } */
 #nmr_spectrum {
-  min-height: calc(var(--content-min-height) - 7.25rem);
-  height: calc(var(--content-max-height) - 7.25rem);
+  min-height: calc(var(--content-min-height) - 7.85rem);
+  height: calc(var(--content-max-height) - 7.85rem);
 }
 
 .card-header {
-  z-index: 100;
-  height: 3.4rem;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem;
-  padding-left: 1rem;
-  border-bottom: none;
-  border-bottom: 1px solid silver;
-  box-shadow: 0 0px 8px 0 rgba(39, 39, 39, 0.4);
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  background-color: transparent;
+}
+
+.card-header > div {
+  padding-left: 1.25rem;
 }
 
 .card-header input {
   /* width: 40vw; */
   /* max-width: 20rem; */
+  min-width: 5rem;
   border-radius: 0.35rem;
   border: 1px solid silver;
   padding-left: 0.5rem;
@@ -116,6 +131,7 @@
 }
 
 .card-header h4 {
+  font-weight: 400;
   padding-left: 0.75rem;
   margin: 0;
 }
@@ -128,17 +144,50 @@
   justify-items: center;
 }
 
-.scroll-cards {
-  border-bottom: 1px solid lightgrey;
+/* .scroll-cards {
+  border-bottom: 1px solid rgb(221, 221, 221);
+} */
+
+.submit-button button {
+  width: 12rem;
+  float: right;
+  background-image: linear-gradient(0deg, #017bec 40%, #3a9cf8 100%);
 }
 
+.submit-button button:hover {
+  background-image: linear-gradient(0deg, #0683f8 40%, #49a7ff 100%);
+}
+
+.submit-button button:active {
+  background-image: linear-gradient(0deg, #017cf0 100%, #2a98ff 40%);
+}
+
+.submit-button {
+  float: right;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+.tab-pane > div > div > div:nth-child(odd) {
+  background-image: linear-gradient(
+    125deg,
+    rgba(243, 243, 243) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* .scroll-cards:last-child {
+  border-bottom: none;
+} */
+
+/*
 .scroll-cards:hover {
   background-color: rgb(245, 245, 245);
-}
+} */
 
-.dark-mode .scroll-cards:hover {
+/* .dark-mode .scroll-cards:hover {
   background-color: rgb(212, 212, 212);
-}
+} */
 
 /* .scroll-cards:last-child {
   border-bottom: 1px solid lightgrey;
@@ -173,7 +222,6 @@
 /* collapsible group handle */
 .collapsible {
   box-shadow: 0 0px 2px 0px #979797;
-  z-index: 0;
   border-radius: 0em;
   background-color: #f7f0e9ea;
   border-top: 1px solid #632e0f;
@@ -215,13 +263,13 @@
   border-bottom-left-radius: 0;
 } */
 
-.inactive {
+/* .inactive {
   display: none;
 }
 
 .active {
   display: block;
-}
+} */
 
 .js-line:hover {
   transform: scale(1.5);
@@ -304,4 +352,19 @@
 
 .hide-display {
   display: none;
+}
+
+.nav-token {
+  display: flex;
+  justify-content: space-around;
+  list-style: circle;
+}
+
+.card {
+  /* border-left: none; */
+  /* border-top-left-radius: 0;
+  border-bottom-left-radius: 0; */
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.5);
 }

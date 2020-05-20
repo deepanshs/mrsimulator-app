@@ -9,9 +9,9 @@ from .custom_widgets import custom_button
 from .dimension import dimension_body
 from .dimension.toolbar import method_edit_tools
 from .graph import spectrum_body
+from .info import sample_info
 from .isotopomer import isotopomer_body
 from .isotopomer.toolbar import isotopomer_edit_tools
-from .menubar import sample_info
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -107,6 +107,8 @@ storage_div = html.Div(
         dcc.Store(id="new-method-json", storage_type="memory"),
         # store a bool indicating if the data is from an external file
         dcc.Store(id="config", storage_type="memory"),
+        # method-template data
+        dcc.Store(id="method-from-template", storage_type="memory"),
         dcc.Store(id="user-config", storage_type="local"),
     ]
 )
@@ -170,6 +172,17 @@ app_1 = html.Div(
         html.Div(id="temp3"),
         html.Div(id="temp4"),
         html.Div(id="temp5"),
+        html.Div(id="temp6"),
+        html.A(id="export-simulation-from-method-link", style={"display": "none"}),
+        # html.Div(
+        #     [
+        #         html.Li(html.A("In", href="#info-body")),
+        #         html.Li(html.A("Is", href="#isotopomer-body")),
+        #         html.Li(html.A("Me", href="#method-body")),
+        #         html.Li(html.A("Sp", href="#spectrum-body")),
+        #     ],
+        #     className="nav-token",
+        # ),
         html.Div(
             [sample_info, isotopomer_body, dimension_body, spectrum_body],
             className="mobile-scroll",
