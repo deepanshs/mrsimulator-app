@@ -25,15 +25,14 @@ from app.app import app
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
+# {"label": "Spectrum (Comma Separated Values, .csv)", "value": "csv"},
+# {"label": "Spectrum (Core Scientific Dataset Format, .csdf)", "value": "csdf"},
+
 # Select format
 select_format = dcc.Dropdown(
     id="select-format",
-    options=[
-        {"label": "Spectrum (Comma Separated Values, .csv)", "value": "csv"},
-        {"label": "Spectrum (Core Scientific Dataset Format, .csdf)", "value": "csdf"},
-        {"label": "Isotopomer (.JSON)", "value": "json"},
-    ],
-    value="csdf",
+    options=[{"label": "Mrsimulator file (.JSON)", "value": "json"}],
+    value="json",
     clearable=False,
     searchable=False,
 )

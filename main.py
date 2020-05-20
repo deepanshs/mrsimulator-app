@@ -285,11 +285,11 @@ def simulation(
         Input("Apodizing_function-0", "value"),
         Input("nmr_spectrum", "clickData"),
         Input("select-method", "value"),
+        Input("select-method", "options"),
     ],
     [
         State("normalize_amp", "active"),
         State("local-computed-data", "data"),
-        # State("local-exp-external-data", "data"),
         State("nmr_spectrum", "figure"),
         State("config", "data"),
     ],
@@ -297,23 +297,23 @@ def simulation(
 def plot_1D(
     time_of_computation,
     decompose,
-    # csdm_upload_time,
     sim_data,
     normalized_clicked,
     broadening,
     apodization,
     clickData,
     method_index,
+    method_options,
     # state
     normalized,
     local_computed_data,
-    # local_exp_external_data,
     figure,
     config,
 ):
     """Generate and return a one-dimensional plot instance."""
     print("inside plot, time of computation", time_of_computation)
-    if method_index is None:
+    print("method_index", method_index, method_options)
+    if method_index is None or method_options == []:
         return [DEFAULT_FIGURE, no_update]
 
     if local_computed_data is None and sim_data is None:
@@ -455,6 +455,8 @@ def plot_1D(
     print("clickData", clickData)
 
     if clickData is not None and decompose:
+        layout["xaxis"]["autorange"] = False
+        layout["yaxis"]["autorange"] = False
         index = clickData["points"][0]["curveNumber"]
         # data[index], data[-1] = data[-1], data[index]
         if index < len(data):
