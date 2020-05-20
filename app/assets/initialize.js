@@ -241,11 +241,11 @@ var hideQuad = function () {
   var isotope_id, quad_collapse, check_quad;
   isotope_id = getValue("isotope");
   if (isotope_id === null) {
-    window.dash_clientside.PreventUpdate;
+    throw window.dash_clientside.PreventUpdate;
   }
   quad_collapse = document.getElementById("quadrupolar-feature-collapse");
   if (quad_collapse === null) {
-    window.dash_clientside.PreventUpdate;
+    throw window.dash_clientside.PreventUpdate;
   }
   check_quad = ISOTOPE_DATA.includes(isotope_id) ? false : true;
   if (check_quad) {

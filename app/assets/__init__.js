@@ -160,7 +160,7 @@ window.dash_clientside.clientside = {
     // n2 is the trigger time for add new isotopomer.
     // n3 is the trigger time for duplicate isotopomer.
     // n4 is the trigger time for delete isotopomer.
-    let max_index, l, new_val;
+    let max_index, l, new_val, i;
     let new_list = [];
 
     for (i = 0; i < 4; i++) {

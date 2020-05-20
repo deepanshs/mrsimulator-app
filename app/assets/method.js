@@ -17,7 +17,7 @@ window.dash_clientside.method = {
 
     // if decompose is false, add the data from all dependent variables.
     if (!decompose) {
-      let sum, obj, component, ix, len, buffer1, buffer2, blob;
+      let sum, obj, component, ix, len;
       obj = selectedData.csdm.dependent_variables;
       objLength = obj.length;
       // get the data corresponding to the first dependent variable and add the
