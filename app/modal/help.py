@@ -20,7 +20,7 @@ help_message = html.Table(
             ),
         ),
         get_icon_with_description(
-            "fac fa-decompose", "Show spectrum from individual isotopomers."
+            "fac fa-decompose", "Show spectrum from individual spin systems."
         ),
         get_icon_with_description(
             "fas fa-download", "Download dataset as `.csdf` or `.csv` format."
@@ -29,7 +29,7 @@ help_message = html.Table(
 )
 
 message_1 = (
-    "You may additionally load an isotopomers or .csdf file by dragging ",
+    "You may additionally load the spin systems or .csdf file by dragging ",
     "and dropping the respective file on to this area.",
 )
 

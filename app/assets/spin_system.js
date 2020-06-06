@@ -51,21 +51,21 @@ const ALL_KEYS = [
   "quadrupolar-gamma",
 ];
 
-/* Isotopomer functions */
-/* Return the selected li index from the isotopomers. */
-var get_isotopomer_index = function () {
-  return storeData.isotopomer_index;
+/* Spin system functions */
+/* Return the selected li index from the spin-systems. */
+var get_spin_system_index = function () {
+  return storeData.spin_system_index;
 };
 
-var set_isotopomer_index = function (index) {
-  storeData.isotopomer_index = index;
+var set_spin_system_index = function (index) {
+  storeData.spin_system_index = index;
 };
 
-/* Intiate a click event for the li.
- * @param listomer: A list of li, each summarizing an isotopomer.
+/* Initiate a click event for the li.
+ * @param listomer: A list of li, each summarizing an spin-system.
  * @param index: The index of li to initiate the click.
  */
-var select_isotopomer = function (listomers, index) {
+var select_spin_system = function (listomers, index) {
   if (listomers.length > 0) {
     listomers[index].click();
   }
@@ -134,26 +134,26 @@ var set_site_attributes = function (site) {
   }
 };
 
-/* Update the isotopomer UI field using the data from the isotopomers dictionary
+/* Update the spin-system UI field using the data from the spin-systems dictionary
  * at index, `index`.
- * @param index: The index of the isotopomer.
+ * @param index: The index of the spin-system.
  */
-var update_field_from_isotopomer_at_index = function (index) {
+var update_field_from_spin_system_at_index = function (index) {
   let data = storeData.data;
-  let isotopomer = data.isotopomers[index];
+  let spin_system = data.spin_systems[index];
 
-  // name, description, and abundance of the isotopomer
-  let name = isotopomer.name;
-  setValue("isotopomer-name", name);
-  name = name == "" ? `Isotopomer ${index}` : name;
-  $("#isotopomer-title")[0].innerHTML = name;
+  // name, description, and abundance of the spin_system
+  let name = spin_system.name;
+  setValue("spin-system-name", name);
+  name = name == "" ? `Spin system ${index}` : name;
+  $("#spin-system-title")[0].innerHTML = name;
 
-  console.log("index", index, isotopomer.description);
-  setValue("isotopomer-description", isotopomer.description);
-  setValue("isotopomer-abundance", isotopomer.abundance);
+  console.log("index", index, spin_system.description);
+  setValue("spin-system-description", spin_system.description);
+  setValue("spin-system-abundance", spin_system.abundance);
 
   // extract site information
-  let site = isotopomer.sites[0];
+  let site = spin_system.sites[0];
   set_site_attributes(site);
 };
 
@@ -170,36 +170,36 @@ var euler_angle_deg_to_rad = function (obj) {
 
 /* Extract the site dictionary from the UI field using the UI ids. */
 var extract_site_object_from_fields = function () {
-  // Get the isotopomers data from the session storage.
+  // Get the spin-systems data from the session storage.
   let data = storeData.data;
   let update = false;
   let temp;
   if (data === null) {
     throw window.dash_clientside.PreventUpdate;
   }
-  // Extract the current isotopomer index, and get the respective isotopomer.
-  let index = get_isotopomer_index();
-  let isotopomer = data.isotopomers[index];
+  // Extract the current spin-system index, and get the respective spin-system.
+  let index = get_spin_system_index();
+  let spin_system = data.spin_systems[index];
 
   let site_index = 0;
-  let old_site = isotopomer.sites[site_index];
+  let old_site = spin_system.sites[site_index];
   let old_site_string = JSON.stringify(old_site);
 
   // Extract name and description information from the states and update the
-  // isotopomer object
-  temp = getValue("isotopomer-name");
-  if (isotopomer.name != temp) {
-    isotopomer.name = temp;
+  // spin-system object
+  temp = getValue("spin-system-name");
+  if (spin_system.name != temp) {
+    spin_system.name = temp;
     update = true;
   }
-  temp = getValue("isotopomer-description");
-  if (isotopomer.description != temp) {
-    isotopomer.description = temp;
+  temp = getValue("spin-system-description");
+  if (spin_system.description != temp) {
+    spin_system.description = temp;
     update = true;
   }
-  temp = getValue("isotopomer-abundance");
-  if (isotopomer.abundance != temp) {
-    isotopomer.abundance = temp;
+  temp = getValue("spin-system-abundance");
+  if (spin_system.abundance != temp) {
+    spin_system.abundance = temp;
     update = true;
   }
 
@@ -251,9 +251,9 @@ var extract_site_object_from_fields = function () {
   if (!update) {
     throw window.dash_clientside.PreventUpdate;
   }
-  // Assign the new site object to the isotopomers at site index 0.
-  isotopomer.sites[site_index] = site;
-  return isotopomer;
+  // Assign the new site object to the spin-systems at site index 0.
+  spin_system.sites[site_index] = site;
+  return spin_system;
 };
 
 print_label = [
@@ -277,7 +277,7 @@ var update_info = function (ito, i) {
   let s_len, sto, sti, temp, sites, key, val, j, k;
 
   // name
-  temp = `Isotopomer ${i}`;
+  temp = `Spin system ${i}`;
   if (ito.hasOwnProperty("name")) {
     if (ito.name != "" || ito.name != null) {
       temp = ito.name;
@@ -350,11 +350,11 @@ var update_info = function (ito, i) {
   return output;
 };
 
-function searchIsotopomers() {
+function searchSpinSystems() {
   let input, filter, li, i, j, elements1, elements2, elements, txtValue;
-  input = document.getElementById("search-isotopomer");
+  input = document.getElementById("search-spin-system");
   filter = input.value.toUpperCase();
-  li = $("#isotopomer-read-only div.display-form ul li");
+  li = $("#spin-system-read-only div.display-form ul li");
 
   // Loop through all list items, and hide those who don't match the search
   // query
@@ -374,40 +374,40 @@ function searchIsotopomers() {
   }
 }
 
-var isotopomerOnClick = function (obj) {
+var spinSystemOnClick = function (obj) {
   default_li_item_action(obj);
 
-  // store the current-isotopomer-index in the session
+  // store the current-spin-system-index in the session
   let index = $(obj).index();
-  set_isotopomer_index(index);
+  set_spin_system_index(index);
 
-  // Update the isotopomer fields
-  update_field_from_isotopomer_at_index(index);
+  // Update the spin-system fields
+  update_field_from_spin_system_at_index(index);
 
   // Trigger hide quad for spin-1/2
   hideQuad();
 };
 
-var addNewIsotopomer = function () {
+var addNewSpinSystem = function () {
   let data = storeData.data;
   let result, l;
-  l = data == null ? 0 : data.isotopomers.length;
+  l = data == null ? 0 : data.spin_systems.length;
   result = {
-    name: `Isotopomer-${l}`,
+    name: `Spin system-${l}`,
     description: "",
     abundance: 1,
     sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
   };
-  data.isotopomers.push(result);
-  // set_isotopomer_index(l);
+  data.spin_systems.push(result);
+  // set_spin_system_index(l);
 
-  let ul = $("#isotopomer-read-only div.display-form ul");
+  let ul = $("#spin-system-read-only div.display-form ul");
   let li = document.createElement("li");
   li.innerHTML = update_info(result, l);
   li.className = "list-group-item";
   ul[0].appendChild(li);
   $(li).click(function () {
-    isotopomerOnClick(li);
+    spinSystemOnClick(li);
   });
   li.click();
 };

@@ -10,16 +10,16 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 # secondary navbar ================================================================== #
-# The load isotopomer button activates the isotopomer collapsible menu.
-# import_isotopomer_button = html.Button(
+# The load spin-system button activates the spin-system collapsible menu.
+# import_spin_system_button = html.Button(
 #     html.Div(
 #         [
-#             html.I(className="fac fa-isotopomers fa-lg"),
-#             html.Div("Isotopomers", className="hide-label-sm pl-3"),
+#             html.I(className="fac fa-spin-systems fa-lg"),
+#             html.Div("Spin Systems", className="hide-label-sm pl-3"),
 #         ],
 #         className="secondary-nav-link",
 #     ),
-#     id="import-isotopomer-toggler",
+#     id="import-spin-system-toggler",
 #     className="flex-fill",
 # )
 
@@ -39,7 +39,7 @@ __email__ = ["deepansh2012@gmail.com"]
 
 # # pack the buttons from secondary navbar in a div
 # import_options = html.Div(
-#     [import_isotopomer_button, import_spectrum_button],
+#     [import_spin_system_button, import_spectrum_button],
 #     id="import-navbar",
 #     className="d-flex top-navbar",
 # )

@@ -41,6 +41,8 @@ select_format = dcc.Dropdown(
 link = html.Div(id="download-div")
 
 # Serialize the computed spectrum and download the serialized file.
+
+
 @app.server.route("/downloads/<path:path>")
 def serve_static(path):
     root_dir = os.getcwd()
@@ -81,7 +83,7 @@ def file_download_link(
             dv.pop("application")
 
     if format_value == "json":
-        filename = f"Isotopomer{name}.json"
+        filename = f"SpinSystem{name}.json"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
             json.dump(simulator_data, f)
@@ -116,7 +118,7 @@ def file_download_link(
         for item in obj.dependent_variables:
             lst.append(item.components[0])
             header.append(
-                item.application["com.github.DeepanshS.mrsimulator"]["isotopomers"][0][
+                item.application["com.github.DeepanshS.mrsimulator"]["spin_systems"][0][
                     "name"
                 ]
             )

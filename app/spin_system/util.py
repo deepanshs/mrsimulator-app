@@ -38,9 +38,9 @@ default_unit = {
 }
 
 
-def get_isotopomer_index_containing_this_isotope(isotopomers, isotope):
+def get_spin_system_index_containing_this_isotope(spin_systems, isotope):
     index = []
-    for i, item in enumerate(isotopomers):
+    for i, item in enumerate(spin_systems):
         for site in item["sites"]:
             if site["isotope"] == isotope:
                 index.append(i)
@@ -48,36 +48,36 @@ def get_isotopomer_index_containing_this_isotope(isotopomers, isotope):
     return index
 
 
-def filter_isotopomer_list(isotopomers, isotope):
-    index = get_isotopomer_index_containing_this_isotope(isotopomers, isotope)
-    isotopomer_list = [isotopomers[item] for item in index]
-    return isotopomer_list
+def filter_spin_system_list(spin_systems, isotope):
+    index = get_spin_system_index_containing_this_isotope(spin_systems, isotope)
+    spin_system_list = [spin_systems[item] for item in index]
+    return spin_system_list
 
 
-def get_isotopomer_dropdown_options(isotopomers, isotope):
-    index = get_isotopomer_index_containing_this_isotope(isotopomers, isotope)
+def get_spin_system_dropdown_options(spin_systems, isotope):
+    index = get_spin_system_index_containing_this_isotope(spin_systems, isotope)
 
-    isotopomer_dropdown_options = []
+    spin_system_dropdown_options = []
     for i, item in enumerate(index):
         isotope_list = "-".join(
-            [site["isotope"] for site in isotopomers[item]["sites"]]
+            [site["isotope"] for site in spin_systems[item]["sites"]]
         )
-        isotopomer_dropdown_options.append(
-            {"label": f"Isotopomer-{item} ({isotope_list})", "value": i}
+        spin_system_dropdown_options.append(
+            {"label": f"Spin system-{item} ({isotope_list})", "value": i}
         )
-    return isotopomer_dropdown_options
+    return spin_system_dropdown_options
 
 
-def get_all_isotopomer_dropdown_options(isotopomers):
-    isotopomer_dropdown_options = [None for _ in range(len(isotopomers))]
-    for i, item in enumerate(isotopomers):
+def get_all_spin_system_dropdown_options(spin_systems):
+    spin_system_dropdown_options = [None for _ in range(len(spin_systems))]
+    for i, item in enumerate(spin_systems):
         isotope_list = "-".join([site["isotope"] for site in item["sites"]])
-        isotopomer_dropdown_options[i] = {
-            "label": f"Isotopomer-{i} ({isotope_list})",
+        spin_system_dropdown_options[i] = {
+            "label": f"Spin system-{i} ({isotope_list})",
             "value": i,
         }
 
-    return isotopomer_dropdown_options
+    return spin_system_dropdown_options
 
 
 def attribute_value_pair(key, value, space):
@@ -91,54 +91,56 @@ def attribute_value_pair(key, value, space):
     )
 
 
-title = html.H5("Load isotopomers or start creating")
+title = html.H5("Load spin systems or start creating")
 icon = html.Span(
-    [html.I(className="fac fa-isotopomers fa-4x"), html.H6("Create isotopomers")],
-    id="open-edit_isotopomer",
+    [html.I(className="fac fa-spin-systems fa-4x"), html.H6("Create spin-systems")],
+    id="open-edit_spin_system",
 )
 section1 = html.Div([title, icon])
 
 
 @app.callback(
-    Output("add-isotopomer-button", "n_clicks_timestamp"),
-    [Input("open-edit_isotopomer", "n_clicks")],
-    [State("add-isotopomer-button", "n_clicks_timestamp")],
+    Output("add-spin-system-button", "n_clicks_timestamp"),
+    [Input("open-edit_spin_system", "n_clicks")],
+    [State("add-spin-system-button", "n_clicks_timestamp")],
     prevent_initial_call=True,
 )
-def open_edit_isotopomer(_, n):
+def open_edit_spin_system(_, n):
     if _ is None:
         raise PreventUpdate
     return int(datetime.now().timestamp() * 1000)
 
 
-blank_display = html.Div([section1], className="blank-isotopomer-display")
+blank_display = html.Div([section1], className="blank-spin-system-display")
 
 
-def update_isotopomer_info(json_data):
-    """Return a html for rendering the display in the read-only isotopomer section."""
+def update_spin_system_info(json_data):
+    """Return a html for rendering the display in the read-only spin-system section."""
     output = []
 
-    for i, isotopomer in enumerate(json_data):
+    for i, spin_system in enumerate(json_data):
         local = []
 
-        name_div = html.B(f"Isotopomer {i}", className="")
-        if "name" in isotopomer:
-            if isotopomer["name"] not in ["", None]:
-                name_div = html.B(isotopomer["name"], className="")
+        name_div = html.B(f"Spin system {i}", className="")
+        if "name" in spin_system:
+            if spin_system["name"] not in ["", None]:
+                name_div = html.B(spin_system["name"], className="")
 
         local.append(name_div)
 
-        if "description" in isotopomer:
-            if isotopomer["description"] not in ["", None]:
+        if "description" in spin_system:
+            if spin_system["description"] not in ["", None]:
                 local.append(
-                    html.Div(isotopomer["description"][:25] + " ... ", className="")
+                    html.Div(spin_system["description"][:25] + " ... ", className="")
                 )
 
-        abundance = "100" if "abundance" not in isotopomer else isotopomer["abundance"]
+        abundance = (
+            "100" if "abundance" not in spin_system else spin_system["abundance"]
+        )
         local.append(html.Div(f"Abundance: {abundance} %", className=""))
 
-        if "sites" in isotopomer:
-            for site in isotopomer["sites"]:
+        if "sites" in spin_system:
+            for site in spin_system["sites"]:
                 for site_attribute, val in site.items():
                     if isinstance(val, dict):
                         local.append(
@@ -169,7 +171,7 @@ def update_isotopomer_info(json_data):
                             #     "X",
                             #     color="danger",
                             #     block=True,
-                            #     id={"type": "initiate-remove-isotopomer", "index": i},
+                            #     id={"type": "initiate-remove-spin-system", "index": i},
                             # ),
                         ]
                     ),
@@ -185,22 +187,22 @@ def update_isotopomer_info(json_data):
 
 
 # @app.callback(
-#     Output("remove-isotopomer-button", "n_clicks_timestamp"),
-#     [Input({"type": "initiate-remove-isotopomer", "index": ALL}, "n_clicks")],
-#     [State("remove-isotopomer-button", "n_clicks_timestamp")],
+#     Output("remove-spin-system-button", "n_clicks_timestamp"),
+#     [Input({"type": "initiate-remove-spin-system", "index": ALL}, "n_clicks")],
+#     [State("remove-spin-system-button", "n_clicks_timestamp")],
 # )
-# def initiate_remove_isotopomer(_, n):
+# def initiate_remove_spin_system(_, n):
 #     print("initiate", _, n)
 #     if _.count(None) == len(_):
 #         raise PreventUpdate
-#     print("remove isotopomer", n, int(datetime.now().timestamp() * 1000))
+#     print("remove spin-system", n, int(datetime.now().timestamp() * 1000))
 #     return int(datetime.now().timestamp() * 1000)
 
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="on_isotopomers_load"),
+    ClientsideFunction(namespace="clientside", function_name="on_spin_systems_load"),
     Output("temp2", "children"),
-    [Input("isotopomer-read-only", "children")],
+    [Input("spin-system-read-only", "children")],
     [State("config", "data")],
     prevent_initial_call=True,
 )

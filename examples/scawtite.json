@@ -1,7 +1,7 @@
 {
   "name": "Scawtite (Ca₇(Si₆O₁₈)CO₃-2H₂O)",
   "description": "A hydrous calcium-silicate mineral with carbonate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q2 (1)",
       "sites": [

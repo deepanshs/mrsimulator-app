@@ -35,7 +35,7 @@ def update_method_info(methods):
                             #     "X",
                             #     color="danger",
                             #     block=True,
-                            #     id={"type": "initiate-remove-isotopomer", "index": i},
+                            #     id={"type": "initiate-remove-spin-system", "index": i},
                             # ),
                         ]
                     ),

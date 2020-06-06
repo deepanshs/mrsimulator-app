@@ -64,7 +64,7 @@ input[type="search"]:focus {
   padding-right: 0.5rem;
 }
 
-#isotopomer-body.my-card,
+#spin-system-body.my-card,
 #method-body.my-card,
 #info-body.my-card {
   border-top-right-radius: 0;
@@ -239,7 +239,7 @@ input[type="search"]:focus {
   visibility: visible;
 }
 
-#import-isotopomer-toggler {
+#import-spin-system-toggler {
   border-top-left-radius: 2.5rem;
 }
 
@@ -339,7 +339,7 @@ input[type="search"]:focus {
     padding-bottom: 0;
   }
   #dimension-card-body,
-  #isotopomer-card-body {
+  #spin-system-card-body {
     padding: 0;
   }
 } */
@@ -367,7 +367,7 @@ input[type="search"]:focus {
   #spectrum-body.my-card {
     padding-left: 0.25rem;
   }
-  #isotopomer-body.my-card,
+  #spin-system-body.my-card,
   #method-body.my-card,
   #info-body.my-card {
     padding-right: 0.25rem;

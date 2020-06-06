@@ -1,7 +1,7 @@
 {
   "name": "Cristobalite",
   "description": "",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "site-1",
       "sites": [

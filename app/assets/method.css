@@ -1,11 +1,11 @@
-/* Slider offset for isotopomer split screen */
+/* Slider offset for spin system split screen */
 .met-slide,
 .met-slide-offset,
 .met-slide .slider1,
 .met-slide .slider2,
 .met-slide-offset .slider1,
 .met-slide-offset .slider2 {
-  height: calc(var(--isotopomer-content-max-height) - 95px);
+  height: calc(var(--spin-system-content-max-height) - 95px);
 }
 
 .met-slide-offset {
@@ -50,7 +50,7 @@
   overflow-x: hidden;
 }
 
-/* media for isotopomers and methods*/
+/* media for spin systems and methods*/
 @media only screen and (max-width: 575px),
   (min-width: 810px) and (max-width: 1100px) {
   .met-slide .slider1 {

@@ -14,15 +14,15 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Isotopomer
 from mrsimulator import Method
+from mrsimulator import SpinSystem
 
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
 from .dimension.util import update_method_info
 from .info import update_sample_info
-from .isotopomer.util import update_isotopomer_info
+from .spin_system.util import update_spin_system_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -66,7 +66,7 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
             "text": "URL",
             "icon_classname": "fas fa-at",
             "id": f"upload-{prepend_id}-url-button",
-            "tooltip": "Retrieve isotopomers from a remote JSON file.",
+            "tooltip": "Retrieve spin systems from a remote JSON file.",
             "active": False,
             "collapsable": data_from_url,
         }
@@ -124,19 +124,19 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     return drawer
 
 
-isotopomer_import_layout = upload_data(
-    prepend_id="isotopomer",
+spin_system_import_layout = upload_data(
+    prepend_id="spin-system",
     message_for_URL=[
-        "Enter URL of a JSON file contaiing isotopomers.",
+        "Enter URL of a JSON file containing the spin systems.",
         (
-            "Isotopomers file is a collection of sites and couplings ",
+            "Spin systems file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
         ),
     ],
     message_for_upload=[
-        "Upload a JSON file containing isotopomers.",
+        "Upload a JSON file containing the spin systems.",
         (
-            "Isotopomers file is a collection of sites and couplings ",
+            "Spin systems file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
         ),
     ],
@@ -156,52 +156,54 @@ spectrum_import_layout = upload_data(
 
 
 # method
-# Import or update the isotopomers.
+# Import or update the spin-systems.
 @app.callback(
     [
-        Output("alert-message-isotopomer", "children"),
-        Output("alert-message-isotopomer", "is_open"),
-        Output("local-isotopomers-data", "data"),
+        Output("alert-message-spin-system", "children"),
+        Output("alert-message-spin-system", "is_open"),
+        Output("local-spin-systems-data", "data"),
         Output("config", "data"),
-        Output("isotopomer-read-only", "children"),
+        Output("spin-system-read-only", "children"),
         Output("method-read-only", "children"),
         Output("info-read-only", "children"),
     ],
     [
-        Input("upload-isotopomer-local", "contents"),  # drag and drop
+        Input("upload-spin-system-local", "contents"),  # drag and drop
         Input("open-mrsimulator-file", "contents"),  # from file->open
-        Input("upload-and-add-isotopomer-button", "contents"),  # isotopomer->import+add
+        Input(
+            "upload-and-add-spin-system-button", "contents"
+        ),  # spin-system->import+add
         Input("import-measurement-for-method", "contents"),  # method->add measurement
         Input("upload-from-graph", "contents"),  # graph->drag and drop
-        Input("upload-isotopomer-url-submit", "n_clicks"),
+        Input("upload-spin-system-url-submit", "n_clicks"),
         Input("selected-example", "value"),  # examples
-        Input("new-json", "modified_timestamp"),  # when isotopomer change
+        Input("new-json", "modified_timestamp"),  # when spin-system change
         Input("new-method-json", "modified_timestamp"),  # when method change
-        Input("confirm-clear-isotopomer", "submit_n_clicks"),  # isotopomer->clear
+        Input("confirm-clear-spin-system", "submit_n_clicks"),  # spin-system->clear
         Input("confirm-clear-methods", "submit_n_clicks"),  # method->clear
     ],
     [
-        State("upload-isotopomer-url", "value"),
-        State("local-isotopomers-data", "data"),
+        State("upload-spin-system-url", "value"),
+        State("local-spin-systems-data", "data"),
         State("new-json", "data"),
         State("new-method-json", "data"),
         State("select-method", "value"),
     ],
     prevent_initial_call=True,
 )
-def update_isotopomers(*args):
-    """Update the local isotopomers when a new file is imported."""
+def update_spin_systems(*args):
+    """Update the local spin-systems when a new file is imported."""
     if not ctx.triggered:
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("trigger", trigger_id)
 
-    existing_data = ctx.states["local-isotopomers-data.data"]
+    existing_data = ctx.states["local-spin-systems-data.data"]
 
     if trigger_id == "new-json":
         new_json_data = ctx.states["new-json.data"]
-        return modified_isotopomer(existing_data, new_json_data)
+        return modified_spin_system(existing_data, new_json_data)
 
     if trigger_id == "new-method-json":
         new_method_data = ctx.states["new-method-json.data"]
@@ -212,7 +214,7 @@ def update_isotopomers(*args):
     if_error_occurred = [True, existing_data, *no_updates]
 
     # Load a sample from pre-defined examples
-    # The following section applies to when the isotopomers update is triggered from
+    # The following section applies to when the spin-systems update is triggered from
     # set of pre-defined examples.
     if trigger_id == "selected-example":
         example = ctx.inputs["selected-example.value"]
@@ -224,24 +226,24 @@ def update_isotopomers(*args):
         return assemble_data(parse_data(data))
 
     # Request and load a sample from URL
-    # The following section applies to when the isotopomers update is triggered from
+    # The following section applies to when the spin-systems update is triggered from
     # url-submit.
-    if trigger_id == "upload-isotopomer-url-submit":
-        url = ctx.states("upload-isotopomer-url.value")
+    if trigger_id == "upload-spin-system-url-submit":
+        url = ctx.states("upload-spin-system-url.value")
         if url in ["", None]:
             raise PreventUpdate
         response = urlopen(url)
         try:
             data = fix_missing_keys(json.loads(response.read()))
         except Exception:
-            message = "Error reading isotopomers."
+            message = "Error reading spin-systems."
             return [message, *if_error_occurred]
         return assemble_data(parse_data(data))
 
-    if trigger_id == "confirm-clear-isotopomer":
+    if trigger_id == "confirm-clear-spin-system":
         if existing_data is None:
             raise PreventUpdate
-        existing_data["isotopomers"] = []
+        existing_data["spin-systems"] = []
         return assemble_data(existing_data)
 
     if trigger_id == "confirm-clear-methods":
@@ -250,30 +252,30 @@ def update_isotopomers(*args):
         existing_data["methods"] = []
         return assemble_data(existing_data)
 
-    if trigger_id == "upload-and-add-isotopomer-button":
+    if trigger_id == "upload-and-add-spin-system-button":
         contents = ctx.inputs[f"{trigger_id}.contents"]
         if contents is None:
             raise PreventUpdate
         try:
             data = fix_missing_keys(parse_contents(contents))
         except Exception:
-            message = "Error reading isotopomers."
+            message = "Error reading spin-systems."
             return [message, *if_error_occurred]
         data = parse_data(data, parse_method=False)
-        existing_data["isotopomers"] += data["isotopomers"]
+        existing_data["spin_systems"] += data["spin_systems"]
         return assemble_data(existing_data)
 
     # Load a sample from drag and drop
-    # The following section applies to when the isotopomers update is triggered from
+    # The following section applies to when the spin-systems update is triggered from
     # a user uploaded file.
-    if trigger_id in ["upload-isotopomer-local", "open-mrsimulator-file"]:
+    if trigger_id in ["upload-spin-system-local", "open-mrsimulator-file"]:
         contents = ctx.inputs[f"{trigger_id}.contents"]
         if contents is None:
             raise PreventUpdate
         try:
             data = fix_missing_keys(parse_contents(contents))
         except Exception:
-            message = "Error reading isotopomers."
+            message = "Error reading spin-systems."
             return [message, *if_error_occurred]
         return assemble_data(parse_data(data))
 
@@ -308,7 +310,7 @@ def update_isotopomers(*args):
         return ["", False, existing_data, no_update, no_update, methods_info, no_update]
 
     # Load a sample from drag and drop on the graph reqion
-    # The following section applies to when the isotopomers update is triggered from
+    # The following section applies to when the spin-systems update is triggered from
     # a user drag and drop on the graph.
     # if trigger_id == "upload-from-graph":
     #     if from_graph_content is None:
@@ -318,7 +320,7 @@ def update_isotopomers(*args):
     #     try:
     #         data = parse_contents(from_graph_content, from_graph_filename)
     #     except Exception:
-    #         message = "Error reading isotopomers."
+    #         message = "Error reading spin-systems."
     #         return [message, *if_error_occurred]
 
     #     return assemble_data(data)
@@ -334,7 +336,7 @@ def modified_method(existing_method_data, new_method_data):
     data = (
         existing_method_data
         if existing_method_data is not None
-        else {"name": "", "description": "", "isotopomers": [], "methods": []}
+        else {"name": "", "description": "", "spin_systems": [], "methods": []}
     )
     method_data = new_method_data["data"]
 
@@ -371,8 +373,8 @@ def modified_method(existing_method_data, new_method_data):
         return default
 
 
-def modified_isotopomer(existing_data, new_json_data):
-    """Update the local isotopomer data when an update is triggered."""
+def modified_spin_system(existing_data, new_json_data):
+    """Update the local spin-system data when an update is triggered."""
     config = {"is_new_data": False, "length_changed": False}
     default = [no_update for _ in range(7)]
 
@@ -382,62 +384,62 @@ def modified_isotopomer(existing_data, new_json_data):
     data = (
         existing_data
         if existing_data is not None
-        else {"name": "", "description": "", "isotopomers": [], "methods": []}
+        else {"name": "", "description": "", "spin_systems": [], "methods": []}
     )
-    isotopomer_data = new_json_data["data"]
-    # Modify isotopomer
-    # The following section applies to when the isotopomers update is triggered from
+    spin_system_data = new_json_data["data"]
+    # Modify spin-system
+    # The following section applies to when the spin-systems update is triggered from
     # the GUI fields. This is a very common trigger, so we place it at the start.
     if new_json_data["operation"] == "modify":
-        data["isotopomers"][index] = isotopomer_data
+        data["spin_systems"][index] = spin_system_data
         config["index_last_modified"] = index
 
-        isotopomers_info = update_isotopomer_info(data["isotopomers"])
-        default[2], default[3], default[4] = data, config, isotopomers_info
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
         return default
 
-    # Add a new isotopomer
-    # The following section applies to when the a new isotopomers is added from
-    # add-isotopomer-button.
+    # Add a new spin system
+    # The following section applies to when the a new spin-systems is added from
+    # add-spin-system-button.
     if new_json_data["operation"] == "add":
-        data["isotopomers"] += [isotopomer_data]
+        data["spin_systems"] += [spin_system_data]
         config["length_changed"] = True
-        config["added"] = [site["isotope"] for site in isotopomer_data["sites"]]
+        config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
-        isotopomers_info = update_isotopomer_info(data["isotopomers"])
-        default[2], default[3], default[4] = data, config, isotopomers_info
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
         return default
 
-    # Copy an existing isotopomer
-    # The following section applies to when a request to duplicate the isotopomers
-    # is initiated using the duplicate-isotopomer-button.
+    # Copy an existing spin-system
+    # The following section applies to when a request to duplicate the spin-systems
+    # is initiated using the duplicate-spin-system-button.
     if new_json_data["operation"] == "duplicate":
-        data["isotopomers"] += [isotopomer_data]
+        data["spin_systems"] += [spin_system_data]
         config["length_changed"] = True
-        config["added"] = [site["isotope"] for site in isotopomer_data["sites"]]
+        config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
-        isotopomers_info = update_isotopomer_info(data["isotopomers"])
-        default[2], default[3], default[4] = data, config, isotopomers_info
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
         return default
 
-    # Delete an isotopomer
-    # The following section applies to when a request to remove an isotopomers is
-    # initiated using the remove-isotopomer-button.
+    # Delete an spin-system
+    # The following section applies to when a request to remove an spin-systems is
+    # initiated using the remove-spin-system-button.
     if new_json_data["operation"] == "delete":
         if index is None:
             raise PreventUpdate
 
-        # the index to remove is given by isotopomer_index
+        # the index to remove is given by spin_system_index
         config["removed"] = [
-            site["isotope"] for site in data["isotopomers"][index]["sites"]
+            site["isotope"] for site in data["spin_systems"][index]["sites"]
         ]
-        del data["isotopomers"][index]
+        del data["spin_systems"][index]
         config["index_last_modified"] = index
 
-        isotopomers_info = update_isotopomer_info(data["isotopomers"])
-        default[2], default[3], default[4] = data, config, isotopomers_info
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
         return default
 
 
@@ -445,7 +447,7 @@ def fix_missing_keys(json_data):
     default_data = {
         "name": "",
         "description": "Add a description ...",
-        "isotopomers": [],
+        "spin_systems": [],
         "methods": [],
         "config": {},
     }
@@ -457,21 +459,21 @@ def fix_missing_keys(json_data):
 
 
 def parse_contents(contents):
-    """Parse contents from the isotopomers file."""
+    """Parse contents from the spin-systems file."""
     content_string = contents.split(",")[1]
     decoded = base64.b64decode(content_string)
     data = json.loads(str(decoded, encoding="UTF-8"))
     return data
 
 
-def parse_data(data, parse_method=True, parse_isotopomer=True):
+def parse_data(data, parse_method=True, parse_spin_system=True):
     data_keys = data.keys()
-    if parse_isotopomer:
-        if "isotopomers" in data_keys:
+    if parse_spin_system:
+        if "spin_systems" in data_keys:
             a = [
-                Isotopomer.parse_dict_with_units(_).dict() for _ in data["isotopomers"]
+                SpinSystem.parse_dict_with_units(_).dict() for _ in data["spin_systems"]
             ]
-            data["isotopomers"] = [filter_dict(_) for _ in a]
+            data["spin_systems"] = [filter_dict(_) for _ in a]
 
     if parse_method:
         if "methods" in data_keys:
@@ -489,7 +491,7 @@ def assemble_data(data):
         False,
         data,
         config,
-        update_isotopomer_info(data["isotopomers"]),
+        update_spin_system_info(data["spin_systems"]),
         update_method_info(data["methods"]),
         update_sample_info(data),
     ]
@@ -524,21 +526,21 @@ def filter_dict(dict1):
 
 # @app.callback(
 #     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
-#     [Input("local-isotopomers-data", "modified_timestamp")],
-#     [State("local-isotopomers-data", "data"), State("isotope_id-0", "value")],
+#     [Input("local-spin-systems-data", "modified_timestamp")],
+#     [State("local-spin-systems-data", "data"), State("isotope_id-0", "value")],
 # )
-# def update_dropdown_options(t, local_isotopomer_data, old_isotope):
+# def update_dropdown_options(t, local_spin_system_data, old_isotope):
 #     print("update_dropdown_options", old_isotope)
-#     if local_isotopomer_data is None:
+#     if local_spin_system_data is None:
 #         raise PreventUpdate
-#     if local_isotopomer_data["isotopomers"] == []:
+#     if local_spin_system_data["spin_systems"] == []:
 #         return [[], None]
 
 #     # extracting a list of unique isotopes from the list of isotopes
 #     isotopes = set(
 #         [
 #             site["isotope"]
-#             for item in local_isotopomer_data["isotopomers"]
+#             for item in local_spin_system_data["spin_systems"]
 #             for site in item["sites"]
 #         ]
 #     )
@@ -557,24 +559,24 @@ def filter_dict(dict1):
 #               ["value"]
 #     )
 
-#     print(local_isotopomer_data["isotopomers"])
-#     # Output isotopomer-dropdown -> options
-#     # Update isotopomer dropdown options base on local isotopomers data
-#     # isotopomer_dropdown_options = get_all_isotopomer_dropdown_options(
-#     #     local_isotopomer_data["isotopomers"]
+#     print(local_spin_system_data["spin_systems"])
+#     # Output spin-system-dropdown -> options
+#     # Update spin-system dropdown options base on local spin-systems data
+#     # spin_system_dropdown_options = get_all_spin_system_dropdown_options(
+#     #     local_spin_system_data["spin_systems"]
 #     # )
 
 #     return [
 #         isotope_dropdown_options,
 #         isotope,
-#         # print_info(local_isotopomer_data),
+#         # print_info(local_spin_system_data),
 #     ]
 
 
 # convert client-side function
 @app.callback(
     Output("select-method", "options"),
-    [Input("local-isotopomers-data", "data")],
+    [Input("local-spin-systems-data", "data")],
     prevent_initial_call=True,
 )
 def update_list_of_methods(data):

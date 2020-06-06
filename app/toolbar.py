@@ -23,25 +23,25 @@ scale_amplitude_button = custom_switch(
 )
 
 
-# Show spectrum from individual isotopomers ----------------------------------------- #
+# Show spectrum from individual spin systems ----------------------------------------- #
 decompose_button = custom_switch(
     # text="Decompose",
     icon_classname="fac fa-decompose",
     id="decompose",
     # size="sm",
-    tooltip="Show simulation from individual isotopomers.",
+    tooltip="Show simulation from individual spin systems.",
     outline=True,
     color="dark",
     style={"zIndex": 0},
 )
 
-# # Show sum of spectrum from individual isotopomers -------------------------------- #
+# # Show sum of spectrum from individual spin-systems -------------------------------- #
 # compose_button = custom_switch(
 #     # text="Decompose",
 #     icon_classname="fac fa-compose",
 #     id="compose",
 #     # size="sm",
-#     # tooltip="Show simulation from individual isotopomers.",
+#     # tooltip="Show simulation from individual spin-systems.",
 #     outline=True,
 #     color="dark",
 #     style={"zIndex": 0},

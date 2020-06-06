@@ -9,7 +9,7 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator.isotope import ISOTOPE_DATA
 
-from .toolbar import search_isotopomer
+from .toolbar import search_spin_system
 from .util import blank_display
 from app.app import app
 from app.custom_widgets import custom_button
@@ -21,7 +21,7 @@ __email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
 
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 
-isotopomer_prepend_labels = {
+spin_system_prepend_labels = {
     "alpha": "alpha (α)",
     "beta": "beta (β)",
     "gamma": "gamma (γ)",
@@ -113,14 +113,14 @@ default_unit = {
 #     custom_fitting_input_group(prepend_label, append_label, **kwargs)
 
 #     # @app.callback(
-#     #     Output("local-isotopomers-data", "data"),
+#     #     Output("local-spin-systems-data", "data"),
 #     #     [Input(f"{id_}", "value")],  # id belongs to the input field
-#     #     [State("local-isotopomers-data", "data")],
+#     #     [State("local-spin-systems-data", "data")],
 #     # )
-#     # def update_isotopomers_data(value, local_isotopomer_data):
+#     # def update_spin_systems_data(value, local_spin_system_data):
 #     #     key = id_.split("_")[1].replace("%", "."))
-#     #     local_isotopomer_data[key] = value
-#     #     return local_isotopomer_data
+#     #     local_spin_system_data[key] = value
+#     #     return local_spin_system_data
 
 
 def feature_orientation_collapsible(key_dict, id_label):
@@ -136,7 +136,7 @@ def feature_orientation_collapsible(key_dict, id_label):
 
         feature_input_fields.append(
             custom_input_group(
-                prepend_label=isotopomer_prepend_labels[key],
+                prepend_label=spin_system_prepend_labels[key],
                 append_label=value,
                 id=f"{id_label}-{key}",
                 debounce=True,
@@ -148,7 +148,7 @@ def feature_orientation_collapsible(key_dict, id_label):
     for key, value in orientation_dict.items():
         orientation_input_fields.append(
             custom_input_group(
-                prepend_label=isotopomer_prepend_labels[key],
+                prepend_label=spin_system_prepend_labels[key],
                 append_label=value,
                 id=f"{id_label}-{key}",
                 debounce=True,
@@ -186,7 +186,7 @@ def feature_orientation_collapsible(key_dict, id_label):
         ),
         id=f"{id_label}-feature-collapse",
         is_open=True,
-        # className="sub-isotopomer-card",
+        # className="sub-spin-system-card",
     )
 
     @app.callback(
@@ -251,7 +251,7 @@ def populate_key_value_from_object(object_dict):
     #         html.Div(
     #             [
     #                 custom_input_group(
-    #                     prepend_label=isotopomer_prepend_labels[key],
+    #                     prepend_label=spin_system_prepend_labels[key],
     #                     append_label=value,
     #                     value="",
     #                     id=key,
@@ -265,15 +265,15 @@ def populate_key_value_from_object(object_dict):
 
 
 lst = populate_key_value_from_object(default_unit)
-widgets = dbc.Tab(label=f"Site", children=lst, className="tab-scroll")
+widgets = dbc.Tab(label="Site", children=lst, className="tab-scroll")
 
-# isotopomer abundance
-isotopomer_abundance_field = html.Div(
+# spin-system abundance
+spin_system_abundance_field = html.Div(
     custom_input_group(
         append_label="%",
         prepend_label="Abundance",
-        placeholder="Isotopomer abundance",
-        id="isotopomer-abundance",
+        placeholder="Spin system abundance",
+        id="spin-system-abundance",
         debounce=True,
         max=100,
         min=0,
@@ -282,21 +282,21 @@ isotopomer_abundance_field = html.Div(
 )
 
 # metadata
-isotopomer_name_field = custom_input_group(
+spin_system_name_field = custom_input_group(
     prepend_label="Name",
     input_type="text",
     placeholder="Add name",
-    value="Isotopomer Name",
-    id="isotopomer-name",
+    value="Spin system Name",
+    id="spin-system-name",
     debounce=True,
 )
 
-isotopomer_description_field = html.Div(
+spin_system_description_field = html.Div(
     [
         html.Label("Description"),
         dbc.Textarea(
             placeholder="Add a description ... ",
-            id="isotopomer-description",
+            id="spin-system-description",
             debounce=True,
         ),
     ]
@@ -305,79 +305,79 @@ isotopomer_description_field = html.Div(
 metadata = dcc.Tab(
     label="Metadata",
     children=html.Div(
-        [isotopomer_name_field, isotopomer_description_field],
+        [spin_system_name_field, spin_system_description_field],
         className="tab-scroll scroll-cards container",
     ),
 )
 
 
 submit_button = html.Div(
-    custom_button(text="Submit Isotopomer", id="apply-isotopomer-changes"),
+    custom_button(text="Submit Spin System", id="apply-spin-system-changes"),
     className="submit-button",
 )
 
-# isotopomer-title
-isotopomer_title = html.Div(
-    html.Label(id="isotopomer-title"), className="isotopomer-title"
+# spin-system-title
+spin_system_title = html.Div(
+    html.Label(id="spin-system-title"), className="spin-system-title"
 )
 
-# isotopomer read-only section
+# spin-system read-only section
 # By default, display a custom screen so that the user doesn't see a blank card.
 # See blank_dispaly function for details.
-isotopomer_read_only = html.Div(blank_display, id="isotopomer-read-only")
+spin_system_read_only = html.Div(blank_display, id="spin-system-read-only")
 
 
-# isotopomer section
-isotopomer_editor = html.Form(
+# spin-system section
+spin_system_editor = html.Form(
     [
         dbc.Card(
             [
-                isotopomer_title,
-                isotopomer_abundance_field,
+                spin_system_title,
+                spin_system_abundance_field,
                 dbc.Tabs([widgets, metadata]),
             ]
         ),
         submit_button,
     ],
-    id="isotopomer-editor-content",
+    id="spin-system-editor-content",
 )
 
 
 # slides
-isotopomer_slide_1 = html.Div(isotopomer_read_only, className="slider1")
-isotopomer_slide_2 = html.Div(isotopomer_editor, className="slider2")
-isotopomer_slide = html.Div(
-    [isotopomer_slide_1, isotopomer_slide_2],
+spin_system_slide_1 = html.Div(spin_system_read_only, className="slider1")
+spin_system_slide_2 = html.Div(spin_system_editor, className="slider2")
+spin_system_slide = html.Div(
+    [spin_system_slide_1, spin_system_slide_2],
     id="iso-slide",
     className="iso-slide-offset",
 )
 
-isotopomer_title = html.Div(
+spin_system_title = html.Div(
     [
-        html.I(className="fac fa-isotopomers"),
-        html.H4("Isotopomers", className="hide-label-sm"),
+        html.I(className="fac fa-spin-systems"),
+        html.H4("Spin Systems", className="hide-label-sm"),
     ]
 )
 
-# Isotopomer layout
-isotopomer_body = html.Div(
+# Spin system layout
+spin_system_body = html.Div(
     className="my-card hide-window",
     children=html.Div(
         [
-            html.Div([isotopomer_title, search_isotopomer], className="card-header"),
-            isotopomer_slide,
+            html.Div([spin_system_title, search_spin_system], className="card-header"),
+            spin_system_slide,
         ]
     ),
-    id="isotopomer-body",
+    id="spin-system-body",
 )
 
-# Select isotopomer when the respective graph is selected.
+# Select spin-system when the respective graph is selected.
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="selected_isotopomer"),
+    ClientsideFunction(namespace="clientside", function_name="selected_spin_system"),
     Output("temp3", "children"),
     [Input("nmr_spectrum", "clickData")],
     [
-        State("local-isotopomer-index-map", "data"),
+        State("local-spin-system-index-map", "data"),
         State("decompose", "active"),
         State("select-method", "value"),
     ],
@@ -388,19 +388,19 @@ app.clientside_callback(
 # app.clientside_callback(
 #     ClientsideFunction(namespace="clientside", function_name="submit"),
 #     Output("temp-json", "data"),
-#     [Input("apply-isotopomer-changes", "n_clicks_timestamp")],
+#     [Input("apply-spin-system-changes", "n_clicks_timestamp")],
 # )
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_json"),
     Output("new-json", "data"),
     [
-        Input("apply-isotopomer-changes", "n_clicks_timestamp"),
-        Input("add-isotopomer-button", "n_clicks_timestamp"),
-        Input("duplicate-isotopomer-button", "n_clicks_timestamp"),
-        Input("remove-isotopomer-button", "n_clicks_timestamp"),
-        # Input("isotopomer-name", "value"),
-        # Input("isotopomer-description", "value"),
+        Input("apply-spin-system-changes", "n_clicks_timestamp"),
+        Input("add-spin-system-button", "n_clicks_timestamp"),
+        Input("duplicate-spin-system-button", "n_clicks_timestamp"),
+        Input("remove-spin-system-button", "n_clicks_timestamp"),
+        # Input("spin-system-name", "value"),
+        # Input("spin-system-description", "value"),
         # Input("isotope", "value"),
         # Input("isotropic_chemical_shift", "value"),
         # Input("shielding_symmetric-zeta", "value"),

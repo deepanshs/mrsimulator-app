@@ -18,32 +18,32 @@ if (!window.localStorage.getItem("user-config")) {
 
 // clear session storage on refresh
 window.sessionStorage.clear();
-window.sessionStorage.setItem("current-isotopomer-index", 0);
+window.sessionStorage.setItem("current-spin-system-index", 0);
 
 var storeData = {
   previousIndex: 0,
-  isotopomer_index: 0,
+  spin_system_index: 0,
   method_index: 0,
-  data: { name: "", description: [], isotopomers: [], methods: [] },
+  data: { name: "", description: [], spin_systems: [], methods: [] },
 };
 
 var previous_timestamps = [-1, -1, -1, -1];
 var last_li_scroll_index = 0;
 let initial = 0;
-// var createLists = function (isotopomers) {
-//     var root = $('#isotopomer-read-only');
+// var createLists = function (spin_systems) {
+//     var root = $('#spin-system-read-only');
 //     var div = document.createElement('div');
 //     div.className = 'display-form';
 //     var ul = document.createElement('ul');
 //     // ul.empty();
 //     var li;
-//     for (i = 0; i < isotopomers.length; i++) {
+//     for (i = 0; i < spin_systems.length; i++) {
 //         li = document.createElement("li");
-//         li.innerHTML = update_info(isotopomers[i], i);
+//         li.innerHTML = update_info(spin_systems[i], i);
 //         li.className = 'list-group-item';
 //         ul.appendChild(li);
 //         $(li).click(function (e) {
-//             isotopomerOnClick(li);
+//             spinSystemOnClick(li);
 //             e.preventDefault();
 //         });
 //     }
@@ -64,11 +64,11 @@ window.dash_clientside.clientside = {
     return null;
   },
 
-  on_isotopomers_load: function (x, config) {
+  on_spin_systems_load: function (x, config) {
     storeData.data = JSON.parse(
-      window.sessionStorage.getItem("local-isotopomers-data")
+      window.sessionStorage.getItem("local-spin-systems-data")
     );
-    let listomers = $("#isotopomer-read-only div.display-form ul li");
+    let listomers = $("#spin-system-read-only div.display-form ul li");
 
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("iso-slide");
@@ -88,7 +88,7 @@ window.dash_clientside.clientside = {
     // Add a fresh bind event to the list.
     listomers.each(function () {
       $(this).click(function (e) {
-        isotopomerOnClick(this);
+        spinSystemOnClick(this);
         e.preventDefault();
       });
       //   $(this).on('contextmenu', function(e) {
@@ -99,15 +99,15 @@ window.dash_clientside.clientside = {
 
     // Select the entry at current index by initiating a click. If the current
     // index is greater then the length of the li, select 0;
-    let index = get_isotopomer_index();
+    let index = get_spin_system_index();
     index = index >= listomers.length ? 0 : index;
-    select_isotopomer(listomers, index);
+    select_spin_system(listomers, index);
     return null;
   },
 
   on_methods_load: function (x, config) {
     storeData.data = JSON.parse(
-      window.sessionStorage.getItem("local-isotopomers-data")
+      window.sessionStorage.getItem("local-spin-systems-data")
     );
     let listomers = $("#method-read-only div.display-form ul li");
 
@@ -130,10 +130,10 @@ window.dash_clientside.clientside = {
     listomers.each(function () {
       let index = 0;
       $(this).click(function (e) {
-        // isotopomer_on_click(this);
+        // spin_system_on_click(this);
         default_li_item_action(this);
 
-        // store the current-isotopomer-index in the session
+        // store the current-spin-system-index in the session
         index = $(this).index();
         set_method_index(index);
 
@@ -156,10 +156,10 @@ window.dash_clientside.clientside = {
   },
 
   create_json: function () {
-    // n1 is the trigger time for apply isotopomer changes.
-    // n2 is the trigger time for add new isotopomer.
-    // n3 is the trigger time for duplicate isotopomer.
-    // n4 is the trigger time for delete isotopomer.
+    // n1 is the trigger time for apply spin-system changes.
+    // n2 is the trigger time for add new spin-system.
+    // n3 is the trigger time for duplicate spin-system.
+    // n4 is the trigger time for delete spin-system.
     let max_index, l, new_val, i;
     let new_list = [];
 
@@ -190,22 +190,22 @@ window.dash_clientside.clientside = {
 
     let data = storeData.data;
 
-    l = data.isotopomers.length;
+    l = data.spin_systems.length;
     let result = {};
     if (max_index === 0) {
       // modify
       result.data = extract_site_object_from_fields();
-      result.index = get_isotopomer_index();
+      result.index = get_spin_system_index();
       result.operation = "modify";
-      // if (checkObjectEquality(result.data, data.isotopomers[result.index])) {
+      // if (checkObjectEquality(result.data, data.spin_systems[result.index])) {
       //   throw window.dash_clientside.PreventUpdate;
       // }
-      // data.isotopomers[result.index] = result.data;
+      // data.spin_systems[result.index] = result.data;
     }
     if (max_index === 1) {
       // add
       result.data = {
-        name: `Isotopomer-${l}`,
+        name: `Spin system ${l}`,
         description: "",
         abundance: 1,
         sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
@@ -213,26 +213,26 @@ window.dash_clientside.clientside = {
       result.index = l;
       result.operation = "add";
       result.time = Date.now();
-      set_isotopomer_index(l);
+      set_spin_system_index(l);
     }
     if (max_index === 2) {
       // duplicate
-      checkForEmptyListForOperation("copy", "isotopomer", l);
-      result.data = data.isotopomers[get_isotopomer_index()];
+      checkForEmptyListForOperation("copy", "spin system", l);
+      result.data = data.spin_systems[get_spin_system_index()];
       result.index = l;
       result.operation = "duplicate";
-      set_isotopomer_index(l);
+      set_spin_system_index(l);
     }
     if (max_index === 3) {
       // delete
-      checkForEmptyListForOperation("delete", "isotopomer", l);
-      new_val = get_isotopomer_index();
+      checkForEmptyListForOperation("delete", "spin system", l);
+      new_val = get_spin_system_index();
       result.data = max_value;
       result.index = new_val;
       result.operation = "delete";
       new_val -= 1;
       new_val = new_val < 0 ? 0 : new_val;
-      set_isotopomer_index(new_val);
+      set_spin_system_index(new_val);
     }
     return result;
   },
@@ -301,13 +301,13 @@ window.dash_clientside.clientside = {
     return result;
   },
 
-  selected_isotopomer: function (clickData, map, decompose, method_index) {
+  selected_spin_system: function (clickData, map, decompose, method_index) {
     if (clickData == null) {
       throw window.dash_clientside.PreventUpdate;
     }
     let index = decompose ? clickData.points[0].curveNumber : null;
 
-    let listomers = $("#isotopomer-read-only div.display-form ul li");
+    let listomers = $("#spin-system-read-only div.display-form ul li");
     let length = listomers.length;
 
     if (index == null || index >= length) {
@@ -315,7 +315,7 @@ window.dash_clientside.clientside = {
     }
     // get the correct index from the mapping array
     index = map[method_index][index];
-    // highlight the corrresponding isotopomer by initialing a click.
+    // highlight the corresponding spin-system by initialing a click.
     listomers[index].click();
 
     return null;

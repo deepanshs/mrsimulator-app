@@ -18,7 +18,7 @@ from app.custom_widgets import custom_card
 from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
 from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
-from app.isotopomer import isotope_options_list
+from app.spin_system import isotope_options_list
 
 METHOD_LIST = {
     "BlochDecaySpectrum": mt.BlochDecaySpectrum().reduced_dict(),
@@ -45,7 +45,7 @@ def generate_parameters(n_dimensions):
     channel_ = dbc.InputGroup(
         [
             dbc.InputGroupAddon("Channel", addon_type="prepend"),
-            dbc.Select(options=isotope_options_list, value="1H", id=f"channel"),
+            dbc.Select(options=isotope_options_list, value="1H", id="channel"),
         ],
         className="container scroll-cards",
     )
@@ -93,7 +93,7 @@ submit_button = html.Div(
 )
 
 # method-title
-method_title = html.Div(html.Label(id="method-title"), className="isotopomer-title")
+method_title = html.Div(html.Label(id="method-title"), className="spin-system-title")
 
 # method metadata
 method_description = html.Div(
@@ -193,7 +193,7 @@ dimension_body = html.Div(
 #         State("magnetic_flux_density-0", "value"),
 #         State("rotor_frequency-0", "value"),
 #         State("rotor_angle-0", "value"),
-#         State("local-isotopomers-data", "data"),
+#         State("local-spin-systems-data", "data"),
 #     ],
 # )
 # def get_method_dict(*args):
@@ -202,11 +202,11 @@ dimension_body = html.Div(
 
 #     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-#     existing_data = ctx.states["local-isotopomers-data.data"]
+#     existing_data = ctx.states["local-spin-systems-data.data"]
 #     data = (
 #         existing_data
 #         if existing_data is not None
-#         else {"name": "", "description": "", "isotopomers": [], "methods": []}
+#         else {"name": "", "description": "", "spin-systems": [], "methods": []}
 #     )
 #     method_length = len(data["methods"])
 

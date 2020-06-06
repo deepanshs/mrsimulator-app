@@ -17,20 +17,20 @@ var init = function () {
   //     keys = ALL_KEYS[i].split('-');
   //     if (keys.length == 1) {
   //         $(`#${ALL_KEYS[i]}`).on('change', function () {
-  //             index = get_isotopomer_index();
-  //             temp = storeData['data']['isotopomers'][index]['sites'][0];
+  //             index = get_spin_system_index();
+  //             temp = storeData['data']['spin_systems'][index]['sites'][0];
   //             temp[this.id] = (isNaN(+(this.value))) ? this.value :
   //             +(this.value);
 
-  //             var listomers = $('#isotopomer-read-only div.display-form ul
+  //             var listomers = $('#spin-system-read-only div.display-form ul
   //             li'); listomers[index].innerHTML =
-  //             update_info(storeData['data']['isotopomers'][index], index);
+  //             update_info(storeData['data']['spin_systems'][index], index);
   //         });
   //     } else {
   //         $(`#${ALL_KEYS[i]}`).on('change', function () {
   //             var k_ = this.id.split('-')
-  //             index = get_isotopomer_index();
-  //             temp = storeData['data']['isotopomers'][index]['sites'][0];
+  //             index = get_spin_system_index();
+  //             temp = storeData['data']['spin_systems'][index]['sites'][0];
   //             if (!temp.hasOwnProperty(k_[0])) { temp[k_[0]] = {}; }
 
   //             val = parseFloat(this.value);
@@ -40,29 +40,29 @@ var init = function () {
   //             else if (k_[1] == 'gamma') { val /= to_deg }
   //             temp[k_[0]][k_[1]] = val;
 
-  //             var listomers = $('#isotopomer-read-only div.display-form ul
+  //             var listomers = $('#spin-system-read-only div.display-form ul
   //             li'); listomers[index].innerHTML =
-  //             update_info(storeData['data']['isotopomers'][index], index);
+  //             update_info(storeData['data']['spin_systems'][index], index);
   //         });
   //     }
   // }
 
-  // Update isotopomer card title when the value of the isotopomer name
+  // Update spin-system card title when the value of the spin-system name
   // attribute change.
-  $("#isotopomer-name").on("keyup", function (e) {
-    $("#isotopomer-title")[0].innerHTML = this.value;
+  $("#spin-system-name").on("keyup", function (e) {
+    $("#spin-system-title")[0].innerHTML = this.value;
     e.preventDefault();
   });
 
-  // Search and filter isotopomers
-  $("#search-isotopomer").on("input", searchIsotopomers);
+  // Search and filter spin-systems
+  $("#search-spin-system").on("input", searchSpinSystems);
 
   // Search and filter methods
   $("#search-method").on("input", searchMethods);
 
-  // Toggle isotopomer window with view-isotopomers button
-  $("#view-isotopomers").on("click", function (e) {
-    let element1 = $("#isotopomer-body")[0].classList;
+  // Toggle spin-system window with view-spin-systems button
+  $("#view-spin-systems").on("click", function (e) {
+    let element1 = $("#spin-system-body")[0].classList;
     let element2 = $("#method-body")[0].classList;
     let element3 = $("#info-body")[0].classList;
 
@@ -70,9 +70,9 @@ var init = function () {
     element2.add("hide-window");
     element3.add("hide-window");
 
-    let isotopomer_tools = $("#isotopomer-edit-tools")[0];
+    let spin_system_tools = $("#spin-system-edit-tools")[0];
     let method_tools = $("#method-edit-tools")[0];
-    isotopomer_tools.style.display = "flex";
+    spin_system_tools.style.display = "flex";
     method_tools.style.display = "none";
 
     e.preventDefault();
@@ -80,7 +80,7 @@ var init = function () {
 
   // Toggle methods window with view-methods button
   $("#view-methods").on("click", function (e) {
-    let element1 = $("#isotopomer-body")[0].classList;
+    let element1 = $("#spin-system-body")[0].classList;
     let element2 = $("#method-body")[0].classList;
     let element3 = $("#info-body")[0].classList;
 
@@ -88,9 +88,9 @@ var init = function () {
     element2.remove("hide-window");
     element3.add("hide-window");
 
-    let isotopomer_tools = $("#isotopomer-edit-tools")[0];
+    let spin_system_tools = $("#spin-system-edit-tools")[0];
     let method_tools = $("#method-edit-tools")[0];
-    isotopomer_tools.style.display = "none";
+    spin_system_tools.style.display = "none";
     method_tools.style.display = "flex";
 
     e.preventDefault();
@@ -98,7 +98,7 @@ var init = function () {
 
   // Toggle info window with view-info button
   $("#view-info").on("click", function (e) {
-    let element1 = $("#isotopomer-body")[0].classList;
+    let element1 = $("#spin-system-body")[0].classList;
     let element2 = $("#method-body")[0].classList;
     let element3 = $("#info-body")[0].classList;
 
@@ -106,9 +106,9 @@ var init = function () {
     element2.add("hide-window");
     element3.remove("hide-window");
 
-    let isotopomer_tools = $("#isotopomer-edit-tools")[0];
+    let spin_system_tools = $("#spin-system-edit-tools")[0];
     let method_tools = $("#method-edit-tools")[0];
-    isotopomer_tools.style.display = "none";
+    spin_system_tools.style.display = "none";
     method_tools.style.display = "none";
     e.preventDefault();
   });
@@ -137,7 +137,7 @@ var init = function () {
         $("#view-info")[0].click();
       }
       if (index === 1) {
-        $("#view-isotopomers")[0].click();
+        $("#view-spin-systems")[0].click();
       }
       if (index === 2) {
         $("#view-methods")[0].click();
@@ -147,18 +147,18 @@ var init = function () {
     });
   });
 
-  // Isotopomer menu callbacks.
-  $(".isotopomer-menu li").each(function () {
+  // Spin system menu callbacks.
+  $(".spin-system-menu li").each(function () {
     $(this).click(function (e) {
       let index = $(this).index();
       if (index === 0) {
-        $("#add-isotopomer-button")[0].click();
+        $("#add-spin-system-button")[0].click();
       }
       if (index === 1) {
-        $("#duplicate-isotopomer-button")[0].click();
+        $("#duplicate-spin-system-button")[0].click();
       }
       if (index === 2) {
-        $("#remove-isotopomer-button")[0].click();
+        $("#remove-spin-system-button")[0].click();
       }
       e.preventDefault();
     });
@@ -182,12 +182,12 @@ var init = function () {
   });
 
   // $('#open-mrsimulator-file').on('click', function(e) {
-  //   $('#upload-and-add-isotopomer-button input')[0].click();
+  //   $('#upload-and-add-spin-system-button input')[0].click();
   //   e.preventDefault();
   // });
 
-  // $('#upload_isotopomer_button').on('click', function(e) {
-  //   $('#upload-isotopomer-local input')[0].click();
+  // $('#upload_spin_system_button').on('click', function(e) {
+  //   $('#upload-spin-system-local input')[0].click();
   //   e.preventDefault();
   // });
 
@@ -213,7 +213,7 @@ var init = function () {
   //   }
   // });
 
-  // $('#add-isotopomer-button').on('click', addNewIsotopomer);
+  // $('#add-spin-system-button').on('click', addNewSpinSystem);
 
   // var app1 = document.getElementsByClassName("app-1");
   // app1[0].onscroll = function () {

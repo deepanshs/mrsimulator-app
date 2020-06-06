@@ -1,7 +1,7 @@
 {
   "name": "β-Ca₂SiO₄",
   "description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q0",
       "sites": [

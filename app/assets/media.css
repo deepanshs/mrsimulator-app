@@ -61,7 +61,7 @@
     height: calc(100vh - 75px);
   }
   #method-body,
-  #isotopomer-body,
+  #spin-system-body,
   #top-navbar,
   #drawers-import,
   #bottom-navbar {
@@ -112,7 +112,7 @@
   .my-card {
     border-radius: 0;
   }
-  #interface-dimension-isotopomer {
+  #interface-dimension-spin-system {
     position: fixed;
     object-position: right;
     top: 0;
@@ -121,7 +121,7 @@
     width: 40vw;
   }
   #method-body,
-  #isotopomer-body,
+  #spin-system-body,
   #spectrum-body {
     height: 200vh;
   }

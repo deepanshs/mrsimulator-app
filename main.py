@@ -11,9 +11,9 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Isotopomer
 from mrsimulator import Method
 from mrsimulator import Simulator
+from mrsimulator import SpinSystem
 
 from app.app import app
 from app.body import app_1
@@ -43,16 +43,16 @@ app.layout = update_page()
 server = app.server
 
 
-def check_if_old_and_new_isotopomers_data_are_equal(new, old):
-    """Check if the two isotopomers are the same. This does not include the
-        name and the description of the isotopomers."""
-    size1 = len(new["isotopomers"])
-    size2 = len(old["isotopomers"])
+def check_if_old_and_new_spin_systems_data_are_equal(new, old):
+    """Check if the two spin_systems are the same. This does not include the
+        name and the description of the spin_systems."""
+    size1 = len(new["spin_systems"])
+    size2 = len(old["spin_systems"])
     size_min = min(size1, size2)
 
     true_index = [False] * size1
     for i in range(size_min):
-        if new["isotopomers"][i]["sites"] == old["isotopomers"][i]["sites"]:
+        if new["spin_systems"][i]["sites"] == old["spin_systems"][i]["sites"]:
             true_index[i] = True
 
     return true_index
@@ -61,9 +61,9 @@ def check_if_old_and_new_isotopomers_data_are_equal(new, old):
 def check_for_simulation_update(
     isotope_id,
     config,
-    local_isotopomers_data,
+    local_spin_systems_data,
     previous_local_computed_data,
-    previous_local_isotopomer_index_map,
+    previous_local_spin_system_index_map,
     figure,
 ):
     """
@@ -71,12 +71,12 @@ def check_for_simulation_update(
     1) If the simulation on display has a different isotope than the isotope requested
         for simulation, perform an update.
     2) If the display (from spectrum) and requested isotopes (from dimension) are the
-        same, check if the last modified isotopomer
+        same, check if the last modified spin-system
         a) was triggered with a change of isotope. If true, check if the previously
             selected isotope was used in simulation. If yes, re-simulate, else prevent
             update.
         b) was triggered with any other site attribute. If true, check if the modified
-            isotopomer has the same isotope as on display. If yes, re-simulate, else,
+            spin-system has the same isotope as on display. If yes, re-simulate, else,
             prevent update.
     """
     # checking for the first condition.
@@ -91,30 +91,30 @@ def check_for_simulation_update(
 
     # cheking for the second condition.
     # the `index_last_modified` attribute of the config holds the index of the
-    # isotopomer that was last modified. Here, we check if the changes made to the
-    # isotopomer pertains the isotope used in the simulation. If the site isotopes
-    # in the isotopomer is not the same as `isotope_id`, prevent the update.
+    # spin-system that was last modified. Here, we check if the changes made to the
+    # spin-system pertains the isotope used in the simulation. If the site isotopes
+    # in the spin-system is not the same as `isotope_id`, prevent the update.
     modified_index = config["index_last_modified"]
     if modified_index is None:
         raise PreventUpdate
 
-    # site isotopes in the modified isotopomer
+    # site isotopes in the modified spin-system
     modified_site_isotopes = [
         site["isotope"]
-        for site in local_isotopomers_data["isotopomers"][modified_index]["sites"]
+        for site in local_spin_systems_data["spin_systems"][modified_index]["sites"]
     ]
 
     if previous_local_computed_data is None:
         return
     # checking part a of the second condition
-    # the previous_local_isotopomer_index_map contains a list of isotopomer indexes
+    # the previous_local_spin_system_index_map contains a list of spin-system indexes
     # that were used in the simulation. To check if the identity of the isotope changed
-    # in the modified isotopomer, we compare the identity of the isotopes from the
-    # isotopomers from previous_local_computed_data.
-    if modified_index in previous_local_isotopomer_index_map:
+    # in the modified spin-system, we compare the identity of the isotopes from the
+    # spin_systems from previous_local_computed_data.
+    if modified_index in previous_local_spin_system_index_map:
 
         index_in_computed_data = np.where(
-            np.asarray(previous_local_isotopomer_index_map) == modified_index
+            np.asarray(previous_local_spin_system_index_map) == modified_index
         )[0][0]
         print(index_in_computed_data)
         dv = previous_local_computed_data["csdm"]["dependent_variables"][
@@ -123,7 +123,7 @@ def check_for_simulation_update(
         previous_site_isotopes = [
             site["isotope"]
             for site in dv["application"]["com.github.DeepanshS.mrsimulator"][
-                "isotopomers"
+                "spin_systems"
             ][0]["sites"]
         ]
         if modified_site_isotopes != previous_site_isotopes:
@@ -143,15 +143,15 @@ def check_for_simulation_update(
     [
         Output("local-computed-data", "data"),
         Output("local-simulator-data", "data"),
-        Output("local-isotopomer-index-map", "data"),
+        Output("local-spin-system-index-map", "data"),
     ],
-    [Input("close_setting", "n_clicks"), Input("local-isotopomers-data", "data")],
+    [Input("close_setting", "n_clicks"), Input("local-spin-systems-data", "data")],
     [
         State("integration_density", "value"),
         State("integration_volume", "value"),
         State("number_of_sidebands", "value"),
         State("local-computed-data", "data"),
-        State("local-isotopomer-index-map", "data"),
+        State("local-spin-system-index-map", "data"),
         State("config", "data"),
         State("nmr_spectrum", "figure"),
     ],
@@ -159,13 +159,13 @@ def check_for_simulation_update(
 def simulation(
     # input
     close_setting_model,
-    local_isotopomers_data,
+    local_spin_systems_data,
     # state
     integration_density,
     integration_volume,
     number_of_sidebands,
     previous_local_computed_data,
-    previous_local_isotopomer_index_map,
+    previous_local_spin_system_index_map,
     config,
     figure,
 ):
@@ -183,22 +183,24 @@ def simulation(
         print("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
-    if local_isotopomers_data is None:
+    if local_spin_systems_data is None:
         raise PreventUpdate
 
-    if len(local_isotopomers_data["methods"]) == 0:
+    if len(local_spin_systems_data["methods"]) == 0:
         raise PreventUpdate
 
-    if len(local_isotopomers_data["isotopomers"]) == 0:
+    if len(local_spin_systems_data["spin_systems"]) == 0:
         raise PreventUpdate
 
     print("simulate")
     sim = Simulator()
-    sim.methods = [Method(**i) for i in local_isotopomers_data["methods"]]
-    sim.isotopomers = [Isotopomer(**i) for i in local_isotopomers_data["isotopomers"]]
+    sim.methods = [Method(**i) for i in local_spin_systems_data["methods"]]
+    sim.spin_systems = [
+        SpinSystem(**i) for i in local_spin_systems_data["spin_systems"]
+    ]
 
     sim.config.integration_density = integration_density
-    sim.config.decompose = True
+    sim.config.decompose_spectrum = "spin_system"
     sim.config.integration_volume = integration_volume
     sim.config.number_of_sidebands = number_of_sidebands
     sim.run()
@@ -209,7 +211,7 @@ def simulation(
 
     print(
         "check with previous data",
-        previous_local_computed_data == local_isotopomers_data,
+        previous_local_computed_data == local_spin_systems_data,
     )
     return [
         local_computed_data,
@@ -330,10 +332,10 @@ def plot_1D(
     trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
-    # trigger_isotopomer = (
+    # trigger_spin_system = (
     #     True
     #     if local_computed_data is None
-    #     else local_computed_data["trigger-isotopomer"]
+    #     else local_computed_data["trigger-spin-system"]
     # )
     # print("local_computed_data", local_computed_data)
     data = []
@@ -398,7 +400,7 @@ def plot_1D(
                     y=y_data.dependent_variables[0].components[0],
                     mode="lines",
                     line={"color": "black", "width": 1.2},
-                    name=f"simulation",
+                    name="simulation",
                 )
             )
 
@@ -442,7 +444,7 @@ def plot_1D(
     #     print("axis update is True", config, trigger)
     #     layout["xaxis"]["autorange"] = True
     #     layout["yaxis"]["autorange"] = True
-    # elif config["is_new_data"] and trigger_isotopomer:
+    # elif config["is_new_data"] and trigger_spin_system:
     #     print("axis update is True", config)
     #     layout["xaxis"]["autorange"] = True
     #     layout["yaxis"]["autorange"] = True

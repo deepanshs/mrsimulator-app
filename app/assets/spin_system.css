@@ -1,11 +1,11 @@
-/* Slider offset for isotopomer split screen */
+/* Slider offset for spin-system split screen */
 .iso-slide,
 .iso-slide-offset,
 .iso-slide .slider1,
 .iso-slide .slider2,
 .iso-slide-offset .slider1,
 .iso-slide-offset .slider2 {
-  height: calc(var(--isotopomer-content-max-height) - 95px);
+  height: calc(var(--spin-system-content-max-height) - 95px);
 }
 
 .iso-slide-offset {
@@ -43,15 +43,15 @@
   transition: all 0.3s ease;
 }
 
-#isotopomer-editor-content,
-#isotopomer-read-only {
+#spin-system-editor-content,
+#spin-system-read-only {
   min-height: calc(var(--content-min-height) - 4rem);
   height: calc(var(--content-max-height) - 4rem);
   scrollbar-width: thin;
 }
 
-#isotopomer-editor-content::-webkit-scrollbar,
-#isotopomer-read-only::-webkit-scrollbar {
+#spin-system-editor-content::-webkit-scrollbar,
+#spin-system-read-only::-webkit-scrollbar {
   display: none;
 }
 
@@ -62,7 +62,7 @@
   scrollbar-width: thin;
 }
 
-#isotopomer-editor-content hr,
+#spin-system-editor-content hr,
 #method-editor-content hr {
   padding: 0;
   margin-top: 0.5rem;
@@ -73,8 +73,8 @@
   display: none;
 }
 
-/* Set height for the isotopomer scroll view. Isotopomer side view customize. */
-#isotopomer-read-only {
+/* Set height for the spin-system scroll view. Spin system side view customize. */
+#spin-system-read-only {
   width: 100%;
   background: transparent;
   overflow-y: auto;
@@ -181,7 +181,7 @@
   border-right-color: white;
 } */
 
-.sub-isotopomer-card {
+.sub-spin-system-card {
   border-radius: 0;
   border-left: none;
   border-right: none;
@@ -190,7 +190,7 @@
   margin-top: 1rem;
 }
 
-.isotopomer-tensor-title {
+.spin-system-tensor-title {
   display: flex;
   justify-content: space-between;
   /* transform: translateY(-0.5rem); */
@@ -203,7 +203,7 @@
   margin-right: -1rem;
 }
 
-.isotopomer-tensor-title p {
+.spin-system-tensor-title p {
   margin-top: auto;
   margin-bottom: auto;
   color: black;
@@ -211,20 +211,20 @@
   padding-left: 1rem;
 }
 
-.isotopomer-tensor-title button {
+.spin-system-tensor-title button {
   margin-right: 1px;
   padding-right: 1rem;
   padding-left: 1rem;
 }
 
-/* display when isotopomer is empty */
-.blank-isotopomer-display {
+/* display when spin-system is empty */
+.blank-spin-system-display {
   height: 100%;
   padding: 2rem;
 }
 
-.blank-isotopomer-display h5,
-.blank-isotopomer-display span {
+.blank-spin-system-display h5,
+.blank-spin-system-display span {
   padding-top: 4rem;
   padding-bottom: 4rem;
   display: flex;
@@ -233,20 +233,20 @@
   justify-content: space-around;
 }
 
-.blank-isotopomer-display h5 {
+.blank-spin-system-display h5 {
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(134, 55, 10);
   text-align: center;
 }
 
-.blank-isotopomer-display span:hover {
+.blank-spin-system-display span:hover {
   transform: scale(1.1);
   color: rgb(136, 9, 30);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.isotopomer-title {
+.spin-system-title {
   /* background-color: rgb(227, 242, 255); */
   width: 100%;
   display: flex;
@@ -254,7 +254,7 @@
   /* align-items: center; */
 }
 
-.isotopomer-title label {
+.spin-system-title label {
   padding: 0.5rem;
   color: rgb(0, 0, 0);
   text-align: center;
@@ -264,7 +264,7 @@
   text-overflow: ellipsis;
 }
 
-/* .isotopomer-title button {
+/* .spin-system-title button {
   background-color: var(--select-blue);
   font-weight: bolder;
   height: 2.7rem;
@@ -272,7 +272,7 @@
   border-top-left-radius: 0;
 } */
 
-/* .isotopomer-title button:hover {
+/* .spin-system-title button:hover {
   background-color: rgb(141, 15, 15);
 } */
 
@@ -281,7 +281,7 @@
   font-size: 0.95rem;
 }
 
-/* media for isotopomers and methods*/
+/* media for spin-systems and methods*/
 @media only screen and (max-width: 575px),
   (min-width: 810px) and (max-width: 1100px) {
   .display-form li div {

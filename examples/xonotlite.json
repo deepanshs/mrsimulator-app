@@ -1,7 +1,7 @@
 {
   "name": "Xonotlite (Ca₆Si₆O₁₇(OH)₂)",
   "description": "A calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q3 (3)",
       "sites": [

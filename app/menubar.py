@@ -151,7 +151,7 @@ def example_callback(*args):
 
 # View menu ----------------------------------------------------------------- #
 # - Info            |
-# - Isotopomers     |
+# - Spin Systems     |
 # - Methods         |
 # --------------------------------------------------------------------------- #
 view_menu = html.Div(
@@ -160,7 +160,7 @@ view_menu = html.Div(
         html.Ul(
             [
                 html.Li(div_icon_text_display("fas fa-info-circle", "Info")),
-                html.Li(div_icon_text_display("fac fa-isotopomers", "Isotopomers")),
+                html.Li(div_icon_text_display("fac fa-spin-systems", "Spin Systems")),
                 html.Li(div_icon_text_display("fas fa-cube", "Methods")),
             ]
         ),
@@ -168,52 +168,52 @@ view_menu = html.Div(
     className="view-menu",
 )
 
-# Isotopomer menu ----------------------------------------------------------- #
-# - Add a new isotopomer            |
-# - Duplicate selected isotopomer   |
-# - Remove selected isotopomer      |
-# - ------------------------------- |
-# - Import and add isotopomers      |
-# - ------------------------------- |
-# - Clear isotopomers               |
+# Spin system menu ----------------------------------------------------------- #
+# - Add a new spin system            |
+# - Duplicate selected spin system   |
+# - Remove selected spin system      |
+# - -------------------------------- |
+# - Import and add spin systems      |
+# - -------------------=------------ |
+# - Clear spin systems               |
 # --------------------------------------------------------------------------- #
-message_topomer = "You are about to delete all isotopomers. Do you want to continue?"
-isotopomer_menu = html.Div(
+message_topomer = "You are about to delete all spin systems. Do you want to continue?"
+spin_system_menu = html.Div(
     [
-        html.Label("Isotopomer"),
+        html.Label("Spin System"),
         html.Ul(
             [
                 html.Li(
-                    div_icon_text_display("fas fa-plus-circle", "Add a new isotopomer")
+                    div_icon_text_display("fas fa-plus-circle", "Add a new spin system")
                 ),
                 html.Li(
                     div_icon_text_display(
-                        "fas fa-clone", "Duplicate selected isotopomer"
+                        "fas fa-clone", "Duplicate selected spin system"
                     )
                 ),
                 html.Li(
                     div_icon_text_display(
-                        "fas fa-minus-circle", "Remove selected isotopomer"
+                        "fas fa-minus-circle", "Remove selected spin system"
                     )
                 ),
                 html.Hr(),
                 html.Li(
                     dcc.Upload(
                         div_icon_text_display(
-                            "fas fa-hdd", "Import and add isotopomers"
+                            "fas fa-hdd", "Import and add spin systems"
                         ),
-                        id="upload-and-add-isotopomer-button",
+                        id="upload-and-add-spin-system-button",
                     )
                 ),
                 html.Hr(),
-                html.Li(html.Div("Clear isotopomers"), id="clear-isotopomers"),
+                html.Li(html.Div("Clear spin systems"), id="clear-spin-systems"),
                 dcc.ConfirmDialog(
-                    id="confirm-clear-isotopomer", message=message_topomer
+                    id="confirm-clear-spin-system", message=message_topomer
                 ),
             ]
         ),
     ],
-    className="isotopomer-menu",
+    className="spin-system-menu",
 )
 
 app.clientside_callback(
@@ -225,8 +225,8 @@ app.clientside_callback(
         return true;
     }
     """,
-    Output("confirm-clear-isotopomer", "displayed"),
-    [Input("clear-isotopomers", "n_clicks")],
+    Output("confirm-clear-spin-system", "displayed"),
+    [Input("clear-spin-systems", "n_clicks")],
     prevent_initial_call=True,
 )
 
@@ -355,7 +355,7 @@ master_menubar = html.Div(
         html.Div(
             [
                 file_menu,
-                isotopomer_menu,
+                spin_system_menu,
                 method_menu,
                 example_menu,
                 view_menu,

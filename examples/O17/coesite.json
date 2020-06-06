@@ -1,7 +1,7 @@
 {
   "name": "Coesite",
   "description": "A high-pressure (2-3 GPa) and high-temperature (700°C) polymorph of silicon dioxide SiO2. Reference: O17 tensor parameters, Grandinetti et. al., DOI: 10.1021/j100032a045",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "O17-1",
       "sites": [
