@@ -1,10 +1,13 @@
 {
   "about": {
     "About": "[Mrsimulator web-app](https://github.com/DeepanshS/mrsimulator-app) is a plotly-dash user interface to the [mrsimulator package](https://github.com/DeepanshS/mrsimulator) designed for fast and easy solid-state NMR lineshape simulation. Both projects are open-source and maintained by the community.\nIf you would like to contribute to the project, fork our Github repositories and start contributing.",
-    "Report issues": "- Having trouble with the web-app user-interface, please open an [issue @mrsimulator-app](https://github.com/DeepanshS/mrsimulator-app/issues) and tell us about the problem.\n- Finding inconsistency with the NMR line-shape simulation, please open an [issue @mrsimulator](https://github.com/DeepanshS/mrsimulator/issues) and tell us about the inconsistency.",
+    "Report": {
+      "Mrsimulator web-app issues": "Having trouble with the web-app user-interface, please open an [issue @mrsimulator-app](https://github.com/DeepanshS/mrsimulator-app/issues) and tell us about the problem.",
+      "Mrsimulator library issues": "Finding inconsistency with the NMR line-shape simulation, please open an [issue @mrsimulator](https://github.com/DeepanshS/mrsimulator/issues) and tell us about the inconsistency."
+    },
     "Contributors": {
       "Mrsimulator app": ["Deepansh J. Srivastava", "Maxwell C. Venetos"],
-      "Mrsimulator package": [
+      "Mrsimulator library": [
         "Deepansh J. Srivastava",
         "Maxwell C. Venetos",
         "Shyam Dwaraknath",

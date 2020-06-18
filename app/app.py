@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
 
 import dash_bootstrap_components as dbc
@@ -6,6 +7,9 @@ from dash import Dash
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
+
+now = datetime.datetime.now()
+year = now.year
 
 PATH = "config/"
 

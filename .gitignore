@@ -17,6 +17,7 @@ eggs/
 .eggs/
 sdist/
 wheels/
+downloads/*.json
 *.egg-info/
 .installed.cfg
 cython_debug/**

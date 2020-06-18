@@ -1,21 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
-import os
-import uuid
-
-import csdmpy as cp
-import dash
 import dash_bootstrap_components as dbc
-import flask
-import numpy as np
-from dash.dependencies import Input
-from dash.dependencies import Output
-from dash.dependencies import State
-from dash.exceptions import PreventUpdate
+import dash_core_components as dcc
+import dash_html_components as html
 
-from app.app import app
-from app.custom_widgets import custom_button
-from app.custom_widgets import custom_switch
+from .custom_widgets import custom_switch
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -24,137 +12,58 @@ __email__ = ["deepansh2012@gmail.com"]
 
 # Scale amplitude ------------------------------------------------------------------- #
 scale_amplitude_button = custom_switch(
-    text="Normalize",
+    # text="Normalize",
     icon_classname="fas fa-arrows-alt-v",
     id="normalize_amp",
-    size="sm",
-    # tooltip="Scale maximum amplitude to one.",
+    # size="sm",
+    tooltip="Scale maximum amplitude to one.",
     outline=True,
     color="dark",
     style={"zIndex": 0},
 )
 
 
-# Show spectrum from individual isotopomers ----------------------------------------- #
+# Show spectrum from individual spin systems ----------------------------------------- #
 decompose_button = custom_switch(
-    text="Decompose",
+    # text="Decompose",
     icon_classname="fac fa-decompose",
     id="decompose",
-    size="sm",
-    # tooltip="Show simulation from individual isotopomers.",
+    # size="sm",
+    tooltip="Show simulation from individual spin systems.",
     outline=True,
     color="dark",
     style={"zIndex": 0},
+)
+
+# # Show sum of spectrum from individual spin-systems -------------------------------- #
+# compose_button = custom_switch(
+#     # text="Decompose",
+#     icon_classname="fac fa-compose",
+#     id="compose",
+#     # size="sm",
+#     # tooltip="Show simulation from individual spin-systems.",
+#     outline=True,
+#     color="dark",
+#     style={"zIndex": 0},
+# )
+# select method  -------------------------------------------------------------------- #
+select_method = dcc.Dropdown(
+    id="select-method",
+    value=0,
+    searchable=False,
+    clearable=False,
+    placeholder="View simulation from method ...",
 )
 
 # Button group ---------------------------------------------------------------------- #
-group_1_buttons = dbc.ButtonGroup(
-    [scale_amplitude_button, decompose_button],
-    # className="btn-group mr-2",
-)
+toolbar = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
 
-
-# Download dataset ------------------------------------------------------------------ #
-# Download button
-collapsible_download_menu = dbc.Collapse(
-    [
-        dbc.DropdownMenuItem(
-            "Download as CSDM, (.csdf)", id="download_csdm", external_link="True"
-        ),
-        dbc.DropdownMenuItem(
-            "Download as CSV, (.csv)", id="download_csv", external_link="True"
-        ),
-    ],
-    id="download-collapse",
-)
-
-# layout for the button
-download_layout = [
-    custom_button(
-        icon_classname="fas fa-download",
-        id="download-button",
-        # tooltip="Download dataset",
-        outline=True,
-        color="dark",
-    )
-]
-
-
-# toggle download collapsible
-@app.callback(
-    Output("download-collapse", "is_open"),
-    [
-        Input("download-button", "n_clicks"),
-        Input("download_csdm", "n_clicks"),
-        Input("download_csv", "n_clicks"),
-    ],
-    [State("download-collapse", "is_open")],
-)
-def toggle_frame(n1, n2, n3, is_open):
-    if n1 is None:
-        raise PreventUpdate
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        raise PreventUpdate
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "download-button":
-        return not is_open
-    if button_id in ["download_csdm", "download_csv"]:
-        return False
-
-
-# Serialize the computed spectrum and download the serialized file.
-@app.server.route("/downloads/<path:path>")
-def serve_static(path):
-    root_dir = os.getcwd()
-    return flask.send_from_directory(
-        os.path.join(root_dir, "downloads"), path, as_attachment=True
-    )
-
-
-# update the link to the downloadable serialized file.
-@app.callback(
-    [Output("download_csdm", "href"), Output("download_csv", "href")],
-    [Input("download-button", "n_clicks")],
-    [State("local-computed-data", "data")],
-)
-def file_download_link(n_clicks, local_computed_data):
-    """Update the link to the downloadable file."""
-    if local_computed_data is None:
-        raise PreventUpdate
-    if n_clicks is None:
-        raise PreventUpdate
-
-    uuid_1 = uuid.uuid1()
-    relative_filename_csdm = os.path.join("downloads", f"{uuid_1}.csdf")
-    with open(relative_filename_csdm, "w") as f:
-        json.dump(local_computed_data, f)
-
-    relative_filename_csv = os.path.join("downloads", f"{uuid_1}.csv")
-    obj = cp.parse_dict(local_computed_data)
-    lst = []
-    header = []
-    lst.append(obj.dimensions[0].coordinates.to("Hz").value)
-    header.append("frequency / Hz")
-    for item in obj.dependent_variables:
-        lst.append(item.components[0])
-        header.append(
-            item.application["com.github.DeepanshS.mrsimulator"]["isotopomers"][0][
-                "name"
-            ]
-        )
-    header = ", ".join(header)
-    np.savetxt(relative_filename_csv, np.asarray(lst).T, delimiter=",", header=header)
-    return relative_filename_csdm, relative_filename_csv
-
-
-# Button group 1 -------------------------------------------------------------------- #
-group_2_buttons = dbc.ButtonGroup(download_layout)
 
 # toolbar icons --------------------------------------------------------------------- #
-toolbar = dbc.Row([dbc.Col(group_1_buttons), dbc.Col(group_2_buttons)])
+toolbar_select_method = html.Div(
+    [html.Label("Select simulation"), select_method],
+    className="d-flex align-items-center justify-items-between toolbar",
+)
 
 
 # # add callback for toggling the collapse on small screens

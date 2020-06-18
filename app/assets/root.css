@@ -1,0 +1,123 @@
+:root {
+  --element-bg-color: white;
+  --content-max-height: calc(100vh - 8.5rem);
+  --content-min-height: calc(55.5rem - 18.9rem);
+  --opt-width: 50vw;
+  --opt-side-scroll-width: 11.5rem;
+  --opt-side-scroll-min-width: 3rem;
+  --select-blue: rgb(8, 124, 240);
+  --max-display-width: 1280px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  justify-content: space-around;
+  flex-direction: column;
+  color: #1b1b1b;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+h4 {
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: auto;
+}
+
+section {
+  height: 100%;
+}
+
+.main-split {
+  display: flex;
+}
+
+.main-split .sidebar-master {
+  background-color: #f1f1f183;
+}
+
+.main-split .sidebar {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-split .sidebar:nth-child(2),
+.main-split .sidebar:nth-child(3) {
+  display: none;
+}
+
+.main-split .sidebar button {
+  padding: 0.5rem;
+  border-radius: 0;
+  border-top: none;
+}
+
+.main-split .sidebar button:first-child {
+  border-top-left-radius: 0.2rem;
+  border-top-right-radius: 0.2rem;
+  border-top: 1px solid gray;
+}
+
+.main-split .sidebar button:last-child {
+  border-bottom-left-radius: 0.2rem;
+  border-bottom-right-radius: 0.2rem;
+}
+
+.main-split .app-1 {
+  border-left: 1px solid silver;
+  width: 100%;
+  overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-scroll {
+  display: flex;
+  margin: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+  padding: 0;
+  max-width: var(--max-display-width);
+  box-shadow: 0 10px 15px 0 rgba(44, 44, 44, 0.35);
+}
+
+@media only screen and (max-width: 810px) {
+  .mobile-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: auto;
+    padding: 0;
+    scrollbar-width: thin;
+  }
+
+  .mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .main-split .sidebar-master {
+    display: none;
+  }
+}

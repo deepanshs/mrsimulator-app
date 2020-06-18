@@ -12,7 +12,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
-from dash.exceptions import PreventUpdate
 
 from app.app import app
 
@@ -21,7 +20,7 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-PATH = "static/"
+PATH = "config/"
 
 # Get info from JSON file.
 with open(PATH + "about.json", "r") as f:
@@ -52,29 +51,31 @@ def get_contents(content):
     return div
 
 
-def create_tab(title, content):
-    return dbc.Tab(dbc.Card(dbc.CardBody(get_contents(content))), label=title)
-
-
-tabs_list = []
+list_ = []
 for item in about_.keys():
-    tabs_list.append(create_tab(item, about_[item]))
+    print(item)
+    list_.append(
+        dbc.Modal(
+            [dbc.ModalHeader(item), dbc.ModalBody(get_contents(about_[item]))],
+            size="lg",
+            id=f"modal-{item}",
+            role="document",
+            className="modal-dialog",
+        )
+    )
 
-tabs = dbc.Tabs(tabs_list)
+    app.clientside_callback(
+        """
+        function (value) {
+            if (value == null) {
+                throw window.dash_clientside.PreventUpdate;
+            }
+            return 'true';
+        }
+        """,
+        Output(f"modal-{item}", "is_open"),
+        [Input(f"modal-{item}-button", "n_clicks")],
+        prevent_initial_call=True,
+    )
 
-# Layout ----------------------------------------------------------------------
-about_modal = dbc.Modal(
-    [dbc.ModalHeader("Mrsimulator-app 2018-2019"), dbc.ModalBody(tabs)],
-    size="lg",
-    id="modal_about",
-    role="document",
-    className="modal-dialog",
-)
-
-
-@app.callback(Output("modal_about", "is_open"), [Input("about_button", "n_clicks")])
-def toggle_modal_about(n):
-    """Model window for advance input."""
-    if n is None:
-        raise PreventUpdate
-    return True
+about_modals = html.Div(list_)

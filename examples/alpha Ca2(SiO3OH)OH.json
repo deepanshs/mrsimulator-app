@@ -1,7 +1,7 @@
 {
   "name": "α-Ca₂(SiO₃OH)OH",
   "description": "A dicalcium silicate hydrate used in cement. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q0",
       "sites": [
@@ -9,7 +9,7 @@
           "isotope": "29Si",
           "isotropic_chemical_shift": "-72.7 ppm",
           "shielding_symmetric": {
-            "zeta": "-26 ppm",
+            "zeta": "26 ppm",
             "eta": 0.3
           }
         }

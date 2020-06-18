@@ -1,0 +1,9 @@
+.hide-window {
+  display: none;
+}
+
+@media only screen and (max-width: 810px) {
+  .hide-window {
+    display: block;
+  }
+}

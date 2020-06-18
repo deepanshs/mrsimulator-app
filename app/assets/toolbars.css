@@ -1,0 +1,37 @@
+.toolbar {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid silver;
+}
+
+.toolbar label {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 0.5rem;
+}
+
+.toolbar #select-method {
+  width: 18rem;
+}
+
+.title-with-help {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+.master-toolbar {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  border-bottom: 1px solid lightgray;
+}

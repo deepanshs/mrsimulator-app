@@ -5,32 +5,28 @@ import os
 from urllib.request import urlopen
 
 import csdmpy as cp
-import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 import dash_html_components as html
 from csdmpy.dependent_variables.download import get_absolute_url_path
+from dash import callback_context as ctx
+from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
+from mrsimulator import Method
+from mrsimulator import SpinSystem
 
-from app.app import app
-from app.custom_widgets import custom_button
-from app.custom_widgets import label_with_help_button
+from .app import app
+from .custom_widgets import custom_button
+from .custom_widgets import label_with_help_button
+from .info import update_sample_info
+from .nmr_method.utils import update_method_info
+from .spin_system.utils import update_spin_system_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
-
-
-# The following are a set of widgets used to load data from file. =====================
-# Method 1. From pre-defined set of examples. -----------------------------------------
-# Load a list of pre-defined examples from the example_link.json file.
-with open("examples/example_link.json", "r") as f:
-    mrsimulator_examples = json.load(f)
-
-
-# =====================================================================================
+PATH_ = os.path.split(__file__)[0]
 
 
 def upload_data(prepend_id, message_for_URL, message_for_upload):
@@ -38,28 +34,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     Args:
         prepend_id: Prepends to the designated it.
     """
-
-    if prepend_id == "isotopomer":
-        options = mrsimulator_examples
-    else:
-        options = []
-
-    # Method 1: A dropdown menu list with example isotopomers.
-    # -------------------------------------------------------------------------
-    select_examples_dropdown = html.Div(
-        [
-            dbc.Label(f"Select an example {prepend_id}.", className="formtext"),
-            dcc.Dropdown(
-                id=f"example-{prepend_id}-dropbox",
-                options=options,
-                searchable=False,
-                clearable=True,
-                placeholder="Select an example ... ",
-                style={"zIndex": "10"},
-            ),
-        ],
-        className="d-flex flex-column grow",
-    )
 
     # Method 2. From URL address
     # -------------------------------------------------------------------------
@@ -75,7 +49,6 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                         id=f"upload-{prepend_id}-url",
                         value="",
                         placeholder="Paste URL ...",
-                        className="form-control",
                     ),
                     dbc.Button(
                         "Submit",
@@ -85,74 +58,19 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 ]
             ),
         ],
-        className="d-flex flex-column pb-1",
+        className="d-flex flex-column",
     )
-
-    # Method 3. From a local file (Drag and drop). ------------------------------------
-    # Using the dcc upload method.
-    upload_local_file_widget = html.Div(
-        [
-            label_with_help_button(
-                *message_for_upload, id=f"upload-{prepend_id}-local-help"
-            ),
-            dcc.Upload(
-                id=f"upload-{prepend_id}-local",
-                children=html.Div(
-                    [
-                        "Drag and drop, or ",
-                        html.A(
-                            [html.I(className="fas fa-upload"), " select"],
-                            className="formtext",
-                            href="#",
-                        ),
-                    ],
-                    className="formtext",
-                ),
-                style={
-                    "lineHeight": "55px",
-                    "borderWidth": ".85px",
-                    "borderStyle": "dashed",
-                    "borderRadius": "7px",
-                    "textAlign": "center",
-                    "color": "silver",
-                },
-                # Allow multiple files to be uploaded
-                multiple=False,
-                className="control-upload",
-            ),
-        ],
-        className="d-flex flex-column pb-1",
-    )
-
-    # Layout for the url and upload-a-file input methods. Each input method is wrapped
-    # in a collapsible widget which is activated with the following buttons
 
     # presetting the fields for generating buttons
     fields = [
         {
-            "text": "Example",
-            "icon_classname": "fac fa-isotopomers",
-            "id": f"example-{prepend_id}-button",
-            "tooltip": "Select an example.",
-            "active": False,
-            "collapsable": select_examples_dropdown,
-        },
-        {
-            "text": "Local",
-            "icon_classname": "fas fa-hdd",
-            "id": f"upload-{prepend_id}-local-button",
-            "tooltip": "Upload a local JSON file containing isotopomers.",
-            "active": False,
-            "collapsable": upload_local_file_widget,
-        },
-        {
             "text": "URL",
             "icon_classname": "fas fa-at",
             "id": f"upload-{prepend_id}-url-button",
-            "tooltip": "Retrieve isotopomers from a remote JSON file.",
+            "tooltip": "Retrieve spin systems from a remote JSON file.",
             "active": False,
             "collapsable": data_from_url,
-        },
+        }
     ]
 
     # Now generating buttons
@@ -165,8 +83,8 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
                 id=item["id"],
                 tooltip=item["tooltip"],
                 active=item["active"],
-                style={"borderRadius": 0},
                 outline=True,
+                color="light",
             )
         )
 
@@ -176,77 +94,29 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
         id_ = item["id"]
         input_layout_0.append(dbc.Collapse(item["collapsable"], id=f"{id_}-collapse"))
 
-    # layout for the input panel. The two buttons are packed as vertical button group,
-    # followed by the two collapsible widgets.
-    # if prepend_id == "isotopomer":
-    #     addon = [select_examples_dropdown]
-    # else:
-    #     addon = []
     input_layout = html.Div(
         [
             html.Div(
                 dbc.Button(
                     html.I(className="fas fa-times"),
                     id=f"upload-{prepend_id}-panel-hide-button",
-                    color="dark",
+                    # color="dark",
                     size="sm",
+                    style={"backgroundColor": "transparent", "outline": "none"},
                 ),
                 className="d-flex justify-content-end",
             ),
             # *addon,
             html.Div(
                 [
-                    dbc.ButtonGroup(
-                        input_buttons, vertical=True, className="button no-round"
-                    ),
+                    dbc.ButtonGroup(input_buttons, vertical=True, className="button"),
                     dbc.Col(input_layout_0),
                 ],
                 className="d-flex justify-content-start",
             ),
         ],
-        className="top-navbar",
+        className="navbar-reveal",
     )
-
-    @app.callback(
-        [
-            *[
-                Output(fields[j]["id"] + "-collapse", "is_open")
-                for j in range(len(fields))
-            ],
-            *[Output(fields[j]["id"], "active") for j in range(len(fields))],
-        ],
-        [Input(fields[j]["id"], "n_clicks") for j in range(len(fields))],
-        [
-            *[
-                State(fields[j]["id"] + "-collapse", "is_open")
-                for j in range(len(fields))
-            ],
-            *[State(fields[j]["id"], "active") for j in range(len(fields))],
-        ],
-    )
-    def toggle_collapsible_input(n1, n2, n3, c1, c2, c3, a1, a2, a3):
-        """Toggle collapsible widget form url and upload-a-file button fields."""
-        if n1 is n2 is n3 is None:
-            return [False, True, False, False, True, False]
-
-        ctx = dash.callback_context
-        if not ctx.triggered:
-            raise PreventUpdate
-        else:
-            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        if button_id == fields[0]["id"]:
-            if not c1:
-                return [not c1, False, False, not a1, False, False]
-            return [c1, False, False, a1, False, False]
-        if button_id == fields[1]["id"]:
-            if not c2:
-                return [False, not c2, False, False, not a2, False]
-            return [False, c2, False, False, a2, False]
-        if button_id == fields[2]["id"]:
-            if not c3:
-                return [False, False, not c3, False, False, not a3]
-            return [False, False, c3, False, False, a3]
 
     # The input drawers are further wrapper as a collapsible. This collapsible widget
     # is activate from the navigation menu.
@@ -255,19 +125,19 @@ def upload_data(prepend_id, message_for_URL, message_for_upload):
     return drawer
 
 
-isotopomer_import_layout = upload_data(
-    prepend_id="isotopomer",
+spin_system_import_layout = upload_data(
+    prepend_id="spin-system",
     message_for_URL=[
-        "Enter URL of a JSON file contaiing isotopomers.",
+        "Enter URL of a JSON file containing the spin systems.",
         (
-            "Isotopomers file is a collection of sites and couplings ",
+            "Spin systems file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
         ),
     ],
     message_for_upload=[
-        "Upload a JSON file containing isotopomers.",
+        "Upload a JSON file containing the spin systems.",
         (
-            "Isotopomers file is a collection of sites and couplings ",
+            "Spin systems file is a collection of sites and couplings ",
             "used in simulating NMR linshapes.",
         ),
     ],
@@ -287,202 +157,517 @@ spectrum_import_layout = upload_data(
 
 
 # method
-# Import or update the isotopomers.
+# Import or update the spin-systems.
 @app.callback(
     [
-        Output("alert-message-isotopomer", "children"),
-        Output("alert-message-isotopomer", "is_open"),
-        Output("local-isotopomers-data", "data"),
-        Output("filename_dataset", "children"),
-        Output("data_description", "children"),
-        # Output("data_citation", "children"),
+        Output("alert-message-spin-system", "children"),
+        Output("alert-message-spin-system", "is_open"),
+        Output("local-spin-systems-data", "data"),
+        Output("config", "data"),
+        Output("spin-system-read-only", "children"),
+        Output("method-read-only", "children"),
+        Output("info-read-only", "children"),
     ],
     [
-        Input("upload-isotopomer-local", "contents"),
-        Input("upload-isotopomer-url-submit", "n_clicks"),
-        Input("example-isotopomer-dropbox", "value"),
-        Input("upload-from-graph", "contents"),
-        # Input("json-file-editor", "n_blur_timestamp"),
+        Input("upload-spin-system-local", "contents"),  # drag and drop
+        Input("open-mrsimulator-file", "contents"),  # from file->open
+        Input(
+            "upload-and-add-spin-system-button", "contents"
+        ),  # spin-system->import+add
+        Input("import-measurement-for-method", "contents"),  # method->add measurement
+        Input("upload-from-graph", "contents"),  # graph->drag and drop
+        Input("upload-spin-system-url-submit", "n_clicks"),
+        Input("selected-example", "value"),  # examples
+        Input("new-spin-system", "modified_timestamp"),  # when spin-system change
+        Input("new-method", "modified_timestamp"),  # when method change
+        Input("confirm-clear-spin-system", "submit_n_clicks"),  # spin-system->clear
+        Input("confirm-clear-methods", "submit_n_clicks"),  # method->clear
     ],
     [
-        State("upload-isotopomer-url", "value"),
-        State("upload-isotopomer-local", "filename"),
-        # State("json-file-editor", "value"),
-        State("local-isotopomers-data", "data"),
-        State("filename_dataset", "children"),
-        State("data_description", "children"),
-        State("upload-from-graph", "filename"),
+        State("upload-spin-system-url", "value"),
+        State("local-spin-systems-data", "data"),
+        State("new-spin-system", "data"),
+        State("new-method", "data"),
+        State("select-method", "value"),
     ],
+    prevent_initial_call=True,
 )
-def update_isotopomers(
-    isotopomer_upload_content,
-    n_click,
-    example,
-    from_graph_content,
-    # time_of_editor_trigger,
-    # states
-    isotopomer_url,
-    isotopomer_filename,
-    # editor_value,
-    existing_isotopomers_data,
-    data_title,
-    data_info,
-    from_graph_filename,
-):
-    """Update the local isotopomers when a new file is imported."""
-    ctx = dash.callback_context
+def update_simulator(*args):
+    """Update the local spin-systems when a new file is imported."""
     if not ctx.triggered:
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("trigger", trigger_id)
 
-    # The following section applies to when the isotopomers update is triggered from
+    existing_data = ctx.states["local-spin-systems-data.data"]
+
+    if trigger_id == "new-spin-system":
+        new_spin_system = ctx.states["new-spin-system.data"]
+        return modified_spin_system(existing_data, new_spin_system)
+
+    if trigger_id == "new-method":
+        new_method = ctx.states["new-method.data"]
+        return modified_method(existing_data, new_method)
+
+    # old_isotope = ctx.states["isotope_id-0.value"]
+    no_updates = [no_update, no_update, no_update]
+    if_error_occurred = [True, existing_data, *no_updates]
+
+    # Load a sample from pre-defined examples
+    # The following section applies to when the spin-systems update is triggered from
     # set of pre-defined examples.
-    if trigger_id == "example-isotopomer-dropbox":
-        path = os.path.split(__file__)[0]
-        if example in ["", None]:
-            raise PreventUpdate
-        response = urlopen(get_absolute_url_path(example, path))
-        data = json.loads(response.read())
+    if trigger_id == "selected-example":
+        example = ctx.inputs["selected-example.value"]
+        return example_selection(example)
 
-    # The following section applies to when the isotopomers update is triggered from
+    # Request and load a sample from URL
+    # The following section applies to when the spin-systems update is triggered from
     # url-submit.
-    if trigger_id == "upload-isotopomer-url-submit":
-        if isotopomer_url in ["", None]:
-            raise PreventUpdate
-        response = urlopen(isotopomer_url)
-        try:
-            data = json.loads(response.read())
-        except Exception:
-            message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+    if trigger_id == "upload-spin-system-url-submit":
+        url = ctx.states("upload-spin-system-url.value")
+        load_from_url(url, existing_data)
 
-    # The following section applies to when the isotopomers update is triggered from
+    if trigger_id == "confirm-clear-spin-system":
+        return clear_system("spin_systems", existing_data)
+
+    if trigger_id == "confirm-clear-methods":
+        return clear_system("methods", existing_data)
+
+    if trigger_id == "upload-and-add-spin-system-button":
+        contents = ctx.inputs[f"{trigger_id}.contents"]
+        if contents is None:
+            raise PreventUpdate
+        try:
+            data = fix_missing_keys(parse_contents(contents))
+        except Exception:
+            message = "Error reading spin-systems."
+            return [message, *if_error_occurred]
+        data = parse_data(data, parse_method=False)
+        existing_data["spin_systems"] += data["spin_systems"]
+        return assemble_data(existing_data)
+
+    # Load a sample from drag and drop
+    # The following section applies to when the spin-systems update is triggered from
     # a user uploaded file.
-    if trigger_id == "upload-isotopomer-local":
-        if isotopomer_upload_content is None:
+    if trigger_id in ["upload-spin-system-local", "open-mrsimulator-file"]:
+        contents = ctx.inputs[f"{trigger_id}.contents"]
+        if contents is None:
             raise PreventUpdate
         try:
-            data = parse_contents(isotopomer_upload_content, isotopomer_filename)
+            data = fix_missing_keys(parse_contents(contents))
         except Exception:
-            message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
+            message = "Error reading spin-systems."
+            return [message, *if_error_occurred]
+        return assemble_data(parse_data(data))
 
-    # The following section applies to when the isotopomers update is triggered from
-    # a user drag and drop on the graph.
-    if trigger_id == "upload-from-graph":
-        if from_graph_content is None:
-            raise PreventUpdate
-        if from_graph_filename.split(".")[1] != "json":
-            raise PreventUpdate
-        try:
-            data = parse_contents(from_graph_content, from_graph_filename)
-        except Exception:
-            message = "Error reading isotopomers."
-            return [message, True, existing_isotopomers_data, data_title, data_info]
-
-    # The following section applies to when the isotopomers update is triggered when
-    # user edits the loaded isotopomer file.
-    # if max_ == time_of_editor_trigger:
-    #     if editor_value in ["", None]:
-    #         raise PreventUpdate
-    #     data = {}
-    #     data["name"] = data_title
-    #     data["description"] = data_info
-    #     data["isotopomers"] = json.loads(editor_value)
-
-    if "name" not in data:
-        data["name"] = ""
-    if "description" not in data:
-        data["description"] = ""
-    return ["", False, data, data["name"], data["description"]]
-
-
-def parse_contents(contents, filename):
-    """Parse contents from the isotopomers file."""
-    default_data = {
-        "isotopomers": [],
-        "name": "",
-        "description": "",
-    }  # , "citation": ""}
-    if filename is None:
-        return default_data
-    # try:
-    if "json" in filename:
+    if trigger_id in ["import-measurement-for-method", "upload-from-graph"]:
+        contents = ctx.inputs[f"{trigger_id}.contents"]
         content_string = contents.split(",")[1]
         decoded = base64.b64decode(content_string)
-        data = json.loads(str(decoded, encoding="UTF-8"))
+        success, exp_data, error_message = load_csdm(decoded)
 
-        if "name" not in data.keys():
-            data["name"] = filename
+        if not success:
+            return [
+                f"Error reading file. {error_message}",
+                True,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+            ]
 
-        if "description" not in data.keys():
-            data["description"] = ""
+        index = ctx.states["select-method.value"]
+        method = existing_data["methods"][index]
+        method["experiment"] = exp_data.to_dict()
+        spectral_dim = method["spectral_dimensions"]
+        for i, dim in enumerate(exp_data.dimensions):
+            spectral_dim[i]["count"] = dim.count
+            spectral_dim[i]["spectral_width"] = dim.count * dim.increment.to("Hz").value
+            spectral_dim[i]["reference_offset"] = dim.coordinates_offset.to("Hz").value
+            spectral_dim[i]["origin_offset"] = dim.origin_offset.to("Hz").value
 
-        # if "citation" not in data.keys():
-        #     data["citation"] = ""
+        methods_info = update_method_info(existing_data["methods"])
+        return ["", False, existing_data, no_update, no_update, methods_info, no_update]
 
-        return data
+    # Load a sample from drag and drop on the graph reqion
+    # The following section applies to when the spin-systems update is triggered from
+    # a user drag and drop on the graph.
+    # if trigger_id == "upload-from-graph":
+    #     if from_graph_content is None:
+    #         raise PreventUpdate
+    #     if from_graph_filename.split(".")[1] != "json":
+    #         raise PreventUpdate
+    #     try:
+    #         data = parse_contents(from_graph_content, from_graph_filename)
+    #     except Exception:
+    #         message = "Error reading spin-systems."
+    #         return [message, *if_error_occurred]
 
-    else:
-        raise Exception("File not recognized.")
-
-    # except Exception:
-    #     return default_data
+    #     return assemble_data(data)
 
 
-# Upload a CSDM compliant NMR data file.
-@app.callback(
-    [
-        Output("alert-message-spectrum", "children"),
-        Output("alert-message-spectrum", "is_open"),
-        Output("local-csdm-data", "data"),
-    ],
-    [
-        Input("upload-spectrum-local", "contents"),
-        Input("upload-from-graph", "contents"),
-    ],
-    [State("local-csdm-data", "data"), State("upload-from-graph", "filename")],
-)
-def update_csdm_file(
-    csdm_upload_content, csdm_upload_content_graph, existing_data, filename
-):
-    """Update a local CSDM file."""
-    ctx = dash.callback_context
-    print(ctx.triggered[0]["prop_id"])
-    if csdm_upload_content is None and csdm_upload_content_graph is None:
+def modified_method(existing_method_data, new_method):
+
+    default = [no_update for _ in range(7)]
+    if new_method is None:
         raise PreventUpdate
 
-    if not ctx.triggered:
-        raise PreventUpdate
+    index = new_method["index"]
+    data = (
+        existing_method_data
+        if existing_method_data is not None
+        else {"name": "", "description": "", "spin_systems": [], "methods": []}
+    )
+    method_data = new_method["data"]
 
-    file_extension = filename.split(".")[1]
-    if file_extension not in ["csdf", "json"]:
-        return [
-            f"Expecting a .csdf or .json file, found .{file_extension}.",
-            True,
-            existing_data,
+    # Add a new method
+    if new_method["operation"] == "add":
+        data["methods"] += [method_data]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
+
+    # Modify a method
+    if new_method["operation"] == "modify":
+        if "experiment" in data["methods"][index]:
+            method_data["experiment"] = data["methods"][index]["experiment"]
+        data["methods"][index] = method_data
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
+
+    # Duplicate a method
+    if new_method["operation"] == "duplicate":
+        data["methods"] += [method_data]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
+
+    # Delete a method
+    if new_method["operation"] == "delete":
+        if index is None:
+            raise PreventUpdate
+        del data["methods"][index]
+        methods_info = update_method_info(data["methods"])
+        default[2], default[5] = data, methods_info
+        return default
+
+
+def modified_spin_system(existing_data, new_spin_system):
+    """Update the local spin-system data when an update is triggered."""
+    config = {"is_new_data": False, "length_changed": False}
+    default = [no_update for _ in range(7)]
+
+    if new_spin_system is None:
+        raise PreventUpdate
+    index = new_spin_system["index"]
+    data = (
+        existing_data
+        if existing_data is not None
+        else {"name": "", "description": "", "spin_systems": [], "methods": []}
+    )
+    spin_system_data = new_spin_system["data"]
+    # Modify spin-system
+    # The following section applies to when the spin-systems update is triggered from
+    # the GUI fields. This is a very common trigger, so we place it at the start.
+    if new_spin_system["operation"] == "modify":
+        data["spin_systems"][index] = spin_system_data
+        config["index_last_modified"] = index
+
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
+        return default
+
+    # Add a new spin system
+    # The following section applies to when the a new spin-systems is added from
+    # add-spin-system-button.
+    if new_spin_system["operation"] == "add":
+        data["spin_systems"] += [spin_system_data]
+        config["length_changed"] = True
+        config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
+        config["index_last_modified"] = index
+
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
+        return default
+
+    # Copy an existing spin-system
+    # The following section applies to when a request to duplicate the spin-systems
+    # is initiated using the duplicate-spin-system-button.
+    if new_spin_system["operation"] == "duplicate":
+        data["spin_systems"] += [spin_system_data]
+        config["length_changed"] = True
+        config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
+        config["index_last_modified"] = index
+
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
+        return default
+
+    # Delete an spin-system
+    # The following section applies to when a request to remove an spin-systems is
+    # initiated using the remove-spin-system-button.
+    if new_spin_system["operation"] == "delete":
+        if index is None:
+            raise PreventUpdate
+
+        # the index to remove is given by spin_system_index
+        config["removed"] = [
+            site["isotope"] for site in data["spin_systems"][index]["sites"]
         ]
-    if file_extension != "csdf":
+        del data["spin_systems"][index]
+        config["index_last_modified"] = index
+
+        spin_systems_info = update_spin_system_info(data["spin_systems"])
+        default[2], default[3], default[4] = data, config, spin_systems_info
+        return default
+
+
+def example_selection(example):
+    """Load the selected example."""
+    if example in ["", None]:
         raise PreventUpdate
+    response = urlopen(get_absolute_url_path(example, PATH_))
+    data = fix_missing_keys(json.loads(response.read()))
+    return assemble_data(parse_data(data))
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "upload-spectrum-local":
-        content_string = csdm_upload_content
-    if trigger_id == "upload-from-graph":
-        content_string = csdm_upload_content_graph
+def load_from_url(url, existing_data):
+    """Load the selected data from url."""
+    if url in ["", None]:
+        raise PreventUpdate
+    response = urlopen(url)
+    try:
+        data = fix_missing_keys(json.loads(response.read()))
+        return assemble_data(parse_data(data))
+    except Exception:
+        no_updates = [no_update, no_update, no_update]
+        if_error_occurred = [True, existing_data, *no_updates]
+        message = "Error reading the file."
+        return [message, *if_error_occurred]
 
-    content_string = content_string.split(",")[1]
+
+def clear_system(attribute, existing_data):
+    """Clear the list of spin-systems or methods
+
+    Args:
+        attribute: Enumeration with literals---`spin_systems` or `methods`
+        existing_data: The existing simulator data and metadata.
+    """
+    if existing_data is None:
+        raise PreventUpdate
+    existing_data[attribute] = []
+    return assemble_data(existing_data)
+
+
+def fix_missing_keys(json_data):
+    default_data = {
+        "name": "",
+        "description": "Add a description ...",
+        "spin_systems": [],
+        "methods": [],
+        "config": {},
+    }
+    data_keys = json_data.keys()
+    for k in default_data.keys():
+        if k not in data_keys:
+            json_data[k] = default_data[k]
+    return json_data
+
+
+def parse_contents(contents):
+    """Parse contents from the spin-systems file."""
+    content_string = contents.split(",")[1]
     decoded = base64.b64decode(content_string)
-    success, data, error_message = load_json(decoded)
-    if success:
-        return ["", False, data]
-    else:
-        return [f"Invalid JSON file. {error_message}", True, existing_data]
+    data = json.loads(str(decoded, encoding="UTF-8"))
+    return data
 
 
-def load_json(content):
+def parse_data(data, parse_method=True, parse_spin_system=True):
+    data_keys = data.keys()
+    if parse_spin_system:
+        if "spin_systems" in data_keys:
+            a = [
+                SpinSystem.parse_dict_with_units(_).dict() for _ in data["spin_systems"]
+            ]
+            data["spin_systems"] = [filter_dict(_) for _ in a]
+
+    if parse_method:
+        if "methods" in data_keys:
+            a = [Method.parse_dict_with_units(_).dict() for _ in data["methods"]]
+            # sim = [_["simulation"] for _ in a]
+            # exp = [_["experiment"] for _ in a]
+            data["methods"] = [filter_dict(_) for _ in a]
+    return data
+
+
+def assemble_data(data):
+    config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
+    return [
+        "",
+        False,
+        data,
+        config,
+        update_spin_system_info(data["spin_systems"]),
+        update_method_info(data["methods"]),
+        update_sample_info(data),
+    ]
+
+
+def filter_dict(dict1):
+    dict_new = {}
+    for key, val in dict1.items():
+        if key in ["simulation", "property_units"] or val is None:
+            continue
+
+        if key == "isotope":
+            dict_new[key] = val["symbol"]
+            continue
+
+        if key == "channels":
+            dict_new[key] = [item["symbol"] for item in val]
+            continue
+
+        if key in ["experiment"]:
+            dict_new[key] = val
+            continue
+
+        dict_new[key] = val
+        if isinstance(val, dict):
+            dict_new[key] = filter_dict(val)
+        if isinstance(val, list):
+            dict_new[key] = [filter_dict(_) if isinstance(_, dict) else _ for _ in val]
+
+    return dict_new
+
+
+# @app.callback(
+#     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
+#     [Input("local-spin-systems-data", "modified_timestamp")],
+#     [State("local-spin-systems-data", "data"), State("isotope_id-0", "value")],
+# )
+# def update_dropdown_options(t, local_spin_system_data, old_isotope):
+#     print("update_dropdown_options", old_isotope)
+#     if local_spin_system_data is None:
+#         raise PreventUpdate
+#     if local_spin_system_data["spin_systems"] == []:
+#         return [[], None]
+
+#     # extracting a list of unique isotopes from the list of isotopes
+#     isotopes = set(
+#         [
+#             site["isotope"]
+#             for item in local_spin_system_data["spin_systems"]
+#             for site in item["sites"]
+#         ]
+#     )
+#     # Output isotope_id-0 -> options
+#     # set up a list of options for the isotope dropdown menu
+#     isotope_dropdown_options = [
+#         {"label": site_iso, "value": site_iso} for site_iso in isotopes
+#     ]
+
+#     # Output isotope_id-0 -> value
+#     # select an isotope from the list of options. If the previously selected isotope
+#     # is in the new option list, use the previous isotope, else select the isotope at
+#     # index zero of the options list.
+#     isotope = (
+#         old_isotope if old_isotope in isotopes else isotope_dropdown_options[0]
+#               ["value"]
+#     )
+
+#     print(local_spin_system_data["spin_systems"])
+#     # Output spin-system-dropdown -> options
+#     # Update spin-system dropdown options base on local spin-systems data
+#     # spin_system_dropdown_options = get_all_spin_system_dropdown_options(
+#     #     local_spin_system_data["spin_systems"]
+#     # )
+
+#     return [
+#         isotope_dropdown_options,
+#         isotope,
+#         # print_info(local_spin_system_data),
+#     ]
+
+
+# convert client-side function
+@app.callback(
+    Output("select-method", "options"),
+    [Input("local-spin-systems-data", "data")],
+    prevent_initial_call=True,
+)
+def update_list_of_methods(data):
+    if data is None:
+        raise PreventUpdate
+    if data["methods"] is None:
+        raise PreventUpdate
+    options = [
+        {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
+        for i, k in enumerate(data["methods"])
+    ]
+    return options
+
+
+# # Upload a CSDM compliant NMR data file.
+# @app.callback(
+#     [
+#         Output("alert-message-spectrum", "children"),
+#         Output("alert-message-spectrum", "is_open"),
+#         Output("local-exp-external-data", "data"),
+#     ],
+#     [
+#         # Input("upload-spectrum-local", "contents"),
+#         Input("upload-from-graph", "contents"),
+#         # Input("import-measurement-for-method", "contents"),
+#     ],
+#     [
+#         # State("upload-spectrum-local", "filename"),
+#         State("upload-from-graph", "filename"),
+#         # State("import-measurement-for-method", "filename"),
+#         State("local-exp-external-data", "data"),
+#     ],
+# )
+# def update_exp_external_file(*args):
+#     """Update a local CSDM file."""
+
+#     if not ctx.triggered:
+#         raise PreventUpdate
+
+#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+#     content = ctx.inputs[f"{trigger_id}.contents"]
+#     if content is None:
+#         raise PreventUpdate
+
+#     states = ctx.states
+
+#     filename = states[f"{trigger_id}.filename"]
+#     file_extension = filename.split(".")[1]
+#     if file_extension not in ["csdf", "json"]:
+#         return [f"Expecting a .csdf file, found .{file_extension}.", True, no_update]
+#     if file_extension != "csdf":
+#         raise PreventUpdate
+
+#     # if trigger_id == "upload-spectrum-local":
+#     #     content_string = csdm_upload_content
+#     # if trigger_id == "upload-from-graph":
+#     #     content_string = csdm_upload_content_graph
+
+#     content = content.split(",")[1]
+#     decoded = base64.b64decode(content)
+#     success, data, error_message = load_csdm(decoded)
+#     if success:
+#         existing_data = states["local-exp-external-data.data"]
+#         if existing_data is None:
+#             existing_data = {}
+#         existing_data["0"] = data.to_dict()
+#         return ["", False, existing_data]
+#     else:
+#         return [f"Invalid JSON file. {error_message}", True, no_update]
+
+
+def load_csdm(content):
     """Load a JSON file. Return a list with members
         - Success: True if file is read correctly,
         - Data: File content is success, otherwise an empty string,
@@ -490,7 +675,7 @@ def load_json(content):
     """
     content = str(content, encoding="UTF-8")
     try:
-        data = cp.loads(content).to_dict()
+        data = cp.loads(content)
         return True, data, ""
     except Exception as e:
         return False, "", e

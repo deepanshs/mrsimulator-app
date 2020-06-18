@@ -1,7 +1,7 @@
 {
   "name": "Rankinite (Ca₃Si₂O₇)",
   "description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q1 (1)",
       "description": "Q1 site in rankinite",
@@ -11,7 +11,7 @@
           "isotropic_chemical_shift": "-74.5 ppm",
           "shielding_symmetric": {
             "zeta": "-55.3 ppm",
-            "eta": 0.0
+            "eta": 0.69
           }
         }
       ]
@@ -25,7 +25,7 @@
           "isotropic_chemical_shift": "-75.9 ppm",
           "shielding_symmetric": {
             "zeta": "-40.5 ppm",
-            "eta": 0.0
+            "eta": 0.65
           }
         }
       ]

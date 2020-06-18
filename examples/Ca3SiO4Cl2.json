@@ -1,7 +1,7 @@
 {
   "name": "Ca₃SiO₄Cl₂",
   "description": "A calcium-silicate commonly used in LEDs. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q0",
       "sites": [
@@ -9,7 +9,7 @@
           "isotope": "29Si",
           "isotropic_chemical_shift": "-73.6 ppm",
           "shielding_symmetric": {
-            "zeta": "-11 ppm",
+            "zeta": "11 ppm",
             "eta": 0.78
           }
         }

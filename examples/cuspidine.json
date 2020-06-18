@@ -1,7 +1,7 @@
 {
   "name": "Cuspidine (Ca₄Si₂O₇F₂)",
   "description": "A fluorine sorosilicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
-  "isotopomers": [
+  "spin_systems": [
     {
       "name": "Q1",
       "sites": [
@@ -9,7 +9,7 @@
           "isotope": "29Si",
           "isotropic_chemical_shift": "-79.9 ppm",
           "shielding_symmetric": {
-            "zeta": "58.3 ppm",
+            "zeta": "-58.3 ppm",
             "eta": 0.61
           }
         }

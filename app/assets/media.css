@@ -1,133 +1,142 @@
+/* Media query sizes, 320, 480, 600, 768, 992, and 1382px. */
 @media only screen and (max-device-width: 992px) {
+  .tooltip {
+    display: none !important;
+  }
+
+  .cursor-pointer {
+    pointer-events: none !important;
+  }
+
+  /* .btn:hover, */
+  /* .btn:active {
+    color: inherit !important;
+  } */
+}
+
+@media only screen and (max-device-width: 500px) {
   body {
-    margin: 0;
-    padding: 0;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
 
-  #dimension-body {
-    min-height: 50vh;
-  }
-  #mrsimulator-logo {
-    height: 44px;
-  }
-  #top-navbar {
-    position: fixed;
-    z-index: 5;
-    min-height: 60px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    /* background-color: #343942; */
-    /* background-color: #0f5d63; */
-  }
-  /* .fix-header .top-navbar {
-    background: #eee;
-  } */
-  #spectrum-body {
-    /* visibility: hidden; */
-    border-radius: 0px;
-    position: fixed;
-    top: 55px;
-    z-index: 4;
-    /*not work if the screen ratio is below 16/9*/
-    width: 100vw;
-    will-change: transform;
-    box-shadow: 0 4px 15px 0px #d6d6d6;
-  }
-
-  /* .fix-header #spectrum-body {
-    position: fixed;
-    top: 10px;
-  } */
-  /* .my-card-sidebar {
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-  } */
-  /* drawer and navbar imports */
-  #import-navbar,
-  #drawers-import {
-    position: fixed !important;
-    z-index: 5;
-    background-color: #343942;
-    width: 100vw;
-    border-radius: 0px;
-  }
-  #import-navbar {
-    bottom: 0;
-    height: 40px;
-  }
-  #drawers-import {
-    bottom: 40px;
-  }
-  .grow {
-    height: 262px;
-  }
-
-  #bottom-navbar-content {
+  .navbar img {
     display: none;
   }
-}
 
-/* ipad layout landscape */
-@media only screen and (min-device-width: 400px) and (max-device-width: 992px) and (orientation: landscape) {
-  #spectrum-body {
-    top: 0px;
-    height: 100vh;
-    width: 100vw;
+  [id$="-body"].my-card {
+    margin-top: 0;
+    margin-bottom: 0;
   }
-  #nmr_spectrum {
-    height: calc(100vh - 75px);
-  }
-  #dimension-body,
-  #top-navbar,
-  #drawers-import,
-  #bottom-navbar {
-    display: none;
-  }
-  #import-navbar {
-    visibility: hidden;
-    display: none;
-  }
-}
 
-/* ipad layout portrait */
-@media only screen and (min-device-width: 400px) and (max-device-width: 992px) and (orientation: portrait) {
-  #spectrum-body {
-    height: 42vh;
-  }
-  #nmr_spectrum {
-    height: calc(42vh - 55px);
-  }
-  .buffer {
-    height: calc(42vh + 50px);
-  }
-}
-
-@media only screen and (max-device-width: 400px) and (orientation: landscape) {
-  #spectrum-body {
-    top: 0px;
-    height: 100vh;
-    width: 100vw;
-  }
-  #nmr_spectrum {
-    height: calc(100vh - 75px);
-  }
-  #dimension-body,
-  #top-navbar,
-  #drawers-import,
-  #bottom-navbar {
-    display: none;
-  }
-  #import-navbar {
-    visibility: hidden;
+  .top-navbar {
     display: none;
   }
 }
 
 @media only screen and (max-device-width: 400px) and (orientation: portrait) {
-  #dimension-body {
+  #nmr_spectrum {
+    min-height: calc(50vh - 58px);
+    height: calc(50vh - 58px);
+  }
+}
+
+@media only screen and (max-device-width: 400px) and (orientation: landscape) {
+  #nmr_spectrum {
+    min-height: calc(90vh - 58px);
+    height: calc(90vh - 58px);
+  }
+}
+
+/* iphone layout landscape */
+/* @media only screen and (max-device-width: 400px) and (orientation: landscape) {
+  #spectrum-body {
+    position: fixed;
+    top: 0px;
+    height: 100vh;
+    width: 100vw;
+  }
+  #nmr_spectrum {
+    height: calc(100vh - 75px);
+  }
+  #method-body,
+  #spin-system-body,
+  #top-navbar,
+  #drawers-import,
+  #bottom-navbar {
+    display: none;
+  }
+  #import-navbar {
+    display: none;
+  }
+} */
+
+/* ipad layout portrait */
+/* @media only screen and (min-device-width: 400px) and (max-device-width: 992px) and (orientation: portrait) {
+  #spectrum-body {
+    top: 0px;
+    height: 100vh;
+    width: 100vw;
+  }
+  #nmr_spectrum {
+    height: calc(100vh - 75px);
+  }
+  #method-body,
+  #top-navbar,
+  #drawers-import,
+  #bottom-navbar {
+    display: none;
+  }
+  #import-navbar {
+    visibility: hidden;
+    display: none;
+  }
+} */
+
+/* ipad layout landscape */
+/* @media only screen and (max-device-width: 992px) and (orientation: landscape) {
+  body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  #spectrum-body {
+    position: fixed;
+    object-position: left;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 60vw;
+  }
+  .my-card {
+    border-radius: 0;
+  }
+  #interface-nmr_method-spin-system {
+    position: fixed;
+    object-position: right;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 40vw;
+  }
+  #method-body,
+  #spin-system-body,
+  #spectrum-body {
+    height: 200vh;
+  }
+  #sidebar,
+  #navbar-group,
+  .bottom-navbar,
+  .navbar-reveal,
+  #buffer {
+    display: none;
+    pointer-events: none;
+  }
+} */
+
+/* @media only screen and (max-device-width: 400px) and (orientation: portrait) {
+  #method-body {
     min-height: 50vh;
   }
   #spectrum-body {
@@ -141,9 +150,5 @@
   }
   body {
     -webkit-user-select: none;
-    /* -webkit-transform: translateZ(0); */
-    /* -webkit-transform: translate3d(0, 0, 0); */
-    /* -webkit-backface-visibility: hidden;
-          -webkit-perspective: 1000; */
   }
-}
+} */

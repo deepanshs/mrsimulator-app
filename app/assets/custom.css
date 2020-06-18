@@ -1,227 +1,256 @@
-body {
-  box-sizing: border-box;
+input[type="search"]:focus {
+  border: 1px solid rgb(72, 163, 255);
 }
 
-input[type="number"] {
-  -moz-appearance: textfield;
+.nav-tabs {
+  flex-wrap: nowrap;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
+.nav-item a {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgb(68, 68, 68);
+}
+
+.formtext,
+.formtext a {
+  font-size: 0.9rem;
+  color: #efeefc;
+  padding: 0;
+}
+
+.formtext a {
+  color: #ffffff;
+}
+
+#info-body.my-card h4 {
+  padding-bottom: 1rem;
+}
+
+[id$="-body"].my-card {
+  width: 49vw;
+  max-width: calc(0.48 * (var(--max-display-width) + 3.5rem));
+  overflow: hidden;
+  border: 1px solid silver;
+  min-height: var(--content-min-height);
+  height: var(--content-max-height);
+  border-radius: 0.3rem;
+}
+
+#spectrum-body.my-card {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+  padding-left: 1.75rem;
+}
+
+#spectrum-body .dash-graph {
+  padding-right: 0.5rem;
+}
+
+#spin-system-body.my-card,
+#method-body.my-card,
+#info-body.my-card {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0;
+  padding-right: 1.75rem;
+  background-color: #f6f8fa;
+}
+
+.dark-mode [id$="-body"].my-card {
+  background: rgb(218, 218, 218);
+}
+
+#nmr_spectrum {
+  min-height: calc(var(--content-min-height) - 7.85rem);
+  height: calc(var(--content-max-height) - 7.85rem);
+}
+
+.card-header {
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #c8e1ff;
+  padding-left: 1em;
+  padding-right: 1em;
+  background-color: #f1f8ff;
+}
+
+.card-header input {
+  min-width: 5rem;
+  border-radius: 0.35rem;
+  border: 1px solid #b5dbff;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
   margin: 0;
 }
 
-#top-navbar {
-  z-index: 4;
+.card-header h5 {
+  font-weight: 500;
+  padding-left: 0.75rem;
+  margin: 0;
 }
 
-#bottom-navbar {
-  z-index: 0;
-  height: 40px;
-  background-color: #343942;
+.card-header div {
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  justify-items: center;
 }
 
-html {
-  scroll-behavior: smooth;
+.submit-button button {
+  width: 12rem;
+  float: right;
+  color: #0366d6;
+  font-weight: 500;
+  background-color: #f1f8ff;
 }
 
-.wrapper {
-  overflow-x: hidden;
-  position: relative;
-  overflow-y: scroll;
+.submit-button button:hover,
+.submit-button button:focus {
+  background-color: #d9ecff;
+  color: #0366d6;
 }
 
-.nav-link,
-.secondary-nav-link {
-  color: silver;
+.submit-button button:active {
+  background-color: #d9ecff;
 }
 
-.nav-link:hover,
-.secondary-nav-link:hover {
-  color: white;
-}
-.secondary-nav-link:hover {
-  background-color: #252931;
-  border-radius: 0px;
-}
-/* button contents */
-
-.button .no-round {
-  border-radius: 0;
+.submit-button {
+  float: right;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
 }
 
-#example-spectrum-button,
-#example-spectrum-dropbox {
-  display: none;
-}
-/* formtest contents */
-
-.formtext {
-  font-size: 0.9rem;
-  color: #bed5fa;
-  padding: 0 none;
+.tab-pane > div > div > div:nth-child(odd) {
+  background-image: linear-gradient(
+    125deg,
+    rgba(243, 243, 243) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
-/* card properties */
-
-.top-navbar {
-  position: relative;
-  z-index: 1;
-  background: #343942;
-  border-radius: 0em;
-  border: 0px solid #343942;
-  border-top: 1px solid #343942;
-  /* border-bottom: 1px solid #bed5fa; */
-  box-shadow: 0 0px 20px 0px #3a3a3a;
+.scroll-cards h6 {
+  padding-top: 1rem;
+  margin-bottom: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-transform: capitalize;
 }
 
-.my-card {
-  /* padding: 10px; */
-  overflow: hidden;
-  border-radius: 0.8em;
-  border: 1px solid rgb(214, 214, 214);
-  /* box-shadow: 0 1px 2px 0px #b6b6b6; */
-  background: linear-gradient(to bottom, #f7f6f6 0%, #ffffff 100%);
+.scroll-cards label {
+  margin: 0;
 }
 
-.my-card-sidebar {
-  position: relative !important;
-  overflow: hidden;
-  min-height: 12vh;
-  border-radius: 0.8em;
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  background: linear-gradient(to bottom, #f0f0f0 0%, #fcfcfc 100%);
+.scroll-cards h6 div {
+  display: flex;
+  justify-content: space-between;
 }
 
-/* dash slider properties */
-
-.rc-slider-track {
-  background-color: #3c676bd7;
+.scroll-cards h6 div svg {
+  cursor: pointer;
 }
 
-.rc-slider-dot-active {
-  /* border-color: red; */
-  border: solid 2px #5c7a7e;
-}
-
-.rc-slider-handle {
-  border-color: #63aeb8;
-  background-color: #0f5d63;
+.container {
+  padding: 1rem;
+  padding-top: 0.5rem;
 }
 
 /* collapsible group handle */
-
-.collapsible-handle,
-.collapsible-handle:hover {
+.collapsible {
   box-shadow: 0 0px 2px 0px #979797;
-  z-index: 0;
-  border-radius: 0.1em;
-  background-color: #e9f4f7;
-  border-top: 1px solid #0f5d63;
+  border-radius: 0em;
+  background-color: #f7f0e9ea;
+  border-top: 1px solid #632e0f;
   border-bottom: 1px solid rgb(194, 194, 194);
 }
 
-.collapsible-handle:hover {
+.collapsible:hover {
   box-shadow: 0 0px 3px 0px #979797;
-  background-color: #e0eff3;
+  background-color: #f3e7e0;
 }
 
-.ripple {
-  position: relative;
-  overflow: hidden;
-  transform: translate3d(0, 0, 0);
+.panel-collapse {
+  border: 1px solid silver;
+  margin: -1px;
 }
 
-.ripple:after {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
+/* dash callback loading */
+*[data-dash-is-loading="true"] {
+  opacity: 1;
   pointer-events: none;
-  background-image: radial-gradient(circle, #0f5d63 10%, transparent 10.1%);
-  background-repeat: no-repeat;
-  background-position: 50%;
-  transform: scale(10, 10);
-  opacity: 0;
-  transition: transform 1s, opacity 1s;
+  visibility: visible;
 }
 
-.ripple:active:after {
-  transform: scale(0, 0);
-  opacity: 0.3;
-  transition: 0s;
+#import-spin-system-toggler {
+  border-top-left-radius: 2.5rem;
 }
 
-.collapsible-body-control {
-  padding: 10px;
-  border-top-width: 0px;
-  border-radius: 0.5em;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
+.js-line:hover {
+  transform: scale(1.5);
 }
 
-@media only screen and (max-width: 992px) {
-  .master-padding {
-    padding-right: 0px;
-    padding-left: 0px;
-  }
-  .hide-label {
-    display: none;
-  }
-  #spectrum-body {
-    height: 50vh;
-  }
-  #nmr_spectrum {
-    height: calc(50vh - 55px);
-  }
+.download-csdm-style {
+  color: rgb(80, 80, 80);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  border-radius: 0.3rem;
+  border: 1px solid rgb(80, 80, 80);
+  transition: all 0.2s ease;
 }
 
-@media only screen and (min-width: 992px) {
-  #dimension-body,
-  #spectrum-body {
-    min-height: 75vh;
-  }
-  /* #tab-body {
-    height: 75vh;
-    overflow-y: scroll;
-  } */
-  #nmr_spectrum {
-    height: calc(75vh - 55px);
-  }
+.download-csdm-style:hover {
+  color: rgb(243, 243, 243);
+  background-color: rgb(61, 61, 61);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-@media only screen and (max-width: 550px) {
-  .hide-label-sm {
-    display: none;
-  }
+.hide-display {
+  display: none;
 }
-@media only screen and (max-width: 300px) {
-  .hide-label-xs {
-    display: none;
+
+.nav-token {
+  display: flex;
+  justify-content: space-around;
+  list-style: circle;
+}
+
+.card {
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+@media only screen and (max-width: 912px) {
+  #spectrum-body.my-card {
+    padding-left: 0.25rem;
+  }
+  #spin-system-body.my-card,
+  #method-body.my-card,
+  #info-body.my-card {
+    padding-right: 0.25rem;
   }
 }
-/* dash-bootstrap customize */
 
-/* .dash-bootstrap .is-open>.Select-control {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 1em;
-} */
-
-.append-first {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.append-addon {
-  border-radius: 0;
-}
-
-.append-last {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+@media only screen and (max-width: 810px) {
+  [id$="-body"].my-card {
+    position: relative;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    min-width: calc(100vw - 0.25rem);
+    scroll-snap-align: center;
+    padding: 0;
+  }
 }
