@@ -122,7 +122,7 @@ app.clientside_callback(
 title = html.Div(
     [
         html.I(className="fac fa-spectrum"),
-        html.H4(["Simulation", button], className="title-with-help"),
+        html.H5(["Simulation", button], className="title-with-help"),
     ]
 )
 className = "align-items-center"

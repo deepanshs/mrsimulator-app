@@ -45,9 +45,12 @@
 
 #spin-system-editor-content,
 #spin-system-read-only {
-  min-height: calc(var(--content-min-height) - 4rem);
-  height: calc(var(--content-max-height) - 4rem);
+  min-height: calc(var(--content-min-height) - 3.5em);
+  height: calc(var(--content-max-height) - 3.5em);
   scrollbar-width: thin;
+  width: 100%;
+  background: transparent;
+  overflow-y: auto;
 }
 
 #spin-system-editor-content::-webkit-scrollbar,
@@ -56,8 +59,8 @@
 }
 
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 16.62rem);
-  height: calc(var(--content-max-height) - 16.62rem);
+  min-height: calc(var(--content-min-height) - 16.62em);
+  height: calc(var(--content-max-height) - 16.62em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -69,31 +72,32 @@
   margin-bottom: 0;
 }
 
+#spin-system-editor-content .card,
+#method-editor-content .card {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: none;
+}
 .tab-scroll::-webkit-scrollbar {
   display: none;
-}
-
-/* Set height for the spin-system scroll view. Spin system side view customize. */
-#spin-system-read-only {
-  width: 100%;
-  background: transparent;
-  overflow-y: auto;
 }
 
 .display-form ul {
   height: 100%;
   width: 100%;
-  font-size: 0.9rem;
-  line-height: 1.3;
+  font-size: 14px;
+  line-height: 1.2;
   font-weight: 300;
   color: rgb(53, 53, 53);
   list-style: none;
-  cursor: default;
+  cursor: pointer;
   border-radius: none;
 }
 
 .display-form li:nth-child(odd) {
-  background-color: rgb(235, 235, 235);
+  background-color: #ebebeb;
 }
 
 .display-form li:nth-child(even) {
@@ -101,7 +105,7 @@
 }
 
 .display-form li:hover {
-  background-color: rgb(227, 242, 255);
+  border-bottom: 2px solid silver;
 }
 
 .display-form li {
@@ -111,6 +115,7 @@
   padding: 0;
   border-left: 1px solid silver;
   border-right: none;
+  border-bottom: 2px solid transparent;
   width: 100%;
   scrollbar-width: none;
   border-radius: none;
@@ -138,48 +143,17 @@
   width: var(--opt-side-scroll-width);
 }
 
-/* .display-form li button {
-  margin-left: -5px;
-  scroll-snap-align: end;
-  position: absolute;
-  border-radius: 0;
-  right: -33.33%;
-  width: 33.33%;
-  height: 100%;
-  cursor: pointer;
-} */
-
-/* .display-form li:before {
-  content: "";
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  position: absolute;
-  top: 0.5rem;
-  right: -50px;
-  border: solid 15px transparent;
-  border-left-color: red;
-} */
 .display-form li::-webkit-scrollbar {
   display: none;
 }
 
 .display-form li.active {
-  background-color: var(--select-blue);
-  color: rgb(255, 255, 255);
-  /* text-shadow: rgb(58, 58, 58) 0px 1px; */
+  background-color: #ffece6;
+  color: black;
+  font-weight: 400;
+  border-top: 1px solid silver;
+  border-bottom: 3px solid orangered;
 }
-
-/* .display-form-checked:before {
-  content: "";
-  position: absolute;
-  top: 0.5rem;
-  right: 0px;
-  z-index: 1000;
-  border: solid 15px transparent;
-  border-right-color: white;
-} */
 
 .sub-spin-system-card {
   border-radius: 0;
@@ -193,12 +167,7 @@
 .spin-system-tensor-title {
   display: flex;
   justify-content: space-between;
-  /* transform: translateY(-0.5rem); */
-  /* transition: all 0.3s ease; */
-  /* margin-top: 0.5rem; */
   margin-bottom: 1rem;
-  /* padding: 0.25rem; */
-  /* background-color: #f7f1ea; */
   margin-left: -1rem;
   margin-right: -1rem;
 }
@@ -247,11 +216,9 @@
 }
 
 .spin-system-title {
-  /* background-color: rgb(227, 242, 255); */
   width: 100%;
   display: flex;
   justify-content: space-between;
-  /* align-items: center; */
 }
 
 .spin-system-title label {
@@ -263,18 +230,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-/* .spin-system-title button {
-  background-color: var(--select-blue);
-  font-weight: bolder;
-  height: 2.7rem;
-  padding-right: 1rem;
-  border-top-left-radius: 0;
-} */
-
-/* .spin-system-title button:hover {
-  background-color: rgb(141, 15, 15);
-} */
 
 .input-text-description {
   color: rgb(77, 77, 77);

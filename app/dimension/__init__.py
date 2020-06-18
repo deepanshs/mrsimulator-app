@@ -16,8 +16,8 @@ from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
 from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
-from app.dimension.simulation_widgets import coordinate_grid
 from app.dimension.simulation_widgets import environment
+from app.dimension.simulation_widgets import spectral_dimension_ui
 from app.spin_system import isotope_options_list
 
 METHOD_LIST = {
@@ -47,7 +47,7 @@ def generate_parameters(n_dimensions):
             dbc.InputGroupAddon("Channel", addon_type="prepend"),
             dbc.Select(options=isotope_options_list, value="1H", id="channel"),
         ],
-        className="container scroll-cards",
+        className="container",
     )
 
     # create environment => widgets for
@@ -56,19 +56,17 @@ def generate_parameters(n_dimensions):
     # 3) rotor angle
     environment_ = custom_card(text="Environment", children=environment(0))
 
-    # create coordinate grid => widgets for
+    # create spectral dimension => widgets for
     # 1) number of points,
     # 2) spectral width,
     # 3) reference offset, and
     # 4) origin offset
-    coordinate_grid_ = [
-        custom_card(text=f"Coordinate grid - {i}", children=coordinate_grid(i))
+    spectral_dimension_ui_ = [
+        custom_card(text=f"Spectral dimension - {i}", children=spectral_dimension_ui(i))
         for i in range(n_dimensions)
     ]
 
-    return html.Div(
-        [channel_, environment_, *coordinate_grid_], className="method-scroll"
-    )
+    return html.Div([channel_, environment_, *spectral_dimension_ui_])
 
 
 def post_simulation(n_dimensions):
@@ -88,7 +86,7 @@ def post_simulation(n_dimensions):
 
 
 submit_button = html.Div(
-    custom_button(text="Submit Method", id="apply-method-changes"),
+    custom_button(text="Submit Method", id="apply-method-changes", color="primary"),
     className="submit-button",
 )
 
@@ -106,7 +104,11 @@ method_description = html.Div(
 # method contents
 method_contents = dbc.Tabs(
     children=[
-        dbc.Tab(label="Properties", children=[generate_parameters(1)]),
+        dbc.Tab(
+            label="Properties",
+            children=[generate_parameters(1)],
+            className="tab-scroll method",
+        ),
         dbc.Tab(
             label="Metadata",
             children=html.Div(
@@ -135,7 +137,7 @@ method_slide = html.Div(
 )
 
 method_header = html.Div(
-    [html.I(className="fas fa-cube"), html.H4("Methods", className="hide-label-sm")]
+    [html.I(className="fas fa-cube"), html.H5("Methods", className="hide-label-sm")]
 )
 
 # method modal list

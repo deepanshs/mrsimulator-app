@@ -51,11 +51,14 @@ navbar = dbc.Navbar(
         html.Div(
             [
                 dbc.NavbarBrand(
-                    html.Img(
-                        src="/assets/mrsimulator-logo-dark.svg",
-                        height="50rem",
-                        alt="Mrsimulator",
-                    )
+                    [
+                        html.Img(
+                            src="/assets/mrsimulator-logo-dark.svg",
+                            height="50px",
+                            alt="Mrsimulator",
+                        ),
+                        html.Div("v0.1.0a0", className="logo-version"),
+                    ]
                 ),
                 # html.Div(
                 #     id="burger",

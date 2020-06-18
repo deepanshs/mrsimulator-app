@@ -1,5 +1,8 @@
 /* input groups */
-
+:root {
+  --text-color: #4b4b4b;
+  --text-box-underline-color: #d1d1d1;
+}
 .input-form-2 {
   width: 100%;
   justify-content: start;
@@ -17,55 +20,56 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  color: var(--text-color);
 }
 
 .input-form-2 .label-right {
   margin-top: auto;
-  margin-bottom: auto;
-  padding-left: 0.25rem;
+  margin-bottom: 0;
+  margin-left: 0;
+  padding-left: 0.1rem;
   min-width: 2.5rem;
   text-align: right;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid var(--text-box-underline-color);
+  color: var(--text-color);
 }
 
 .input-form-2 input {
-  cursor: pointer;
   text-align: right;
-  min-width: 20%;
-  max-width: 35.5%;
+  min-width: 25%;
+  max-width: 40%;
+  padding-right: 0.2em;
+  padding-left: 0.2em;
   margin-left: auto;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-radius: 0.2rem;
   background-color: transparent;
   border: 1px solid transparent;
+  border-bottom: 1px solid var(--text-box-underline-color);
 }
 
 .input-form-2 input:valid {
-  color: rgb(0, 37, 160);
-  text-decoration: underline;
+  color: rgb(0, 0, 0);
 }
 
 .input-form-2 input:invalid {
-  color: rgba(236, 26, 54, 0.918);
+  color: #ec1a36ea;
   text-decoration: line-through;
   outline: none;
 }
 
 .input-form-2 input:invalid .input-form-2 input:after {
   content: "invalid";
-  /* color: rgba(236, 26, 54, 0.918);
-  text-decoration: line-through;
-  outline: none; */
 }
 
 .input-form-2 input:focus,
 .input-text:focus {
   color: black;
   text-decoration: none;
+  border-radius: 0.25em;
   cursor: text;
   background-color: white;
-  border: 1px solid rgb(72, 163, 255);
-  transition: all 0.3s ease;
+  border: 1px solid #48a3ff;
+  box-shadow: 0 0 2px 1px #48a3ff7c;
 }
 
 .input-text {
@@ -77,24 +81,13 @@
   padding-left: 0;
   padding-right: 0;
   border-radius: 0rem;
-  /* background-color: transparent; */
   border: 1px solid transparent;
-  transition: all 0.3s ease;
 }
 
 textarea {
   height: 100%;
   width: 100%;
 }
-
-/* dash-bootstrap customize */
-/* .input-group-append {
-  width: 3.5rem;
-  display: flex;
-  text-align: right;
-  justify-content: space-around;
-  flex-direction: column;
-} */
 
 .input-group-prepend {
   width: 9rem;

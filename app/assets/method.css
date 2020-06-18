@@ -43,11 +43,25 @@
   transition: all 0.3s ease;
 }
 
-.method-scroll {
-  min-height: calc(var(--content-min-height) - 13.25rem);
-  height: calc(var(--content-max-height) - 13.25rem);
+#method-read-only {
+  min-height: calc(var(--content-min-height) - 3.5em);
+  height: calc(var(--content-max-height) - 3.5em);
+  scrollbar-width: thin;
+  width: 100%;
+  background: transparent;
   overflow-y: auto;
-  overflow-x: hidden;
+}
+
+.tab-scroll.method {
+  min-height: calc(var(--content-min-height) - 13.22em);
+  height: calc(var(--content-max-height) - 13.22em);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.tab-scroll.method::-webkit-scrollbar,
+#method-read-only::-webkit-scrollbar {
+  display: none;
 }
 
 /* media for spin systems and methods*/

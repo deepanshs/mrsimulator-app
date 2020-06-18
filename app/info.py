@@ -32,7 +32,7 @@ def update_sample_info(json_data):
     description = json_data["description"]
     data = dbc.CardBody(
         [
-            html.H4(title),
+            html.H5(title),
             html.P(description, style={"textAlign": "left", "color": colors["text"]}),
         ],
         className="sample-info-cards",

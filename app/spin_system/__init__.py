@@ -312,7 +312,9 @@ metadata = dcc.Tab(
 
 
 submit_button = html.Div(
-    custom_button(text="Submit Spin System", id="apply-spin-system-changes"),
+    custom_button(
+        text="Submit Spin System", id="apply-spin-system-changes", color="primary"
+    ),
     className="submit-button",
 )
 
@@ -355,7 +357,7 @@ spin_system_slide = html.Div(
 spin_system_title = html.Div(
     [
         html.I(className="fac fa-spin-systems"),
-        html.H4("Spin Systems", className="hide-label-sm"),
+        html.H5("Spin Systems", className="hide-label-sm"),
     ]
 )
 

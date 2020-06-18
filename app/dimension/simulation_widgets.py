@@ -7,7 +7,7 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-def coordinate_grid(i):
+def spectral_dimension_ui(i):
     """
         Return a list of widgets whose entries are used in evaluating the dimension
         coordinates along the i^th dimension. The widgets includes number of points,
