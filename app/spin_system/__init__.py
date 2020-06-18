@@ -7,7 +7,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator.isotope import ISOTOPE_DATA
+from mrsimulator.spin_system.isotope import ISOTOPE_DATA
 
 from .toolbar import search_spin_system
 from .util import blank_display
@@ -393,7 +393,7 @@ app.clientside_callback(
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_json"),
-    Output("new-json", "data"),
+    Output("new-spin-system", "data"),
     [
         Input("apply-spin-system-changes", "n_clicks_timestamp"),
         Input("add-spin-system-button", "n_clicks_timestamp"),

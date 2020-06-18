@@ -300,7 +300,7 @@ app.clientside_callback(
 
 app.clientside_callback(
     ClientsideFunction(
-        namespace="method", function_name="export_simulation_from_selectred_method"
+        namespace="method", function_name="export_simulation_from_selected_method"
     ),
     Output("export-simulation-from-method-link", "href"),
     [Input("export-simulation-from-method", "n_clicks")],

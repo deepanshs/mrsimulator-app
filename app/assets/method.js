@@ -4,7 +4,7 @@
  */
 
 window.dash_clientside.method = {
-  export_simulation_from_selectred_method: function (n, data, decompose) {
+  export_simulation_from_selected_method: function (n, data, decompose) {
     if (n == null || data == null) {
       throw window.dash_clientside.PreventUpdate;
     }

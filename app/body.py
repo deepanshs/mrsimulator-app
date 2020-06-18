@@ -103,8 +103,8 @@ storage_div = html.Div(
         # a mapping of spin system index to local spin-system index
         dcc.Store(id="local-spin-system-index-map", storage_type="memory"),
         # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
-        dcc.Store(id="new-json", storage_type="memory"),
-        dcc.Store(id="new-method-json", storage_type="memory"),
+        dcc.Store(id="new-spin-system", storage_type="memory"),
+        dcc.Store(id="new-method", storage_type="memory"),
         # store a bool indicating if the data is from an external file
         dcc.Store(id="config", storage_type="memory"),
         # method-template data

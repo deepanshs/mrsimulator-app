@@ -74,16 +74,16 @@ def file_download_link(
     if simulator_data is None:
         raise PreventUpdate
 
-    # uuid_1 = uuid.uuid1()
-    name = simulator_data["name"]
-    name = f"-{name}" if name != "" else ""
+    filename = "sample"
+    if "name" in simulator_data:
+        filename = simulator_data["name"]
 
     for item in simulator_data["methods"]:
         for dv in item["simulation"]["csdm"]["dependent_variables"]:
             dv.pop("application")
 
     if format_value == "json":
-        filename = f"SpinSystem{name}.json"
+        filename += ".json"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
             json.dump(simulator_data, f)
@@ -101,14 +101,14 @@ def file_download_link(
         content = d_.to_dict(update_timestamp=True)
 
     if format_value == "csdf":
-        filename = f"Spectrum{name}.csdf"
+        filename += ".csdf"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
             json.dump(content, f)
         return relative_filename
 
     if format_value == "csv":
-        filename = f"Spectrum{name}.csv"
+        filename += ".csv"
         relative_filename = os.path.join("downloads", filename)
         obj = cp.parse_dict(content)
         lst = []

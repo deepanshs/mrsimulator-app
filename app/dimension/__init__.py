@@ -179,7 +179,7 @@ dimension_body = html.Div(
 
 
 # @app.callback(
-#     Output("new-method-json", "data"),
+#     Output("new-method", "data"),
 #     [
 #         Input("apply-method-changes", "n_clicks_timestamp"),
 #         Input("add-method-button", "n_clicks_timestamp"),
@@ -280,7 +280,7 @@ def open_methods_model(n1, n2, state):
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_method_json"),
-    Output("new-method-json", "data"),
+    Output("new-method", "data"),
     [
         Input("apply-method-changes", "n_clicks_timestamp"),
         Input("method-from-template", "modified_timestamp"),

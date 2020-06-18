@@ -70,11 +70,16 @@ app.clientside_callback(
 
 app.clientside_callback(
     """
-        function(n){
-            return get_method_index();
+        function(n, value){
+            let index = get_method_index();
+            if (index == value){
+                throw window.dash_clientside.PreventUpdate;
+            }
+            return index;
         }
     """,
     Output("select-method", "value"),
     [Input({"type": "select-method-index", "index": ALL}, "n_clicks")],
+    [State("select-method", "value")],
     prevent_initial_call=True,
 )

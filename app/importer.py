@@ -26,6 +26,7 @@ from .spin_system.util import update_spin_system_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
+PATH_ = os.path.split(__file__)[0]
 
 
 def upload_data(prepend_id, message_for_URL, message_for_upload):
@@ -177,21 +178,21 @@ spectrum_import_layout = upload_data(
         Input("upload-from-graph", "contents"),  # graph->drag and drop
         Input("upload-spin-system-url-submit", "n_clicks"),
         Input("selected-example", "value"),  # examples
-        Input("new-json", "modified_timestamp"),  # when spin-system change
-        Input("new-method-json", "modified_timestamp"),  # when method change
+        Input("new-spin-system", "modified_timestamp"),  # when spin-system change
+        Input("new-method", "modified_timestamp"),  # when method change
         Input("confirm-clear-spin-system", "submit_n_clicks"),  # spin-system->clear
         Input("confirm-clear-methods", "submit_n_clicks"),  # method->clear
     ],
     [
         State("upload-spin-system-url", "value"),
         State("local-spin-systems-data", "data"),
-        State("new-json", "data"),
-        State("new-method-json", "data"),
+        State("new-spin-system", "data"),
+        State("new-method", "data"),
         State("select-method", "value"),
     ],
     prevent_initial_call=True,
 )
-def update_spin_systems(*args):
+def update_simulator(*args):
     """Update the local spin-systems when a new file is imported."""
     if not ctx.triggered:
         raise PreventUpdate
@@ -201,13 +202,13 @@ def update_spin_systems(*args):
 
     existing_data = ctx.states["local-spin-systems-data.data"]
 
-    if trigger_id == "new-json":
-        new_json_data = ctx.states["new-json.data"]
-        return modified_spin_system(existing_data, new_json_data)
+    if trigger_id == "new-spin-system":
+        new_spin_system = ctx.states["new-spin-system.data"]
+        return modified_spin_system(existing_data, new_spin_system)
 
-    if trigger_id == "new-method-json":
-        new_method_data = ctx.states["new-method-json.data"]
-        return modified_method(existing_data, new_method_data)
+    if trigger_id == "new-method":
+        new_method = ctx.states["new-method.data"]
+        return modified_method(existing_data, new_method)
 
     # old_isotope = ctx.states["isotope_id-0.value"]
     no_updates = [no_update, no_update, no_update]
@@ -218,39 +219,20 @@ def update_spin_systems(*args):
     # set of pre-defined examples.
     if trigger_id == "selected-example":
         example = ctx.inputs["selected-example.value"]
-        path = os.path.split(__file__)[0]
-        if example in ["", None]:
-            raise PreventUpdate
-        response = urlopen(get_absolute_url_path(example, path))
-        data = fix_missing_keys(json.loads(response.read()))
-        return assemble_data(parse_data(data))
+        return example_selection(example)
 
     # Request and load a sample from URL
     # The following section applies to when the spin-systems update is triggered from
     # url-submit.
     if trigger_id == "upload-spin-system-url-submit":
         url = ctx.states("upload-spin-system-url.value")
-        if url in ["", None]:
-            raise PreventUpdate
-        response = urlopen(url)
-        try:
-            data = fix_missing_keys(json.loads(response.read()))
-        except Exception:
-            message = "Error reading spin-systems."
-            return [message, *if_error_occurred]
-        return assemble_data(parse_data(data))
+        load_from_url(url, existing_data)
 
     if trigger_id == "confirm-clear-spin-system":
-        if existing_data is None:
-            raise PreventUpdate
-        existing_data["spin-systems"] = []
-        return assemble_data(existing_data)
+        return clear_system("spin_systems", existing_data)
 
     if trigger_id == "confirm-clear-methods":
-        if existing_data is None:
-            raise PreventUpdate
-        existing_data["methods"] = []
-        return assemble_data(existing_data)
+        return clear_system("methods", existing_data)
 
     if trigger_id == "upload-and-add-spin-system-button":
         contents = ctx.inputs[f"{trigger_id}.contents"]
@@ -326,29 +308,29 @@ def update_spin_systems(*args):
     #     return assemble_data(data)
 
 
-def modified_method(existing_method_data, new_method_data):
+def modified_method(existing_method_data, new_method):
 
     default = [no_update for _ in range(7)]
-    if new_method_data is None:
+    if new_method is None:
         raise PreventUpdate
 
-    index = new_method_data["index"]
+    index = new_method["index"]
     data = (
         existing_method_data
         if existing_method_data is not None
         else {"name": "", "description": "", "spin_systems": [], "methods": []}
     )
-    method_data = new_method_data["data"]
+    method_data = new_method["data"]
 
     # Add a new method
-    if new_method_data["operation"] == "add":
+    if new_method["operation"] == "add":
         data["methods"] += [method_data]
         methods_info = update_method_info(data["methods"])
         default[2], default[5] = data, methods_info
         return default
 
     # Modify a method
-    if new_method_data["operation"] == "modify":
+    if new_method["operation"] == "modify":
         if "experiment" in data["methods"][index]:
             method_data["experiment"] = data["methods"][index]["experiment"]
         data["methods"][index] = method_data
@@ -357,14 +339,14 @@ def modified_method(existing_method_data, new_method_data):
         return default
 
     # Duplicate a method
-    if new_method_data["operation"] == "duplicate":
+    if new_method["operation"] == "duplicate":
         data["methods"] += [method_data]
         methods_info = update_method_info(data["methods"])
         default[2], default[5] = data, methods_info
         return default
 
     # Delete a method
-    if new_method_data["operation"] == "delete":
+    if new_method["operation"] == "delete":
         if index is None:
             raise PreventUpdate
         del data["methods"][index]
@@ -373,24 +355,24 @@ def modified_method(existing_method_data, new_method_data):
         return default
 
 
-def modified_spin_system(existing_data, new_json_data):
+def modified_spin_system(existing_data, new_spin_system):
     """Update the local spin-system data when an update is triggered."""
     config = {"is_new_data": False, "length_changed": False}
     default = [no_update for _ in range(7)]
 
-    if new_json_data is None:
+    if new_spin_system is None:
         raise PreventUpdate
-    index = new_json_data["index"]
+    index = new_spin_system["index"]
     data = (
         existing_data
         if existing_data is not None
         else {"name": "", "description": "", "spin_systems": [], "methods": []}
     )
-    spin_system_data = new_json_data["data"]
+    spin_system_data = new_spin_system["data"]
     # Modify spin-system
     # The following section applies to when the spin-systems update is triggered from
     # the GUI fields. This is a very common trigger, so we place it at the start.
-    if new_json_data["operation"] == "modify":
+    if new_spin_system["operation"] == "modify":
         data["spin_systems"][index] = spin_system_data
         config["index_last_modified"] = index
 
@@ -401,7 +383,7 @@ def modified_spin_system(existing_data, new_json_data):
     # Add a new spin system
     # The following section applies to when the a new spin-systems is added from
     # add-spin-system-button.
-    if new_json_data["operation"] == "add":
+    if new_spin_system["operation"] == "add":
         data["spin_systems"] += [spin_system_data]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
@@ -414,7 +396,7 @@ def modified_spin_system(existing_data, new_json_data):
     # Copy an existing spin-system
     # The following section applies to when a request to duplicate the spin-systems
     # is initiated using the duplicate-spin-system-button.
-    if new_json_data["operation"] == "duplicate":
+    if new_spin_system["operation"] == "duplicate":
         data["spin_systems"] += [spin_system_data]
         config["length_changed"] = True
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
@@ -427,7 +409,7 @@ def modified_spin_system(existing_data, new_json_data):
     # Delete an spin-system
     # The following section applies to when a request to remove an spin-systems is
     # initiated using the remove-spin-system-button.
-    if new_json_data["operation"] == "delete":
+    if new_spin_system["operation"] == "delete":
         if index is None:
             raise PreventUpdate
 
@@ -441,6 +423,43 @@ def modified_spin_system(existing_data, new_json_data):
         spin_systems_info = update_spin_system_info(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
         return default
+
+
+def example_selection(example):
+    """Load the selected example."""
+    if example in ["", None]:
+        raise PreventUpdate
+    response = urlopen(get_absolute_url_path(example, PATH_))
+    data = fix_missing_keys(json.loads(response.read()))
+    return assemble_data(parse_data(data))
+
+
+def load_from_url(url, existing_data):
+    """Load the selected data from url."""
+    if url in ["", None]:
+        raise PreventUpdate
+    response = urlopen(url)
+    try:
+        data = fix_missing_keys(json.loads(response.read()))
+        return assemble_data(parse_data(data))
+    except Exception:
+        no_updates = [no_update, no_update, no_update]
+        if_error_occurred = [True, existing_data, *no_updates]
+        message = "Error reading the file."
+        return [message, *if_error_occurred]
+
+
+def clear_system(attribute, existing_data):
+    """Clear the list of spin-systems or methods
+
+    Args:
+        attribute: Enumeration with literals---`spin_systems` or `methods`
+        existing_data: The existing simulator data and metadata.
+    """
+    if existing_data is None:
+        raise PreventUpdate
+    existing_data[attribute] = []
+    return assemble_data(existing_data)
 
 
 def fix_missing_keys(json_data):
