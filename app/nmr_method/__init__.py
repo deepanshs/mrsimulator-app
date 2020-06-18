@@ -15,9 +15,9 @@ from .toolbar import search_method
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
-from app.dimension.post_simulation_widgets import gaussian_linebroadening_widget
-from app.dimension.simulation_widgets import environment
-from app.dimension.simulation_widgets import spectral_dimension_ui
+from app.nmr_method.post_simulation_widgets import gaussian_linebroadening_widget
+from app.nmr_method.simulation_widgets import environment
+from app.nmr_method.simulation_widgets import spectral_dimension_ui
 from app.spin_system import isotope_options_list
 
 METHOD_LIST = {
@@ -38,7 +38,7 @@ __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
 
 
-# dimension parameters
+# nmr_method parameters
 def generate_parameters(n_dimensions):
     """Create a spectral dimension interface."""
     # channel

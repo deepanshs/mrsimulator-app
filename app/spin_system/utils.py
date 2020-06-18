@@ -171,7 +171,8 @@ def update_spin_system_info(json_data):
                             #     "X",
                             #     color="danger",
                             #     block=True,
-                            #     id={"type": "initiate-remove-spin-system", "index": i},
+                            #     id={"type": "initiate-remove-spin-system",
+                            #       "index": i},
                             # ),
                         ]
                     ),

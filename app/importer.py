@@ -20,9 +20,9 @@ from mrsimulator import SpinSystem
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
-from .dimension.util import update_method_info
 from .info import update_sample_info
-from .spin_system.util import update_spin_system_info
+from .nmr_method.utils import update_method_info
+from .spin_system.utils import update_spin_system_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]

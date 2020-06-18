@@ -2,6 +2,7 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
+from . import __version__
 from .app import year
 from .menubar import master_menubar
 
@@ -57,7 +58,7 @@ navbar = dbc.Navbar(
                             height="50px",
                             alt="Mrsimulator",
                         ),
-                        html.Div("v0.1.0a0", className="logo-version"),
+                        html.Div(f"{__version__}", className="logo-version"),
                     ]
                 ),
                 # html.Div(

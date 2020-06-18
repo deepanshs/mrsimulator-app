@@ -10,7 +10,7 @@ from dash.exceptions import PreventUpdate
 from mrsimulator.spin_system.isotope import ISOTOPE_DATA
 
 from .toolbar import search_spin_system
-from .util import blank_display
+from .utils import blank_display
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card

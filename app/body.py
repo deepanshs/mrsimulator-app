@@ -6,10 +6,10 @@ import dash_html_components as html
 from . import importer
 from . import navbar
 from .custom_widgets import custom_button
-from .dimension import dimension_body
-from .dimension.toolbar import method_edit_tools
 from .graph import spectrum_body
 from .info import sample_info
+from .nmr_method import dimension_body
+from .nmr_method.toolbar import method_edit_tools
 from .spin_system import spin_system_body
 from .spin_system.toolbar import spin_system_edit_tools
 
@@ -17,7 +17,7 @@ from .spin_system.toolbar import spin_system_edit_tools
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
-# The dimension and spin-system cards are place at the front and back of a master
+# The nmr_method and spin-system cards are place at the front and back of a master
 # card
 # card_flip = html.Div(
 #     [
@@ -98,11 +98,11 @@ storage_div = html.Div(
         # memory for holding the computed + processed data. Processing over the
         # computed data is less computationally expensive.
         dcc.Store(id="local-processed-data", storage_type="memory"),
-        # memory for holding the dimension data
+        # memory for holding the nmr_method data
         dcc.Store(id="local-method-data", storage_type="memory"),
         # a mapping of spin system index to local spin-system index
         dcc.Store(id="local-spin-system-index-map", storage_type="memory"),
-        # dcc.Store(id="local-dimension-max-index", storage_type="memory"),
+        # dcc.Store(id="local-nmr_method-max-index", storage_type="memory"),
         dcc.Store(id="new-spin-system", storage_type="memory"),
         dcc.Store(id="new-method", storage_type="memory"),
         # store a bool indicating if the data is from an external file
