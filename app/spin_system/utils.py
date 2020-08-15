@@ -129,10 +129,10 @@ def update_spin_system_info(json_data):
         local.append(name_div)
 
         if "description" in spin_system:
-            if spin_system["description"] not in ["", None]:
-                local.append(
-                    html.Div(spin_system["description"][:25] + " ... ", className="")
-                )
+            description = spin_system["description"]
+            if description not in ["", None] and len(description) > 22:
+                description = f"{description[:22]}..."
+            local.append(html.Div(description, className=""))
 
         abundance = (
             "100" if "abundance" not in spin_system else spin_system["abundance"]

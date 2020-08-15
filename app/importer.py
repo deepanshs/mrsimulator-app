@@ -169,19 +169,29 @@ spectrum_import_layout = upload_data(
         Output("info-read-only", "children"),
     ],
     [
-        Input("upload-spin-system-local", "contents"),  # drag and drop
-        Input("open-mrsimulator-file", "contents"),  # from file->open
-        Input(
-            "upload-and-add-spin-system-button", "contents"
-        ),  # spin-system->import+add
-        Input("import-measurement-for-method", "contents"),  # method->add measurement
-        Input("upload-from-graph", "contents"),  # graph->drag and drop
+        # main page->drag and drop
+        Input("upload-spin-system-local", "contents"),
+        # from file->open
+        Input("open-mrsimulator-file", "contents"),
+        # spin-system->import+add
+        Input("upload-and-add-spin-system-button", "contents"),
+        # method->add measurement
+        Input("import-measurement-for-method", "contents"),
+        # graph->drag and drop
+        Input("upload-from-graph", "contents"),
         Input("upload-spin-system-url-submit", "n_clicks"),
-        Input("selected-example", "value"),  # examples
-        Input("new-spin-system", "modified_timestamp"),  # when spin-system change
-        Input("new-method", "modified_timestamp"),  # when method change
-        Input("confirm-clear-spin-system", "submit_n_clicks"),  # spin-system->clear
-        Input("confirm-clear-methods", "submit_n_clicks"),  # method->clear
+        # examples
+        Input("selected-example", "value"),
+        # when spin-system is modified
+        Input("new-spin-system", "modified_timestamp"),
+        # when method is modified
+        Input("new-method", "modified_timestamp"),
+        # spin-system->clear
+        Input("confirm-clear-spin-system", "submit_n_clicks"),
+        # method->clear
+        Input("confirm-clear-methods", "submit_n_clicks"),
+        # decompose into spin systems
+        Input("decompose", "active"),
     ],
     [
         State("upload-spin-system-url", "value"),
@@ -189,6 +199,7 @@ spectrum_import_layout = upload_data(
         State("new-spin-system", "data"),
         State("new-method", "data"),
         State("select-method", "value"),
+        State("decompose", "active"),
     ],
     prevent_initial_call=True,
 )
@@ -202,31 +213,41 @@ def update_simulator(*args):
 
     existing_data = ctx.states["local-spin-systems-data.data"]
 
+    # update the config of existing data
+    decompose = "spin_system" if ctx.states["decompose.active"] else "none"
+    if existing_data is not None:
+        existing_data["config"]["decompose_spectrum"] = decompose
+
+    no_updates = [no_update, no_update, no_update]
+    if_error_occurred = [True, existing_data, *no_updates]
+
+    # when decompose is triggered, return the updated existing data
+    if trigger_id == "decompose":
+        return ["", False, existing_data, no_update, *no_updates]
+
+    # Add a new spin system object
     if trigger_id == "new-spin-system":
         new_spin_system = ctx.states["new-spin-system.data"]
         return modified_spin_system(existing_data, new_spin_system)
 
+    # Add a new method object
     if trigger_id == "new-method":
         new_method = ctx.states["new-method.data"]
         return modified_method(existing_data, new_method)
-
-    # old_isotope = ctx.states["isotope_id-0.value"]
-    no_updates = [no_update, no_update, no_update]
-    if_error_occurred = [True, existing_data, *no_updates]
 
     # Load a sample from pre-defined examples
     # The following section applies to when the spin-systems update is triggered from
     # set of pre-defined examples.
     if trigger_id == "selected-example":
         example = ctx.inputs["selected-example.value"]
-        return example_selection(example)
+        return example_selection(example, decompose)
 
     # Request and load a sample from URL
     # The following section applies to when the spin-systems update is triggered from
     # url-submit.
     if trigger_id == "upload-spin-system-url-submit":
         url = ctx.states("upload-spin-system-url.value")
-        load_from_url(url, existing_data)
+        load_from_url(url, existing_data, decompose)
 
     if trigger_id == "confirm-clear-spin-system":
         return clear_system("spin_systems", existing_data)
@@ -256,6 +277,7 @@ def update_simulator(*args):
             raise PreventUpdate
         try:
             data = fix_missing_keys(parse_contents(contents))
+            data["config"]["decompose_spectrum"] = decompose
         except Exception:
             message = "Error reading spin-systems."
             return [message, *if_error_occurred]
@@ -425,22 +447,24 @@ def modified_spin_system(existing_data, new_spin_system):
         return default
 
 
-def example_selection(example):
+def example_selection(example, decompose):
     """Load the selected example."""
     if example in ["", None]:
         raise PreventUpdate
     response = urlopen(get_absolute_url_path(example, PATH_))
     data = fix_missing_keys(json.loads(response.read()))
+    data["config"]["decompose_spectrum"] = decompose
     return assemble_data(parse_data(data))
 
 
-def load_from_url(url, existing_data):
+def load_from_url(url, existing_data, decompose):
     """Load the selected data from url."""
     if url in ["", None]:
         raise PreventUpdate
     response = urlopen(url)
     try:
         data = fix_missing_keys(json.loads(response.read()))
+        data["config"]["decompose_spectrum"] = decompose
         return assemble_data(parse_data(data))
     except Exception:
         no_updates = [no_update, no_update, no_update]

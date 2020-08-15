@@ -278,7 +278,6 @@ def simulation(
     [Output("nmr_spectrum", "figure"), Output("local-processed-data", "data")],
     [
         Input("local-computed-data", "modified_timestamp"),
-        Input("decompose", "active"),
         Input("local-simulator-data", "data"),
         Input("normalize_amp", "n_clicks"),
         Input("broadening_points-0", "value"),
@@ -296,7 +295,6 @@ def simulation(
 )
 def plot_1D(
     time_of_computation,
-    decompose,
     sim_data,
     normalized_clicked,
     broadening,
@@ -372,6 +370,7 @@ def plot_1D(
             maximum = y_data.max()
             y_data /= maximum
 
+        decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
         if decompose:
             for datum in current_data.dependent_variables:
                 name = datum.name

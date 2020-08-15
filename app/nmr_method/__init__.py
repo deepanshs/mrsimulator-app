@@ -112,10 +112,15 @@ method_contents = dbc.Tabs(
         dbc.Tab(
             label="Metadata",
             children=html.Div(
-                [method_description], className="method-scroll scroll-cards container"
+                [method_description],
+                className="tab-scroll method method-scroll scroll-cards container",
             ),
         ),
-        dbc.Tab(label="Signal Processing", children=[post_simulation(1)]),
+        dbc.Tab(
+            label="Signal Processing",
+            children=[post_simulation(1)],
+            className="tab-scroll method",
+        ),
     ],
     id="dimension-tabs",
 )

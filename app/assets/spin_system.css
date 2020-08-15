@@ -148,11 +148,11 @@
 }
 
 .display-form li.active {
-  background-color: #ffece6;
+  background-color: #e1f0ff;
   color: black;
   font-weight: 400;
   border-top: 1px solid silver;
-  border-bottom: 3px solid orangered;
+  border-bottom: 3px solid var(--select-blue);
 }
 
 .sub-spin-system-card {
