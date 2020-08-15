@@ -115,7 +115,7 @@ method_contents = dbc.Tabs(
                 [method_description], className="method-scroll scroll-cards container"
             ),
         ),
-        dbc.Tab(label="Post Simulation", children=[post_simulation(1)]),
+        dbc.Tab(label="Signal Processing", children=[post_simulation(1)]),
     ],
     id="dimension-tabs",
 )

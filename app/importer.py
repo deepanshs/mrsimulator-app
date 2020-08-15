@@ -464,7 +464,7 @@ def clear_system(attribute, existing_data):
 
 def fix_missing_keys(json_data):
     default_data = {
-        "name": "",
+        "name": "Sample",
         "description": "Add a description ...",
         "spin_systems": [],
         "methods": [],

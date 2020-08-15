@@ -61,7 +61,7 @@ mrsimulator_new = html.A(
 mrsimulator_open = dcc.Upload(
     div_icon_text_display(icon="fas fa-folder-open", text="Open..."),
     id="open-mrsimulator-file",
-    # accept=".mrsims",
+    accept=".mrsim",
 )
 # open_recent = html.Div(
 #     [

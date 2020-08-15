@@ -11,9 +11,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Method
 from mrsimulator import Simulator
-from mrsimulator import SpinSystem
 
 from app.app import app
 from app.body import app_1
@@ -193,16 +191,16 @@ def simulation(
         raise PreventUpdate
 
     print("simulate")
-    sim = Simulator()
-    sim.methods = [Method(**i) for i in local_spin_systems_data["methods"]]
-    sim.spin_systems = [
-        SpinSystem(**i) for i in local_spin_systems_data["spin_systems"]
-    ]
+    sim = Simulator(**local_spin_systems_data)
+    # sim.methods = [Method(**i) for i in local_spin_systems_data["methods"]]
+    # sim.spin_systems = [
+    #     SpinSystem(**i) for i in local_spin_systems_data["spin_systems"]
+    # ]
 
-    sim.config.integration_density = integration_density
-    sim.config.decompose_spectrum = "spin_system"
-    sim.config.integration_volume = integration_volume
-    sim.config.number_of_sidebands = number_of_sidebands
+    # sim.config.integration_density = integration_density
+    # sim.config.decompose_spectrum = "spin_system"
+    # sim.config.integration_volume = integration_volume
+    # sim.config.number_of_sidebands = number_of_sidebands
     sim.run()
 
     local_computed_data = [

@@ -1,4 +1,43 @@
 
+Upcoming additions and changes
+==============================
+
+What's new!
+-----------
+
+**General**
+
+- Updates to the UI.
+- A new menubar with File, Isotopomer, Method options.
+- Two-column view on larger devices. The left column shows the parameters, while the
+  right column shows the graph update.
+
+**Method**
+
+- Add multiple method objects to the simulation.
+- Each method object can hold an experiment. Compare the simulation from each method with an experiment
+- Selection of various method types (BlochDecaySpectrum, BlochDecayCentralTransitionSpectrum)
+- Interactive selection of methods and graph update.
+- Ability to export simulation on per method base.
+- Easy duplicate, clear, and remove methods from the app
+- Use search to filter the list of methods.
+
+**Spin System**
+
+- Add multiple spin-systems to the simulation.
+- Interactively select the spin system from the spectrum.
+- Easy duplicate, clear, and remove spin systems from the app.
+- Add spin systems by import data from the file.
+- Use search to filter the list of spin systems.
+
+**Examples**
+
+- Choose from pre-defined examples. Both spin 1/2 and quadrupolar.
+
+
+v0.1.0
+======
+
 - Made more changes to the user interface.
 - Added drag and drop experimental data directly on to the simulation card.
 - Attached the reference offset and spectral width to the plot x-axis drag and zoom
@@ -12,9 +51,10 @@
 - Isotopomers' example is no longer a separate display on the secondary navbar. The
   isotopomers example is now a part of the isotopomers tab from the secondary navbar.
 
-===
+
 - Added Lorentzian and Gaussian line-broadening
 - Changes to the user-interface
 - Added options for underlaying the spectrum to compare with the simulation.
-===
+
+
 - Added dimension and environment interface

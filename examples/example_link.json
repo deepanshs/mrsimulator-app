@@ -1,62 +1,62 @@
 [
   {
     "label": "Rankinite",
-    "value": "./examples/rankinite.json"
+    "value": "./examples/rankinite.mrsim"
   },
   {
     "label": "\u03B1-Ca2(SiO3OH)OH",
-    "value": "./examples/alpha Ca2(SiO3OH)OH.json"
+    "value": "./examples/alpha Ca2(SiO3OH)OH.mrsim"
   },
   {
     "label": "\u03B2-Ca2SiO4",
-    "value": "./examples/beta Ca2SiO4.json"
+    "value": "./examples/beta Ca2SiO4.mrsim"
   },
   {
     "label": "Ca3SiO4Cl2",
-    "value": "./examples/Ca3SiO4Cl2.json"
+    "value": "./examples/Ca3SiO4Cl2.mrsim"
   },
   {
     "label": "Cuspidine",
-    "value": "./examples/cuspidine.json"
+    "value": "./examples/cuspidine.mrsim"
   },
   {
     "label": "\u03B3-Ca2SiO4",
-    "value": "./examples/gamma Ca2SiO4.json"
+    "value": "./examples/gamma Ca2SiO4.mrsim"
   },
   {
     "label": "Hillebrandite",
-    "value": "./examples/hillebrandite.json"
+    "value": "./examples/hillebrandite.mrsim"
   },
   {
     "label": "Kyanite",
-    "value": "./examples/kyanite.json"
+    "value": "./examples/kyanite.mrsim"
   },
   {
     "label": "Pseudowollastonite",
-    "value": "./examples/pseudowollastonite.json"
+    "value": "./examples/pseudowollastonite.mrsim"
   },
   {
     "label": "Scawtite",
-    "value": "./examples/scawtite.json"
+    "value": "./examples/scawtite.mrsim"
   },
   {
     "label": "Wollastonite",
-    "value": "./examples/wollastonite.json"
+    "value": "./examples/wollastonite.mrsim"
   },
   {
     "label": "Xonotlite",
-    "value": "./examples/xonotlite.json"
+    "value": "./examples/xonotlite.mrsim"
   },
   {
     "label": "Coesite",
-    "value": "./examples/O17/coesite.json"
+    "value": "./examples/O17/coesite.mrsim"
   },
   {
     "label": "Cristobalite",
-    "value": "./examples/O17/cristobalite.json"
+    "value": "./examples/O17/cristobalite.mrsim"
   },
   {
     "label": "\u03B1-quartz",
-    "value": "./examples/O17/α-quartz.json"
+    "value": "./examples/O17/α-quartz.mrsim"
   }
 ]

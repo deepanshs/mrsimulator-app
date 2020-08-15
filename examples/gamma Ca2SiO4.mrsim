@@ -1,0 +1,50 @@
+{
+	"name": "\u03b3-Ca\u2082SiO\u2084",
+	"description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
+	"spin_systems": [{
+		"name": "Q0",
+		"sites": [{
+			"isotope": "29Si",
+			"isotropic_chemical_shift": "-73.7 ppm",
+			"shielding_symmetric": {
+				"zeta": "25.5 ppm",
+				"eta": 0.83
+			}
+		}],
+		"abundance": "100.0 %"
+	}],
+	"methods": [{
+		"name": "BlochDecaySpectrum",
+		"description": "Simulate a 1D Bloch decay spectrum.",
+		"spectral_dimensions": [{
+			"count": 1024,
+			"spectral_width": "25000.0 Hz",
+			"reference_offset": "-7000.0 Hz",
+			"origin_offset": "119363535.89999999 Hz",
+			"events": [{
+				"fraction": 1,
+				"magnetic_flux_density": "14.1 T",
+				"rotor_frequency": "700.0 Hz",
+				"rotor_angle": "0.9553164380546711 rad",
+				"transition_query": {
+					"P": {
+						"channel-1": [
+							[-1]
+						]
+					}
+				},
+				"user_variables": ["magnetic_flux_density", "rotor_frequency", "rotor_angle"]
+			}]
+		}],
+		"channels": ["29Si"]
+	}],
+	"config": {
+		"number_of_sidebands": 64,
+		"integration_volume": "octant",
+		"integration_density": 70,
+		"decompose_spectrum": "none"
+	},
+	"indexes": [
+		[0]
+	]
+}
