@@ -42,7 +42,9 @@ input[type="search"]:focus {
 
 [id$="-body"].my-card {
   width: 49vw;
-  max-width: calc(0.48 * (var(--max-display-width) + 3.5rem));
+  /* max-width: calc(0.48 * (var(--max-display-width) + 3.5rem)); */
+  /* margin-left: 1rem;
+  margin-right: 1rem; */
   overflow: hidden;
   border: 1px solid silver;
   min-height: var(--content-min-height);
@@ -149,10 +151,11 @@ input[type="search"]:focus {
 }
 
 .scroll-cards h6 {
-  padding-top: 1rem;
+  padding: 1rem;
+  padding-bottom: 0;
   margin-bottom: 0;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  /* padding-left: 1rem;
+  padding-right: 1rem; */
   text-transform: capitalize;
 }
 
@@ -160,12 +163,14 @@ input[type="search"]:focus {
   margin: 0;
 }
 
-.scroll-cards h6 div {
+.scroll-cards h6 div,
+.scroll-cards p div {
   display: flex;
   justify-content: space-between;
 }
 
-.scroll-cards h6 div svg {
+.scroll-cards h6 div svg,
+.scroll-cards b div svg {
   cursor: pointer;
 }
 

@@ -26,6 +26,7 @@ from .spin_system.utils import update_spin_system_info
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
+
 PATH_ = os.path.split(__file__)[0]
 
 
@@ -160,13 +161,16 @@ spectrum_import_layout = upload_data(
 # Import or update the spin-systems.
 @app.callback(
     [
-        Output("alert-message-spin-system", "children"),
-        Output("alert-message-spin-system", "is_open"),
-        Output("local-spin-systems-data", "data"),
+        Output("alert-message-import", "children"),
+        Output("alert-message-import", "is_open"),
+        Output("local-mrsim-data", "data"),
         Output("config", "data"),
         Output("spin-system-read-only", "children"),
         Output("method-read-only", "children"),
         Output("info-read-only", "children"),
+        Output("integration_density", "value"),
+        Output("integration_volume", "value"),
+        Output("number_of_sidebands", "value"),
     ],
     [
         # main page->drag and drop
@@ -192,14 +196,19 @@ spectrum_import_layout = upload_data(
         Input("confirm-clear-methods", "submit_n_clicks"),
         # decompose into spin systems
         Input("decompose", "active"),
+        # integration and sideband settings
+        Input("close_setting", "n_clicks"),
     ],
     [
         State("upload-spin-system-url", "value"),
-        State("local-spin-systems-data", "data"),
+        State("local-mrsim-data", "data"),
         State("new-spin-system", "data"),
         State("new-method", "data"),
         State("select-method", "value"),
         State("decompose", "active"),
+        State("integration_density", "value"),
+        State("integration_volume", "value"),
+        State("number_of_sidebands", "value"),
     ],
     prevent_initial_call=True,
 )
@@ -211,19 +220,26 @@ def update_simulator(*args):
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("trigger", trigger_id)
 
-    existing_data = ctx.states["local-spin-systems-data.data"]
+    existing_data = ctx.states["local-mrsim-data.data"]
 
     # update the config of existing data
     decompose = "spin_system" if ctx.states["decompose.active"] else "none"
+    density = ctx.states["integration_density.value"]
+    volume = ctx.states["integration_volume.value"]
+    n_ssb = ctx.states["number_of_sidebands.value"]
     if existing_data is not None:
-        existing_data["config"]["decompose_spectrum"] = decompose
+        if "config" in existing_data:
+            existing_data["config"]["decompose_spectrum"] = decompose
+            existing_data["config"]["integration_density"] = density
+            existing_data["config"]["integration_volume"] = volume
+            existing_data["config"]["number_of_sidebands"] = n_ssb
 
-    no_updates = [no_update, no_update, no_update]
+    no_updates = [no_update] * 7
     if_error_occurred = [True, existing_data, *no_updates]
 
     # when decompose is triggered, return the updated existing data
-    if trigger_id == "decompose":
-        return ["", False, existing_data, no_update, *no_updates]
+    if trigger_id in ["decompose", "close_setting"]:
+        return ["", False, existing_data, *no_updates]
 
     # Add a new spin system object
     if trigger_id == "new-spin-system":
@@ -247,7 +263,7 @@ def update_simulator(*args):
     # url-submit.
     if trigger_id == "upload-spin-system-url-submit":
         url = ctx.states("upload-spin-system-url.value")
-        load_from_url(url, existing_data, decompose)
+        return load_from_url(url, existing_data, decompose)
 
     if trigger_id == "confirm-clear-spin-system":
         return clear_system("spin_systems", existing_data)
@@ -277,7 +293,6 @@ def update_simulator(*args):
             raise PreventUpdate
         try:
             data = fix_missing_keys(parse_contents(contents))
-            data["config"]["decompose_spectrum"] = decompose
         except Exception:
             message = "Error reading spin-systems."
             return [message, *if_error_occurred]
@@ -294,10 +309,7 @@ def update_simulator(*args):
                 f"Error reading file. {error_message}",
                 True,
                 no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
+                *no_updates,
             ]
 
         index = ctx.states["select-method.value"]
@@ -311,7 +323,18 @@ def update_simulator(*args):
             spectral_dim[i]["origin_offset"] = dim.origin_offset.to("Hz").value
 
         methods_info = update_method_info(existing_data["methods"])
-        return ["", False, existing_data, no_update, no_update, methods_info, no_update]
+        return [
+            "",
+            False,
+            existing_data,
+            no_update,
+            no_update,
+            methods_info,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+        ]
 
     # Load a sample from drag and drop on the graph reqion
     # The following section applies to when the spin-systems update is triggered from
@@ -332,7 +355,7 @@ def update_simulator(*args):
 
 def modified_method(existing_method_data, new_method):
 
-    default = [no_update for _ in range(7)]
+    default = [no_update for _ in range(10)]
     if new_method is None:
         raise PreventUpdate
 
@@ -380,7 +403,7 @@ def modified_method(existing_method_data, new_method):
 def modified_spin_system(existing_data, new_spin_system):
     """Update the local spin-system data when an update is triggered."""
     config = {"is_new_data": False, "length_changed": False}
-    default = [no_update for _ in range(7)]
+    default = [no_update for _ in range(10)]
 
     if new_spin_system is None:
         raise PreventUpdate
@@ -453,7 +476,6 @@ def example_selection(example, decompose):
         raise PreventUpdate
     response = urlopen(get_absolute_url_path(example, PATH_))
     data = fix_missing_keys(json.loads(response.read()))
-    data["config"]["decompose_spectrum"] = decompose
     return assemble_data(parse_data(data))
 
 
@@ -464,10 +486,9 @@ def load_from_url(url, existing_data, decompose):
     response = urlopen(url)
     try:
         data = fix_missing_keys(json.loads(response.read()))
-        data["config"]["decompose_spectrum"] = decompose
         return assemble_data(parse_data(data))
     except Exception:
-        no_updates = [no_update, no_update, no_update]
+        no_updates = [no_update, no_update, no_update, no_update, no_update, no_update]
         if_error_occurred = [True, existing_data, *no_updates]
         message = "Error reading the file."
         return [message, *if_error_occurred]
@@ -537,6 +558,9 @@ def assemble_data(data):
         update_spin_system_info(data["spin_systems"]),
         update_method_info(data["methods"]),
         update_sample_info(data),
+        data["config"]["integration_density"],
+        data["config"]["integration_volume"],
+        data["config"]["number_of_sidebands"],
     ]
 
 
@@ -569,8 +593,8 @@ def filter_dict(dict1):
 
 # @app.callback(
 #     [Output("isotope_id-0", "options"), Output("isotope_id-0", "value")],
-#     [Input("local-spin-systems-data", "modified_timestamp")],
-#     [State("local-spin-systems-data", "data"), State("isotope_id-0", "value")],
+#     [Input("local-mrsim-data", "modified_timestamp")],
+#     [State("local-mrsim-data", "data"), State("isotope_id-0", "value")],
 # )
 # def update_dropdown_options(t, local_spin_system_data, old_isotope):
 #     print("update_dropdown_options", old_isotope)
@@ -619,7 +643,7 @@ def filter_dict(dict1):
 # convert client-side function
 @app.callback(
     Output("select-method", "options"),
-    [Input("local-spin-systems-data", "data")],
+    [Input("local-mrsim-data", "data")],
     prevent_initial_call=True,
 )
 def update_list_of_methods(data):

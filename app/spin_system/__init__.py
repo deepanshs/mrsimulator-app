@@ -113,9 +113,9 @@ default_unit = {
 #     custom_fitting_input_group(prepend_label, append_label, **kwargs)
 
 #     # @app.callback(
-#     #     Output("local-spin-systems-data", "data"),
+#     #     Output("local-mrsim-data", "data"),
 #     #     [Input(f"{id_}", "value")],  # id belongs to the input field
-#     #     [State("local-spin-systems-data", "data")],
+#     #     [State("local-mrsim-data", "data")],
 #     # )
 #     # def update_spin_systems_data(value, local_spin_system_data):
 #     #     key = id_.split("_")[1].replace("%", "."))
@@ -157,7 +157,9 @@ def feature_orientation_collapsible(key_dict, id_label):
     lst_button = html.Label(
         [
             html.I(className="fas fa-chevron-down"),
-            dbc.Tooltip("Show Euler angles", target=f"{id_label}-orientation-button"),
+            dbc.Tooltip(
+                "Show/Hide Euler angles", target=f"{id_label}-orientation-button"
+            ),
         ],
         id=f"{id_label}-orientation-button",
     )

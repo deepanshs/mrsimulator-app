@@ -41,6 +41,41 @@ app.layout = update_page()
 server = app.server
 
 
+def check_for_spin_system_update(new, old):
+    """Return True if the spin system is updates, else False. For simulation, the system
+    is considered unchanged when metadata such as name and description is modified. """
+    if old is None:
+        return True
+
+    print(new["spin_systems"], old["spin_systems"])
+    size1 = len(new["spin_systems"])
+    size2 = len(old["spin_systems"])
+    if size1 != size2:
+        return True
+
+    features = [
+        "isotope",
+        "isotropic_chemical_shift",
+        "shielding_symmetric",
+        "quadrupolar",
+    ]
+
+    for i in range(size1):
+        s_1 = len(new["spin_systems"][i]["sites"])
+        s_2 = len(new["spin_systems"][i]["sites"])
+        if s_1 != s_2:
+            return True
+        for j in range(s_1):
+            site_new = new["spin_systems"][i]["sites"][j]
+            site_old = old["spin_systems"][i]["sites"][j]
+
+            for item in features:
+                if site_new[item] != site_old[item]:
+                    return True
+
+    return False
+
+
 def check_if_old_and_new_spin_systems_data_are_equal(new, old):
     """Check if the two spin_systems are the same. This does not include the
         name and the description of the spin_systems."""
@@ -139,16 +174,15 @@ def check_for_simulation_update(
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
     [
+        Output("alert-message-simulation", "children"),
+        Output("alert-message-simulation", "is_open"),
         Output("local-computed-data", "data"),
         Output("local-simulator-data", "data"),
         Output("local-spin-system-index-map", "data"),
     ],
-    [Input("close_setting", "n_clicks"), Input("local-spin-systems-data", "data")],
+    [Input("local-mrsim-data", "data")],
     [
-        State("integration_density", "value"),
-        State("integration_volume", "value"),
-        State("number_of_sidebands", "value"),
-        State("local-computed-data", "data"),
+        State("local-simulator-data", "data"),
         State("local-spin-system-index-map", "data"),
         State("config", "data"),
         State("nmr_spectrum", "figure"),
@@ -156,13 +190,9 @@ def check_for_simulation_update(
 )
 def simulation(
     # input
-    close_setting_model,
-    local_spin_systems_data,
+    local_mrsim_data,
     # state
-    integration_density,
-    integration_volume,
-    number_of_sidebands,
-    previous_local_computed_data,
+    previous_local_mrsim_data,
     previous_local_spin_system_index_map,
     config,
     figure,
@@ -181,37 +211,32 @@ def simulation(
         print("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
-    if local_spin_systems_data is None:
+    if local_mrsim_data is None:
         raise PreventUpdate
 
-    if len(local_spin_systems_data["methods"]) == 0:
+    if len(local_mrsim_data["methods"]) == 0:
         raise PreventUpdate
 
-    if len(local_spin_systems_data["spin_systems"]) == 0:
+    if len(local_mrsim_data["spin_systems"]) == 0:
         raise PreventUpdate
+
+    # if not check_for_spin_system_update(local_mrsim_data, previous_local_mrsim_data):
+    #     raise PreventUpdate
 
     print("simulate")
-    sim = Simulator(**local_spin_systems_data)
-    # sim.methods = [Method(**i) for i in local_spin_systems_data["methods"]]
-    # sim.spin_systems = [
-    #     SpinSystem(**i) for i in local_spin_systems_data["spin_systems"]
-    # ]
-
-    # sim.config.integration_density = integration_density
-    # sim.config.decompose_spectrum = "spin_system"
-    # sim.config.integration_volume = integration_volume
-    # sim.config.number_of_sidebands = number_of_sidebands
-    sim.run()
+    try:
+        sim = Simulator(**local_mrsim_data)
+        sim.run()
+    except Exception as e:
+        return [str(e), True, no_update, no_update, no_update]
 
     local_computed_data = [
         item.simulation.to_dict(update_timestamp=True) for item in sim.methods
     ]
 
-    print(
-        "check with previous data",
-        previous_local_computed_data == local_spin_systems_data,
-    )
     return [
+        "",
+        False,
         local_computed_data,
         sim.to_dict_with_units(include_methods=True),
         sim.indexes,
@@ -282,7 +307,7 @@ def simulation(
         Input("normalize_amp", "n_clicks"),
         Input("broadening_points-0", "value"),
         Input("Apodizing_function-0", "value"),
-        Input("nmr_spectrum", "clickData"),
+        # Input("nmr_spectrum", "clickData"),
         Input("select-method", "value"),
         Input("select-method", "options"),
     ],
@@ -293,13 +318,13 @@ def simulation(
         State("config", "data"),
     ],
 )
-def plot_1D(
+def plot(
     time_of_computation,
     sim_data,
     normalized_clicked,
     broadening,
     apodization,
-    clickData,
+    # clickData,
     method_index,
     method_options,
     # state
@@ -336,7 +361,6 @@ def plot_1D(
     # print("local_computed_data", local_computed_data)
     data = []
     if local_computed_data is not None:
-
         local_computed_data = [cp.parse_dict(item) for item in local_computed_data]
 
         local_processed_data = [
@@ -350,56 +374,110 @@ def plot_1D(
         ]
 
         current_data = local_processed_data[method_index]
-        # x = local_processed_data.dimensions[0].coordinates.to("Hz").value
+
         try:
-            current_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+            [item.to("ppm", "nmr_frequency_ratio") for item in current_data.dimensions]
             x = current_data.dimensions[0].coordinates.value
         except (ZeroDivisionError, ValueError):
             pass
 
-        x0 = x[0]
-        dx = x[1] - x[0]
+        if len(current_data.dimensions) == 1:
+            x = current_data.dimensions[0].coordinates.value
+            x0 = x[0]
+            dx = x[1] - x[0]
 
-        # get the max data point
-        y_data = 0
-        maximum = 1.0
-        for datum in current_data.split():
-            y_data += datum
+            # get the max data point
+            y_data = 0
+            maximum = 1.0
+            for datum in current_data.split():
+                y_data += datum
 
-        if normalized:
-            maximum = y_data.max()
-            y_data /= maximum
+            if normalized:
+                maximum = y_data.max()
+                y_data /= maximum
 
-        decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
-        if decompose:
-            for datum in current_data.dependent_variables:
-                name = datum.name
-                if name == "":
-                    name = None
+            decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
+            if decompose:
+                for datum in current_data.dependent_variables:
+                    name = datum.name
+                    if name == "":
+                        name = None
+                    data.append(
+                        go.Scatter(
+                            x0=x0,
+                            dx=dx,
+                            y=datum.components[0] / maximum,
+                            mode="lines",
+                            opacity=0.6,
+                            line={"width": 1.2},
+                            fill="tozeroy",
+                            name=name,
+                        )
+                    )
+
+            else:
                 data.append(
                     go.Scatter(
                         x0=x0,
                         dx=dx,
-                        y=datum.components[0] / maximum,
+                        y=y_data.dependent_variables[0].components[0],
                         mode="lines",
-                        opacity=0.6,
-                        line={"width": 1.2},
-                        fill="tozeroy",
-                        name=name,
+                        line={"color": "black", "width": 1.2},
+                        name="simulation",
                     )
                 )
 
-        else:
-            data.append(
-                go.Scatter(
-                    x0=x0,
-                    dx=dx,
-                    y=y_data.dependent_variables[0].components[0],
-                    mode="lines",
-                    line={"color": "black", "width": 1.2},
-                    name="simulation",
+        if len(current_data.dimensions) == 2:
+            x = current_data.dimensions[0].coordinates.value
+            y = current_data.dimensions[1].coordinates.value
+
+            # get the max data point
+            y_data = 0
+            maximum = 1.0
+            for datum in current_data.split():
+                y_data += datum
+
+            if normalized:
+                maximum = y_data.max()
+                y_data /= maximum
+
+            decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
+            if decompose:
+                for datum in current_data.dependent_variables:
+                    name = datum.name
+                    if name == "":
+                        name = None
+                    data.append(
+                        go.Heatmap(
+                            x=x,
+                            y=y,
+                            z=datum.components[0] / maximum,
+                            # mode="lines",
+                            opacity=0.6,
+                            # line={"width": 1.2},
+                            # fill="tozeroy",
+                            name=name,
+                        )
+                    )
+
+            else:
+                data.append(
+                    go.Heatmap(
+                        dx=x[1] - x[0],
+                        dy=y[1] - y[0],
+                        x0=x[0],
+                        y0=y[0],
+                        # y=y,
+                        z=y_data.dependent_variables[0].components[0],
+                        # line_smoothing=0,
+                        # contours_coloring="lines",
+                        # line_width=1.2,
+                        # mode="lines",
+                        # line={"color": "black", "width": 1.2},
+                        colorscale="viridis",
+                        name="simulation",
+                    )
                 )
-            )
 
     local_exp_external_data = None
     if "experiment" in sim_data["methods"][method_index]:
@@ -451,19 +529,19 @@ def plot_1D(
     # layout["xaxis"]["title"] = f"{isotope_id} frequency ratio / ppm"
 
     # print("isotope_id", isotope_id)
-    print("clickData", clickData)
+    # print("clickData", clickData)
 
-    if clickData is not None and decompose:
-        layout["xaxis"]["autorange"] = False
-        layout["yaxis"]["autorange"] = False
-        index = clickData["points"][0]["curveNumber"]
-        # data[index], data[-1] = data[-1], data[index]
-        if index < len(data):
-            data[index].line["width"] = 3.0
-        # print("fillcolor", data[index].fillcolor)
-        # for i in range(len(data)):
-        #     if i != index:
-        #         data[i].opacity = 0.25
+    # if clickData is not None and decompose:
+    #     layout["xaxis"]["autorange"] = False
+    #     layout["yaxis"]["autorange"] = False
+    #     index = clickData["points"][0]["curveNumber"]
+    #     # data[index], data[-1] = data[-1], data[index]
+    #     if index < len(data):
+    #         data[index].line["width"] = 3.0
+    #     # print("fillcolor", data[index].fillcolor)
+    #     # for i in range(len(data)):
+    #     #     if i != index:
+    #     #         data[i].opacity = 0.25
 
     data_object = {"data": data, "layout": go.Layout(**layout)}
 
@@ -500,4 +578,4 @@ if __name__ == "__main__":
         debug_index = np.where(np.asarray(is_debug))[0][0]
         debug = True if sys.argv[debug_index].split("=")[1] == "True" else False
 
-    app.run_server(host=host, port=port, debug=debug)
+    app.run_server(host=host, port=port, debug=debug, use_reloader=False)

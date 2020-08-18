@@ -3,10 +3,10 @@
   --content-max-height: calc(100vh - 8.5rem);
   --content-min-height: calc(55.5rem - 18.9rem);
   --opt-width: 50vw;
-  --opt-side-scroll-width: 11.5rem;
+  --opt-side-scroll-width: 10rem;
   --opt-side-scroll-min-width: 3rem;
   --select-blue: rgb(8, 124, 240);
-  --max-display-width: 1280px;
+  /* --max-display-width: 1480px; */
 }
 
 * {
@@ -96,10 +96,12 @@ section {
   display: flex;
   margin: auto;
   margin-top: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
   margin-bottom: 1rem;
   border-radius: 0.3rem;
   padding: 0;
-  max-width: var(--max-display-width);
+  /* max-width: var(--max-display-width); */
   box-shadow: 0 8px 10px 0 #0000003f;
 }
 

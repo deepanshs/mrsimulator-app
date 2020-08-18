@@ -151,7 +151,7 @@
   background-color: #e1f0ff;
   color: black;
   font-weight: 400;
-  border-top: 1px solid silver;
+  border-top: 1px solid var(--select-blue);
   border-bottom: 3px solid var(--select-blue);
 }
 

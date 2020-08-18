@@ -22,7 +22,7 @@ def update_method_info(methods):
 
         # method name
         name = method["name"]
-        name = f"{name[:18]}..." if len(name) > 18 else name
+        name = f"{name[:15]}..." if len(name) > 15 else name
         local.append(html.Div(name, className=""))
 
         # method channel(s)

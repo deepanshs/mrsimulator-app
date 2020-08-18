@@ -89,8 +89,8 @@ __email__ = ["deepansh2012@gmail.com"]
 storage_div = html.Div(
     [
         # memory for holding the spin systems data
-        dcc.Store(id="local-spin-systems-data", storage_type="session"),
-        dcc.Store(id="local-simulator-data", storage_type="session"),
+        dcc.Store(id="local-mrsim-data", storage_type="session"),
+        dcc.Store(id="local-simulator-data", storage_type="memory"),
         # memory for holding the exp data
         dcc.Store(id="local-exp-external-data", storage_type="memory"),
         # memory for holding the computationally expensive computed data.
@@ -121,7 +121,14 @@ nav_group = html.Div(
             id="drawers-import",
         ),
         dbc.Alert(
-            id="alert-message-spin-system",
+            id="alert-message-simulation",
+            color="danger",
+            dismissable=True,
+            fade=True,
+            is_open=False,
+        ),
+        dbc.Alert(
+            id="alert-message-import",
             color="danger",
             dismissable=True,
             fade=True,
