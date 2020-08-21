@@ -94,12 +94,12 @@ def file_download_link(
         raise PreventUpdate
 
     content = local_processed_data
-    if not decompose:
-        data = cp.parse_dict(local_processed_data)
-        d_ = 0
-        for item in data.split():
-            d_ += item
-        content = d_.to_dict(update_timestamp=True)
+    # if not decompose:
+    #     data = cp.parse_dict(local_processed_data)
+    #     d_ = 0
+    #     for item in data.split():
+    #         d_ += item
+    #     content = d_.to_dict(update_timestamp=True)
 
     if format_value == "csdf":
         filename += ".csdf"

@@ -300,6 +300,7 @@ spin_system_description_field = html.Div(
             placeholder="Add a description ... ",
             id="spin-system-description",
             debounce=True,
+            style={"height": "12rem"},
         ),
     ]
 )

@@ -20,7 +20,7 @@ from mrsimulator import SpinSystem
 from .app import app
 from .custom_widgets import custom_button
 from .custom_widgets import label_with_help_button
-from .info import update_sample_info
+from .info import display_sample_info
 from .nmr_method.utils import update_method_info
 from .spin_system.utils import update_spin_system_info
 
@@ -198,6 +198,7 @@ spectrum_import_layout = upload_data(
         Input("decompose", "active"),
         # integration and sideband settings
         Input("close_setting", "n_clicks"),
+        Input("save_info_modal", "n_clicks"),
     ],
     [
         State("upload-spin-system-url", "value"),
@@ -209,6 +210,8 @@ spectrum_import_layout = upload_data(
         State("integration_density", "value"),
         State("integration_volume", "value"),
         State("number_of_sidebands", "value"),
+        State("info-name-edit", "value"),
+        State("info-description-edit", "value"),
     ],
     prevent_initial_call=True,
 )
@@ -233,6 +236,30 @@ def update_simulator(*args):
             existing_data["config"]["integration_density"] = density
             existing_data["config"]["integration_volume"] = volume
             existing_data["config"]["number_of_sidebands"] = n_ssb
+
+    if trigger_id == "save_info_modal":
+        if existing_data is not None:
+            existing_data["name"] = ctx.states["info-name-edit.value"]
+            existing_data["description"] = ctx.states["info-description-edit.value"]
+        else:
+            existing_data = {
+                "name": ctx.states["info-name-edit.value"],
+                "description": ctx.states["info-description-edit.value"],
+                "spin_systems": [],
+                "methods": [],
+            }
+
+        existing_data["trigger"] = False
+
+        info_updates = display_sample_info(existing_data)
+        return [
+            "",
+            False,
+            existing_data,
+            *[no_update, no_update, no_update],
+            info_updates,
+            *[no_update, no_update, no_update],
+        ]
 
     no_updates = [no_update] * 7
     if_error_occurred = [True, existing_data, *no_updates]
@@ -371,6 +398,8 @@ def modified_method(existing_method_data, new_method):
     if new_method["operation"] == "add":
         data["methods"] += [method_data]
         methods_info = update_method_info(data["methods"])
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
 
@@ -380,6 +409,8 @@ def modified_method(existing_method_data, new_method):
             method_data["experiment"] = data["methods"][index]["experiment"]
         data["methods"][index] = method_data
         methods_info = update_method_info(data["methods"])
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
 
@@ -387,6 +418,8 @@ def modified_method(existing_method_data, new_method):
     if new_method["operation"] == "duplicate":
         data["methods"] += [method_data]
         methods_info = update_method_info(data["methods"])
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
 
@@ -395,6 +428,8 @@ def modified_method(existing_method_data, new_method):
         if index is None:
             raise PreventUpdate
         del data["methods"][index]
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         methods_info = update_method_info(data["methods"])
         default[2], default[5] = data, methods_info
         return default
@@ -421,6 +456,8 @@ def modified_spin_system(existing_data, new_spin_system):
         data["spin_systems"][index] = spin_system_data
         config["index_last_modified"] = index
 
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         spin_systems_info = update_spin_system_info(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
         return default
@@ -434,6 +471,8 @@ def modified_spin_system(existing_data, new_spin_system):
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         spin_systems_info = update_spin_system_info(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
         return default
@@ -447,6 +486,8 @@ def modified_spin_system(existing_data, new_spin_system):
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         spin_systems_info = update_spin_system_info(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
         return default
@@ -465,6 +506,8 @@ def modified_spin_system(existing_data, new_spin_system):
         del data["spin_systems"][index]
         config["index_last_modified"] = index
 
+        info_updates = display_sample_info(data)
+        default[6] = info_updates
         spin_systems_info = update_spin_system_info(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
         return default
@@ -550,6 +593,15 @@ def parse_data(data, parse_method=True, parse_spin_system=True):
 
 def assemble_data(data):
     config = {"is_new_data": True, "index_last_modified": 0, "length_changed": False}
+
+    pack = [no_update] * 3
+    if "config" in data.keys():
+        if data["config"] != {}:
+            integration_density = data["config"]["integration_density"]
+            integration_volume = data["config"]["integration_volume"]
+            number_of_sidebands = data["config"]["number_of_sidebands"]
+            pack = [integration_density, integration_volume, number_of_sidebands]
+
     return [
         "",
         False,
@@ -557,10 +609,8 @@ def assemble_data(data):
         config,
         update_spin_system_info(data["spin_systems"]),
         update_method_info(data["methods"]),
-        update_sample_info(data),
-        data["config"]["integration_density"],
-        data["config"]["integration_volume"],
-        data["config"]["number_of_sidebands"],
+        display_sample_info(data),
+        *pack,
     ]
 
 

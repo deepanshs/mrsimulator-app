@@ -27,7 +27,11 @@ def update_method_info(methods):
 
         # method channel(s)
         channels = ", ".join(method["channels"])
-        local.append(html.Div(["Channel: ", channels], className="pl-2"))
+        local.append(html.Div(f"Channel: {channels}"))
+
+        # n dimensions
+        n_dim = len(method["spectral_dimensions"])
+        local.append(html.Div(f"Dimensions: {n_dim}"))
 
         # local.append(html.Br())
         output.append(

@@ -220,6 +220,9 @@ def simulation(
     if len(local_mrsim_data["spin_systems"]) == 0:
         raise PreventUpdate
 
+    if "trigger" in local_mrsim_data:
+        if not local_mrsim_data["trigger"]:
+            raise PreventUpdate
     # if not check_for_spin_system_update(local_mrsim_data, previous_local_mrsim_data):
     #     raise PreventUpdate
 
@@ -377,7 +380,6 @@ def plot(
 
         try:
             [item.to("ppm", "nmr_frequency_ratio") for item in current_data.dimensions]
-            x = current_data.dimensions[0].coordinates.value
         except (ZeroDivisionError, ValueError):
             pass
 
@@ -448,12 +450,18 @@ def plot(
                     if name == "":
                         name = None
                     data.append(
-                        go.Heatmap(
-                            x=x,
-                            y=y,
+                        go.Contour(
+                            dx=x[1] - x[0],
+                            dy=y[1] - y[0],
+                            x0=x[0],
+                            y0=y[0],
                             z=datum.components[0] / maximum,
+                            fillcolor=False,
+                            # type="heatmap",
+                            showscale=False,
                             # mode="lines",
                             opacity=0.6,
+                            colorscale="dense",
                             # line={"width": 1.2},
                             # fill="tozeroy",
                             name=name,
@@ -467,14 +475,17 @@ def plot(
                         dy=y[1] - y[0],
                         x0=x[0],
                         y0=y[0],
-                        # y=y,
                         z=y_data.dependent_variables[0].components[0],
+                        type="heatmap",
+                        showscale=False,
                         # line_smoothing=0,
                         # contours_coloring="lines",
                         # line_width=1.2,
                         # mode="lines",
                         # line={"color": "black", "width": 1.2},
-                        colorscale="viridis",
+                        colorscale="dense",
+                        # "tempo", "curl", "armyrose", "dense",  # "electric_r",
+                        # zmid=0,
                         name="simulation",
                     )
                 )
@@ -546,10 +557,9 @@ def plot(
     data_object = {"data": data, "layout": go.Layout(**layout)}
 
     if trigger_id in [
-        "decompose",
         "local-exp-external-data",
         "normalize_amp",
-        "nmr_spectrum",
+        # "nmr_spectrum",
     ]:
         return [data_object, no_update]
     if local_computed_data is None:

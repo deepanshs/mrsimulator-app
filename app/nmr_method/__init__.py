@@ -122,7 +122,11 @@ method_title = html.Div(html.Label(id="method-title"), className="spin-system-ti
 method_description = html.Div(
     [
         html.Label("Description"),
-        dbc.Textarea(placeholder="Add a description ... ", id="method-description"),
+        dbc.Textarea(
+            placeholder="Add a description ... ",
+            id="method-description",
+            style={"height": "12rem"},
+        ),
     ],
     className="container",
 )
@@ -147,7 +151,7 @@ method_contents = dbc.Tabs(
         ),
         dbc.Tab(
             label="Signal Processing",
-            children=[post_simulation(2)],
+            children=[post_simulation(1)],
             className="tab-scroll method",
         ),
     ],

@@ -27,7 +27,6 @@ input[type="search"]:focus {
 
 .formtext,
 .formtext a {
-  font-size: 0.9rem;
   color: #efeefc;
   padding: 0;
 }
@@ -46,17 +45,15 @@ input[type="search"]:focus {
   /* margin-left: 1rem;
   margin-right: 1rem; */
   overflow: hidden;
-  border: 1px solid silver;
+  border: none;
   min-height: var(--content-min-height);
   height: var(--content-max-height);
-  border-radius: 0.3rem;
 }
 
 #spectrum-body.my-card {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 0;
-  padding-left: 1.75rem;
+  border-radius: 0.6em;
+  border: 1px solid silver;
+  margin: 1rem;
 }
 
 #spectrum-body .dash-graph {
@@ -66,6 +63,7 @@ input[type="search"]:focus {
 #spin-system-body.my-card,
 #method-body.my-card,
 #info-body.my-card {
+  margin-top: 1rem;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right: 0;
@@ -249,6 +247,20 @@ input[type="search"]:focus {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
+.icon-button,
+.icon-button:hover,
+.icon-button:active {
+  background: none;
+  color: #97979779;
+  border: none;
+  padding-bottom: 0.3rem;
+  float: right;
+  transition: all 0.2s ease;
+}
+.icon-button:hover {
+  color: #535353;
+  transition: all 0.2s ease;
+}
 @media only screen and (max-width: 912px) {
   #spectrum-body.my-card {
     padding-left: 0.25rem;

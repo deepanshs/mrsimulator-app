@@ -304,7 +304,7 @@ app.clientside_callback(
     ),
     Output("export-simulation-from-method-link", "href"),
     [Input("export-simulation-from-method", "n_clicks")],
-    [State("local-processed-data", "data"), State("decompose", "active")],
+    [State("local-processed-data", "data")],
     prevent_initial_call=True,
 )
 

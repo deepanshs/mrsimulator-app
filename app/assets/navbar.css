@@ -40,10 +40,9 @@
 
 .logo-version {
   position: relative;
-  top: -2.6rem;
+  top: -3rem;
   left: 7rem;
   color: #dbdbdb;
-  font-size: small;
   font-weight: 600;
   height: 0;
 }

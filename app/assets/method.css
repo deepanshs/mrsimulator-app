@@ -5,7 +5,7 @@
 .met-slide .slider2,
 .met-slide-offset .slider1,
 .met-slide-offset .slider2 {
-  height: calc(var(--spin-system-content-max-height) - 95px);
+  height: var(--content-max-height);
 }
 
 .met-slide-offset {
@@ -77,7 +77,7 @@
 
 #dim-tab > div > div > .tab-content {
   display: block;
-  width: calc(100% - 2.5em);
+  overflow: hidden;
 }
 
 /* media for spin systems and methods*/

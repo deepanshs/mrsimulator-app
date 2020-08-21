@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import math
 from datetime import datetime
 
 import dash_html_components as html
@@ -121,17 +120,17 @@ def update_spin_system_info(json_data):
     for i, spin_system in enumerate(json_data):
         local = []
 
-        name_div = html.B(f"Spin system {i}", className="")
+        title = html.B(f"Spin system {i}", className="")
+        local.append(title)
         if "name" in spin_system:
             if spin_system["name"] not in ["", None]:
-                name_div = html.B(spin_system["name"], className="")
-
-        local.append(name_div)
+                name = spin_system["name"]
+                local.append(html.Div(f"Name: {name}", className=""))
 
         if "description" in spin_system:
             description = spin_system["description"]
-            if description not in ["", None] and len(description) > 22:
-                description = f"{description[:22]}..."
+            if description not in ["", None] and len(description) > 15:
+                description = f"{description[:15]}..."
             local.append(html.Div(description, className=""))
 
         abundance = (
@@ -139,27 +138,8 @@ def update_spin_system_info(json_data):
         )
         local.append(html.Div(f"Abundance: {abundance} %", className=""))
 
-        if "sites" in spin_system:
-            for site in spin_system["sites"]:
-                for site_attribute, val in site.items():
-                    if isinstance(val, dict):
-                        local.append(
-                            html.Div(
-                                f"{label_dictionary[site_attribute]}", className="pl-2"
-                            )
-                        )
-                        for key, value in val.items():
-                            if value is not None:
-                                value = (
-                                    math.degrees(value)
-                                    if key in ["alpha", "beta", "gamma"]
-                                    else value
-                                )
-                                value = value * 1e-6 if key == "Cq" else value
-                                local.append(attribute_value_pair(key, value, 4))
-                    else:
-                        local.append(attribute_value_pair(site_attribute, val, 2))
-
+        n_sites = len(spin_system["sites"])
+        local.append(html.Div(f"Sites: {n_sites}"))
         output.append(
             html.Li(
                 [

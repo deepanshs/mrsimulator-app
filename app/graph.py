@@ -58,7 +58,6 @@ DEFAULT_FIGURE = {
             showline=True,
             zeroline=False,
             autorange=True,
-            rangemode="tozero",
         ),
         autosize=True,
         # transition={"duration": 175, "easing": "sin-out", "ordering": "traces first"},

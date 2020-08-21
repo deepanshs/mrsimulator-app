@@ -204,7 +204,7 @@ window.dash_clientside.clientside = {
     if (max_index === 1) {
       // add
       result.data = {
-        name: `Spin system ${l}`,
+        name: `System ${l}`,
         description: "",
         abundance: 1,
         sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],

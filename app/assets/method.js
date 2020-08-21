@@ -4,39 +4,38 @@
  */
 
 window.dash_clientside.method = {
-  export_simulation_from_selected_method: function (n, data, decompose) {
+  export_simulation_from_selected_method: function (n, data) {
     if (n == null || data == null) {
       throw window.dash_clientside.PreventUpdate;
     }
     let i = get_method_index();
-    let j, objLength;
 
     // get the data corresponding to the selected method.
     let selectedData = data[i];
     console.log(selectedData);
 
-    // if decompose is false, add the data from all dependent variables.
-    if (!decompose) {
-      let sum, obj, component, ix, len;
-      obj = selectedData.csdm.dependent_variables;
-      objLength = obj.length;
-      // get the data corresponding to the first dependent variable and add the
-      // rest to it.
-      sum = decodeFromBase64(obj[0].components[0]);
-      console.log(sum);
-      len = sum.length;
-      for (j = objLength; j-- > 1; ) {
-        component = decodeFromBase64(obj[j].components[0]);
-        for (ix = len; ix-- > 0; ) sum[ix] += component[ix];
-        obj.pop();
-      }
-      console.log(sum);
-      let base64String = btoa(
-        String.fromCharCode(...new Uint8Array(sum.buffer))
-      );
-      //   let base64String = Buffer.from(sum.buffer).toString('base64');
-      obj[0].components[0] = base64String;
-    }
+    // // if decompose is false, add the data from all dependent variables.
+    // if (!decompose) {
+    //   let sum, obj, component, ix, len;
+    //   obj = selectedData.csdm.dependent_variables;
+    //   objLength = obj.length;
+    //   // get the data corresponding to the first dependent variable and add the
+    //   // rest to it.
+    //   sum = decodeFromBase64(obj[0].components[0]);
+    //   console.log(sum);
+    //   len = sum.length;
+    //   for (j = objLength; j-- > 1; ) {
+    //     component = decodeFromBase64(obj[j].components[0]);
+    //     for (ix = len; ix-- > 0; ) sum[ix] += component[ix];
+    //     obj.pop();
+    //   }
+    //   console.log(sum);
+    //   let base64String = btoa(
+    //     String.fromCharCode(...new Uint8Array(sum.buffer))
+    //   );
+    //   //   let base64String = Buffer.from(sum.buffer).toString('base64');
+    //   obj[0].components[0] = base64String;
+    // }
 
     // prepare the download.
     let dataStr = "data:text/json;charset=utf-8,";
@@ -91,7 +90,8 @@ window.methods = {
     let data = storeData.data;
     let method = data.methods[index];
     let sd, i, j;
-    var li = $("#dim-tab div div ul.vertical-tabs li");
+    let ul = $("#dim-tab div div ul.vertical-tabs");
+    let li = $("#dim-tab div div ul.vertical-tabs li");
     $("#method-title")[0].innerHTML = method.name;
 
     setValue(`method-description`, method.description);
@@ -131,9 +131,22 @@ window.methods = {
       }
     }
 
+    // hide the transition symmetry option for the last entry
+    // i = method.spectral_dimensions.length - 1;
+    // j = method.spectral_dimensions[i].events.length - 1;
+    // hideElement(`transition-${i}-${j}-left-label`);
+    // hideElement(`transition-${i}-${j}`);
+    // hideElement(`transition-${i}-${j}-right-label`);
+
     // hide dimension tabs that are not applicable for the given method
     for (i = method.spectral_dimensions.length; i < 2; i++) {
       li[i].classList.add("hide-display");
+    }
+    if (method.spectral_dimensions.length === 1) {
+      li[0].children[0].click();
+      ul[0].classList.add("hide-display");
+    } else {
+      ul[0].classList.remove("hide-display");
     }
   },
   updateData: function () {
