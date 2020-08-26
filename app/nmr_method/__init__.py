@@ -123,6 +123,7 @@ method_description = html.Div(
     [
         html.Label("Description"),
         dbc.Textarea(
+            value="",
             placeholder="Add a description ... ",
             id="method-description",
             style={"height": "12rem"},

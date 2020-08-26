@@ -191,7 +191,7 @@ window.dash_clientside.clientside = {
 
     l = data.spin_systems.length;
     let result = {};
-    if (max_index === 0) {
+    if (max_index === 0 || max_index >= 4) {
       // modify
       result.data = extract_site_object_from_fields();
       result.index = get_spin_system_index();

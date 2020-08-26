@@ -36,6 +36,7 @@ sample_title = [
 sample_description = [
     dbc.FormText("Description"),
     dbc.Textarea(
+        value="",
         placeholder="Add description",
         id="info-description-edit",
         style={"height": "12rem"},

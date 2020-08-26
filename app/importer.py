@@ -181,6 +181,8 @@ spectrum_import_layout = upload_data(
         Input("upload-and-add-spin-system-button", "contents"),
         # method->add measurement
         Input("import-measurement-for-method", "contents"),
+        # method->remove measurement
+        Input("remove-measurement-from-method", "n_clicks"),
         # graph->drag and drop
         Input("upload-from-graph", "contents"),
         Input("upload-spin-system-url-submit", "n_clicks"),
@@ -231,6 +233,7 @@ def update_simulator(*args):
     volume = ctx.states["integration_volume.value"]
     n_ssb = ctx.states["number_of_sidebands.value"]
     if existing_data is not None:
+        existing_data["trigger"] = True
         if "config" in existing_data:
             existing_data["config"]["decompose_spectrum"] = decompose
             existing_data["config"]["integration_density"] = density
@@ -349,19 +352,28 @@ def update_simulator(*args):
             spectral_dim[i]["reference_offset"] = dim.coordinates_offset.to("Hz").value
             spectral_dim[i]["origin_offset"] = dim.origin_offset.to("Hz").value
 
-        methods_info = update_method_info(existing_data["methods"])
+        # methods_info = update_method_info(existing_data["methods"])
         return [
             "",
             False,
             existing_data,
             no_update,
             no_update,
-            methods_info,
+            no_update,  # methods_info,
             no_update,
             no_update,
             no_update,
             no_update,
         ]
+
+    if trigger_id == "remove-measurement-from-method":
+        # existing_data["trigger"] = False
+
+        index = ctx.states["select-method.value"]
+        method = existing_data["methods"][index]
+        method["experiment"] = None
+
+        return ["", False, existing_data, *no_updates]
 
     # Load a sample from drag and drop on the graph reqion
     # The following section applies to when the spin-systems update is triggered from

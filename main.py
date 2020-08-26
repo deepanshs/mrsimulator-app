@@ -516,7 +516,7 @@ def plot(
                 dx=dx,
                 y=y_spectrum.real,
                 mode="lines",
-                line={"color": "grey", "width": 1.2},
+                line={"color": "#af0072", "width": 1.2},
                 name="experiment",
             )
         )
