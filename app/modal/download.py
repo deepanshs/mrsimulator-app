@@ -31,8 +31,8 @@ __email__ = ["deepansh2012@gmail.com"]
 # Select format
 select_format = dcc.Dropdown(
     id="select-format",
-    options=[{"label": "Mrsimulator file (.JSON)", "value": "json"}],
-    value="json",
+    options=[{"label": "Mrsimulator file (.mrsim)", "value": "mrsim"}],
+    value="mrsim",
     clearable=False,
     searchable=False,
 )
@@ -80,10 +80,11 @@ def file_download_link(
 
     for item in simulator_data["methods"]:
         for dv in item["simulation"]["csdm"]["dependent_variables"]:
-            dv.pop("application")
+            if "application" in dv.keys():
+                dv.pop("application")
 
-    if format_value == "json":
-        filename += ".json"
+    if format_value == "mrsim":
+        filename += ".mrsim"
         relative_filename = os.path.join("downloads", filename)
         with open(relative_filename, "w") as f:
             json.dump(simulator_data, f)
@@ -93,12 +94,12 @@ def file_download_link(
         raise PreventUpdate
 
     content = local_processed_data
-    if not decompose:
-        data = cp.parse_dict(local_processed_data)
-        d_ = 0
-        for item in data.split():
-            d_ += item
-        content = d_.to_dict(update_timestamp=True)
+    # if not decompose:
+    #     data = cp.parse_dict(local_processed_data)
+    #     d_ = 0
+    #     for item in data.split():
+    #         d_ += item
+    #     content = d_.to_dict(update_timestamp=True)
 
     if format_value == "csdf":
         filename += ".csdf"

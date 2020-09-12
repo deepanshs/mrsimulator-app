@@ -16,13 +16,15 @@ from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
 from app.nmr_method.post_simulation_widgets import gaussian_linebroadening_widget
-from app.nmr_method.simulation_widgets import environment
+from app.nmr_method.simulation_widgets import property_setup
 from app.nmr_method.simulation_widgets import spectral_dimension_ui
 from app.spin_system import isotope_options_list
 
 METHOD_LIST = {
     "BlochDecaySpectrum": mt.BlochDecaySpectrum().reduced_dict(),
     "BlochDecayCTSpectrum": mt.BlochDecayCentralTransitionSpectrum().reduced_dict(),
+    # "MQVAS": mt.MQVAS(spectral_dimensions=[{}, {}]).reduced_dict(),
+    # "Custom2D": mt.Custom2D(spectral_dimensions=[{}, {}]).reduced_dict(),
 }
 
 
@@ -32,6 +34,8 @@ METHOD_OPTIONS = [
         "label": "Bloch Decay Central Transition Spectrum",
         "value": "BlochDecayCTSpectrum",
     },
+    # {"label": "Multi-quantum variable-angle spinning", "value": "MQVAS"},
+    # {"label": "Custom 2D method", "value": "Custom2D"},
 ]
 
 __author__ = ["Deepansh J. Srivastava"]
@@ -41,20 +45,32 @@ __email__ = ["deepansh2012@gmail.com"]
 # nmr_method parameters
 def generate_parameters(n_dimensions):
     """Create a spectral dimension interface."""
-    # channel
-    channel_ = dbc.InputGroup(
-        [
-            dbc.InputGroupAddon("Channel", addon_type="prepend"),
-            dbc.Select(options=isotope_options_list, value="1H", id="channel"),
-        ],
-        className="container",
-    )
+
+    # flux_density = custom_input_group(
+    #     prepend_label="Magnetic flux density (H₀)",
+    #     append_label="T",
+    #     value=9.4,
+    #     id=f"magnetic_flux_density-0",
+    #     min=0.0,
+    #     debounce=True,
+    # )
+
+    # # rotor frequency
+    # rotor_frequency = custom_input_group(
+    #     prepend_label="Rotor frequency (𝜈ᵣ)",
+    #     append_label="kHz",
+    #     value=0.0,
+    #     id=f"rotor_frequency-0",
+    #     min=0.0,
+    #     debounce=True,
+    #     # list=["0", "54.7356", "30", "60", "90"],
+    # )
 
     # create environment => widgets for
     # 1) magnetic flux density,
     # 2) rotor frequency, and
     # 3) rotor angle
-    environment_ = custom_card(text="Environment", children=environment(0))
+    # environment_ = custom_card(text="Environment", children=environment(0, 0))
 
     # create spectral dimension => widgets for
     # 1) number of points,
@@ -62,11 +78,15 @@ def generate_parameters(n_dimensions):
     # 3) reference offset, and
     # 4) origin offset
     spectral_dimension_ui_ = [
-        custom_card(text=f"Spectral dimension - {i}", children=spectral_dimension_ui(i))
+        custom_card(
+            text=f"Spectral dimension - {i}",
+            children=spectral_dimension_ui(i),
+            # id=f"spec-dim-{i}",
+        )
         for i in range(n_dimensions)
     ]
 
-    return html.Div([channel_, environment_, *spectral_dimension_ui_])
+    return html.Div(spectral_dimension_ui_)
 
 
 def post_simulation(n_dimensions):
@@ -90,6 +110,11 @@ submit_button = html.Div(
     className="submit-button",
 )
 
+edit_button = html.Div(
+    custom_button(text="Edit Method", id="edit-method", color="primary"),
+    className="submit-button",
+)
+
 # method-title
 method_title = html.Div(html.Label(id="method-title"), className="spin-system-title")
 
@@ -97,32 +122,55 @@ method_title = html.Div(html.Label(id="method-title"), className="spin-system-ti
 method_description = html.Div(
     [
         html.Label("Description"),
-        dbc.Textarea(placeholder="Add a description ... ", id="method-description"),
-    ]
+        dbc.Textarea(
+            value="",
+            placeholder="Add a description ... ",
+            id="method-description",
+            style={"height": "12rem"},
+        ),
+    ],
+    className="container",
 )
 
+
+dimensions_tab = dbc.Tabs(
+    [
+        dbc.Tab(label="0", children=property_setup(0), id="dim-0"),
+        dbc.Tab(label="1", children=property_setup(1), id="dim-1"),
+    ],
+    # vertical=True,
+    className="vertical-tabs",
+)
 # method contents
 method_contents = dbc.Tabs(
     children=[
+        dbc.Tab(label="Dimensions", children=dimensions_tab, id="dim-tab"),
         dbc.Tab(
-            label="Properties",
-            children=[generate_parameters(1)],
+            label="Metadata",
+            children=[method_description],
             className="tab-scroll method",
         ),
         dbc.Tab(
-            label="Metadata",
-            children=html.Div(
-                [method_description], className="method-scroll scroll-cards container"
-            ),
+            label="Signal Processing",
+            children=[post_simulation(1)],
+            className="tab-scroll method",
         ),
-        dbc.Tab(label="Post Simulation", children=[post_simulation(1)]),
     ],
     id="dimension-tabs",
 )
 
+# channels
+channel = dbc.InputGroup(
+    [
+        dbc.InputGroupAddon("Channel", addon_type="prepend"),
+        dbc.Select(options=isotope_options_list, value="1H", id="channel"),
+    ],
+    className="container",
+)
+
 # method editor
 method_editor = html.Div(
-    [dbc.Card([method_title, method_contents]), submit_button],
+    [dbc.Card([method_title, channel, method_contents]), submit_button],
     id="method-editor-content",
 )
 
@@ -165,6 +213,28 @@ method_list_dropdown = dbc.Modal(
     id="method-modal",
 )
 
+# # edit in modal
+
+# columns = [
+#     {"id": "spectral_dimension", "name": "Spectral_dimension"},
+#     {"id": "magnetic_flux_density", "name": "Magnetic flux density"},
+#     {"id": "rotor_frequency", "name": "Rotor frequency"},
+#     {"id": "rotor_angle", "name": "Rotor angle"},
+# ]
+
+# edit_in_modal = dbc.Modal(
+#     [
+#         dbc.ModalHeader("Edit Method"),
+#         dbc.ModalBody(
+#             dash_table.DataTable(
+#                 id="table-editing-simple", columns=columns, editable=True,
+#             )
+#         ),
+#     ],
+#     id="method_edit_modal",
+#     is_open=False,
+# )
+
 # dimension layout
 dimension_body = html.Div(
     className="my-card hide-window",
@@ -172,6 +242,7 @@ dimension_body = html.Div(
         html.Div([method_header, search_method], className="card-header"),
         method_slide,
         method_list_dropdown,
+        # edit_in_modal,
     ],
     id="method-body",
 )
@@ -195,7 +266,7 @@ dimension_body = html.Div(
 #         State("magnetic_flux_density-0", "value"),
 #         State("rotor_frequency-0", "value"),
 #         State("rotor_angle-0", "value"),
-#         State("local-spin-systems-data", "data"),
+#         State("local-mrsim-data", "data"),
 #     ],
 # )
 # def get_method_dict(*args):
@@ -204,7 +275,7 @@ dimension_body = html.Div(
 
 #     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-#     existing_data = ctx.states["local-spin-systems-data.data"]
+#     existing_data = ctx.states["local-mrsim-data.data"]
 #     data = (
 #         existing_data
 #         if existing_data is not None
@@ -292,3 +363,16 @@ app.clientside_callback(
     [State("method-from-template", "data")],
     prevent_initial_call=True,
 )
+
+
+# @app.callback(
+#     [Output("table-editing-simple", "data"), Output("method_edit_modal", "is_open")],
+#     [Input("edit-method", "n_clicks_timestamp")],
+#     [State("local-mrsim-data", "data"), State("current-method-index", "data")],
+#     prevent_initial_call=True,
+# )
+# def render_method_table(n, data, i):
+#     print("render_ table", n)
+#     print(data["methods"][i])
+#     table = events_table(data["methods"][i])
+#     return table, True

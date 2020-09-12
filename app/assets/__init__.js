@@ -18,7 +18,6 @@ if (!window.localStorage.getItem("user-config")) {
 
 // clear session storage on refresh
 window.sessionStorage.clear();
-window.sessionStorage.setItem("current-spin-system-index", 0);
 
 var storeData = {
   previousIndex: 0,
@@ -66,7 +65,7 @@ window.dash_clientside.clientside = {
 
   on_spin_systems_load: function (x, config) {
     storeData.data = JSON.parse(
-      window.sessionStorage.getItem("local-spin-systems-data")
+      window.sessionStorage.getItem("local-mrsim-data")
     );
     let listomers = $("#spin-system-read-only div.display-form ul li");
 
@@ -107,7 +106,7 @@ window.dash_clientside.clientside = {
 
   on_methods_load: function (x, config) {
     storeData.data = JSON.parse(
-      window.sessionStorage.getItem("local-spin-systems-data")
+      window.sessionStorage.getItem("local-mrsim-data")
     );
     let listomers = $("#method-read-only div.display-form ul li");
 
@@ -130,10 +129,10 @@ window.dash_clientside.clientside = {
     listomers.each(function () {
       let index = 0;
       $(this).click(function (e) {
-        // spin_system_on_click(this);
+        // method_on_click(this);
         default_li_item_action(this);
 
-        // store the current-spin-system-index in the session
+        // store the current-method-index in the session
         index = $(this).index();
         set_method_index(index);
 
@@ -192,7 +191,7 @@ window.dash_clientside.clientside = {
 
     l = data.spin_systems.length;
     let result = {};
-    if (max_index === 0) {
+    if (max_index === 0 || max_index >= 4) {
       // modify
       result.data = extract_site_object_from_fields();
       result.index = get_spin_system_index();
@@ -205,7 +204,7 @@ window.dash_clientside.clientside = {
     if (max_index === 1) {
       // add
       result.data = {
-        name: `Spin system ${l}`,
+        name: `System ${l}`,
         description: "",
         abundance: 1,
         sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],

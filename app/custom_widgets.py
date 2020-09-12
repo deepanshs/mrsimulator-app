@@ -55,7 +55,13 @@ def custom_hover_help(message="", id=None):
 
 
 def custom_button(
-    text="", children="", icon_classname="", id=None, tooltip=None, **kwargs
+    text="",
+    children="",
+    icon_classname="",
+    id=None,
+    tooltip=None,
+    module="dbc",
+    **kwargs,
 ):
     """A custom dash bootstrap component button with added tooltip and icon option.
 
@@ -75,10 +81,18 @@ def custom_button(
             className="d-flex align-items-center",
         )
     if tooltip is not None:
-        return dbc.Button(
+        if module == "dbc":
+            return dbc.Button(
+                [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)],
+                id=id,
+                **kwargs,
+            )
+        return html.Button(
             [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
         )
-    return dbc.Button(label, id=id, **kwargs)
+    if module == "dbc":
+        return dbc.Button(label, id=id, **kwargs)
+    return html.Button(label, id=id, **kwargs)
 
 
 def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
@@ -111,8 +125,10 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     return button
 
 
-def custom_card(text, children):
-    return html.Div([html.H6(text), children], className="scroll-cards")
+def custom_card(text, children, id=None):
+    if id is None:
+        return html.Div([html.H6(text), children], className="scroll-cards")
+    return html.Div([html.H6(text), children], id=id, className="scroll-cards")
 
 
 def custom_slider(label="", return_function=None, **kwargs):
@@ -202,11 +218,16 @@ def custom_input_group(
     """
     append_label = append_label if append_label is not None else ""
 
+    id_ = kwargs["id"]
     return html.Div(
         [
-            html.Label(className="label-left", children=prepend_label),
+            html.Label(
+                className="label-left", id=f"{id_}-left-label", children=prepend_label
+            ),
             dcc.Input(type=input_type, autoComplete="off", **kwargs),
-            html.Label(className="label-right", children=append_label),
+            html.Label(
+                className="label-right", id=f"{id_}-right-label", children=append_label
+            ),
         ],
         className="input-form-2",
     )

@@ -18,12 +18,22 @@ def update_method_info(methods):
 
     for i, method in enumerate(methods):
         local = []
-        local.append(html.B(method["name"], className=""))
+        local.append(html.B(f"Method-{i}", className=""))
+
+        # method name
+        name = method["name"]
+        name = f"{name[:15]}..." if len(name) > 15 else name
+        local.append(html.Div(name, className=""))
+
+        # method channel(s)
         channels = ", ".join(method["channels"])
-        local.append(html.Div(["Channel: ", channels], className="pl-2"))
+        local.append(html.Div(f"Channel: {channels}"))
+
+        # n dimensions
+        n_dim = len(method["spectral_dimensions"])
+        local.append(html.Div(f"Dimensions: {n_dim}"))
 
         # local.append(html.Br())
-
         output.append(
             html.Li(
                 [

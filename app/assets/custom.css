@@ -5,6 +5,17 @@ input[type="search"]:focus {
 .nav-tabs {
   flex-wrap: nowrap;
 }
+.nav-tabs > .nav-item {
+  cursor: pointer;
+}
+.nav-tabs > .nav-item > .nav-link {
+  border: 1px solid #c0c0c0a9;
+  border-bottom: none;
+}
+.nav-tabs > .nav-item > .nav-link.active {
+  border-top: 3px solid var(--select-blue);
+  background-color: #f4f9ff;
+}
 
 .nav-item a {
   padding-left: 0.75rem;
@@ -16,7 +27,6 @@ input[type="search"]:focus {
 
 .formtext,
 .formtext a {
-  font-size: 0.9rem;
   color: #efeefc;
   padding: 0;
 }
@@ -31,19 +41,19 @@ input[type="search"]:focus {
 
 [id$="-body"].my-card {
   width: 49vw;
-  max-width: calc(0.48 * (var(--max-display-width) + 3.5rem));
+  /* max-width: calc(0.48 * (var(--max-display-width) + 3.5rem)); */
+  /* margin-left: 1rem;
+  margin-right: 1rem; */
   overflow: hidden;
-  border: 1px solid silver;
+  border: none;
   min-height: var(--content-min-height);
   height: var(--content-max-height);
-  border-radius: 0.3rem;
 }
 
 #spectrum-body.my-card {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 0;
-  padding-left: 1.75rem;
+  border-radius: 0.6em;
+  border: 1px solid silver;
+  margin: 1rem;
 }
 
 #spectrum-body .dash-graph {
@@ -53,6 +63,7 @@ input[type="search"]:focus {
 #spin-system-body.my-card,
 #method-body.my-card,
 #info-body.my-card {
+  margin-top: 1rem;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right: 0;
@@ -74,10 +85,10 @@ input[type="search"]:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #c8e1ff;
+  border-bottom: 1px solid #bebebe;
   padding-left: 1em;
   padding-right: 1em;
-  background-color: #f1f8ff;
+  background-color: #f8f8f8;
 }
 
 .card-header input {
@@ -138,10 +149,11 @@ input[type="search"]:focus {
 }
 
 .scroll-cards h6 {
-  padding-top: 1rem;
+  padding: 1rem;
+  padding-bottom: 0;
   margin-bottom: 0;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  /* padding-left: 1rem;
+  padding-right: 1rem; */
   text-transform: capitalize;
 }
 
@@ -149,12 +161,14 @@ input[type="search"]:focus {
   margin: 0;
 }
 
-.scroll-cards h6 div {
+.scroll-cards h6 div,
+.scroll-cards p div {
   display: flex;
   justify-content: space-between;
 }
 
-.scroll-cards h6 div svg {
+.scroll-cards h6 div svg,
+.scroll-cards b div svg {
   cursor: pointer;
 }
 
@@ -233,6 +247,20 @@ input[type="search"]:focus {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
+.icon-button,
+.icon-button:hover,
+.icon-button:active {
+  background: none;
+  color: #97979779;
+  border: none;
+  padding-bottom: 0.3rem;
+  float: right;
+  transition: all 0.2s ease;
+}
+.icon-button:hover {
+  color: #535353;
+  transition: all 0.2s ease;
+}
 @media only screen and (max-width: 912px) {
   #spectrum-body.my-card {
     padding-left: 0.25rem;

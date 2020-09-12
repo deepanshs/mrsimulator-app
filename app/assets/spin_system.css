@@ -5,7 +5,7 @@
 .iso-slide .slider2,
 .iso-slide-offset .slider1,
 .iso-slide-offset .slider2 {
-  height: calc(var(--spin-system-content-max-height) - 95px);
+  height: var(--content-max-height);
 }
 
 .iso-slide-offset {
@@ -87,7 +87,6 @@
 .display-form ul {
   height: 100%;
   width: 100%;
-  font-size: 14px;
   line-height: 1.2;
   font-weight: 300;
   color: rgb(53, 53, 53);
@@ -140,6 +139,7 @@
 .display-form li a {
   scroll-snap-align: start;
   padding: 1rem;
+  font-size: 0.9rem;
   width: var(--opt-side-scroll-width);
 }
 
@@ -148,11 +148,11 @@
 }
 
 .display-form li.active {
-  background-color: #ffece6;
+  background-color: #e1f0ff;
   color: black;
   font-weight: 400;
-  border-top: 1px solid silver;
-  border-bottom: 3px solid orangered;
+  border-top: 1px solid var(--select-blue);
+  border-bottom: 3px solid var(--select-blue);
 }
 
 .sub-spin-system-card {
@@ -233,7 +233,6 @@
 
 .input-text-description {
   color: rgb(77, 77, 77);
-  font-size: 0.95rem;
 }
 
 /* media for spin-systems and methods*/

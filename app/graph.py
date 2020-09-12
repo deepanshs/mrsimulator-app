@@ -58,16 +58,19 @@ DEFAULT_FIGURE = {
             showline=True,
             zeroline=False,
             autorange=True,
-            rangemode="tozero",
         ),
         autosize=True,
         # transition={"duration": 175, "easing": "sin-out", "ordering": "traces first"},
-        transition={"duration": 300, "easing": "quad", "ordering": "traces first"},
+        transition={
+            "duration": 300,
+            "easing": "quad-in-out",
+            "ordering": "traces first",
+        },
         margin={"l": 60, "b": 45, "t": 10, "r": 10},
         legend={"x": 0, "y": 1},
         hovermode="closest",
-        paper_bgcolor="rgba(255,255,255,0.1)",
-        plot_bgcolor="rgba(255,255,255,0.3)",
+        # paper_bgcolor="rgba(255,255,255,0.1)",
+        # plot_bgcolor="rgba(255,255,255,0.3)",
         template="none",
         clickmode="event+select",
     ),
@@ -113,6 +116,8 @@ plotly_graph = dcc.Graph(
     },
 )
 
+graph_loading = dcc.Loading(plotly_graph, type="dot")
+
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="initialize"),
     Output("temp1", "children"),
@@ -135,7 +140,7 @@ spectrum_body = html.Div(
                 [
                     html.Div([title, toolbar], className="card-header"),
                     toolbar_select_method,
-                    plotly_graph,
+                    graph_loading,
                     simulation_help,
                 ],
                 id="upload-from-graph",

@@ -148,8 +148,9 @@ var update_field_from_spin_system_at_index = function (index) {
   name = name == "" ? `Spin system ${index}` : name;
   $("#spin-system-title")[0].innerHTML = name;
 
-  console.log("index", index, spin_system.description);
-  setValue("spin-system-description", spin_system.description);
+  let description = spin_system.description;
+  description = description == null ? "" : description;
+  setValue("spin-system-description", description);
   setValue("spin-system-abundance", spin_system.abundance);
 
   // extract site information

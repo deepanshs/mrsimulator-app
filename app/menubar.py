@@ -61,7 +61,7 @@ mrsimulator_new = html.A(
 mrsimulator_open = dcc.Upload(
     div_icon_text_display(icon="fas fa-folder-open", text="Open..."),
     id="open-mrsimulator-file",
-    # accept=".mrsims",
+    accept=".mrsim",
 )
 # open_recent = html.Div(
 #     [
@@ -270,6 +270,14 @@ method_menu = html.Div(
                 ),
                 html.Li(
                     div_icon_text_display(
+                        "fas fa-times-circle",
+                        "Remove measurement from selected method",
+                    ),
+                    id="remove-measurement-from-method",
+                ),
+                html.Hr(),
+                html.Li(
+                    div_icon_text_display(
                         "fas fa-file-export",
                         "Export simulation from the selected method",
                     ),
@@ -304,7 +312,7 @@ app.clientside_callback(
     ),
     Output("export-simulation-from-method-link", "href"),
     [Input("export-simulation-from-method", "n_clicks")],
-    [State("local-processed-data", "data"), State("decompose", "active")],
+    [State("local-processed-data", "data")],
     prevent_initial_call=True,
 )
 

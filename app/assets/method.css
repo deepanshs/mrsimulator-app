@@ -5,7 +5,7 @@
 .met-slide .slider2,
 .met-slide-offset .slider1,
 .met-slide-offset .slider2 {
-  height: calc(var(--spin-system-content-max-height) - 95px);
+  height: var(--content-max-height);
 }
 
 .met-slide-offset {
@@ -53,8 +53,8 @@
 }
 
 .tab-scroll.method {
-  min-height: calc(var(--content-min-height) - 13.22em);
-  height: calc(var(--content-max-height) - 13.22em);
+  min-height: calc(var(--content-min-height) - 16.99em);
+  height: calc(var(--content-max-height) - 16.99em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -62,6 +62,22 @@
 .tab-scroll.method::-webkit-scrollbar,
 #method-read-only::-webkit-scrollbar {
   display: none;
+}
+
+#dim-tab > div > div {
+  display: flex;
+}
+
+.vertical-tabs {
+  flex-direction: column;
+  width: 2.5em;
+  background-color: #f0f0f0;
+  border-right: 1px solid silver;
+}
+
+#dim-tab > div > div > .tab-content {
+  display: block;
+  overflow: hidden;
 }
 
 /* media for spin systems and methods*/
@@ -74,4 +90,8 @@
   .met-slide .slider2 {
     width: calc(100% - var(--opt-side-scroll-min-width));
   }
+}
+
+[id^="transition-"] {
+  display: none;
 }
