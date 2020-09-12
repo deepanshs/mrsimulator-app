@@ -91,3 +91,7 @@
     width: calc(100% - var(--opt-side-scroll-min-width));
   }
 }
+
+[id^="transition-"] {
+  display: none;
+}

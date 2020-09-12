@@ -23,8 +23,8 @@ from app.spin_system import isotope_options_list
 METHOD_LIST = {
     "BlochDecaySpectrum": mt.BlochDecaySpectrum().reduced_dict(),
     "BlochDecayCTSpectrum": mt.BlochDecayCentralTransitionSpectrum().reduced_dict(),
-    "MQVAS": mt.MQVAS(spectral_dimensions=[{}, {}]).reduced_dict(),
-    "Custom2D": mt.Custom2D(spectral_dimensions=[{}, {}]).reduced_dict(),
+    # "MQVAS": mt.MQVAS(spectral_dimensions=[{}, {}]).reduced_dict(),
+    # "Custom2D": mt.Custom2D(spectral_dimensions=[{}, {}]).reduced_dict(),
 }
 
 
@@ -34,8 +34,8 @@ METHOD_OPTIONS = [
         "label": "Bloch Decay Central Transition Spectrum",
         "value": "BlochDecayCTSpectrum",
     },
-    {"label": "Multi-quantum variable-angle spinning", "value": "MQVAS"},
-    {"label": "Custom 2D method", "value": "Custom2D"},
+    # {"label": "Multi-quantum variable-angle spinning", "value": "MQVAS"},
+    # {"label": "Custom 2D method", "value": "Custom2D"},
 ]
 
 __author__ = ["Deepansh J. Srivastava"]

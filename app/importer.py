@@ -322,7 +322,9 @@ def update_simulator(*args):
         if contents is None:
             raise PreventUpdate
         try:
-            data = fix_missing_keys(parse_contents(contents))
+            content = {}
+            content["spin_systems"] = parse_contents(contents)
+            data = fix_missing_keys(content)
         except Exception:
             message = "Error reading spin-systems."
             return [message, *if_error_occurred]

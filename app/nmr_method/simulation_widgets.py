@@ -265,6 +265,7 @@ def environment(i, j):
         append_label="",
         value=0,
         id=f"transition-{i}-{j}",
+        style={"display": "none"},
         debounce=True,
     )
 
