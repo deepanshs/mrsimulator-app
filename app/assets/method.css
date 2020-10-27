@@ -78,6 +78,7 @@
 #dim-tab > div > div > .tab-content {
   display: block;
   overflow: hidden;
+  width: 100%;
 }
 
 /* media for spin systems and methods*/

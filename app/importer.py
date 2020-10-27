@@ -317,13 +317,28 @@ def update_simulator(*args):
     # Load a sample from drag and drop
     # The following section applies to when the spin-systems update is triggered from
     # a user uploaded file.
+    # if trigger_id == "open-mrsimulator-file":
+    #     contents = ctx.inputs[f"{trigger_id}.contents"]
+    #     if contents is None:
+    #         raise PreventUpdate
+    #     try:
+    #         data = fix_missing_keys(parse_contents(contents))
+    #     except Exception:
+    #         message = "Error reading spin-systems."
+    #         return [message, *if_error_occurred]
+    #     return assemble_data(parse_data(data))
+
     if trigger_id in ["upload-spin-system-local", "open-mrsimulator-file"]:
         contents = ctx.inputs[f"{trigger_id}.contents"]
         if contents is None:
             raise PreventUpdate
         try:
             content = {}
-            content["spin_systems"] = parse_contents(contents)
+            content_json = parse_contents(contents)
+            if isinstance(content_json, list):
+                content["spin_systems"] = content_json
+            else:
+                content = content_json
             data = fix_missing_keys(content)
         except Exception:
             message = "Error reading spin-systems."
@@ -354,14 +369,14 @@ def update_simulator(*args):
             spectral_dim[i]["reference_offset"] = dim.coordinates_offset.to("Hz").value
             spectral_dim[i]["origin_offset"] = dim.origin_offset.to("Hz").value
 
-        # methods_info = update_method_info(existing_data["methods"])
+        methods_info = update_method_info(existing_data["methods"])
         return [
             "",
             False,
             existing_data,
             no_update,
             no_update,
-            no_update,  # methods_info,
+            methods_info,  # methods_info,
             no_update,
             no_update,
             no_update,
@@ -591,14 +606,21 @@ def parse_data(data, parse_method=True, parse_spin_system=True):
     data_keys = data.keys()
     if parse_spin_system:
         if "spin_systems" in data_keys:
-            a = [
-                SpinSystem.parse_dict_with_units(_).dict() for _ in data["spin_systems"]
-            ]
+            try:
+                a = [
+                    SpinSystem.parse_dict_with_units(_).dict()
+                    for _ in data["spin_systems"]
+                ]
+            except Exception:
+                a = [_ for _ in data["spin_systems"]]
             data["spin_systems"] = [filter_dict(_) for _ in a]
 
     if parse_method:
         if "methods" in data_keys:
-            a = [Method.parse_dict_with_units(_).dict() for _ in data["methods"]]
+            try:
+                a = [Method.parse_dict_with_units(_).dict() for _ in data["methods"]]
+            except Exception:
+                a = [_ for _ in data["methods"]]
             # sim = [_["simulation"] for _ in a]
             # exp = [_["experiment"] for _ in a]
             data["methods"] = [filter_dict(_) for _ in a]
@@ -781,9 +803,9 @@ def update_list_of_methods(data):
 
 def load_csdm(content):
     """Load a JSON file. Return a list with members
-        - Success: True if file is read correctly,
-        - Data: File content is success, otherwise an empty string,
-        - message: An error message when JSON file load fails, else an empty string.
+    - Success: True if file is read correctly,
+    - Data: File content is success, otherwise an empty string,
+    - message: An error message when JSON file load fails, else an empty string.
     """
     content = str(content, encoding="UTF-8")
     try:

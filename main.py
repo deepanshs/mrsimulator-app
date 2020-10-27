@@ -2,11 +2,13 @@
 import sys
 
 import csdmpy as cp
+import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
 from dash import callback_context as ctx
 from dash import no_update
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -21,29 +23,58 @@ from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
 
-
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
 
 
-def update_page():
-    html_body = html.Div(
-        [nav_group, html.Div([sidebar, app_1], className="main-split")],
-        id="article1",
-        className="main",
-    )
-    return html_body
+html_body = html.Div(
+    [
+        dcc.Location(id="url", refresh=False),
+        html.Div(id="page-content"),
+        html.Div(id="placeholder"),
+    ],
+    className="main",
+)
 
-
-app.layout = update_page()
-
+app.layout = html_body
 
 server = app.server
+
+home = html.Div(
+    [
+        dcc.Link("Simulator", href="/simulator", id="simulator-app"),
+        dcc.Link("Inversion", href="/inversion", id="inversion-app"),
+    ],
+    className="home-screen",
+    **{"data-app-link": ""},
+)
+layout_1 = html.Div([nav_group, html.Div([sidebar, app_1], className="main-split")])
+
+layout_2 = html.Div([nav_group, html.Div(html.H3("Hello"), className="main-split")])
+
+
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+def display_page(pathname):
+    print(pathname)
+    if pathname == "/simulator":
+        return layout_1
+    if pathname == "/inversion":
+        return layout_2
+    else:
+        return home
+
+
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="initialize"),
+    Output("placeholder", "children"),
+    [Input("simulator-app", "n_clicks")],
+    prevent_initial_call=True,
+)
 
 
 def check_for_spin_system_update(new, old):
     """Return True if the spin system is updates, else False. For simulation, the system
-    is considered unchanged when metadata such as name and description is modified. """
+    is considered unchanged when metadata such as name and description is modified."""
     if old is None:
         return True
 
@@ -78,7 +109,7 @@ def check_for_spin_system_update(new, old):
 
 def check_if_old_and_new_spin_systems_data_are_equal(new, old):
     """Check if the two spin_systems are the same. This does not include the
-        name and the description of the spin_systems."""
+    name and the description of the spin_systems."""
     size1 = len(new["spin_systems"])
     size2 = len(old["spin_systems"])
     size_min = min(size1, size2)

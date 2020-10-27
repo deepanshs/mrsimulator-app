@@ -18,7 +18,7 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 button = html.Div(
-    html.I(className="fas fa-question-circle pl-1"),
+    html.I(className="fas fa-question-circle pl-1 fa-lg"),
     id="pop-up-simulation-button",
     style={"cursor": "pointer"},
 )
@@ -126,40 +126,34 @@ app.clientside_callback(
 
 title = html.Div(
     [
-        html.I(className="fac fa-spectrum"),
-        html.H5(["Simulation", button], className="title-with-help"),
+        html.I(className="fac fa-spectrum fa-lg"),
+        html.H4(["Simulation", button], className="title-with-help"),
     ]
 )
 className = "align-items-center"
 spectrum_body = html.Div(
-    [
-        html.Div(
-            id="spectrum-body",
-            className="my-card",
-            children=dcc.Upload(
-                [
-                    html.Div([title, toolbar], className="card-header"),
-                    toolbar_select_method,
-                    graph_loading,
-                    simulation_help,
-                ],
-                id="upload-from-graph",
-                disable_click=True,
-                # accept="application/json, text/plain, .csdf",
-                style_active={
-                    "border": "1px solid rgb(78, 196, 78)",
-                    "backgroundColor": "rgb(225, 255, 225)",
-                    "opacity": "0.75",
-                },
-                # style_reject={
-                #     "border": "1px solid rgb(196, 78, 78)",
-                #     "backgroundColor": "rgb(255, 225, 225)",
-                #     "opacity": "0.75",
-                #     "borderRadius": "0.8em",
-                # },
-            ),
-        )
-    ],
-    id="floating-card",
-    className="float-card",
+    id="spectrum-body",
+    className="my-card",
+    children=dcc.Upload(
+        [
+            html.Div([title, toolbar], className="card-header"),
+            toolbar_select_method,
+            graph_loading,
+            simulation_help,
+        ],
+        id="upload-from-graph",
+        disable_click=True,
+        # accept="application/json, text/plain, .csdf",
+        style_active={
+            "border": "1px solid rgb(78, 196, 78)",
+            "backgroundColor": "rgb(225, 255, 225)",
+            "opacity": "0.75",
+        },
+        # style_reject={
+        #     "border": "1px solid rgb(196, 78, 78)",
+        #     "backgroundColor": "rgb(255, 225, 225)",
+        #     "opacity": "0.75",
+        #     "borderRadius": "0.8em",
+        # },
+    ),
 )

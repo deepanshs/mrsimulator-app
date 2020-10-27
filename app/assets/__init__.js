@@ -16,9 +16,6 @@ if (!window.localStorage.getItem("user-config")) {
   );
 }
 
-// clear session storage on refresh
-window.sessionStorage.clear();
-
 var storeData = {
   previousIndex: 0,
   spin_system_index: 0,
@@ -56,10 +53,14 @@ if (!window.dash_clientside) {
 
 window.dash_clientside.clientside = {
   initialize: function (n) {
-    if (!window._user_init_) {
-      init();
-      window._user_init_ = {};
-    }
+    console.log("initialized");
+    // clear session storage on refresh
+    window.sessionStorage.clear();
+
+    init();
+
+    activateMethodTools();
+    activateSystemTools();
     return null;
   },
 
@@ -68,6 +69,29 @@ window.dash_clientside.clientside = {
       window.sessionStorage.getItem("local-mrsim-data")
     );
     let listomers = $("#spin-system-read-only div.display-form ul li");
+
+    let overView = document.querySelectorAll("[data-edit-sys]");
+    overView.forEach((edit) => {
+      edit.addEventListener("click", () => {
+        // let i = edit.dataset.editSys;
+        $("#view-spin-systems")[0].click();
+        // listomers[i].click();
+      });
+    });
+
+    overView = document.querySelectorAll("[data-table-sys] tr");
+    overView.forEach((tr) => {
+      tr.addEventListener("click", () => {
+        let i = $(tr).index();
+        overView.forEach((tr) => {
+          tr.classList.remove("active");
+        });
+        tr.classList.add("active");
+        listomers[i - 1].click();
+      });
+    });
+
+    activateSystemTools();
 
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("iso-slide");
@@ -101,6 +125,8 @@ window.dash_clientside.clientside = {
     let index = get_spin_system_index();
     index = index >= listomers.length ? 0 : index;
     select_spin_system(listomers, index);
+
+    element = index = null;
     return null;
   },
 
@@ -110,6 +136,28 @@ window.dash_clientside.clientside = {
     );
     let listomers = $("#method-read-only div.display-form ul li");
 
+    let overView = document.querySelectorAll("[data-edit-mth]");
+    overView.forEach((edit) => {
+      edit.addEventListener("click", () => {
+        // let i = edit.dataset.editSys;
+        $("#view-methods")[0].click();
+        // listomers[i].click();
+      });
+    });
+
+    overView = document.querySelectorAll("[data-table-mth] tr");
+    overView.forEach((tr) => {
+      tr.addEventListener("click", () => {
+        let i = $(tr).index();
+        overView.forEach((tr) => {
+          tr.classList.remove("active");
+        });
+        tr.classList.add("active");
+        listomers[i - 1].click();
+      });
+    });
+
+    activateMethodTools();
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("met-slide");
     if (element.classList.contains("met-slide-offset")) {
@@ -147,6 +195,7 @@ window.dash_clientside.clientside = {
     let index = get_method_index();
     index = index >= listomers.length ? 0 : index;
     select_method(listomers, index);
+    element = index = null;
     return null;
   },
 
@@ -159,7 +208,7 @@ window.dash_clientside.clientside = {
     // n2 is the trigger time for add new spin-system.
     // n3 is the trigger time for duplicate spin-system.
     // n4 is the trigger time for delete spin-system.
-    let max_index, l, new_val, i;
+    let max_index, l, i, data;
     let new_list = [];
 
     for (i = 0; i < 4; i++) {
@@ -186,54 +235,17 @@ window.dash_clientside.clientside = {
       previous_timestamps = new_list;
       max_index = new_list.indexOf(max_value);
     }
+    new_list = null;
 
-    let data = storeData.data;
-
+    data = storeData.data;
     l = data.spin_systems.length;
-    let result = {};
-    if (max_index === 0 || max_index >= 4) {
-      // modify
-      result.data = extract_site_object_from_fields();
-      result.index = get_spin_system_index();
-      result.operation = "modify";
-      // if (checkObjectEquality(result.data, data.spin_systems[result.index])) {
-      //   throw window.dash_clientside.PreventUpdate;
-      // }
-      // data.spin_systems[result.index] = result.data;
-    }
-    if (max_index === 1) {
-      // add
-      result.data = {
-        name: `System ${l}`,
-        description: "",
-        abundance: 1,
-        sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
-      };
-      result.index = l;
-      result.operation = "add";
-      result.time = Date.now();
-      set_spin_system_index(l);
-    }
-    if (max_index === 2) {
-      // duplicate
-      checkForEmptyListForOperation("copy", "spin system", l);
-      result.data = data.spin_systems[get_spin_system_index()];
-      result.index = l;
-      result.operation = "duplicate";
-      set_spin_system_index(l);
-    }
-    if (max_index === 3) {
-      // delete
-      checkForEmptyListForOperation("delete", "spin system", l);
-      new_val = get_spin_system_index();
-      result.data = max_value;
-      result.index = new_val;
-      result.operation = "delete";
-      new_val -= 1;
-      new_val = new_val < 0 ? 0 : new_val;
-      set_spin_system_index(new_val);
-    }
-    return result;
+    if (max_index === 0 || max_index >= 4) return updateSystem();
+    if (max_index === 1) return addSystem(l);
+    if (max_index === 2) return copySystem(data, l);
+    if (max_index === 3) return delSystem(max_value, l);
+
+    data = l = i = max_index = max_value = null;
+    return null;
   },
 
   create_method_json: function (n1, n2, n3, n4, method_template) {
@@ -242,62 +254,26 @@ window.dash_clientside.clientside = {
     // n3 is the trigger time for duplicate method.
     // n4 is the trigger time for delete method.
     console.log(n1, n2, n3, n4);
-    let max, l, new_val;
+    let max, l, data;
     if (n1 == null && n2 == null && n3 == null && n4 == null) {
       throw window.dash_clientside.PreventUpdate;
     }
-    if (n1 == null) {
-      n1 = -1;
-    }
-    if (n2 == null) {
-      n2 = -1;
-    }
-    if (n3 == null) {
-      n3 = -1;
-    }
-    if (n4 == null) {
-      n4 = -1;
-    }
+    if (n1 == null) n1 = -1;
+    if (n2 == null) n2 = -1;
+    if (n3 == null) n3 = -1;
+    if (n4 == null) n4 = -1;
 
     max = Math.max(n1, n2, n3, n4);
-    let data = storeData.data;
-
+    data = storeData.data;
     l = data.methods.length;
-    let result = {};
-    if (n1 == max) {
-      // modify
-      result.data = window.methods.updateData();
-      result.index = get_method_index();
-      result.operation = "modify";
-    }
-    if (n2 == max) {
-      // add
-      result.data = method_template.method;
-      result.index = l;
-      result.operation = "add";
-      result.time = Date.now();
-      set_method_index(l);
-    }
-    if (n3 == max) {
-      // duplicate
-      checkForEmptyListForOperation("copy", "method", l);
-      result.data = data.methods[get_method_index()];
-      result.index = l;
-      result.operation = "duplicate";
-      set_method_index(l);
-    }
-    if (n4 == max) {
-      // delete
-      checkForEmptyListForOperation("delete", "method", l);
-      new_val = get_method_index();
-      result.data = n4;
-      result.index = new_val;
-      result.operation = "delete";
-      new_val -= 1;
-      new_val = new_val < 0 ? 0 : new_val;
-      set_method_index(new_val);
-    }
-    return result;
+
+    if (n1 === max) return updateMethod();
+    if (n2 === max) return addMethod(method_template, l);
+    if (n3 === max) return copyMethod(data, l);
+    if (n4 === max) return delMethod(n4, l);
+
+    data = l = max = null;
+    return null;
   },
 
   selected_spin_system: function (clickData, map, decompose, method_index) {
@@ -316,7 +292,7 @@ window.dash_clientside.clientside = {
     index = map[method_index][index];
     // highlight the corresponding spin-system by initialing a click.
     listomers[index].click();
-
+    index = listomers = length = null;
     return null;
   },
 
@@ -339,8 +315,110 @@ window.dash_clientside.clientside = {
     data.auto_update = !data.auto_update;
     // console.log('data', data);
     window.localStorage.setItem("user-config", JSON.stringify(data));
+    data = null;
   },
 };
+
+// Spin system operations
+// update system
+function updateSystem() {
+  let result = {};
+  result.data = extract_site_object_from_fields();
+  result.index = get_spin_system_index();
+  result.operation = "modify";
+  // if (checkObjectEquality(result.data, data.spin_systems[result.index])) {
+  //   throw window.dash_clientside.PreventUpdate;
+  // }
+  // data.spin_systems[result.index] = result.data;
+  return result;
+}
+// add system
+function addSystem(l) {
+  let result = {};
+  result.data = {
+    name: `System ${l}`,
+    description: "",
+    abundance: 1,
+    sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
+  };
+  result.index = l;
+  result.operation = "add";
+  result.time = Date.now();
+  // set_spin_system_index(l);
+  l = null;
+  return result;
+}
+// copy system
+function copySystem(data, l) {
+  let result = {};
+  checkForEmptyListForOperation("copy", "spin system", l);
+  result.data = data.spin_systems[get_spin_system_index()];
+  result.index = l;
+  result.operation = "duplicate";
+  // set_spin_system_index(l);
+  data = l = null;
+  return result;
+}
+// delete system
+function delSystem(max_value, l) {
+  let result = {};
+  checkForEmptyListForOperation("delete", "spin system", l);
+  new_val = get_spin_system_index();
+  result.data = max_value;
+  result.index = new_val;
+  result.operation = "delete";
+  // new_val -= 1;
+  // new_val = new_val < 0 ? 0 : new_val;
+  // set_spin_system_index(new_val);
+  max_value = l = null;
+  return result;
+}
+
+// Method operations
+// update method
+function updateMethod() {
+  let result = {};
+  result.data = window.methods.updateData();
+  result.index = get_method_index();
+  result.operation = "modify";
+  return result;
+}
+// add method
+function addMethod(method_template, l) {
+  let result = {};
+  result.data = method_template.method;
+  result.index = l;
+  result.operation = "add";
+  result.time = Date.now();
+  // set_method_index(l);
+  method_template = l = null;
+  return result;
+}
+// copy method
+function copyMethod(data, l) {
+  let result = {};
+  checkForEmptyListForOperation("copy", "method", l);
+  result.data = data.methods[get_method_index()];
+  result.index = l;
+  result.operation = "duplicate";
+  // set_method_index(l);
+  data = l = null;
+  return result;
+}
+// delete method
+function delMethod(n4, l) {
+  let result = {};
+  checkForEmptyListForOperation("delete", "method", l);
+  new_val = get_method_index();
+  result.data = n4;
+  result.index = new_val;
+  result.operation = "delete";
+  // new_val -= 1;
+  // new_val = new_val < 0 ? 0 : new_val;
+  // set_method_index(new_val);
+  n4 = l = null;
+  return result;
+}
 
 function checkForEmptyListForOperation(operation, list, l) {
   if (l === 0) {
@@ -357,13 +435,12 @@ var default_li_action = function (listomers) {
   listomers.each(function () {
     $(this).unbind("click");
   });
+  listomers = null;
 };
 
 var default_li_item_action = function (obj) {
-  var ul = obj.parentElement,
-    element,
-    i;
-
+  var ul = obj.parentElement;
+  let i, element;
   for (i = 0; i < ul.childNodes.length; i++) {
     element = ul.childNodes[i];
     // Remove all highlights.
@@ -373,6 +450,7 @@ var default_li_item_action = function (obj) {
   scrollTo(ul.parentElement.parentElement, obj.offsetTop - 50, 300, "vertical");
   // Highlight the selected list.
   obj.classList.toggle("active");
+  element = i = null;
 };
 
 /* Creates a smooth scroll based on the selected index of li. */
@@ -446,4 +524,40 @@ var contextMenu = function () {
 var darkMode = function () {
   let element = document.body;
   element.classList.toggle("dark-mode");
+};
+
+var activateMethodTools = function () {
+  const obj = document.querySelectorAll("[data-table-header-mth] li");
+  obj.forEach((li) => {
+    li.addEventListener("click", () => {
+      let i = $(li).index();
+      if (i == 0) {
+        $("#add-method-button")[0].click();
+      }
+      if (i == 1) {
+        $("#duplicate-method-button")[0].click();
+      }
+      if (i == 2) {
+        $("#remove-method-button")[0].click();
+      }
+    });
+  });
+};
+
+var activateSystemTools = function () {
+  const obj = document.querySelectorAll("[data-table-header-sys] li");
+  obj.forEach((li) => {
+    li.addEventListener("click", () => {
+      let i = $(li).index();
+      if (i == 0) {
+        $("#add-spin-system-button")[0].click();
+      }
+      if (i == 1) {
+        $("#duplicate-spin-system-button")[0].click();
+      }
+      if (i == 2) {
+        $("#remove-spin-system-button")[0].click();
+      }
+    });
+  });
 };

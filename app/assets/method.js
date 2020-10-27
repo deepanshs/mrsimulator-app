@@ -5,8 +5,13 @@
 
 window.dash_clientside.method = {
   export_simulation_from_selected_method: function (n, data) {
-    if (n == null || data == null) {
-      throw window.dash_clientside.PreventUpdate;
+    if (n == null) {
+      alert("First add a method.");
+      return "";
+    }
+    if (data == null) {
+      alert("No simulation data available.");
+      return "";
     }
     let i = get_method_index();
 
@@ -94,7 +99,7 @@ window.methods = {
     let li = $("#dim-tab div div ul.vertical-tabs li");
     $("#method-title")[0].innerHTML = method.name;
 
-    setValue(`method-description`, method.description);
+    // setValue(`method-description`, method.description);
     setValue(`channel`, method.channels[0]);
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       // show dimension tabs that are applicable for the given method.
@@ -152,11 +157,11 @@ window.methods = {
   updateData: function () {
     let sd, ev, i, j;
     let channel = getValue(`channel`);
-    let description = getValue(`method-description`);
+    // let description = getValue(`method-description`);
 
     let method = storeData.data.methods[get_method_index()];
 
-    method.description = description;
+    // method.description = description;
     method.channels = [channel];
 
     for (i = 0; i < method.spectral_dimensions.length; i++) {
