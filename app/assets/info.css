@@ -1,13 +1,7 @@
 #info-read-only {
-  height: calc(100vh - 140px);
+  height: var(--content-max-height);
   width: 100%;
-  padding: 1rem;
-  /* padding-top: 1rem;
-    padding-bottom: 1rem; */
+  padding: 1em 1em 0 1em;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.card {
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.068);
 }

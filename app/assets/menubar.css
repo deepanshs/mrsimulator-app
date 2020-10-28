@@ -35,7 +35,7 @@
   color: #494949;
   text-decoration: none;
   outline: none;
-  padding: 6px 15px;
+  padding: 7px 15px;
   padding-right: 30px;
   cursor: pointer;
 }
@@ -50,7 +50,7 @@
   color: #494949;
   border-radius: 0.25em;
   text-decoration: none;
-  padding: 6px 15px;
+  padding: 7px 15px;
   margin: 0;
 }
 .master-toolbar .menu .menu-item:hover > label {
@@ -95,7 +95,7 @@
 }
 .master-toolbar .close-menu {
   display: none;
-  color: #FFF;
+  color: #fff;
   text-decoration: none;
   text-align: center;
 }

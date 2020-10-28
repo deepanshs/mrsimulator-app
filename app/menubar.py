@@ -4,16 +4,13 @@ import json
 import dash_core_components as dcc
 import dash_html_components as html
 from dash import callback_context as ctx
-from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
-from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from .app import app
 from .modal.about import about_modals
 from .modal.advance_settings import advance_settings
-from .modal.download import download_modal
 from app.app import year
 
 
@@ -68,13 +65,8 @@ def create_submenu(title, items):
 # File menu ----------------------------------------------------------------- #
 # - New             |
 # - Open            |
-# - Download        |
 # --------------------------------------------------------------------------- #
 import_items = [
-    dcc.Upload(
-        "Measurement for the selected method",
-        id="import-measurement-for-method",
-    ),
     dcc.Upload("Spin systems", id="upload-and-add-spin-system-button"),
 ]
 import_remove_data = create_submenu(
@@ -85,16 +77,6 @@ import_remove_data = create_submenu(
     import_items,
 )
 
-export_items = [
-    html.Div("Simulation from the selected method", id="export-simulation-from-method")
-]
-export_data = create_submenu(
-    div_icon_text_display_with_submenu(
-        "fas fa-file-export",
-        "Export",
-    ),
-    export_items,
-)
 
 file_items = [
     html.A(div_icon_text_display("fas fa-file", "New"), href="/", target="_blank"),
@@ -103,38 +85,10 @@ file_items = [
         id="open-mrsimulator-file",
         accept=".mrsim",
     ),
-    div_icon_text_display(
-        icon="fas fa-download", text="Download", id="download-button"
-    ),
     html.Hr(),
     import_remove_data,
-    export_data,
 ]
 file_menu = create_submenu("File", file_items)
-
-# app.clientside_callback(
-#     """
-#     function (data) {
-#         console.log('data_py', data);
-#         if (data == null){
-#             throw window.dash_clientside.PreventUpdate;
-#         }
-#         let len = data.open_recent.length;
-#         if (len === 0) {
-#             return [];
-#         }
-#         let li, li_array = [];
-#         for(let i=0; i<len; i++){
-#             li = document.createElement("li");
-#             li.value = data.open_recent[i].path;
-#             li_array.push(li);
-#         }
-#         return li_array;
-#     }
-#     """,
-#     Output("open-recent-id", "children"),
-#     [Input("user-config", "data")],
-# )
 
 
 # Spin system menu ----------------------------------------------------------- #
@@ -226,16 +180,6 @@ app.clientside_callback(
     """,
     Output("confirm-clear-methods", "displayed"),
     [Input("clear-methods", "n_clicks")],
-    prevent_initial_call=True,
-)
-
-app.clientside_callback(
-    ClientsideFunction(
-        namespace="method", function_name="export_simulation_from_selected_method"
-    ),
-    Output("export-simulation-from-method-link", "href"),
-    [Input("export-simulation-from-method", "n_clicks")],
-    [State("local-processed-data", "data")],
     prevent_initial_call=True,
 )
 
@@ -346,7 +290,7 @@ master_menubar = html.Div(
             className="menu",
         ),
         html.Div(
-            [advance_settings, download_modal, advance_setting_button],
+            [advance_settings, advance_setting_button],
             className="right-menu",
         ),
         about_modals,

@@ -17,58 +17,36 @@ input[type="search"]:focus {
   background-color: #f4f9ff;
 }
 
-.nav-item a {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: rgb(68, 68, 68);
-}
-
-.formtext,
-.formtext a {
-  color: #efeefc;
-  padding: 0;
-}
-
-.formtext a {
-  color: #ffffff;
-}
-
-#info-body.my-card h4 {
+#info-body.left-card h4 {
   padding-bottom: 1rem;
 }
-
-[id$="-body"].my-card {
-  width: 49vw;
-  /* max-width: calc(0.48 * (var(--max-display-width) + 3.5rem)); */
-  /* margin-left: 1rem;
-  margin-right: 1rem; */
-  overflow: hidden;
-  border: none;
-  min-height: var(--content-min-height);
+[id$="-body"].left-card {
+  display: none;
   height: var(--content-max-height);
+  width: 50vw;
+  border: none;
+  box-shadow: none;
 }
 
 #spectrum-body.my-card {
+  width: 45vw;
+  box-shadow: 0 0 10px 0 silver;
+  height: calc(var(--content-max-height) - 3em);
+  background-color: white;
+  padding: 0 1em;
+}
+
+#spectrum-body.my-card,
+[id$="-body"].left-card.active {
+  overflow: hidden;
+  min-height: var(--content-min-height);
+  display: block;
+  margin: 1em;
   border-radius: 0.6em;
-  border: 1px solid silver;
-  margin: 1rem;
 }
 
 #spectrum-body .dash-graph {
-  padding-right: 0.5rem;
-}
-
-#spin-system-body.my-card,
-#method-body.my-card,
-#info-body.my-card {
-  margin-top: 1rem;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: 0;
-  padding-right: 1.75rem;
-  background-color: #f6f8fa;
+  padding-right: 0.5em;
 }
 
 .dark-mode [id$="-body"].my-card {
@@ -81,14 +59,13 @@ input[type="search"]:focus {
 }
 
 .card-header {
-  height: 3.5rem;
+  height: 4em;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #bebebe;
   padding-left: 1em;
   padding-right: 1em;
-  background-color: #f8f8f8;
+  background-color: transparent;
+  border-bottom: none;
 }
 
 .card-header input {
@@ -102,8 +79,7 @@ input[type="search"]:focus {
   margin: 0;
 }
 
-.card-header h5 {
-  font-weight: 500;
+.card-header h4 {
   padding-left: 0.75rem;
   margin: 0;
 }
@@ -122,6 +98,7 @@ input[type="search"]:focus {
   color: #0366d6;
   font-weight: 500;
   background-color: #f1f8ff;
+  margin-right: 1em;
 }
 
 .submit-button button:hover,
@@ -152,13 +129,8 @@ input[type="search"]:focus {
   padding: 1rem;
   padding-bottom: 0;
   margin-bottom: 0;
-  /* padding-left: 1rem;
-  padding-right: 1rem; */
   text-transform: capitalize;
-}
-
-.scroll-cards label {
-  margin: 0;
+  font-weight: 600;
 }
 
 .scroll-cards h6 div,
@@ -177,25 +149,6 @@ input[type="search"]:focus {
   padding-top: 0.5rem;
 }
 
-/* collapsible group handle */
-.collapsible {
-  box-shadow: 0 0px 2px 0px #979797;
-  border-radius: 0em;
-  background-color: #f7f0e9ea;
-  border-top: 1px solid #632e0f;
-  border-bottom: 1px solid rgb(194, 194, 194);
-}
-
-.collapsible:hover {
-  box-shadow: 0 0px 3px 0px #979797;
-  background-color: #f3e7e0;
-}
-
-.panel-collapse {
-  border: 1px solid silver;
-  margin: -1px;
-}
-
 /* dash callback loading */
 *[data-dash-is-loading="true"] {
   opacity: 1;
@@ -203,76 +156,35 @@ input[type="search"]:focus {
   visibility: visible;
 }
 
-#import-spin-system-toggler {
-  border-top-left-radius: 2.5rem;
-}
-
-.js-line:hover {
-  transform: scale(1.5);
-}
-
-.download-csdm-style {
-  color: rgb(80, 80, 80);
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-
-  padding-left: 1rem;
-  padding-right: 1rem;
-
-  border-radius: 0.3rem;
-  border: 1px solid rgb(80, 80, 80);
-  transition: all 0.2s ease;
-}
-
-.download-csdm-style:hover {
-  color: rgb(243, 243, 243);
-  background-color: rgb(61, 61, 61);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
 .hide-display {
   display: none;
-}
-
-.nav-token {
-  display: flex;
-  justify-content: space-around;
-  list-style: circle;
-}
-
-.card {
-  width: 100%;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.6);
 }
 
 .icon-button,
 .icon-button:hover,
 .icon-button:active {
   background: none;
-  color: #97979779;
+  color: gray;
   border: none;
   padding-bottom: 0.3rem;
   float: right;
-  transition: all 0.2s ease;
 }
 .icon-button:hover {
-  color: #535353;
-  transition: all 0.2s ease;
+  color: black;
 }
 @media only screen and (max-width: 912px) {
   #spectrum-body.my-card {
     padding-left: 0.25rem;
   }
-  #spin-system-body.my-card,
-  #method-body.my-card,
-  #info-body.my-card {
+  #spin-system-body.left-card,
+  #method-body.left-card,
+  #info-body.left-card {
     padding-right: 0.25rem;
   }
 }
 
 @media only screen and (max-width: 810px) {
+  [id$="-body"].left-card,
   [id$="-body"].my-card {
     position: relative;
     margin-left: 0.75rem;
@@ -281,4 +193,78 @@ input[type="search"]:focus {
     scroll-snap-align: center;
     padding: 0;
   }
+}
+
+.col-lg-4 {
+  padding: 0.5em;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+  background-color: white;
+  border-radius: 0.5em;
+  margin: 0 0 1em 0;
+}
+
+table:hover {
+  box-shadow: 0 0 10px 0 #4b4b4b27;
+}
+table td:first-child,
+table td:last-child {
+  width: 10%;
+}
+table td {
+  text-align: center;
+  padding: 0.6em 0.6em;
+  border-right: 1px solid #dfdfdf;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+table tr {
+  border-bottom: 1px solid #dfdfdf;
+  background-color: none;
+}
+table tr:not(:first-child):hover {
+  background-color: #cee3ff;
+}
+table tr.active,
+table tr.active:hover {
+  background-color: var(--select-blue);
+  color: white;
+}
+table tr:last-child {
+  border-bottom: none;
+}
+table td:last-child {
+  border-right: none;
+}
+span[data-edit-sys],
+span[data-edit-mth] {
+  color: #cacaca;
+  cursor: pointer;
+}
+span[data-edit-sys]:hover,
+span[data-edit-mth]:hover {
+  color: #414141;
+}
+
+div[data-info-table] div[data-table-header-mth],
+div[data-info-table] div[data-table-header-sys] {
+  margin-top: 1.5em;
+  display: flex;
+  justify-content: space-between;
+}
+div[data-info-table] ul[data-edit-tools] {
+  display: flex;
+}
+div[data-info-table] ul[data-edit-tools] li {
+  padding: 0 0.75em;
+  margin: auto;
+  list-style-type: none;
+  color: gray;
+}
+div[data-info-table] ul[data-edit-tools] li:hover {
+  color: black;
 }

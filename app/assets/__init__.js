@@ -53,15 +53,34 @@ if (!window.dash_clientside) {
 
 window.dash_clientside.clientside = {
   initialize: function (n) {
-    console.log("initialized");
     // clear session storage on refresh
     window.sessionStorage.clear();
-
     init();
-
     activateMethodTools();
     activateSystemTools();
+
     return null;
+  },
+
+  serializeSession: function (n, data) {
+    if (n == null) {
+      throw window.dash_clientside.PreventUpdate;
+    }
+    if (data == null) {
+      throw window.dash_clientside.PreventUpdate;
+    }
+
+    // prepare the download.
+    let dataStr = "data:text/json;charset=utf-8,";
+    dataStr += encodeURIComponent(JSON.stringify(data));
+
+    let dlAnchorElem = $("#serialize-session-link")[0];
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "session.mrsim");
+    dlAnchorElem.click();
+
+    dataStr = ndlAnchorElem = null;
+    return "";
   },
 
   on_spin_systems_load: function (x, config) {
@@ -73,9 +92,7 @@ window.dash_clientside.clientside = {
     let overView = document.querySelectorAll("[data-edit-sys]");
     overView.forEach((edit) => {
       edit.addEventListener("click", () => {
-        // let i = edit.dataset.editSys;
         $("#view-spin-systems")[0].click();
-        // listomers[i].click();
       });
     });
 
@@ -219,10 +236,6 @@ window.dash_clientside.clientside = {
       }
     }
 
-    console.log("previous_timestamps", previous_timestamps);
-    console.log("new_list", new_list);
-    console.log("equal?", checkArrayEquality(new_list, previous_timestamps));
-
     let max_value = Math.max(...new_list);
     if (max_value === -1 && initial === 0) {
       initial = 1;
@@ -253,7 +266,6 @@ window.dash_clientside.clientside = {
     // n2 is the trigger time for add new method.
     // n3 is the trigger time for duplicate method.
     // n4 is the trigger time for delete method.
-    console.log(n1, n2, n3, n4);
     let max, l, data;
     if (n1 == null && n2 == null && n3 == null && n4 == null) {
       throw window.dash_clientside.PreventUpdate;
@@ -310,10 +322,8 @@ window.dash_clientside.clientside = {
     if (n1 == null) {
       throw window.dash_clientside.PreventUpdate;
     }
-    // console.log('switch', $('#auto-update'));
     let data = JSON.parse(window.localStorage.getItem("user-config"));
     data.auto_update = !data.auto_update;
-    // console.log('data', data);
     window.localStorage.setItem("user-config", JSON.stringify(data));
     data = null;
   },

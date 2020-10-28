@@ -1,18 +1,18 @@
 :root {
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 10rem);
+  --content-max-height: calc(100vh - 8.98em);
   --content-min-height: calc(55.5rem - 18.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 125pt;
   --opt-side-scroll-min-width: 3rem;
   --select-blue: rgb(8, 124, 240);
-  /* --max-display-width: 1480px; */
 }
 
 * {
   margin: 0;
   padding: 0;
-  font-size: 10.65pt;
+  font-size: 14px;
+  font-family: "Helvetica", sans-serif;
 }
 
 body {
@@ -25,6 +25,25 @@ html {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
+}
+
+.home-screen {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.home-screen a {
+  padding: 4.5em;
+  cursor: pointer;
+  border: 1px solid silver;
+  border-radius: 0.5em;
+  text-decoration: none;
+  font-size: 1.75em;
+}
+.home-screen a:hover {
+  box-shadow: 0 0 10px 0 #8080803a;
 }
 
 .dark-mode {
@@ -54,7 +73,8 @@ section {
 }
 
 .main-split .sidebar-master {
-  background-color: #f1f1f183;
+  background-color: white;
+  box-shadow: 5px 0 5px 5px #16161634;
 }
 
 .main-split .sidebar {
@@ -64,21 +84,18 @@ section {
   flex-direction: column;
 }
 
-.main-split .sidebar:nth-child(2),
-.main-split .sidebar:nth-child(3) {
-  display: none;
-}
-
-.main-split .sidebar button {
-  padding: 0.5rem;
+.main-split .sidebar li {
+  padding: 1em;
   border-radius: 0;
-  border-top: none;
+  border: none;
+  background: none;
+  color: gray;
+  border-left: 3px solid transparent;
 }
-
-.main-split .sidebar button:first-child {
-  border-top-left-radius: 0.2rem;
-  border-top-right-radius: 0.2rem;
-  border-top: 1px solid gray;
+.main-split .sidebar li.active,
+.main-split .sidebar li:hover {
+  color: var(--select-blue);
+  border-left: 3px solid var(--select-blue);
 }
 
 .main-split .sidebar button:last-child {
@@ -96,15 +113,8 @@ section {
 .mobile-scroll {
   display: flex;
   border: none;
-  /* margin: auto; */
-  /* margin-top: 1rem; */
-  /* margin-left: 1rem; */
-  /* margin-right: 1rem; */
-  /* margin-bottom: 1rem; */
-  /* border-radius: 0.3rem; */
-  /* padding: 0; */
-  /* max-width: var(--max-display-width); */
-  /* box-shadow: 0 8px 10px 0 #0000003f; */
+  background-color: #ecf0f5a9;
+  align-items: center;
 }
 
 @media only screen and (max-width: 810px) {

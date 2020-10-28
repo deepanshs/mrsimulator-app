@@ -22,6 +22,8 @@ from app.body import sidebar
 from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
+from app_inv import mrinv
+from app_main import home_mrsims
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -44,13 +46,15 @@ home = html.Div(
     [
         dcc.Link("Simulator", href="/simulator", id="simulator-app"),
         dcc.Link("Inversion", href="/inversion", id="inversion-app"),
+        dcc.Link("Home", href="/home", id="home-app"),
     ],
     className="home-screen",
     **{"data-app-link": ""},
 )
 layout_1 = html.Div([nav_group, html.Div([sidebar, app_1], className="main-split")])
 
-layout_2 = html.Div([nav_group, html.Div(html.H3("Hello"), className="main-split")])
+layout_2 = mrinv
+layout_3 = home_mrsims
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
@@ -59,7 +63,9 @@ def display_page(pathname):
     if pathname == "/simulator":
         return layout_1
     if pathname == "/inversion":
-        return layout_2
+        return home  # layout_2
+    if pathname == "/home":
+        return home  # layout_3
     else:
         return home
 

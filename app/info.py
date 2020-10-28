@@ -2,8 +2,10 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 from dash import callback_context as ctx
 from dash import no_update
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -20,13 +22,7 @@ default_sample = {"name": "Title", "description": "Sample description"}
 # Info ------------------------------------------------------------------------------ #
 
 # button = dbc.Button(id="edit-info-button")
-button = custom_button(
-    icon_classname="fas fa-pencil-alt",
-    tooltip="Edit",
-    id="edit-info-button",
-    className="icon-button",
-    module="html",
-)
+
 sample_title = [
     dbc.FormText("Title"),
     dbc.Input(type="text", placeholder="Add title", id="info-name-edit"),
@@ -113,7 +109,7 @@ def display_spin_system_info_table(json_data: dict):
         icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-sys": ""})
         for i, spin_system in enumerate(json_data["spin_systems"]):
             name = "" if "name" not in spin_system.keys() else spin_system["name"]
-            abd = spin_system["abundance"]
+            abd = np.around(spin_system["abundance"], decimals=3)
             n_site = len(spin_system["sites"])
             isotopes = "-".join(set([item["isotope"] for item in spin_system["sites"]]))
             pack = [i, name, abd, n_site, isotopes, icon]
@@ -137,13 +133,38 @@ def display_spin_system_info_table(json_data: dict):
     return [method_row, sys_row]
 
 
+button = custom_button(
+    icon_classname="fas fa-pencil-alt",
+    tooltip="Edit",
+    id="edit-info-button",
+    className="icon-button",
+    module="html",
+)
+
+link_session = html.A(id="serialize-session-link", style={"display": "none"})
+download = custom_button(
+    icon_classname="fas fa-download fa-lg",
+    tooltip="Download Session",
+    id="download-session",
+    className="icon-button",
+    module="html",
+)
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="serializeSession"),
+    Output("serialize-session-link", "href"),
+    [Input("download-session", "n_clicks")],
+    [State("local-simulator-data", "data")],
+    prevent_initial_call=True,
+)
+
+
 def display_sample_info(json_data):
     title = json_data["name"]
     title = "Sample" if title == "" else title
     description = json_data["description"]
     data = [
-        html.H4(
-            [title, button, modal],
+        html.Div(
+            [html.H4([title, button]), download, link_session, modal],
             style={"display": "flex", "justify-content": "space-between"},
         ),
         dbc.Card(dbc.CardBody(description)),

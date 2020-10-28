@@ -98,6 +98,7 @@ var set_site_attributes = function (site) {
       `${key}-gamma`,
       ss.hasOwnProperty("gamma") ? rad_to_deg(ss.gamma) : null
     );
+    ss = null;
   } else {
     setValue(`${key}-zeta`, null);
     setValue(`${key}-eta`, null);
@@ -125,6 +126,7 @@ var set_site_attributes = function (site) {
       `${key}-gamma`,
       ss.hasOwnProperty("gamma") ? rad_to_deg(ss.gamma) : null
     );
+    ss = null;
   } else {
     setValue(`${key}-Cq`, null);
     setValue(`${key}-eta`, null);
@@ -132,6 +134,7 @@ var set_site_attributes = function (site) {
     setValue(`${key}-beta`, null);
     setValue(`${key}-gamma`, null);
   }
+  key = null;
 };
 
 /* Update the spin-system UI field using the data from the spin-systems dictionary
@@ -156,6 +159,7 @@ var update_field_from_spin_system_at_index = function (index) {
   // extract site information
   let site = spin_system.sites[0];
   set_site_attributes(site);
+  data = spin_system = name = description = site = null;
 };
 
 /* Convert Euler angles from degrees to radians.
@@ -254,6 +258,9 @@ var extract_site_object_from_fields = function () {
   }
   // Assign the new site object to the spin-systems at site index 0.
   spin_system.sites[site_index] = site;
+
+  data = update = temp = index = site_index = old_site = old_site_string = null;
+  val = id = key = i = site = new_site_string = null;
   return spin_system;
 };
 
@@ -273,83 +280,84 @@ print_label = [
 ];
 unit = [null, "ppm", "ppm", "", "°", "°", "°", "MHz", "", "°", "°", "°"];
 
-var update_info = function (ito, i) {
-  let output = `<div><a>`;
-  let s_len, sto, sti, temp, sites, key, val, j, k;
+// var update_info = function (ito, i) {
+//   let output = `<div><a>`;
+//   let s_len, sto, sti, temp, sites, key, val, j, k;
 
-  // name
-  temp = `Spin system ${i}`;
-  if (ito.hasOwnProperty("name")) {
-    if (ito.name != "" || ito.name != null) {
-      temp = ito.name;
-    }
-  }
-  output += `<b>${temp}</b>`; // add name
+//   // name
+//   temp = `Spin system ${i}`;
+//   if (ito.hasOwnProperty("name")) {
+//     if (ito.name != "" || ito.name != null) {
+//       temp = ito.name;
+//     }
+//   }
+//   output += `<b>${temp}</b>`; // add name
 
-  // description
-  if (ito.hasOwnProperty("description")) {
-    if (ito.description != "" || ito.description != null) {
-      output += `<div>${ito.description}</div>`; // add description
-    }
-  }
+//   // description
+//   if (ito.hasOwnProperty("description")) {
+//     if (ito.description != "" || ito.description != null) {
+//       output += `<div>${ito.description}</div>`; // add description
+//     }
+//   }
 
-  // abundance
-  temp = ito.hasOwnProperty("abundance") ? ito.abundance : "100";
-  output += `<div>Abundance: ${temp} %</div>`;
-  sites = ito.sites;
-  s_len = sites.length;
-  for (j = 0; j < s_len; j++) {
-    sto = sites[j];
+//   // abundance
+//   temp = ito.hasOwnProperty("abundance") ? ito.abundance : "100";
+//   output += `<div>Abundance: ${parseFloat(temp).toFixed(3)} %</div>`;
+//   sites = ito.sites;
+//   s_len = sites.length;
+//   for (j = 0; j < s_len; j++) {
+//     sto = sites[j];
 
-    output += `<div class="pl-2">Isotope: ${sto.isotope}</div>`;
-    output += `<div class="pl-2">${print_label[1]}: ${sto.isotropic_chemical_shift} ${unit[1]}</div>`;
+//     output += `<div class="pl-2">Isotope: ${sto.isotope}</div>`;
+//     output += `<div class="pl-2">${print_label[1]}: ${sto.isotropic_chemical_shift} ${unit[1]}</div>`;
 
-    if (sto.hasOwnProperty("shielding_symmetric")) {
-      output += `<div class="pl-2">Symmetric Shielding</div>`;
-      sti = sto.shielding_symmetric;
-      for (k = 2; k < 7; k++) {
-        key = ALL_KEYS[k].split("-")[1];
+//     if (sto.hasOwnProperty("shielding_symmetric")) {
+//       output += `<div class="pl-2">Symmetric Shielding</div>`;
+//       sti = sto.shielding_symmetric;
+//       for (k = 2; k < 7; k++) {
+//         key = ALL_KEYS[k].split("-")[1];
 
-        val = sti[key];
-        if (key == "alpha") {
-          val *= to_deg;
-        } else if (key == "beta") {
-          val *= to_deg;
-        } else if (key == "gamma") {
-          val *= to_deg;
-        }
+//         val = sti[key];
+//         if (key == "alpha") {
+//           val *= to_deg;
+//         } else if (key == "beta") {
+//           val *= to_deg;
+//         } else if (key == "gamma") {
+//           val *= to_deg;
+//         }
 
-        if (sti.hasOwnProperty(key)) {
-          output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
-        }
-      }
-    }
-    if (sto.hasOwnProperty("quadrupolar")) {
-      output += `<div class="pl-2">Quadrupolar</div>`;
-      sti = sto.quadrupolar;
-      for (k = 7; k < 12; k++) {
-        key = ALL_KEYS[k].split("-")[1];
+//         if (sti.hasOwnProperty(key)) {
+//           output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
+//         }
+//       }
+//     }
+//     if (sto.hasOwnProperty("quadrupolar")) {
+//       output += `<div class="pl-2">Quadrupolar</div>`;
+//       sti = sto.quadrupolar;
+//       for (k = 7; k < 12; k++) {
+//         key = ALL_KEYS[k].split("-")[1];
 
-        val = sti[key];
-        if (key == "Cq") {
-          val /= 1e6;
-        } else if (key == "alpha") {
-          val *= to_deg;
-        } else if (key == "beta") {
-          val *= to_deg;
-        } else if (key == "gamma") {
-          val *= to_deg;
-        }
+//         val = sti[key];
+//         if (key == "Cq") {
+//           val /= 1e6;
+//         } else if (key == "alpha") {
+//           val *= to_deg;
+//         } else if (key == "beta") {
+//           val *= to_deg;
+//         } else if (key == "gamma") {
+//           val *= to_deg;
+//         }
 
-        if (sti.hasOwnProperty(key)) {
-          output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
-        }
-      }
-    }
-  }
-  output += `</a></div>`;
-  return output;
-};
+//         if (sti.hasOwnProperty(key)) {
+//           output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
+//         }
+//       }
+//     }
+//   }
+//   output += `</a></div>`;
+//   s_len = sto = sti = temp = sites = key = val = j = k = null;
+//   return output;
+// };
 
 function searchSpinSystems() {
   let input, filter, li, i, j, elements1, elements2, elements, txtValue;
@@ -373,6 +381,7 @@ function searchSpinSystems() {
       }
     }
   }
+  input = filter = li = i = j = elements1 = elements2 = elements = txtValue = null;
 }
 
 var spinSystemOnClick = function (obj) {
@@ -389,26 +398,27 @@ var spinSystemOnClick = function (obj) {
   hideQuad();
 };
 
-var addNewSpinSystem = function () {
-  let data = storeData.data;
-  let result, l;
-  l = data == null ? 0 : data.spin_systems.length;
-  result = {
-    name: `Spin system-${l}`,
-    description: "",
-    abundance: 1,
-    sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
-  };
-  data.spin_systems.push(result);
-  // set_spin_system_index(l);
+// var addNewSpinSystem = function () {
+//   let data = storeData.data;
+//   let result, l;
+//   l = data == null ? 0 : data.spin_systems.length;
+//   result = {
+//     name: `Spin system-${l}`,
+//     description: "",
+//     abundance: 1,
+//     sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
+//   };
+//   data.spin_systems.push(result);
+//   // set_spin_system_index(l);
 
-  let ul = $("#spin-system-read-only div.display-form ul");
-  let li = document.createElement("li");
-  li.innerHTML = update_info(result, l);
-  li.className = "list-group-item";
-  ul[0].appendChild(li);
-  $(li).click(function () {
-    spinSystemOnClick(li);
-  });
-  li.click();
-};
+//   let ul = $("#spin-system-read-only div.display-form ul");
+//   let li = document.createElement("li");
+//   li.innerHTML = update_info(result, l);
+//   li.className = "list-group-item";
+//   ul[0].appendChild(li);
+//   $(li).click(function () {
+//     spinSystemOnClick(li);
+//   });
+//   li.click();
+//   data = result = l = ul = li = null;
+// };

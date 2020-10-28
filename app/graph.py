@@ -86,36 +86,40 @@ DEFAULT_FIGURE = {
 #             'circle-in-out', 'elastic-in-out', 'back-in-out',
 #             'bounce-in-out']
 
-plotly_graph = dcc.Graph(
-    id="nmr_spectrum",
-    figure=DEFAULT_FIGURE,
-    config={
-        # "editable": True,
-        # "edits": {"axisTitleText": True},
-        "responsive": True,
-        "scrollZoom": False,
-        "showLink": False,
-        # "autosizable": True,
-        # "fillFrame": True,
-        "modeBarButtonsToRemove": [
-            "toImage",
-            # "zoom2d"
-            # "pan2d",
-            "select2d",
-            "lasso2d",
-            # "zoomIn2d",
-            # "zoomOut2d",
-            # "autoScale2d",
-            "resetScale2d",
-            "hoverClosestCartesian",
-            "hoverCompareCartesian",
-            "toggleHover",
-            # "toggleSpikelines",
-        ],
-        "displaylogo": False,
-    },
-)
 
+def generate_graph_instance(id_=""):
+    return dcc.Graph(
+        id=id_,
+        figure=DEFAULT_FIGURE,
+        config={
+            # "editable": True,
+            # "edits": {"axisTitleText": True},
+            "responsive": True,
+            "scrollZoom": False,
+            "showLink": False,
+            # "autosizable": True,
+            # "fillFrame": True,
+            "modeBarButtonsToRemove": [
+                "toImage",
+                # "zoom2d"
+                # "pan2d",
+                "select2d",
+                "lasso2d",
+                # "zoomIn2d",
+                # "zoomOut2d",
+                # "autoScale2d",
+                "resetScale2d",
+                "hoverClosestCartesian",
+                "hoverCompareCartesian",
+                "toggleHover",
+                # "toggleSpikelines",
+            ],
+            "displaylogo": False,
+        },
+    )
+
+
+plotly_graph = generate_graph_instance(id_="nmr_spectrum")
 graph_loading = dcc.Loading(plotly_graph, type="dot")
 
 app.clientside_callback(

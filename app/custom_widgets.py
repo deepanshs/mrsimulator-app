@@ -133,15 +133,15 @@ def custom_card(text, children, id=None):
 
 def custom_slider(label="", return_function=None, **kwargs):
     """
-        A custom dash bootstrap component slider with added components-
-        slider-label, slider-bar, and a slider-text reflecting the current value
-        of the slider.
+    A custom dash bootstrap component slider with added components-
+    slider-label, slider-bar, and a slider-text reflecting the current value
+    of the slider.
 
-        Args:
-            label: A string with the label.
-            return_function: This function will be applied to the current
-                value of the slider before updating the slider-text.
-            kwargs: additional keyward arguments for dash-bootstrap-component Input.
+    Args:
+        label: A string with the label.
+        return_function: This function will be applied to the current
+            value of the slider before updating the slider-text.
+        kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
     id_label = kwargs["id"] + "_label"
     slider = html.Div(
@@ -168,53 +168,17 @@ def custom_slider(label="", return_function=None, **kwargs):
     return slider
 
 
-# def custom_input_group(prepend_label="", append_label=None, **kwargs):
-#     """
-#         A custom dash bootstrap component input-group widget with a prepend-label,
-#         followed by an Input box, and an append-label.
-
-#         Args:
-#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
-#             append_label: A string to append dash-bootstrap-component Input widget.
-#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
-#     """
-#     append_label = append_label if append_label is not None else ""
-
-#     group = [
-#         dcc.Input(
-#             type="number",
-#             autoComplete="off",
-#             name="name",
-#             pattern="?[0-9]*\\.?[0-9]",
-#             className="",
-#             required="required",
-#             **kwargs,
-#         ),
-#         html.Label(
-#             className="label-name",
-#             htmlFor="name",
-#             children=html.Span(prepend_label, className="content-name"),
-#         ),
-#         html.Label(
-#             className="label-name-after",
-#             htmlFor="name",
-#             children=html.Span(append_label, className="content-name-after"),
-#         ),
-#     ]
-#     return html.Div(group, className="input-form")
-
-
 def custom_input_group(
     prepend_label="", append_label=None, input_type="number", **kwargs
 ):
     """
-        A custom dash bootstrap component input-group widget with a prepend-label,
-        followed by an Input box, and an append-label.
+    A custom dash bootstrap component input-group widget with a prepend-label,
+    followed by an Input box, and an append-label.
 
-        Args:
-            prepend_label: A string to prepend dash-bootstrap-component Input widget.
-            append_label: A string to append dash-bootstrap-component Input widget.
-            kwargs: additional keyward arguments for dash-bootstrap-component Input.
+    Args:
+        prepend_label: A string to prepend dash-bootstrap-component Input widget.
+        append_label: A string to append dash-bootstrap-component Input widget.
+        kwargs: additional keyward arguments for dash-bootstrap-component Input.
     """
     append_label = append_label if append_label is not None else ""
 
@@ -233,77 +197,20 @@ def custom_input_group(
     )
 
 
-# def custom_input_group(prepend_label="", append_label=None, **kwargs):
-#     """
-#         A custom dash bootstrap component input-group widget with a prepend-label,
-#         followed by an Input box, and an append-label.
-
-#         Args:
-#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
-#             append_label: A string to append dash-bootstrap-component Input widget.
-#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
-#     """
-#     # if pattern == "pos_dec_only":
-#     #     pattern_re = r"^[0-9]\d*(\.\d+)?$"
-#     # elif pattern == "pos_neg_dec":
-#     #     pattern_re = r"^-?[0-9]\d*(\.\d+)?$"
-#     # elif pattern == "scientific":
-#     #     pattern_re = r"(^[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+))$"
-#     #     # pattern_re = r"/[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?/"
-#     # else:
-#     #     pattern_re = pattern
-
-#     group = [
-#         html.Div(
-#             html.Span(prepend_label, className="input-group-text"),
-#             className="input-group-prepend",
-#         ),
-#         dcc.Input(
-#             type="number",
-#             # pattern="?[0-9]*\\.?[0-9]",
-#             className="form-control",
-#             **kwargs,
-#         ),
-#     ]
-
-#     # @app.callback(Output(kwargs["id"], "step"), [Input(kwargs["id"], "value")])
-#     # def update_steps(value):
-#     #     if not isinstance(value, (float, int)):
-#     #         raise PreventUpdate
-#     #     val = str(value).split(".")
-#     #     if len(val) == 1:
-#     #         return 1
-#     #     return 10 ** -len(val[1])
-
-#     if append_label is not None:
-#         return html.Div(
-#             [
-#                 *group,
-#                 html.Div(
-#                     html.Span(append_label, className="input-group-text"),
-#                     className="input-group-append",
-#                 ),
-#             ],
-#             className="input-group input-group-sm d-flex",
-#         )
-#     else:
-#         return html.Div(group, className="input-group input-group-sm d-flex")
-
-
 def custom_collapsible(
     text="", tooltip=None, identity=None, children=None, is_open=True, size="md"
 ):
     """
-        A custom collapsible widget with a title and a carret dropdown icon.
+    A custom collapsible widget with a title and a carret dropdown icon.
 
-        Args:
-            text: A string with the title of the collapsible widget.
-            identity: An id for the widget.
-            children: A dash-bootstrap componets or a list of components.
-            is_open: Boolean. If false, the widget is collapsed on initial render.
-            size: String, "sm, md, lg".
-            button_classname: String. css classnames for button toggler.
-            collapse_classname: String. css classnames for collapsible.
+    Args:
+        text: A string with the title of the collapsible widget.
+        identity: An id for the widget.
+        children: A dash-bootstrap componets or a list of components.
+        is_open: Boolean. If false, the widget is collapsed on initial render.
+        size: String, "sm, md, lg".
+        button_classname: String. css classnames for button toggler.
+        collapse_classname: String. css classnames for collapsible.
     """
     collapse_classname = "panel-collapse collapse in content"
     if is_open:

@@ -2,6 +2,7 @@
 from datetime import datetime
 
 import dash_html_components as html
+import numpy as np
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -133,8 +134,9 @@ def update_spin_system_info(json_data):
                 description = f"{description[:15]}..."
             local.append(html.Div(description, className=""))
 
-        abundance = (
-            "100" if "abundance" not in spin_system else spin_system["abundance"]
+        abundance = np.around(
+            100 if "abundance" not in spin_system else spin_system["abundance"],
+            decimals=3,
         )
         local.append(html.Div(f"Abundance: {abundance} %", className=""))
 

@@ -1,13 +1,4 @@
 /* Slider offset for spin system split screen */
-.met-slide,
-.met-slide-offset,
-.met-slide .slider1,
-.met-slide .slider2,
-.met-slide-offset .slider1,
-.met-slide-offset .slider2 {
-  height: var(--content-max-height);
-}
-
 .met-slide-offset {
   display: flex;
   width: 200%;

@@ -5,13 +5,14 @@ import dash_html_components as html
 
 from . import importer
 from . import navbar
-from .custom_widgets import custom_button
 from .graph import spectrum_body
 from .info import sample_info
 from .nmr_method import dimension_body
 from .nmr_method.toolbar import method_edit_tools
 from .spin_system import spin_system_body
 from .spin_system.toolbar import spin_system_edit_tools
+
+# from .custom_widgets import custom_button
 
 
 __author__ = "Deepansh J. Srivastava"
@@ -144,26 +145,63 @@ nav_group = html.Div(
     ]
 )
 
-view_tools = html.Div(
+view_tools = html.Ul(
     [
-        custom_button(
-            icon_classname="fas fa-info-circle",
+        html.Li(
+            html.Span(
+                [html.I(className="fas fa-info-circle fa-lg")],
+                className="d-flex align-items-center",
+            ),
             id="view-info",
-            tooltip="Info",
-            outline=True,
+            className="active",
+            **{"data-tab-target": "info-body"}
+            # tooltip="Info",
+            # outline=True,
+            # module="html",
         ),
-        custom_button(
-            icon_classname="fac fa-spin-systems",
+        html.Li(
+            html.Span(
+                [html.I(className="fac fa-spin-systems fa-lg")],
+                className="d-flex align-items-center",
+            ),
             id="view-spin-systems",
-            tooltip="View spin-systems",
-            outline=True,
+            **{"data-tab-target": "spin-system-body"}
+            # tooltip="Info",
+            # outline=True,
+            # module="html",
         ),
-        custom_button(
-            icon_classname="fas fa-cube",
+        html.Li(
+            html.Span(
+                [html.I(className="fas fa-cube fa-lg")],
+                className="d-flex align-items-center",
+            ),
             id="view-methods",
-            tooltip="View methods",
-            outline=True,
+            **{"data-tab-target": "method-body"}
+            # tooltip="Info",
+            # outline=True,
+            # module="html",
         ),
+        # custom_button(
+        #     icon_classname="fas fa-info-circle fa-lg",
+        #     id="view-info",
+        #     tooltip="Info",
+        #     # outline=True,
+        #     # module="html",
+        # ),
+        # custom_button(
+        #     icon_classname="fac fa-spin-systems fa-lg",
+        #     id="view-spin-systems",
+        #     tooltip="View spin-systems",
+        #     # outline=True,
+        #     # module="html",
+        # ),
+        # custom_button(
+        #     icon_classname="fas fa-cube fa-lg",
+        #     id="view-methods",
+        #     tooltip="View methods",
+        #     # outline=True,
+        #     # module="html",
+        # ),
     ],
     className="sidebar",
 )
@@ -180,7 +218,6 @@ app_1 = html.Div(
         html.Div(id="temp4"),
         html.Div(id="temp5"),
         html.Div(id="temp6"),
-        html.A(id="export-simulation-from-method-link", style={"display": "none"}),
         # html.Div(
         #     [
         #         html.Li(html.A("In", href="#info-body")),
