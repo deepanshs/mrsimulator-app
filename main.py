@@ -22,8 +22,9 @@ from app.body import sidebar
 from app.graph import DEFAULT_FIGURE
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
-from app_inv import mrinv
-from app_main import home_mrsims
+
+# from app_inv import mrinv
+# from app_main import home_mrsims
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
@@ -33,7 +34,8 @@ html_body = html.Div(
     [
         dcc.Location(id="url", refresh=False),
         html.Div(id="page-content"),
-        html.Div(id="placeholder"),
+        # html.Div(id="placeholder"),
+        html.A(id="url-search", href=""),
     ],
     className="main",
 )
@@ -42,32 +44,38 @@ app.layout = html_body
 
 server = app.server
 
-home = html.Div(
-    [
-        dcc.Link("Simulator", href="/simulator", id="simulator-app"),
-        dcc.Link("Inversion", href="/inversion", id="inversion-app"),
-        dcc.Link("Home", href="/home", id="home-app"),
-    ],
-    className="home-screen",
-    **{"data-app-link": ""},
+# home = html.Div(
+#     [
+#         dcc.Link("Simulator", href="/simulator", id="simulator-app"),
+#         dcc.Link("Inversion", href="/inversion", id="inversion-app"),
+#         dcc.Link("Home", href="/home", id="home-app"),
+#     ],
+#     className="home-screen",
+#     **{"data-app-link": ""},
+# )
+mrsimulator_app = html.Div(
+    [nav_group, html.Div([sidebar, app_1], className="main-split")]
 )
-layout_1 = html.Div([nav_group, html.Div([sidebar, app_1], className="main-split")])
 
-layout_2 = mrinv
-layout_3 = home_mrsims
+# layout_2 = mrinv
+# layout_3 = home_mrsims
 
 
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def display_page(pathname):
+@app.callback(
+    [Output("page-content", "children"), Output("url-search", "href")],
+    [Input("url", "pathname")],
+    [State("url", "search")],
+)
+def display_page(pathname, search):
     print(pathname)
-    if pathname == "/simulator":
-        return layout_1
-    if pathname == "/inversion":
-        return home  # layout_2
-    if pathname == "/home":
-        return home  # layout_3
-    else:
-        return home
+    # if pathname == "/simulator":
+    #     return [mrsimulator_app, search]
+    # if pathname == "/inversion":
+    #     return [layout_2, search]
+    # if pathname == "/home":
+    #     return [layout_3, search]
+    # else:
+    return [mrsimulator_app, search]
 
 
 app.clientside_callback(

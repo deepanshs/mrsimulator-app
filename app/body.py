@@ -7,84 +7,15 @@ from . import importer
 from . import navbar
 from .graph import spectrum_body
 from .info import sample_info
+from .menubar import file_menu
+from .modal.advance_settings import advance_settings
 from .nmr_method import dimension_body
 from .nmr_method.toolbar import method_edit_tools
 from .spin_system import spin_system_body
 from .spin_system.toolbar import spin_system_edit_tools
 
-# from .custom_widgets import custom_button
-
-
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
-
-# The nmr_method and spin-system cards are place at the front and back of a master
-# card
-# card_flip = html.Div(
-#     [
-#         dbc.Row(
-#             [
-#                 dbc.Col(
-#                     dimension_body, className="card-face", sm=6, md=12, lg=12, xl=6
-#                 ),
-#                 dbc.Col(
-#                     spin_system_body,
-#                     className="card-face card-face-back",
-#                     sm=6,
-#                     md=12,
-#                     lg=12,
-#                     xl=6,
-#                 ),
-#             ],
-#             id="card-flip",
-#             className="card-3D",
-#         ),
-#         html.Div(className="buffer"),
-#     ],
-#     className="scene",
-#     id="interface-dimension-spin-system",
-# )
-
-
-# @app.callback(
-#     [
-#         Output("card-flip", "className"),
-#         Output("dimension-card-body", "className"),
-#         Output("spin-system-card-body", "className"),
-#     ],
-#     [
-#         Input("dimension-card-title", "n_clicks"),
-#         Input("spin-system-card-title", "n_clicks"),
-#     ],
-# )
-# def flip(n1, n2):
-#     """Flips the card between the spin-system and dimension cards."""
-#     if n1 is None and n2 is None:
-#         raise PreventUpdate
-#     if not ctx.triggered:
-#         raise PreventUpdate
-
-#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-#     if trigger_id == "spin-system-card-title":
-#         return ["card-3D", "card-flip-show", "card-flip-hide"]
-
-#     return ["card-3D card-3D-is-flipped", "card-flip-hide", "card-flip-show"]
-
-
-# body = dbc.Row(
-#     [
-#         dbc.Col(spectrum_body, xs=12, sm=12, md=7, lg=7, xl=5, className="col-left"),
-#         dbc.Col(card_flip, xs=12, sm=12, md=5, lg=5, xl=7, className="col-right"),
-#     ],
-#     className="col-grid",
-# )
-
-# help_line = html.Div("", id="help-line")
-# slide2 = html.Section(
-#     [dbc.Col(spin_system_body), dbc.Col(dimension_body)], className="col-left",
-# )
-# slide3 = html.Section([help_line, spectrum_body], className="col-right")
 
 # storage data
 storage_div = html.Div(
@@ -145,69 +76,52 @@ nav_group = html.Div(
     ]
 )
 
-view_tools = html.Ul(
+tips = ["Home", "Spin Systems", "Methods", "Settings"]
+targets = ["view-info", "view-spin-systems", "view-methods", "advance_setting"]
+tooltips = html.Div(
     [
+        dbc.Tooltip(tip, target=target, placement="right")
+        for tip, target in zip(tips, targets)
+    ]
+)
+
+view_tools1 = html.Ul(
+    [
+        html.Div(html.Ul(file_menu, className="menu"), className="master-toolbar"),
+        html.Br(),
         html.Li(
-            html.Span(
-                [html.I(className="fas fa-info-circle fa-lg")],
-                className="d-flex align-items-center",
-            ),
+            html.Span(html.I(className="fas fa-home fa-lg")),
             id="view-info",
             className="active",
             **{"data-tab-target": "info-body"}
-            # tooltip="Info",
-            # outline=True,
-            # module="html",
         ),
         html.Li(
-            html.Span(
-                [html.I(className="fac fa-spin-systems fa-lg")],
-                className="d-flex align-items-center",
-            ),
+            html.Span(html.I(className="fac fa-spin-systems fa-lg")),
             id="view-spin-systems",
             **{"data-tab-target": "spin-system-body"}
-            # tooltip="Info",
-            # outline=True,
-            # module="html",
         ),
         html.Li(
-            html.Span(
-                [html.I(className="fas fa-cube fa-lg")],
-                className="d-flex align-items-center",
-            ),
+            html.Span(html.I(className="fas fa-cube fa-lg")),
             id="view-methods",
             **{"data-tab-target": "method-body"}
-            # tooltip="Info",
-            # outline=True,
-            # module="html",
         ),
-        # custom_button(
-        #     icon_classname="fas fa-info-circle fa-lg",
-        #     id="view-info",
-        #     tooltip="Info",
-        #     # outline=True,
-        #     # module="html",
-        # ),
-        # custom_button(
-        #     icon_classname="fac fa-spin-systems fa-lg",
-        #     id="view-spin-systems",
-        #     tooltip="View spin-systems",
-        #     # outline=True,
-        #     # module="html",
-        # ),
-        # custom_button(
-        #     icon_classname="fas fa-cube fa-lg",
-        #     id="view-methods",
-        #     tooltip="View methods",
-        #     # outline=True,
-        #     # module="html",
-        # ),
+        tooltips,
     ],
     className="sidebar",
 )
+view_tools2 = html.Ul(
+    [
+        html.Li(html.Span(html.I(className="fas fa-cog fa-lg")), id="advance_setting"),
+        advance_settings,
+    ],
+    className="sidebar button",
+)
+
+view_tools = html.Div([view_tools1, view_tools2], className="view-tools")
 
 sidebar = html.Div(
-    [view_tools, method_edit_tools, spin_system_edit_tools], className="sidebar-master"
+    [view_tools, method_edit_tools, spin_system_edit_tools],
+    className="sidebar-master",
 )
 
 app_1 = html.Div(

@@ -54,7 +54,8 @@ if (!window.dash_clientside) {
 window.dash_clientside.clientside = {
   initialize: function (n) {
     // clear session storage on refresh
-    window.sessionStorage.clear();
+    if (window.sessionStorage) window.sessionStorage.clear();
+
     init();
     activateMethodTools();
     activateSystemTools();

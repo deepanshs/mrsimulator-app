@@ -51,7 +51,7 @@ select_method = dcc.Dropdown(
 
 download = custom_button(
     icon_classname="fas fa-download fa-lg",
-    tooltip="Download Simulation from selected method",
+    tooltip="Download Simulation",
     id="export-simulation-from-method",
     className="icon-button",
     module="html",

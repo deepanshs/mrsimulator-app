@@ -143,7 +143,7 @@ button = custom_button(
 
 link_session = html.A(id="serialize-session-link", style={"display": "none"})
 download = custom_button(
-    icon_classname="fas fa-download fa-lg",
+    icon_classname="fas fa-file-download fa-lg",
     tooltip="Download Session",
     id="download-session",
     className="icon-button",
@@ -196,7 +196,7 @@ def display_sample_info(json_data):
 sample_info = html.Div(
     className="left-card active",
     children=dcc.Upload(
-        html.Div(display_sample_info(default_sample), id="info-read-only"),
+        dcc.Loading(html.Div(display_sample_info(default_sample), id="info-read-only")),
         id="upload-spin-system-local",
         disable_click=True,
         multiple=False,

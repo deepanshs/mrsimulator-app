@@ -137,7 +137,7 @@ title = html.Div(
 className = "align-items-center"
 spectrum_body = html.Div(
     id="spectrum-body",
-    className="my-card",
+    className="my-card active",
     children=dcc.Upload(
         [
             html.Div([title, toolbar], className="card-header"),

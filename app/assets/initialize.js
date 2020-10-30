@@ -60,10 +60,10 @@ var hideQuad = function () {
   check_quad = ISOTOPE_DATA.includes(isotope_id) ? false : true;
   if (check_quad) {
     quad_collapse.classList.add("show");
-    quad_collapse.attributes[2].value = "true";
+    // quad_collapse.attributes[2].value = "true";
   } else {
     quad_collapse.classList.remove("show");
-    quad_collapse.attributes[2].value = "false";
+    // quad_collapse.attributes[2].value = "false";
   }
 };
 

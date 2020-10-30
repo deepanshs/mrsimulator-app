@@ -1,6 +1,6 @@
 :root {
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 8.98em);
+  --content-max-height: calc(100vh - 7.98em);
   --content-min-height: calc(55.5rem - 18.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 125pt;
@@ -78,13 +78,15 @@ section {
 }
 
 .main-split .sidebar {
-  margin-top: 2rem;
-  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
 }
-
+.main-split .sidebar.button:hover {
+  background-color: #e7e7e7;
+  border-radius: 2em;
+}
 .main-split .sidebar li {
+  list-style: none;
   padding: 1em;
   border-radius: 0;
   border: none;
@@ -92,15 +94,9 @@ section {
   color: gray;
   border-left: 3px solid transparent;
 }
-.main-split .sidebar li.active,
-.main-split .sidebar li:hover {
+.main-split .sidebar li.active {
   color: var(--select-blue);
   border-left: 3px solid var(--select-blue);
-}
-
-.main-split .sidebar button:last-child {
-  border-bottom-left-radius: 0.2rem;
-  border-bottom-right-radius: 0.2rem;
 }
 
 .main-split .app-1 {
@@ -118,6 +114,17 @@ section {
 }
 
 @media only screen and (max-width: 810px) {
+  :root {
+    --content-max-height: calc(100vh - 6.7em);
+  }
+  [id$="-body"].left-card.active,
+  [id$="-body"].my-card {
+    position: relative;
+    margin: 0;
+    min-width: calc(100vw - 0.25rem);
+    scroll-snap-align: center;
+    padding: 0;
+  }
   .mobile-scroll {
     display: flex;
     overflow-x: auto;
@@ -126,12 +133,49 @@ section {
     padding: 0;
     scrollbar-width: thin;
   }
-
   .mobile-scroll::-webkit-scrollbar {
     display: none;
   }
-
+  .main-split {
+    display: block;
+  }
+  .main-split .sidebar li {
+    border-left: 3px solid transparent;
+  }
+  .main-split .sidebar li.active {
+    border-left: 3px solid transparent;
+    border-bottom: 3px solid var(--select-blue);
+  }
   .main-split .sidebar-master {
+    box-shadow: none;
+    border-bottom: 1px solid silver;
+  }
+  .main-split .sidebar {
+    margin: 0;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .view-tools {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .view-tools.sidebar {
+    padding: 0;
+    margin: 0;
+  }
+  .navbar {
+    padding-left: 0;
+  }
+  .navbar img {
+    display: none;
+  }
+  .nav-burger {
+    display: none;
+  }
+  .nav-composite {
+    transform: translateY(0%);
+  }
+  .bottom-navbar {
     display: none;
   }
 }

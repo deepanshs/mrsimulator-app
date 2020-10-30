@@ -1,11 +1,12 @@
+.nav-composite {
+  padding: 0 0 0 2em;
+}
+
 .master-toolbar {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1px;
-  padding-left: 2rem;
-  padding-right: 2rem;
   border-bottom: 1px solid lightgray;
 }
 .master-toolbar .right-menu {
@@ -95,49 +96,9 @@
 }
 .master-toolbar .close-menu {
   display: none;
-  color: #fff;
+  color: #FFF;
   text-decoration: none;
   text-align: center;
-}
-@media screen and (max-width: 767px) {
-  .master-toolbar .close-menu {
-    display: block;
-  }
-}
-@media screen and (max-width: 767px) {
-  .master-toolbar {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    min-height: 100vh;
-    z-index: 999;
-    background-color: #222;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.4s ease-out;
-  }
-  .master-toolbar.is-active {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .master-toolbar .menu {
-    flex-direction: column;
-  }
-  .master-toolbar .menu .has-sub-menu > .sub-menu {
-    display: none;
-    position: relative;
-  }
-  .master-toolbar .menu .has-sub-menu > .sub-menu .sub-menu {
-    position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
-  .master-toolbar .menu .has-sub-menu:hover > .sub-menu {
-    display: block;
-  }
 }
 
 /*# sourceMappingURL=menubar.css.map */

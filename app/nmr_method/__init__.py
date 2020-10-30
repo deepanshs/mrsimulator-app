@@ -15,11 +15,12 @@ from .toolbar import search_method
 from app.app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
-from app.custom_widgets import custom_input_group
 from app.nmr_method.post_simulation_widgets import gaussian_linebroadening_widget
 from app.nmr_method.simulation_widgets import property_setup
 from app.nmr_method.simulation_widgets import spectral_dimension_ui
 from app.spin_system import isotope_options_list
+
+# from app.custom_widgets import custom_input_group
 
 METHOD_LIST = [
     mt.BlochDecaySpectrum,
@@ -87,11 +88,11 @@ edit_button = html.Div(
 btn = dbc.Button(
     [
         html.Span(
-            html.I(className="fas fa-upload fa-lg"),
+            html.I(className="fas fa-paperclip fa-lg"),
             className="d-flex align-items-center",
         ),
         dbc.Tooltip(
-            "Upload measurement for the selected method",
+            "Attach a measurement to the selected method",
             target="import-measurement-for-method",
         ),
     ],
@@ -177,48 +178,48 @@ method_header = html.Div(
     ]
 )
 
-B0 = custom_input_group(
-    prepend_label="Magnetic flux density (H₀)",
-    append_label="T",
-    value=9.4,
-    id="modal-magnetic_flux_density",
-    min=0.0,
-)
-vr = custom_input_group(
-    prepend_label="Rotor frequency (𝜈ᵣ)",
-    append_label="kHz",
-    value=0.0,
-    id="modal-rotor_frequency",
-    min=0.0,
-)
-rt = custom_input_group(
-    prepend_label="Rotor angle (θᵣ)",
-    append_label="deg",
-    value=54.735,
-    id="modal-rotor_angle",
-    max=90,
-    min=0,
-)
-count = custom_input_group(
-    prepend_label="Number of points",
-    append_label="",
-    value=1024,
-    id="modal-count",
-    min=8,
-)
-sw = custom_input_group(
-    prepend_label="Spectral width",
-    append_label="kHz",
-    value=25,
-    id="modal-spectral_width",
-    min=0.1,
-)
-rf = custom_input_group(
-    prepend_label="Reference offset",
-    append_label="kHz",
-    value=0,
-    id="modal-reference_offset",
-)
+# B0 = custom_input_group(
+#     prepend_label="Magnetic flux density (H₀)",
+#     append_label="T",
+#     value=9.4,
+#     id="modal-magnetic_flux_density",
+#     min=0.0,
+# )
+# vr = custom_input_group(
+#     prepend_label="Rotor frequency (𝜈ᵣ)",
+#     append_label="kHz",
+#     value=0.0,
+#     id="modal-rotor_frequency",
+#     min=0.0,
+# )
+# rt = custom_input_group(
+#     prepend_label="Rotor angle (θᵣ)",
+#     append_label="deg",
+#     value=54.735,
+#     id="modal-rotor_angle",
+#     max=90,
+#     min=0,
+# )
+# count = custom_input_group(
+#     prepend_label="Number of points",
+#     append_label="",
+#     value=1024,
+#     id="modal-count",
+#     min=8,
+# )
+# sw = custom_input_group(
+#     prepend_label="Spectral width",
+#     append_label="kHz",
+#     value=25,
+#     id="modal-spectral_width",
+#     min=0.1,
+# )
+# rf = custom_input_group(
+#     prepend_label="Reference offset",
+#     append_label="kHz",
+#     value=0,
+#     id="modal-reference_offset",
+# )
 # method modal list
 method_list_dropdown = dbc.Modal(
     [
@@ -230,12 +231,12 @@ method_list_dropdown = dbc.Modal(
             [
                 dbc.InputGroupAddon("Channel", addon_type="prepend"),
                 dbc.Select(options=isotope_options_list, value="1H", id="channel"),
-                B0,
-                vr,
-                rt,
-                count,
-                sw,
-                rf,
+                # B0,
+                # vr,
+                # rt,
+                # count,
+                # sw,
+                # rf,
             ],
             className="container",
         ),
@@ -273,26 +274,26 @@ dimension_body = html.Div(
     [
         State("method-type", "value"),
         State("channel", "value"),
-        State("modal-rotor_angle", "value"),
-        State("modal-rotor_frequency", "value"),
-        State("modal-magnetic_flux_density", "value"),
-        State("modal-count", "value"),
-        State("modal-spectral_width", "value"),
-        State("modal-reference_offset", "value"),
+        # State("modal-rotor_angle", "value"),
+        # State("modal-rotor_frequency", "value"),
+        # State("modal-magnetic_flux_density", "value"),
+        # State("modal-count", "value"),
+        # State("modal-spectral_width", "value"),
+        # State("modal-reference_offset", "value"),
     ],
     prevent_initial_call=True,
 )
-def get_method_json(n, value, isotope, rt, vr, B0, count, sw, rf):
+def get_method_json(n, value, isotope):
     if n is None:
         raise PreventUpdate
     print(value)
-    dims = [{"count": count, "spectral_width": sw * 1e3, "reference_offset": rf * 1e3}]
+    dims = [{"count": 512, "spectral_width": 25000, "reference_offset": 0}]
     return {
         "method": METHOD_LIST[value](
             channels=[isotope],
-            magnetic_flux_density=B0,
-            rotor_angle=rt * 3.14159265 / 180,
-            rotor_frequency=vr * 1e3,
+            # magnetic_flux_density=B0,
+            # rotor_angle=rt * 3.14159265 / 180,
+            # rotor_frequency=vr * 1e3,
             spectral_dimensions=dims,
         ).reduced_dict(),
         "time": int(datetime.now().timestamp() * 1000),

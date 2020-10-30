@@ -178,14 +178,14 @@ spectrum_import_layout = upload_data(
         # from file->open
         Input("open-mrsimulator-file", "contents"),
         # spin-system->import+add
-        Input("upload-and-add-spin-system-button", "contents"),
+        # Input("upload-and-add-spin-system-button", "contents"),
         # method->add measurement
         Input("import-measurement-for-method", "contents"),
         # method->remove measurement
         Input("remove-measurement-from-method", "n_clicks"),
         # graph->drag and drop
         Input("upload-from-graph", "contents"),
-        Input("upload-spin-system-url-submit", "n_clicks"),
+        Input("url-search", "href"),
         # examples
         Input("selected-example", "value"),
         # when spin-system is modified
@@ -223,7 +223,7 @@ def update_simulator(*args):
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("trigger", trigger_id)
+    print("trigger-id", trigger_id)
 
     existing_data = ctx.states["local-mrsim-data.data"]
 
@@ -286,14 +286,17 @@ def update_simulator(*args):
     # set of pre-defined examples.
     if trigger_id == "selected-example":
         example = ctx.inputs["selected-example.value"]
-        return example_selection(example, decompose)
+        return example_selection(example, existing_data, decompose)
 
     # Request and load a sample from URL
     # The following section applies to when the spin-systems update is triggered from
     # url-submit.
-    if trigger_id == "upload-spin-system-url-submit":
-        url = ctx.states("upload-spin-system-url.value")
-        return load_from_url(url, existing_data, decompose)
+    if trigger_id == "url-search":
+        url_search = ctx.inputs["url-search.href"]
+        # print("url-search.href", url_search)
+        if url_search in [None, ""]:
+            raise PreventUpdate
+        return load_from_url(url_search[3:], existing_data, decompose)
 
     if trigger_id == "confirm-clear-spin-system":
         return clear_system("spin_systems", existing_data)
@@ -301,18 +304,18 @@ def update_simulator(*args):
     if trigger_id == "confirm-clear-methods":
         return clear_system("methods", existing_data)
 
-    if trigger_id == "upload-and-add-spin-system-button":
-        contents = ctx.inputs[f"{trigger_id}.contents"]
-        if contents is None:
-            raise PreventUpdate
-        try:
-            data = fix_missing_keys(parse_contents(contents))
-        except Exception:
-            message = "Error reading spin-systems."
-            return [message, *if_error_occurred]
-        data = parse_data(data, parse_method=False)
-        existing_data["spin_systems"] += data["spin_systems"]
-        return assemble_data(existing_data)
+    # if trigger_id == "upload-and-add-spin-system-button":
+    #     contents = ctx.inputs[f"{trigger_id}.contents"]
+    #     if contents is None:
+    #         raise PreventUpdate
+    #     try:
+    #         data = fix_missing_keys(parse_contents(contents))
+    #     except Exception:
+    #         message = "Error reading spin-systems."
+    #         return [message, *if_error_occurred]
+    #     data = parse_data(data, parse_method=False)
+    #     existing_data["spin_systems"] += data["spin_systems"]
+    #     return assemble_data(existing_data)
 
     # Load a sample from drag and drop
     # The following section applies to when the spin-systems update is triggered from
@@ -542,22 +545,24 @@ def modified_spin_system(existing_data, new_spin_system):
         return default
 
 
-def example_selection(example, decompose):
+def example_selection(example, existing_data, decompose):
     """Load the selected example."""
     if example in ["", None]:
         raise PreventUpdate
-    response = urlopen(get_absolute_url_path(example, PATH_))
-    data = fix_missing_keys(json.loads(response.read()))
-    return assemble_data(parse_data(data))
+    return load_from_url(
+        get_absolute_url_path(example, PATH_), existing_data, decompose
+    )
 
 
 def load_from_url(url, existing_data, decompose):
     """Load the selected data from url."""
-    if url in ["", None]:
-        raise PreventUpdate
     response = urlopen(url)
+
+    content = json.loads(response.read())
+    if url.endswith(".mrsys"):
+        content = {"spin_systems": content}
     try:
-        data = fix_missing_keys(json.loads(response.read()))
+        data = fix_missing_keys(content)
         return assemble_data(parse_data(data))
     except Exception:
         no_updates = [no_update, no_update, no_update, no_update, no_update, no_update]

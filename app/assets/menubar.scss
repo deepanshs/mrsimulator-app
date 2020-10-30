@@ -1,11 +1,11 @@
+.nav-composite {
+	padding: 0 0 0 2em;
+}
 .master-toolbar {
 	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 1px;
-	padding-left: 2rem;
-	padding-right: 2rem;
 	border-bottom: 1px solid lightgray;
 
 	.right-menu {
@@ -37,7 +37,7 @@
 				color: #494949;
 				text-decoration: none;
 				outline: none;
-				padding: 6px 15px;
+				padding: 7px 15px;
 				padding-right: 30px;
 				cursor: pointer;
 
@@ -52,7 +52,7 @@
 				color: #494949;
 				border-radius: 0.25em;
 				text-decoration: none;
-				padding: 6px 15px;
+				padding: 7px 15px;
 				margin: 0;
 			}
 
@@ -71,20 +71,6 @@
 			&.has-sub-menu {
 				>a {
 					position: relative;
-					// padding-right: 35px;
-
-					// &:after {
-					// 	content: '+';
-					// 	display: block;
-					// 	position: absolute;
-					// 	top: 50%;
-					// 	right: 15px;
-					// 	transform: translateY(-50%);
-					// 	color: #494949;
-					// 	font-size: 18px;
-					// 	font-weight: 500;
-					// }
-
 					&:hover {
 						&:after {
 							color: white;
@@ -134,54 +120,5 @@
 		color: #FFF;
 		text-decoration: none;
 		text-align: center;
-
-		@media screen and (max-width: 767px) {
-			display: block;
-		}
-	}
-
-	@media screen and (max-width: 767px) {
-		display: block;
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		min-height: 100vh;
-		z-index: 999;
-		background-color: #222;
-
-		opacity: 0;
-		pointer-events: none;
-
-		transition: 0.4s ease-out;
-
-		&.is-active {
-			opacity: 1;
-			pointer-events: all;
-		}
-
-		.menu {
-			flex-direction: column;
-
-			.has-sub-menu {
-				>.sub-menu {
-					display: none;
-					position: relative;
-
-					.sub-menu {
-						position: relative;
-						top: 0;
-						left: 0;
-						right: 0;
-					}
-				}
-
-				&:hover {
-					>.sub-menu {
-						display: block;
-					}
-				}
-			}
-		}
 	}
 }

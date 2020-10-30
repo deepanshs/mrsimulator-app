@@ -10,7 +10,6 @@ from dash.exceptions import PreventUpdate
 
 from .app import app
 from .modal.about import about_modals
-from .modal.advance_settings import advance_settings
 from app.app import year
 
 
@@ -66,29 +65,32 @@ def create_submenu(title, items):
 # - New             |
 # - Open            |
 # --------------------------------------------------------------------------- #
-import_items = [
-    dcc.Upload("Spin systems", id="upload-and-add-spin-system-button"),
-]
-import_remove_data = create_submenu(
-    div_icon_text_display_with_submenu(
-        "fas fa-file-import",
-        "Import",
-    ),
-    import_items,
-)
+# import_items = [
+#     dcc.Upload("Spin systems", id="upload-and-add-spin-system-button"),
+# ]
+# import_remove_data = create_submenu(
+#     div_icon_text_display_with_submenu(
+#         "fas fa-file-import",
+#         "Import",
+#     ),
+#     import_items,
+# )
 
 
 file_items = [
-    html.A(div_icon_text_display("fas fa-file", "New"), href="/", target="_blank"),
+    html.A(
+        div_icon_text_display("fas fa-file", "New Document"),
+        href="/",
+        target="_blank",
+    ),
     dcc.Upload(
         div_icon_text_display(icon="fas fa-folder-open", text="Open..."),
         id="open-mrsimulator-file",
         accept=".mrsim",
     ),
-    html.Hr(),
-    import_remove_data,
+    # import_remove_data,
 ]
-file_menu = create_submenu("File", file_items)
+file_menu = create_submenu(html.Span(html.I(className="fas fa-bars fa-lg")), file_items)
 
 
 # Spin system menu ----------------------------------------------------------- #
@@ -222,24 +224,24 @@ def example_callback(*args):
 # - Spin Systems    |
 # - Methods         |
 # --------------------------------------------------------------------------- #
-view_items = [
-    div_icon_text_display("fas fa-info-circle", "Info", id="menu_info"),
-    div_icon_text_display("fac fa-spin-systems", "Spin Systems", id="menu_sys"),
-    div_icon_text_display("fas fa-cube", "Methods", id="menu_method"),
-]
-view_menu = create_submenu("View", view_items)
+# view_items = [
+#     div_icon_text_display("fas fa-info-circle", "Info", id="menu_info"),
+#     div_icon_text_display("fac fa-spin-systems", "Spin Systems", id="menu_sys"),
+#     div_icon_text_display("fas fa-cube", "Methods", id="menu_method"),
+# ]
+# view_menu = create_submenu("View", view_items)
 
-target = ["info", "spin-systems", "methods"]
-source = ["menu_info", "menu_sys", "menu_method"]
+# target = ["info", "spin-systems", "methods"]
+# source = ["menu_info", "menu_sys", "menu_method"]
 
-for t, s in zip(target, source):
-    fn = f"$('#view-{t}')[0].click();"
-    app.clientside_callback(
-        "function(){" + fn + "throw window.dash_clientside.PreventUpdate;}",
-        Output(f"view-{t}", "n_clicks"),
-        [Input(s, "n_clicks")],
-        prevent_initial_call=True,
-    )
+# for t, s in zip(target, source):
+#     fn = f"$('#view-{t}')[0].click();"
+#     app.clientside_callback(
+#         "function(){" + fn + "throw window.dash_clientside.PreventUpdate;}",
+#         Output(f"view-{t}", "n_clicks"),
+#         [Input(s, "n_clicks")],
+#         prevent_initial_call=True,
+#     )
 
 
 # Help menu ----------------------------------------------------------------- #
@@ -270,28 +272,24 @@ help_menu = create_submenu("Help", help_items)
 
 
 # Advanced settings ----------------------------------------------------------------- #
-advance_setting_button = html.A(
-    label_icon_text_display(icon="fas fa-cog", text="Setting", id="advance_setting"),
-    className="default-button",
-)
+# advance_setting_button = html.A(
+#     label_icon_text_display(icon="fas fa-cog", text="Setting", id="advance_setting"),
+#     className="default-button",
+# )
 
 # Master menu ------------------------------------------------------ #
 master_menubar = html.Div(
     [
         html.Ul(
             [
-                file_menu,
+                # file_menu,
                 spin_system_menu,
                 method_menu,
                 example_menu,
-                view_menu,
+                # view_menu,
                 help_menu,
             ],
             className="menu",
-        ),
-        html.Div(
-            [advance_settings, advance_setting_button],
-            className="right-menu",
         ),
         about_modals,
     ],
