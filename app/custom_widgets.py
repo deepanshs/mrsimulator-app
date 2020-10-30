@@ -125,10 +125,10 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     return button
 
 
-def custom_card(text, children, id=None):
-    if id is None:
+def custom_card(text, children, id_=None):
+    if id_ is None:
         return html.Div([html.H6(text), children], className="scroll-cards")
-    return html.Div([html.H6(text), children], id=id, className="scroll-cards")
+    return html.Div([html.H6(text), children], id=id_, className="scroll-cards")
 
 
 def custom_slider(label="", return_function=None, **kwargs):
@@ -162,8 +162,7 @@ def custom_slider(label="", return_function=None, **kwargs):
     def update_label(value):
         if return_function is None:
             return [value]
-        else:
-            return [return_function(value)]
+        return [return_function(value)]
 
     return slider
 

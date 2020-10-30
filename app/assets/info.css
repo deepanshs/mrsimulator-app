@@ -1,7 +1,7 @@
 #info-read-only {
   height: var(--content-max-height);
   width: 100%;
-  padding: 1em 1em 0 1em;
+  padding: 1em 1em 0;
   overflow-y: auto;
   overflow-x: hidden;
 }

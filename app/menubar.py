@@ -28,10 +28,10 @@ def div_icon_text_display(icon, text, id=None):
     )
 
 
-def div_icon_text_display_with_submenu(icon, text, id=None):
+def div_icon_text_display_with_submenu(icon, text, id_=None):
     return html.Div(
         [
-            div_icon_text_display(icon=icon, text=text, id=id),
+            div_icon_text_display(icon=icon, text=text, id=id_),
             div_icon_text_display(icon="fas fa-caret-right 2x", text=""),
         ],
         style={"display": "flex", "align-items": "space-between", "width": "100%"},

@@ -374,14 +374,14 @@ function copySystem(data, l) {
 function delSystem(max_value, l) {
   let result = {};
   checkForEmptyListForOperation("delete", "spin system", l);
-  new_val = get_spin_system_index();
+  let new_val = get_spin_system_index();
   result.data = max_value;
   result.index = new_val;
   result.operation = "delete";
   // new_val -= 1;
   // new_val = new_val < 0 ? 0 : new_val;
   // set_spin_system_index(new_val);
-  max_value = l = null;
+  max_value = l = new_val = null;
   return result;
 }
 
@@ -420,14 +420,14 @@ function copyMethod(data, l) {
 function delMethod(n4, l) {
   let result = {};
   checkForEmptyListForOperation("delete", "method", l);
-  new_val = get_method_index();
+  let new_val = get_method_index();
   result.data = n4;
   result.index = new_val;
   result.operation = "delete";
   // new_val -= 1;
   // new_val = new_val < 0 ? 0 : new_val;
   // set_method_index(new_val);
-  n4 = l = null;
+  n4 = l = new_val = null;
   return result;
 }
 
