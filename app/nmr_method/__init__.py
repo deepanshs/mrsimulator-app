@@ -25,7 +25,7 @@ from app.spin_system import isotope_options_list
 METHOD_LIST = [
     mt.BlochDecaySpectrum,
     mt.BlochDecayCentralTransitionSpectrum,
-    mt.ThreeQ_VAS,
+    # mt.ThreeQ_VAS,
 ]
 DIM_INDEX = [1, 1, 2]
 # "Custom2D": mt.Custom2D(spectral_dimensions=[{}, {}]).reduced_dict(),
@@ -34,7 +34,7 @@ DIM_INDEX = [1, 1, 2]
 METHOD_OPTIONS = [
     {"label": "Bloch Decay Spectrum", "value": 0},
     {"label": "Bloch Decay Central Transition Spectrum", "value": 1},
-    {"label": "Triple-quantum variable-angle spinning", "value": 2},
+    # {"label": "Triple-quantum variable-angle spinning", "value": 2},
     # {"label": "Custom 2D method", "value": "Custom2D"},
 ]
 
