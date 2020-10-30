@@ -18,7 +18,7 @@ __email__ = ["deepansh2012@gmail.com"]
 
 
 button = html.Div(
-    html.I(className="fas fa-question-circle pl-1"),
+    html.I(className="fas fa-question-circle pl-1 fa-lg"),
     id="pop-up-simulation-button",
     style={"cursor": "pointer"},
 )
@@ -86,36 +86,40 @@ DEFAULT_FIGURE = {
 #             'circle-in-out', 'elastic-in-out', 'back-in-out',
 #             'bounce-in-out']
 
-plotly_graph = dcc.Graph(
-    id="nmr_spectrum",
-    figure=DEFAULT_FIGURE,
-    config={
-        # "editable": True,
-        # "edits": {"axisTitleText": True},
-        "responsive": True,
-        "scrollZoom": False,
-        "showLink": False,
-        # "autosizable": True,
-        # "fillFrame": True,
-        "modeBarButtonsToRemove": [
-            "toImage",
-            # "zoom2d"
-            # "pan2d",
-            "select2d",
-            "lasso2d",
-            # "zoomIn2d",
-            # "zoomOut2d",
-            # "autoScale2d",
-            "resetScale2d",
-            "hoverClosestCartesian",
-            "hoverCompareCartesian",
-            "toggleHover",
-            # "toggleSpikelines",
-        ],
-        "displaylogo": False,
-    },
-)
 
+def generate_graph_instance(id_=""):
+    return dcc.Graph(
+        id=id_,
+        figure=DEFAULT_FIGURE,
+        config={
+            # "editable": True,
+            # "edits": {"axisTitleText": True},
+            "responsive": True,
+            "scrollZoom": False,
+            "showLink": False,
+            # "autosizable": True,
+            # "fillFrame": True,
+            "modeBarButtonsToRemove": [
+                "toImage",
+                # "zoom2d"
+                # "pan2d",
+                "select2d",
+                "lasso2d",
+                # "zoomIn2d",
+                # "zoomOut2d",
+                # "autoScale2d",
+                "resetScale2d",
+                "hoverClosestCartesian",
+                "hoverCompareCartesian",
+                "toggleHover",
+                # "toggleSpikelines",
+            ],
+            "displaylogo": False,
+        },
+    )
+
+
+plotly_graph = generate_graph_instance(id_="nmr_spectrum")
 graph_loading = dcc.Loading(plotly_graph, type="dot")
 
 app.clientside_callback(
@@ -126,40 +130,34 @@ app.clientside_callback(
 
 title = html.Div(
     [
-        html.I(className="fac fa-spectrum"),
-        html.H5(["Simulation", button], className="title-with-help"),
+        html.I(className="fac fa-spectrum fa-lg"),
+        html.H4(["Simulation", button], className="title-with-help"),
     ]
 )
 className = "align-items-center"
 spectrum_body = html.Div(
-    [
-        html.Div(
-            id="spectrum-body",
-            className="my-card",
-            children=dcc.Upload(
-                [
-                    html.Div([title, toolbar], className="card-header"),
-                    toolbar_select_method,
-                    graph_loading,
-                    simulation_help,
-                ],
-                id="upload-from-graph",
-                disable_click=True,
-                # accept="application/json, text/plain, .csdf",
-                style_active={
-                    "border": "1px solid rgb(78, 196, 78)",
-                    "backgroundColor": "rgb(225, 255, 225)",
-                    "opacity": "0.75",
-                },
-                # style_reject={
-                #     "border": "1px solid rgb(196, 78, 78)",
-                #     "backgroundColor": "rgb(255, 225, 225)",
-                #     "opacity": "0.75",
-                #     "borderRadius": "0.8em",
-                # },
-            ),
-        )
-    ],
-    id="floating-card",
-    className="float-card",
+    id="spectrum-body",
+    className="my-card active",
+    children=dcc.Upload(
+        [
+            html.Div([title, toolbar], className="card-header"),
+            toolbar_select_method,
+            graph_loading,
+            simulation_help,
+        ],
+        id="upload-from-graph",
+        disable_click=True,
+        # accept="application/json, text/plain, .csdf",
+        style_active={
+            "border": "1px solid rgb(78, 196, 78)",
+            "backgroundColor": "rgb(225, 255, 225)",
+            "opacity": "0.75",
+        },
+        # style_reject={
+        #     "border": "1px solid rgb(196, 78, 78)",
+        #     "backgroundColor": "rgb(255, 225, 225)",
+        #     "opacity": "0.75",
+        #     "borderRadius": "0.8em",
+        # },
+    ),
 )

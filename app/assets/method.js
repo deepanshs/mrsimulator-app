@@ -5,14 +5,18 @@
 
 window.dash_clientside.method = {
   export_simulation_from_selected_method: function (n, data) {
-    if (n == null || data == null) {
-      throw window.dash_clientside.PreventUpdate;
+    if (n == null) {
+      alert("No method found. Try adding a method first.");
+      return "";
+    }
+    if (data == null) {
+      alert("No simulation data available for the method.");
+      return "";
     }
     let i = get_method_index();
 
     // get the data corresponding to the selected method.
     let selectedData = data[i];
-    console.log(selectedData);
 
     // // if decompose is false, add the data from all dependent variables.
     // if (!decompose) {
@@ -42,10 +46,11 @@ window.dash_clientside.method = {
     dataStr += encodeURIComponent(JSON.stringify(selectedData));
 
     let dlAnchorElem = $("#export-simulation-from-method-link")[0];
-    console.log($("#export-simulation-from-method-link")[0]);
     dlAnchorElem.setAttribute("href", dataStr);
     dlAnchorElem.setAttribute("download", "simulation.csdf");
     dlAnchorElem.click();
+
+    dataStr = ndlAnchorElem = null;
     return "";
   },
 };
@@ -94,8 +99,8 @@ window.methods = {
     let li = $("#dim-tab div div ul.vertical-tabs li");
     $("#method-title")[0].innerHTML = method.name;
 
-    setValue(`method-description`, method.description);
-    setValue(`channel`, method.channels[0]);
+    // setValue(`method-description`, method.description);
+    // setValue(`channel`, method.channels[0]);
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       // show dimension tabs that are applicable for the given method.
       li[i].classList.remove("hide-display");
@@ -104,7 +109,7 @@ window.methods = {
       setValue(`count-${i}`, sd.count);
       setValue(`spectral_width-${i}`, sd.spectral_width / 1e3); // to kHz
       setValue(`reference_offset-${i}`, sd.reference_offset / 1e3); // to kHz
-      setValue(`origin_offset-${i}`, sd.origin_offset / 1e6); // to MHz
+      // setValue(`origin_offset-${i}`, sd.origin_offset / 1e6); // to MHz
       setValue(`label-${i}`, sd.label);
 
       for (j = 0; j < sd.events.length; j++) {
@@ -119,7 +124,6 @@ window.methods = {
           sd.events[j].rotor_frequency / 1e3
         ); // to kHz
         setValue(`rotor_angle-${i}-${j}`, rad_to_deg(sd.events[j].rotor_angle));
-        console.log(sd.events[j].transition_query);
         setValue(
           `transition-${i}-${j}`,
           sd.events[j].transition_query["P"]["channel-1"][0][0]
@@ -148,23 +152,24 @@ window.methods = {
     } else {
       ul[0].classList.remove("hide-display");
     }
+    data = method = sd = li = ul = null;
   },
   updateData: function () {
     let sd, ev, i, j;
-    let channel = getValue(`channel`);
-    let description = getValue(`method-description`);
+    // let channel = getValue(`channel`);
+    // let description = getValue(`method-description`);
 
     let method = storeData.data.methods[get_method_index()];
 
-    method.description = description;
-    method.channels = [channel];
+    // method.description = description;
+    // method.channels = [channel];
 
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       sd = method.spectral_dimensions[i];
       sd.count = getValue(`count-${i}`);
       sd.spectral_width = getValue(`spectral_width-${i}`) * 1e3; // to Hz
       sd.reference_offset = getValue(`reference_offset-${i}`) * 1e3; // to Hz
-      sd.origin_offset = getValue(`origin_offset-${i}`) * 1e6; // to Hz
+      // sd.origin_offset = getValue(`origin_offset-${i}`) * 1e6; // to Hz
 
       for (j = 0; j < sd.events.length; j++) {
         ev = sd.events[j];
@@ -184,6 +189,7 @@ window.methods = {
         );
       }
     }
+    sd = ev = i = j = null;
     return method;
   },
 };
@@ -210,6 +216,7 @@ function searchMethods() {
       }
     }
   }
+  input = filter = li = i = j = elements1 = elements2 = elements = txtValue = null;
 }
 
 function hideElement(id) {

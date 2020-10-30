@@ -65,8 +65,7 @@ search_method = dcc.Input(
 )
 
 method_edit_tools = html.Div(
-    className="sidebar hide-window",
     children=[button, new_method, duplicate_method, trash_method],
-    id="method-edit-tools",
+    style={"display": "none"},
 )
 # method_toolbar = html.Div([search_method], className="toolbar")

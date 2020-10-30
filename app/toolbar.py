@@ -2,9 +2,14 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import ClientsideFunction
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
 
 from .custom_widgets import custom_switch
-
+from app.app import app
+from app.custom_widgets import custom_button
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -35,17 +40,6 @@ decompose_button = custom_switch(
     style={"zIndex": 0},
 )
 
-# # Show sum of spectrum from individual spin-systems -------------------------------- #
-# compose_button = custom_switch(
-#     # text="Decompose",
-#     icon_classname="fac fa-compose",
-#     id="compose",
-#     # size="sm",
-#     # tooltip="Show simulation from individual spin-systems.",
-#     outline=True,
-#     color="dark",
-#     style={"zIndex": 0},
-# )
 # select method  -------------------------------------------------------------------- #
 select_method = dcc.Dropdown(
     id="select-method",
@@ -55,24 +49,34 @@ select_method = dcc.Dropdown(
     placeholder="View simulation from method ...",
 )
 
+download = custom_button(
+    icon_classname="fas fa-download fa-lg",
+    tooltip="Download Simulation",
+    id="export-simulation-from-method",
+    className="icon-button",
+    module="html",
+)
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="method", function_name="export_simulation_from_selected_method"
+    ),
+    Output("export-simulation-from-method-link", "href"),
+    [Input("export-simulation-from-method", "n_clicks")],
+    [State("local-processed-data", "data")],
+    prevent_initial_call=True,
+)
+spectrum_download_link = html.A(
+    id="export-simulation-from-method-link", style={"display": "none"}
+)
+
 # Button group ---------------------------------------------------------------------- #
-toolbar = dbc.ButtonGroup([scale_amplitude_button, decompose_button])
-
-
-# toolbar icons --------------------------------------------------------------------- #
-toolbar_select_method = html.Div(
-    [html.Label("Select simulation"), select_method],
-    className="d-flex align-items-center justify-items-between toolbar",
+toolbar = html.Div(
+    [
+        dbc.ButtonGroup([scale_amplitude_button, decompose_button]),
+        html.Div([download, spectrum_download_link]),
+    ]
 )
 
 
-# # add callback for toggling the collapse on small screens
-# @app.callback(
-#     Output("toolbar-collapse", "is_open"),
-#     [Input("toolbar-toggler", "n_clicks")],
-#     [State("toolbar-collapse", "is_open")],
-# )
-# def toggle_toolbar_collapse(n, is_open):
-#     if n:
-#         return not is_open
-#     return is_open
+# toolbar icons --------------------------------------------------------------------- #
+toolbar_select_method = html.Div(select_method, style={"display": "none"})

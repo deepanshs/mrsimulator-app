@@ -218,7 +218,8 @@ isotope_and_shift = html.Div(
             [
                 dbc.InputGroupAddon("Isotope", addon_type="prepend"),
                 dbc.Select(options=isotope_options_list, value="1H", id="isotope"),
-            ]
+            ],
+            className="input-form-2",
         ),
         custom_input_group(
             prepend_label="Isotropic shift (δ)",
@@ -335,7 +336,7 @@ spin_system_read_only = html.Div(blank_display, id="spin-system-read-only")
 # spin-system section
 spin_system_editor = html.Form(
     [
-        dbc.Card(
+        html.Div(
             [
                 spin_system_title,
                 spin_system_abundance_field,
@@ -359,14 +360,14 @@ spin_system_slide = html.Div(
 
 spin_system_title = html.Div(
     [
-        html.I(className="fac fa-spin-systems"),
-        html.H5("Spin Systems", className="hide-label-sm"),
+        html.I(className="fac fa-spin-systems fa-lg"),
+        html.H4("Spin Systems", className="hide-label-sm"),
     ]
 )
 
 # Spin system layout
 spin_system_body = html.Div(
-    className="my-card hide-window",
+    className="left-card",
     children=html.Div(
         [
             html.Div([spin_system_title, search_spin_system], className="card-header"),
@@ -406,7 +407,7 @@ app.clientside_callback(
         Input("remove-spin-system-button", "n_clicks_timestamp"),
         Input("spin-system-name", "value"),
         Input("spin-system-description", "value"),
-        Input("spin-system-abundance", "value"),
+        # Input("spin-system-abundance", "value"),
         # Input("isotope", "value"),
         # Input("isotropic_chemical_shift", "value"),
         # Input("shielding_symmetric-zeta", "value"),

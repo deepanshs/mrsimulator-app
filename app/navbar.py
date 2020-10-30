@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 
 from . import __version__
@@ -10,42 +11,6 @@ __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
 
-# secondary navbar ================================================================== #
-# The load spin-system button activates the spin-system collapsible menu.
-# import_spin_system_button = html.Button(
-#     html.Div(
-#         [
-#             html.I(className="fac fa-spin-systems fa-lg"),
-#             html.Div("Spin Systems", className="hide-label-sm pl-3"),
-#         ],
-#         className="secondary-nav-link",
-#     ),
-#     id="import-spin-system-toggler",
-#     className="flex-fill",
-# )
-
-# # The load spectrum button activates the spectrum collapsible menu.
-# import_spectrum_button = html.Button(
-#     html.Div(
-#         [
-#             html.I(className="fac fa-spectrum fa-lg"),
-#             html.Div("Spectrum", className="hide-label-sm pl-3"),
-#         ],
-#         className="secondary-nav-link",
-#     ),
-#     id="import-spectrum-toggler",
-#     style=None,
-#     className="flex-fill",
-# )
-
-# # pack the buttons from secondary navbar in a div
-# import_options = html.Div(
-#     [import_spin_system_button, import_spectrum_button],
-#     id="import-navbar",
-#     className="d-flex top-navbar",
-# )
-
-
 # The navgation bar displayed on the top of the web app.
 navbar = dbc.Navbar(
     [
@@ -53,10 +18,13 @@ navbar = dbc.Navbar(
             [
                 dbc.NavbarBrand(
                     [
-                        html.Img(
-                            src="/assets/mrsimulator-logo-dark.svg",
-                            height="50px",
-                            alt="Mrsimulator",
+                        dcc.Link(
+                            html.Img(
+                                src="/assets/mrsimulator-logo-dark.svg",
+                                height="50px",
+                                alt="Mrsimulator",
+                            ),
+                            href="/",
                         ),
                         html.Div(f"{__version__}", className="logo-version"),
                     ]

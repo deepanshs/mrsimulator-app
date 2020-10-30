@@ -79,6 +79,5 @@ search_spin_system = dcc.Input(
 
 spin_system_edit_tools = html.Div(
     [button, new_spin_system, duplicate_spin_system, trash_spin_system],
-    className="sidebar hide-window",
-    id="spin-system-edit-tools",
+    style={"display": "none"},
 )

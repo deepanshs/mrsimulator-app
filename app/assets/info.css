@@ -1,8 +1,7 @@
 #info-read-only {
-  height: calc(100vh - 140px);
+  height: var(--content-max-height);
   width: 100%;
-  padding: 1rem;
-  /* padding-top: 1rem;
-    padding-bottom: 1rem; */
+  padding: 1em 1em 0;
   overflow-y: auto;
+  overflow-x: hidden;
 }

@@ -16,12 +16,12 @@ __email__ = ["deepansh2012@gmail.com"]
 
 def spectral_dimension_ui(i):
     """
-        Return a list of widgets whose entries are used in evaluating the dimension
-        coordinates along the i^th dimension. The widgets includes number of points,
-        spectral width, and reference offset.
+    Return a list of widgets whose entries are used in evaluating the dimension
+    coordinates along the i^th dimension. The widgets includes number of points,
+    spectral width, and reference offset.
 
-        Args:
-            i: An integer with the dimension index.
+    Args:
+        i: An integer with the dimension index.
     """
     # number of points
     # range_num = [7, 8, 10, 12, 14, 16, 18]
@@ -66,13 +66,13 @@ def spectral_dimension_ui(i):
     )
 
     # origin offset
-    origin_offset = custom_input_group(
-        prepend_label="Origin offset",
-        append_label="MHz",
-        value=0.0,
-        id=f"origin_offset-{i}",
-        debounce=True,
-    )
+    # origin_offset = custom_input_group(
+    #     prepend_label="Origin offset",
+    #     append_label="MHz",
+    #     value=0.0,
+    #     id=f"origin_offset-{i}",
+    #     debounce=True,
+    # )
 
     # origin offset
     label = custom_input_group(
@@ -104,9 +104,7 @@ def spectral_dimension_ui(i):
 
         return not is_open
 
-    collapsible = dbc.Collapse(
-        [origin_offset, label], id=f"dim-{i}-collapsible", is_open=False
-    )
+    collapsible = dbc.Collapse(label, id=f"dim-{i}-collapsible", is_open=False)
 
     return html.Div(
         [
@@ -203,12 +201,12 @@ def property_setup(i):
 
 def environment(i, j):
     """
-        Return a list of widgets whose entries are used for evaluating the sample
-        environment along the i^th dimension. The widgets includes isotope,
-        spectrometer frequency, rotor frequency, and rotor angle.
+    Return a list of widgets whose entries are used for evaluating the sample
+    environment along the i^th dimension. The widgets includes isotope,
+    spectrometer frequency, rotor frequency, and rotor angle.
 
-        Args:
-            i: An integer with the dimension index.
+    Args:
+        i: An integer with the dimension index.
     """
     # spectrometer frequency
     # field_strength = {

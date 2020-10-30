@@ -1,89 +1,48 @@
 /* Slider offset for spin-system split screen */
-.iso-slide,
-.iso-slide-offset,
-.iso-slide .slider1,
-.iso-slide .slider2,
-.iso-slide-offset .slider1,
-.iso-slide-offset .slider2 {
-  height: var(--content-max-height);
-}
-
 .iso-slide-offset {
-  display: flex;
-  width: 200%;
-  justify-content: space-evenly;
   transition: all 0.3s ease;
 }
-
-.iso-slide-offset .slider1,
-.iso-slide-offset .slider2 {
-  padding-left: 1.75rem;
-  overflow-x: hidden;
-  width: 100%;
-}
-
 .iso-slide {
   display: flex;
-  width: 100%;
+  fill: 1;
   transition: all 0.3s ease;
 }
-
 .iso-slide .slider1 {
-  position: relative;
-  width: var(--opt-side-scroll-width);
+  width: 30%;
   border-right: 1px solid silver;
   transition: all 0.3s ease;
   margin-left: -1px;
-  margin-top: -1px;
 }
-
 .iso-slide .slider2 {
-  position: relative;
-  width: calc(100% - var(--opt-side-scroll-width));
+  width: 100%;
   transition: all 0.3s ease;
 }
-
 #spin-system-editor-content,
 #spin-system-read-only {
-  min-height: calc(var(--content-min-height) - 3.5em);
-  height: calc(var(--content-max-height) - 3.5em);
+  min-height: calc(var(--content-min-height) - 4em);
+  height: calc(var(--content-max-height) - 4em);
   scrollbar-width: thin;
-  width: 100%;
-  background: transparent;
   overflow-y: auto;
 }
-
 #spin-system-editor-content::-webkit-scrollbar,
 #spin-system-read-only::-webkit-scrollbar {
   display: none;
 }
-
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 16.62em);
-  height: calc(var(--content-max-height) - 16.62em);
+  min-height: calc(var(--content-min-height) - 18.62em);
+  height: calc(var(--content-max-height) - 18.62em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
-#spin-system-editor-content hr,
-#method-editor-content hr {
-  padding: 0;
-  margin-top: 0.5rem;
-  margin-bottom: 0;
-}
-
-#spin-system-editor-content .card,
-#method-editor-content .card {
-  border-top: none;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 0;
-  padding: none;
+#spin-system-editor-content > div:first-child,
+#method-editor-content > div:first-child {
+  background-color: white;
+  border-top-right-radius: 1em;
 }
 .tab-scroll::-webkit-scrollbar {
   display: none;
 }
-
 .display-form ul {
   height: 100%;
   width: 100%;
@@ -94,40 +53,25 @@
   cursor: pointer;
   border-radius: none;
 }
-
 .display-form li:nth-child(odd) {
-  background-color: #ebebeb;
+  background-color: #ffffff;
 }
-
 .display-form li:nth-child(even) {
-  background-color: transparent;
+  background-color: #f7f7f7;
 }
-
-.display-form li:hover {
-  border-bottom: 2px solid silver;
-}
-
 .display-form li {
   overflow-x: auto;
   overflow-y: hidden;
-  position: relative;
   padding: 0;
-  border-left: 1px solid silver;
-  border-right: none;
-  border-bottom: 2px solid transparent;
-  width: 100%;
+  border-left: 2px solid silver;
   scrollbar-width: none;
-  border-radius: none;
 }
-
 .display-form li::-webkit-scrollbar {
   display: none;
 }
-
 .display-form li h6 {
   display: none;
 }
-
 .display-form li div {
   width: 100%;
   height: 100%;
@@ -135,26 +79,22 @@
   justify-content: space-between;
   align-items: center;
 }
-
 .display-form li a {
   scroll-snap-align: start;
   padding: 1rem;
   font-size: 0.9rem;
   width: var(--opt-side-scroll-width);
 }
-
 .display-form li::-webkit-scrollbar {
   display: none;
 }
-
 .display-form li.active {
   background-color: #e1f0ff;
   color: black;
   font-weight: 400;
   border-top: 1px solid var(--select-blue);
-  border-bottom: 3px solid var(--select-blue);
+  border-bottom: 1px solid var(--select-blue);
 }
-
 .sub-spin-system-card {
   border-radius: 0;
   border-left: none;
@@ -163,7 +103,6 @@
   background: transparent;
   margin-top: 1rem;
 }
-
 .spin-system-tensor-title {
   display: flex;
   justify-content: space-between;
@@ -171,7 +110,6 @@
   margin-left: -1rem;
   margin-right: -1rem;
 }
-
 .spin-system-tensor-title p {
   margin-top: auto;
   margin-bottom: auto;
@@ -179,7 +117,6 @@
   text-transform: capitalize;
   padding-left: 1rem;
 }
-
 .spin-system-tensor-title button {
   margin-right: 1px;
   padding-right: 1rem;
@@ -191,7 +128,6 @@
   height: 100%;
   padding: 2rem;
 }
-
 .blank-spin-system-display h5,
 .blank-spin-system-display span {
   padding-top: 4rem;
@@ -201,28 +137,24 @@
   align-items: center;
   justify-content: space-around;
 }
-
 .blank-spin-system-display h5 {
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(134, 55, 10);
   text-align: center;
 }
-
 .blank-spin-system-display span:hover {
   transform: scale(1.1);
   color: rgb(136, 9, 30);
   transition: all 0.3s ease;
   cursor: pointer;
 }
-
 .spin-system-title {
   width: 100%;
   display: flex;
   justify-content: space-between;
 }
-
 .spin-system-title label {
-  padding: 0.5rem;
+  padding: 0.75em 0 1.5em;
   color: rgb(0, 0, 0);
   text-align: center;
   font-weight: 600;
@@ -230,7 +162,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
 .input-text-description {
   color: rgb(77, 77, 77);
 }
@@ -241,7 +172,6 @@
   .display-form li div {
     display: none;
   }
-
   .display-form li h6 {
     display: block;
     width: 100%;
@@ -249,11 +179,9 @@
     margin: auto;
     padding: 0.75rem;
   }
-
   .iso-slide .slider1 {
     width: var(--opt-side-scroll-min-width);
   }
-
   .iso-slide .slider2 {
     width: calc(100% - var(--opt-side-scroll-min-width));
   }

@@ -1,5 +1,4 @@
-[
-  {
+[{
     "label": "Rankinite",
     "value": "./examples/rankinite.mrsim"
   },
@@ -58,5 +57,9 @@
   {
     "label": "\u03B1-quartz",
     "value": "./examples/O17/α-quartz.mrsim"
+  },
+  {
+    "label": "Itraconazole",
+    "value": "https://raw.githubusercontent.com/DeepanshS/mrsimulator-tutorial/master/resources/itraconazole_13C.mrsys"
   }
 ]

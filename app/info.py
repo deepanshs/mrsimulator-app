@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import math
-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 from dash import callback_context as ctx
 from dash import no_update
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -22,13 +22,7 @@ default_sample = {"name": "Title", "description": "Sample description"}
 # Info ------------------------------------------------------------------------------ #
 
 # button = dbc.Button(id="edit-info-button")
-button = custom_button(
-    icon_classname="fas fa-pencil-alt",
-    tooltip="Edit",
-    id="edit-info-button",
-    className="icon-button",
-    module="html",
-)
+
 sample_title = [
     dbc.FormText("Title"),
     dbc.Input(type="text", placeholder="Add title", id="info-name-edit"),
@@ -106,95 +100,103 @@ def attribute_value_pair_(key, value):
     return f"{label_dictionary[key]}={value} {default_unit[key]}, "
 
 
-def display_spin_system_info_(json_data: dict):
-    output = []
-    for i, spin_system in enumerate(json_data):
-        local = []
-        # spin system title and abundance in the first row
-        title = html.H6(f"Spin system {i}")
-        if "name" in spin_system.keys():
-            if spin_system["name"] not in ["", None]:
-                title = html.H6(spin_system["name"], className="")
+def display_spin_system_info_table(json_data: dict):
+    sys_row = []
+    sys_items = ["", "Name", "%", "# Sites", "Isotopes", ""]
+    sys_row.append(html.Tr([html.Td(html.B(item)) for item in sys_items]))
 
-        abundance = (
-            "100" if "abundance" not in spin_system else spin_system["abundance"]
-        )
-        abundance = html.Div(f"Abundance: {abundance} %", className="")
-        head = html.Div(
-            [title, abundance],
-            style={"display": "flex", "justify-content": "space-between"},
-            className="card-header",
-        )
-        # local.append(head)
+    if "spin_systems" in json_data:
+        icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-sys": ""})
+        for i, spin_system in enumerate(json_data["spin_systems"]):
+            name = "" if "name" not in spin_system.keys() else spin_system["name"]
+            abd = np.around(spin_system["abundance"], decimals=3)
+            n_site = len(spin_system["sites"])
+            isotopes = "-".join(set([item["isotope"] for item in spin_system["sites"]]))
+            pack = [i, name, abd, n_site, isotopes, icon]
+            sys_row.append(html.Tr([html.Td(item) for item in pack]))
 
-        # add description to the following lines, if present
-        if "description" in spin_system.keys():
-            description = spin_system["description"]
-            if description not in ["", None] and len(description) > 22:
-                description = f"{description[:22]}..."
-            local.append(html.Div(description, className=""))
+    method_row = []
+    mth_items = ["", "Name", "Channels", "B0 / T", "vr / kHz", ""]
+    method_row.append(html.Tr([html.Td(html.B(item)) for item in mth_items]))
 
-        # per site info
-        if "sites" not in spin_system:
-            return
+    if "methods" in json_data:
+        icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-mth": ""})
+        for i, method in enumerate(json_data["methods"]):
+            name = "" if "name" not in method.keys() else method["name"]
+            channels = "-".join(method["channels"])
+            Bo = method["spectral_dimensions"][0]["events"][0]["magnetic_flux_density"]
+            vr = method["spectral_dimensions"][0]["events"][0]["rotor_frequency"] / 1e3
+            method_row.append(
+                html.Tr([html.Td(item) for item in [i, name, channels, Bo, vr, icon]])
+            )
 
-        for j, site in enumerate(spin_system["sites"]):
-            site_local = []
-            site_local.append(html.B(f"Site {j}"))
+    return [method_row, sys_row]
 
-            for site_attribute, val in site.items():
-                if isinstance(val, dict):
-                    line = f"{label_dictionary[site_attribute]}: "
 
-                    for key, value in val.items():
-                        if value is not None:
-                            value = (
-                                math.degrees(value)
-                                if key in ["alpha", "beta", "gamma"]
-                                else value
-                            )
-                            value = value * 1e-6 if key == "Cq" else value
-                            line += attribute_value_pair_(key, value)
-                    site_local.append(html.Div(line[:-2], className="sm"))
-                else:
-                    site_local.append(
-                        html.Div(
-                            attribute_value_pair_(site_attribute, val)[:-2],
-                            className="sm",
-                        )
-                    )
-            local.append(html.Div(site_local))
+button = custom_button(
+    icon_classname="fas fa-pencil-alt",
+    tooltip="Edit",
+    id="edit-info-button",
+    className="icon-button",
+    module="html",
+)
 
-        output.append(dbc.Card([head, dbc.CardBody(local)], className="my-4"))
-    return output
+link_session = html.A(id="serialize-session-link", style={"display": "none"})
+download = custom_button(
+    icon_classname="fas fa-file-download fa-lg",
+    tooltip="Download Session",
+    id="download-session",
+    className="icon-button",
+    module="html",
+)
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="serializeSession"),
+    Output("serialize-session-link", "href"),
+    [Input("download-session", "n_clicks")],
+    [State("local-simulator-data", "data")],
+    prevent_initial_call=True,
+)
 
 
 def display_sample_info(json_data):
     title = json_data["name"]
     title = "Sample" if title == "" else title
     description = json_data["description"]
-    data = dbc.CardBody(
+    data = [
+        html.Div(
+            [html.H4([title, button]), download, link_session, modal],
+            style={"display": "flex", "justify-content": "space-between"},
+        ),
+        dbc.Card(dbc.CardBody(description)),
+    ]
+    tables = display_spin_system_info_table(json_data)
+    icons = html.Ul(
         [
-            html.H5(
-                [title, button, modal],
-                style={"display": "flex", "justify-content": "space-between"},
-            ),
-            html.P(description, style={"textAlign": "left", "color": colors["text"]}),
+            html.Li(html.Span(html.I(className="fas fa-plus-circle fa-lg"))),
+            html.Li(html.Span(html.I(className="fas fa-clone fa-lg"))),
+            html.Li(html.Span(html.I(className="fas fa-minus-circle fa-lg"))),
         ],
-        className="sample-info-cards",
+        **{"data-edit-tools": ""},
     )
 
-    spin_sys_cards = []
-    if "spin_systems" in json_data:
-        spin_sys_cards = display_spin_system_info_(json_data["spin_systems"])
+    method_table = [
+        html.Div([html.H5("Method Overview"), icons], **{"data-table-header-mth": ""}),
+        html.Table(tables[0], id="method-table", **{"data-table-mth": ""}),
+    ]
+    system_table = [
+        html.Div(
+            [html.H5("Spin system Overview"), icons], **{"data-table-header-sys": ""}
+        ),
+        html.Table(tables[1], id="system-table", **{"data-table-sys": ""}),
+    ]
 
-    return html.Div([dbc.Card(data), *spin_sys_cards])
+    return html.Div([*data, *method_table, *system_table], **{"data-info-table": ""})
 
 
 sample_info = html.Div(
-    className="my-card",
+    className="left-card active",
     children=dcc.Upload(
-        html.Div(display_sample_info(default_sample), id="info-read-only"),
+        dcc.Loading(html.Div(display_sample_info(default_sample), id="info-read-only")),
         id="upload-spin-system-local",
         disable_click=True,
         multiple=False,
