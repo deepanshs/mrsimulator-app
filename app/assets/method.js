@@ -194,6 +194,24 @@ window.methods = {
   },
 };
 
+var methodOnClick = function (obj) {
+  default_li_item_action(obj);
+
+  // store the current-spin-system-index in the session
+  let index = $(obj).index();
+  set_method_index(index);
+
+  // Update the method fields
+  window.methods.setFields(index);
+
+  // Select the corresponding tr elements
+  overView = document.querySelectorAll("[data-table-mth] tr");
+  overView.forEach((tr) => {
+    tr.classList.remove("active");
+  });
+  overView[index + 1].classList.add("active");
+};
+
 function searchMethods() {
   let input, filter, li, i, j, elements1, elements2, elements, txtValue;
   input = document.getElementById("search-method");

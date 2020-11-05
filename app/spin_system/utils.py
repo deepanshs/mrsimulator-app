@@ -130,8 +130,8 @@ def update_spin_system_info(json_data):
 
         if "description" in spin_system:
             description = spin_system["description"]
-            if description not in ["", None] and len(description) > 15:
-                description = f"{description[:15]}..."
+            # if description not in ["", None] and len(description) > 15:
+            # description = f"{description[:15]}..."
             local.append(html.Div(description, className=""))
 
         abundance = np.around(

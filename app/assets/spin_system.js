@@ -264,100 +264,21 @@ var extract_site_object_from_fields = function () {
   return spin_system;
 };
 
-print_label = [
-  "Isotope",
-  "Shift (δ)",
-  "ζ",
-  "η",
-  "α",
-  "β",
-  "γ",
-  "Cq",
-  "η",
-  "α",
-  "β",
-  "γ",
-];
-unit = [null, "ppm", "ppm", "", "°", "°", "°", "MHz", "", "°", "°", "°"];
-
-// var update_info = function (ito, i) {
-//   let output = `<div><a>`;
-//   let s_len, sto, sti, temp, sites, key, val, j, k;
-
-//   // name
-//   temp = `Spin system ${i}`;
-//   if (ito.hasOwnProperty("name")) {
-//     if (ito.name != "" || ito.name != null) {
-//       temp = ito.name;
-//     }
-//   }
-//   output += `<b>${temp}</b>`; // add name
-
-//   // description
-//   if (ito.hasOwnProperty("description")) {
-//     if (ito.description != "" || ito.description != null) {
-//       output += `<div>${ito.description}</div>`; // add description
-//     }
-//   }
-
-//   // abundance
-//   temp = ito.hasOwnProperty("abundance") ? ito.abundance : "100";
-//   output += `<div>Abundance: ${parseFloat(temp).toFixed(3)} %</div>`;
-//   sites = ito.sites;
-//   s_len = sites.length;
-//   for (j = 0; j < s_len; j++) {
-//     sto = sites[j];
-
-//     output += `<div class="pl-2">Isotope: ${sto.isotope}</div>`;
-//     output += `<div class="pl-2">${print_label[1]}: ${sto.isotropic_chemical_shift} ${unit[1]}</div>`;
-
-//     if (sto.hasOwnProperty("shielding_symmetric")) {
-//       output += `<div class="pl-2">Symmetric Shielding</div>`;
-//       sti = sto.shielding_symmetric;
-//       for (k = 2; k < 7; k++) {
-//         key = ALL_KEYS[k].split("-")[1];
-
-//         val = sti[key];
-//         if (key == "alpha") {
-//           val *= to_deg;
-//         } else if (key == "beta") {
-//           val *= to_deg;
-//         } else if (key == "gamma") {
-//           val *= to_deg;
-//         }
-
-//         if (sti.hasOwnProperty(key)) {
-//           output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
-//         }
-//       }
-//     }
-//     if (sto.hasOwnProperty("quadrupolar")) {
-//       output += `<div class="pl-2">Quadrupolar</div>`;
-//       sti = sto.quadrupolar;
-//       for (k = 7; k < 12; k++) {
-//         key = ALL_KEYS[k].split("-")[1];
-
-//         val = sti[key];
-//         if (key == "Cq") {
-//           val /= 1e6;
-//         } else if (key == "alpha") {
-//           val *= to_deg;
-//         } else if (key == "beta") {
-//           val *= to_deg;
-//         } else if (key == "gamma") {
-//           val *= to_deg;
-//         }
-
-//         if (sti.hasOwnProperty(key)) {
-//           output += `<div class="pl-4">${print_label[k]}: ${val} ${unit[k]}</div>`;
-//         }
-//       }
-//     }
-//   }
-//   output += `</a></div>`;
-//   s_len = sto = sti = temp = sites = key = val = j = k = null;
-//   return output;
-// };
+// print_label = [
+//   "Isotope",
+//   "Shift (δ)",
+//   "ζ",
+//   "η",
+//   "α",
+//   "β",
+//   "γ",
+//   "Cq",
+//   "η",
+//   "α",
+//   "β",
+//   "γ",
+// ];
+// unit = [null, "ppm", "ppm", "", "°", "°", "°", "MHz", "", "°", "°", "°"];
 
 function searchSpinSystems() {
   let input, filter, li, i, j, elements1, elements2, elements, txtValue;
@@ -396,6 +317,13 @@ var spinSystemOnClick = function (obj) {
 
   // Trigger hide quad for spin-1/2
   hideQuad();
+
+  // Select the corresponding tr elements
+  overView = document.querySelectorAll("[data-table-sys] tr");
+  overView.forEach((tr) => {
+    tr.classList.remove("active");
+  });
+  overView[index + 1].classList.add("active");
 };
 
 // var addNewSpinSystem = function () {

@@ -59,70 +59,6 @@ default_unit = {
 }
 
 
-# def custom_fitting_input_group(prepend_label="", append_label="", **kwargs):
-#     """
-#         A custom dash bootstrap component input-group widget with a prepend-label,
-#         followed by an Input box, and an append-label.
-
-#         Args:
-#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
-#             append_label: A string to append dash-bootstrap-component Input widget.
-#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
-#     """
-#     id_ = kwargs["id"]
-#     # custom collapsible into here
-#     group = [
-#         dbc.Button(
-#             prepend_label,
-#             className="input-group-prepend",
-#             id=f"{id_}-fit-collapse-button",
-#         ),
-#         dcc.Input(
-#             type="number",
-#             # pattern="?[0-9]*\\.?[0-9]",
-#             n_submit=0,
-#             **kwargs,
-#         ),
-#     ]
-#     if append_label != "":
-#         return html.Div(
-#             [
-#                 *group,
-#                 html.Div(
-#                     html.Span(append_label, className="input-group-text"),
-#                     className="input-group-append",
-#                 ),
-#             ],
-#             className="input-group d-flex",
-#         )
-#     else:
-#         return html.Div(group, className="input-group p1 d-flex")
-
-
-# def custom_input_group_callable(prepend_label="", append_label="", **kwargs):
-#     """
-#         A custom dash bootstrap component input-group widget with a prepend-label,
-#         followed by an Input box, and an append-label.
-
-#         Args:
-#             prepend_label: A string to prepend dash-bootstrap-component Input widget.
-#             append_label: A string to append dash-bootstrap-component Input widget.
-#             kwargs: additional keyward arguments for dash-bootstrap-component Input.
-#     """
-#     # id_ = kwargs["id"]
-#     custom_fitting_input_group(prepend_label, append_label, **kwargs)
-
-#     # @app.callback(
-#     #     Output("local-mrsim-data", "data"),
-#     #     [Input(f"{id_}", "value")],  # id belongs to the input field
-#     #     [State("local-mrsim-data", "data")],
-#     # )
-#     # def update_spin_systems_data(value, local_spin_system_data):
-#     #     key = id_.split("_")[1].replace("%", "."))
-#     #     local_spin_system_data[key] = value
-#     #     return local_spin_system_data
-
-
 def feature_orientation_collapsible(key_dict, id_label):
     feature_dict = {k: key_dict[k] for k in list(key_dict)[:2]}
     orientation_dict = {k: key_dict[k] for k in list(key_dict)[2:]}
@@ -201,12 +137,8 @@ def feature_orientation_collapsible(key_dict, id_label):
         prevent_initial_call=True,
     )
     def toggle_orientation_collapsible(n, is_open, attribute_1, attribute_2):
-        # print("toggle_orientation", attribute_1, attribute_2)
-        # if attribute_1 is None or attribute_2 is None:
-        #     return False
         if n is None:
             raise PreventUpdate
-
         return not is_open
 
     return lst_collapsible
@@ -239,31 +171,6 @@ def populate_key_value_from_object(object_dict):
     for key in object_dict.keys():
         if isinstance(object_dict[key], dict):
             lst.append(feature_orientation_collapsible(object_dict[key], key))
-
-    # elif key == "isotope":
-    #     lst.append(
-    #         dbc.InputGroup(
-    #             [
-    #                 dbc.InputGroupAddon("Isotope", addon_type="prepend"),
-    #                 dbc.Select(options=isotope_options_list, value=value, id=key),
-    #             ]
-    #         )
-    #     )
-    # else:
-    #     lst.append(
-    #         html.Div(
-    #             [
-    #                 custom_input_group(
-    #                     prepend_label=spin_system_prepend_labels[key],
-    #                     append_label=value,
-    #                     value="",
-    #                     id=key,
-    #                     debounce=True,
-    #                 ),
-    #                 # fitting_collapsible(key, value, identity=key),
-    #             ]
-    #         )
-    #     )
     return html.Div(lst)
 
 
@@ -355,7 +262,7 @@ spin_system_slide_2 = html.Div(spin_system_editor, className="slider2")
 spin_system_slide = html.Div(
     [spin_system_slide_1, spin_system_slide_2],
     id="iso-slide",
-    className="iso-slide-offset",
+    className="slide-offset",
 )
 
 spin_system_title = html.Div(

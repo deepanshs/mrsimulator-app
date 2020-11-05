@@ -10,6 +10,7 @@
 }
 
 .input-form-2 .label-left {
+  margin: auto 0;
   padding-right: 0.5rem;
   white-space: nowrap;
   width: 50%;
@@ -19,10 +20,10 @@
 }
 
 .input-form-2 .label-right {
-  margin-bottom: 0;
+  margin: 0;
+  padding-top: 0.4em;
   min-width: 2.5rem;
   text-align: right;
-  border-top: 1px solid transparent;
   border-bottom: 1px solid var(--text-box-underline-color);
   color: var(--text-color);
 }

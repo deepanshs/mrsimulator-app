@@ -168,7 +168,7 @@ method_read_only = html.Div(id="method-read-only")
 method_slide_1 = html.Div(method_read_only, className="slider1")
 method_slide_2 = html.Div(method_editor, className="slider2")
 method_slide = html.Div(
-    [method_slide_1, method_slide_2], id="met-slide", className="met-slide-offset"
+    [method_slide_1, method_slide_2], id="met-slide", className="slide-offset"
 )
 
 method_header = html.Div(

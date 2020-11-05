@@ -26,26 +26,6 @@ var storeData = {
 var previous_timestamps = [-1, -1, -1, -1];
 var last_li_scroll_index = 0;
 let initial = 0;
-// var createLists = function (spin_systems) {
-//     var root = $('#spin-system-read-only');
-//     var div = document.createElement('div');
-//     div.className = 'display-form';
-//     var ul = document.createElement('ul');
-//     // ul.empty();
-//     var li;
-//     for (i = 0; i < spin_systems.length; i++) {
-//         li = document.createElement("li");
-//         li.innerHTML = update_info(spin_systems[i], i);
-//         li.className = 'list-group-item';
-//         ul.appendChild(li);
-//         $(li).click(function (e) {
-//             spinSystemOnClick(li);
-//             e.preventDefault();
-//         });
-//     }
-//     div.appendChild(ul);
-//     root[0].appendChild(div);
-// }
 
 if (!window.dash_clientside) {
   window.dash_clientside = {};
@@ -101,11 +81,15 @@ window.dash_clientside.clientside = {
     overView.forEach((tr) => {
       tr.addEventListener("click", () => {
         let i = $(tr).index();
-        overView.forEach((tr) => {
-          tr.classList.remove("active");
-        });
-        tr.classList.add("active");
         listomers[i - 1].click();
+        // Scroll to the selection.
+        var ul = listomers[i - 1].parentElement;
+        scrollTo(
+          ul.parentElement.parentElement,
+          listomers[i - 1].offsetTop - 200,
+          300,
+          "vertical"
+        );
       });
     });
 
@@ -113,15 +97,15 @@ window.dash_clientside.clientside = {
 
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("iso-slide");
-    if (element.classList.contains("iso-slide-offset")) {
-      element.classList.toggle("iso-slide-offset");
-      element.classList.toggle("iso-slide");
+    if (element.classList.contains("slide-offset")) {
+      element.classList.toggle("slide-offset");
+      element.classList.toggle("slide");
     }
 
     // Toggle classname to slide the contents on smaller screens
     if (listomers.length === 0) {
-      element.classList.toggle("iso-slide-offset");
-      element.classList.toggle("iso-slide");
+      element.classList.toggle("slide-offset");
+      element.classList.toggle("slide");
     }
 
     default_li_action(listomers);
@@ -157,9 +141,7 @@ window.dash_clientside.clientside = {
     let overView = document.querySelectorAll("[data-edit-mth]");
     overView.forEach((edit) => {
       edit.addEventListener("click", () => {
-        // let i = edit.dataset.editSys;
         $("#view-methods")[0].click();
-        // listomers[i].click();
       });
     });
 
@@ -172,38 +154,37 @@ window.dash_clientside.clientside = {
         });
         tr.classList.add("active");
         listomers[i - 1].click();
+        // Scroll to the selection.
+        var ul = listomers[i - 1].parentElement;
+        scrollTo(
+          ul.parentElement.parentElement,
+          listomers[i - 1].offsetTop - 200,
+          300,
+          "vertical"
+        );
       });
     });
 
     activateMethodTools();
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("met-slide");
-    if (element.classList.contains("met-slide-offset")) {
-      element.classList.toggle("met-slide-offset");
-      element.classList.toggle("met-slide");
+    if (element.classList.contains("slide-offset")) {
+      element.classList.toggle("slide-offset");
+      element.classList.toggle("slide");
     }
 
     // Toggle classname to slide the contents on smaller screens
     if (listomers.length === 0) {
-      element.classList.toggle("met-slide-offset");
-      element.classList.toggle("met-slide");
+      element.classList.toggle("slide-offset");
+      element.classList.toggle("slide");
     }
 
     default_li_action(listomers);
 
     // Add a fresh bind event to the list.
     listomers.each(function () {
-      let index = 0;
       $(this).click(function (e) {
-        // method_on_click(this);
-        default_li_item_action(this);
-
-        // store the current-method-index in the session
-        index = $(this).index();
-        set_method_index(index);
-
-        // Update the method fields
-        window.methods.setFields(index);
+        methodOnClick(this);
         e.preventDefault();
       });
     });
@@ -457,8 +438,6 @@ var default_li_item_action = function (obj) {
     // Remove all highlights.
     element.classList.remove("active");
   }
-  // Scroll to the selection.
-  scrollTo(ul.parentElement.parentElement, obj.offsetTop - 50, 300, "vertical");
   // Highlight the selected list.
   obj.classList.toggle("active");
   element = i = null;

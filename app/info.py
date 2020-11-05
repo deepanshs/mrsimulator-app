@@ -100,11 +100,13 @@ def attribute_value_pair_(key, value):
     return f"{label_dictionary[key]}={value} {default_unit[key]}, "
 
 
-def display_spin_system_info_table(json_data: dict):
+def display_overview(json_data: dict):
+    # spin system overview
     sys_row = []
     sys_items = ["", "Name", "%", "# Sites", "Isotopes", ""]
     sys_row.append(html.Tr([html.Td(html.B(item)) for item in sys_items]))
 
+    sys_info = []
     if "spin_systems" in json_data:
         icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-sys": ""})
         for i, spin_system in enumerate(json_data["spin_systems"]):
@@ -115,10 +117,17 @@ def display_spin_system_info_table(json_data: dict):
             pack = [i, name, abd, n_site, isotopes, icon]
             sys_row.append(html.Tr([html.Td(item) for item in pack]))
 
+        sys_info = html.Div(
+            [f'Number of spin systems: {len(json_data["spin_systems"])}']
+        )
+    sys_table = html.Table(sys_row, id="system-table", **{"data-table-sys": ""})
+
+    # method overview
     method_row = []
     mth_items = ["", "Name", "Channels", "B0 / T", "vr / kHz", ""]
     method_row.append(html.Tr([html.Td(html.B(item)) for item in mth_items]))
 
+    mth_info = []
     if "methods" in json_data:
         icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-mth": ""})
         for i, method in enumerate(json_data["methods"]):
@@ -130,7 +139,9 @@ def display_spin_system_info_table(json_data: dict):
                 html.Tr([html.Td(item) for item in [i, name, channels, Bo, vr, icon]])
             )
 
-    return [method_row, sys_row]
+        mth_info = html.Div([f'Number of methods: {len(json_data["methods"])}'])
+    mth_table = html.Table(method_row, id="method-table", **{"data-table-mth": ""})
+    return [mth_info, mth_table], [sys_info, sys_table]
 
 
 button = custom_button(
@@ -169,7 +180,7 @@ def display_sample_info(json_data):
         ),
         dbc.Card(dbc.CardBody(description)),
     ]
-    tables = display_spin_system_info_table(json_data)
+    tables = display_overview(json_data)
     icons = html.Ul(
         [
             html.Li(html.Span(html.I(className="fas fa-plus-circle fa-lg"))),
@@ -181,13 +192,13 @@ def display_sample_info(json_data):
 
     method_table = [
         html.Div([html.H5("Method Overview"), icons], **{"data-table-header-mth": ""}),
-        html.Table(tables[0], id="method-table", **{"data-table-mth": ""}),
+        *tables[0],
     ]
     system_table = [
         html.Div(
             [html.H5("Spin system Overview"), icons], **{"data-table-header-sys": ""}
         ),
-        html.Table(tables[1], id="system-table", **{"data-table-sys": ""}),
+        *tables[1],
     ]
 
     return html.Div([*data, *method_table, *system_table], **{"data-info-table": ""})

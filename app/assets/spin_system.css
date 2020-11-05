@@ -1,48 +1,49 @@
 /* Slider offset for spin-system split screen */
-.iso-slide-offset {
-  transition: all 0.3s ease;
+.slide-offset .slider1 {
+  width: 100%;
 }
-.iso-slide {
+.slide-offset .slider2 {
+  display: none;
+}
+.slide,
+.slide-offset {
   display: flex;
-  fill: 1;
-  transition: all 0.3s ease;
 }
-.iso-slide .slider1 {
+.slide::-webkit-scrollbar {
+  display: none;
+}
+.slide .slider1 {
   width: 30%;
   border-right: 1px solid silver;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
   margin-left: -1px;
 }
-.iso-slide .slider2 {
-  width: 100%;
-  transition: all 0.3s ease;
+.slide .slider2 {
+  width: 70%;
 }
-#spin-system-editor-content,
-#spin-system-read-only {
+.slide .slider1,
+.slide .slider2 {
   min-height: calc(var(--content-min-height) - 4em);
   height: calc(var(--content-max-height) - 4em);
   scrollbar-width: thin;
   overflow-y: auto;
 }
-#spin-system-editor-content::-webkit-scrollbar,
-#spin-system-read-only::-webkit-scrollbar {
-  display: none;
-}
+
 .tab-scroll {
   min-height: calc(var(--content-min-height) - 18.62em);
   height: calc(var(--content-max-height) - 18.62em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
-
-#spin-system-editor-content > div:first-child,
-#method-editor-content > div:first-child {
-  background-color: white;
-  border-top-right-radius: 1em;
-}
 .tab-scroll::-webkit-scrollbar {
   display: none;
 }
+
+[id$="-editor-content"] > div:first-child {
+  background-color: white;
+  border-top-right-radius: 1em;
+}
+
 .display-form ul {
   height: 100%;
   width: 100%;
@@ -73,16 +74,19 @@
   display: none;
 }
 .display-form li div {
-  width: 100%;
-  height: 100%;
+  /* width: 100%;
+  height: 100%; */
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
+
 .display-form li a {
   scroll-snap-align: start;
   padding: 1rem;
-  font-size: 0.9rem;
   width: var(--opt-side-scroll-width);
 }
 .display-form li::-webkit-scrollbar {
@@ -179,10 +183,10 @@
     margin: auto;
     padding: 0.75rem;
   }
-  .iso-slide .slider1 {
+  .slide .slider1 {
     width: var(--opt-side-scroll-min-width);
   }
-  .iso-slide .slider2 {
+  .slide .slider2 {
     width: calc(100% - var(--opt-side-scroll-min-width));
   }
 }
