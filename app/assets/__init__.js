@@ -76,7 +76,7 @@ window.dash_clientside.clientside = {
     storeData.data = JSON.parse(
       window.sessionStorage.getItem("local-mrsim-data")
     );
-    let listomers = $("#spin-system-read-only div.display-form ul li");
+    let listomers = $("#spin-system-read-only div.scrollable-list ul li");
 
     // event listener to pensil in the home screen
     let overView = document.querySelectorAll("[data-edit-sys]");
@@ -147,7 +147,7 @@ window.dash_clientside.clientside = {
     storeData.data = JSON.parse(
       window.sessionStorage.getItem("local-mrsim-data")
     );
-    let listomers = $("#method-read-only div.display-form ul li");
+    let listomers = $("#method-read-only div.scrollable-list ul li");
 
     let overView = document.querySelectorAll("[data-edit-mth]");
     overView.forEach((edit) => {
@@ -252,7 +252,7 @@ window.dash_clientside.clientside = {
     }
     let index = decompose ? clickData.points[0].curveNumber : null;
 
-    let listomers = $("#spin-system-read-only div.display-form ul li");
+    let listomers = $("#spin-system-read-only div.scrollable-list ul li");
     let length = listomers.length;
 
     if (index == null || index >= length) {

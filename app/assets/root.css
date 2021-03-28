@@ -93,7 +93,7 @@ section {
 
 .mrsim-page .app-1 {
   border-left: 1px solid silver;
-  /* width: 100%; */
+  width: 100%;
   overflow-x: hidden;
   transition: all 0.3s ease;
 }
@@ -101,10 +101,6 @@ section {
 .mobile-scroll {
   display: flex;
   border: none;
-  /* max-width: 1440px; */
-  /* align-items: center; */
-  /* justify-content: space-between; */
-  /* box-sizing: content-box; */
   background-color: #ecf0f5a9;
   align-items: center;
 }
@@ -122,15 +118,22 @@ section {
     --content-max-height: calc(100vh - 6.7em);
   }
 
-  [id$="-body"].left-card.active,
-  [id$="-body"].my-card {
-    position: relative;
+  [id$="-body"].left-card {
     margin: 0;
     min-width: calc(100vw - 0.25rem);
     scroll-snap-align: center;
     padding: 0;
   }
+  .slide {
+    padding: 0;
+  }
 
+  #spectrum-body.left-card {
+    display: none;
+  }
+  #spectrum-body.left-card.active {
+    display: block;
+  }
   .mobile-scroll {
     display: flex;
     overflow-x: auto;
@@ -183,7 +186,6 @@ section {
 
   .navbar {
     padding-left: 0;
-    /* height: 3em; */
   }
 
   .navbar img {
@@ -200,6 +202,6 @@ section {
   }
 
   #info-read-only {
-    padding-top: 1em;
+    padding-bottom: 2em;
   }
 }

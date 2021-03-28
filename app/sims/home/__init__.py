@@ -18,9 +18,6 @@ from app import app
 from app.custom_widgets import custom_button
 
 
-DEFAULT_SAMPLE = {"name": "Title", "description": "Sample description"}
-
-
 def edit_sample_info_button_ui():
     return custom_button(
         icon_classname="fas fa-pencil-alt",
@@ -170,7 +167,7 @@ def method_overview_data(mrsim: dict):
     return method_row
 
 
-def refresh_page(mrsim):
+def overview_page(mrsim):
     title = mrsim["name"]
     title = "Sample" if title == "" else title
     description = mrsim["description"]
@@ -184,14 +181,15 @@ def refresh_page(mrsim):
     )
 
 
-def refresh_home(json_data):
-    return refresh_page(json_data)
+def refresh(json_data):
+    return overview_page(json_data)
 
 
-default_home_page = html.Div(
-    className="left-card active",
-    children=dcc.Upload(
-        dcc.Loading(html.Div(refresh_home(DEFAULT_SAMPLE), id="info-read-only")),
+def ui():
+    page = refresh({"name": "Title", "description": "Sample description"})
+    loading = dcc.Loading(html.Div(page, id="info-read-only"))
+    upload_mrsim = dcc.Upload(
+        loading,
         id="upload-spin-system-local",
         disable_click=True,
         multiple=False,
@@ -200,6 +198,13 @@ default_home_page = html.Div(
             "backgroundColor": "rgb(225, 255, 225)",
             "opacity": "0.75",
         },
-    ),
-    id="info-body",
-)
+    )
+
+    return html.Div(
+        className="left-card active",
+        children=upload_mrsim,
+        id="info-body",
+    )
+
+
+home_body = ui()

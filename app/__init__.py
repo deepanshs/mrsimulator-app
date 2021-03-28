@@ -8,7 +8,7 @@ from .head import head_config
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
-__version__ = "v0.3"
+__version__ = "v0.3.0"
 
 now = datetime.datetime.now()
 year = now.year

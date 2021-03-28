@@ -67,6 +67,7 @@ docs/_build/
 
 # PyBuilder
 target/
+node_modules/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -110,3 +111,4 @@ test_dash.py
 *.storyboard
 launch.png
 test.*
+package-lock.json

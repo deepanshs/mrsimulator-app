@@ -8,8 +8,8 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.exceptions import PreventUpdate
 
-from . import app
 from .modal.about import about_modals
+from app import app
 from app import year
 
 
@@ -165,7 +165,7 @@ def method_menu():
 
 def example_menu():
     """Example menu contains a list of examples."""
-    with open("examples/example_link.json", "r") as f:
+    with open("app/examples/example_link.json", "r") as f:
         mrsimulator_examples = json.load(f)
     example_length = len(mrsimulator_examples)
 
@@ -186,7 +186,8 @@ def example_menu():
         if not ctx.triggered:
             raise PreventUpdate
         trigger_index = int(ctx.triggered[0]["prop_id"].split(".")[0].split("-")[1])
-        print(trigger_index)
+        print("example index", trigger_index)
+        print(mrsimulator_examples[trigger_index]["value"])
         return mrsimulator_examples[trigger_index]["value"]
 
     return create_submenu("Examples", example_items)

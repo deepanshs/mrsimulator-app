@@ -53,7 +53,6 @@ def get_contents(content):
 
 list_ = []
 for item in about_.keys():
-    print(item)
     list_.append(
         dbc.Modal(
             [dbc.ModalHeader(item), dbc.ModalBody(get_contents(about_[item]))],

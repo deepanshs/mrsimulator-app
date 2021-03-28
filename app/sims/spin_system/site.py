@@ -12,8 +12,8 @@ from app.custom_widgets import custom_input_group
 isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.keys()]
 
 
-def create_isotope_and_shift_fields():
-    def isotope():
+def isotope_and_shift_ui():
+    def isotope_ui():
         """Isotope"""
         label = dbc.InputGroupAddon("Isotope", addon_type="prepend")
         select = dbc.Select(options=isotope_options_list, value="1H", id="isotope")
@@ -33,20 +33,20 @@ def create_isotope_and_shift_fields():
         return dbc.InputGroup([label, select], className="input-form")
 
     # isotropic chemical shift
-    isotropic_chemcial_shift_field = custom_input_group(
-        prepend_label="Isotropic shift (δ)",
+    isotropic_chemcial_shift_ui = custom_input_group(
+        prepend_label="Isotropic chemical shift (δ)",
         append_label="ppm",
         id="isotropic_chemical_shift",
         debounce=True,
     )
 
     return html.Div(
-        [isotope(), isotropic_chemcial_shift_field],
+        [isotope_ui(), isotropic_chemcial_shift_ui],
         className="container scroll-cards",
     )
 
 
-def create_shielding_symmetric_fields():
+def shielding_symmetric_ui():
     zeta_ui = custom_input_group(
         prepend_label="Anisotropy (ζ)",
         append_label="ppm",
@@ -55,10 +55,10 @@ def create_shielding_symmetric_fields():
     )
 
     # asymmetry and Euler angles
-    return create_collapsable_card_ui(zeta_ui, "shielding_symmetric")
+    return collapsable_card_ui(zeta_ui, "shielding_symmetric")
 
 
-def create_quadrupolar_fields():
+def quadrupolar_ui():
     Cq_ui = custom_input_group(
         prepend_label="Coupling constant (Cq)",
         append_label="MHz",
@@ -67,10 +67,10 @@ def create_quadrupolar_fields():
     )
 
     # asymmetry and Euler angles
-    return create_collapsable_card_ui(Cq_ui, "quadrupolar")
+    return collapsable_card_ui(Cq_ui, "quadrupolar")
 
 
-def create_collapsable_card_ui(item, prefix):
+def collapsable_card_ui(item, prefix):
     eta_ui = custom_input_group(
         prepend_label="Asymmetry (η)",
         append_label="",
@@ -100,8 +100,11 @@ def create_collapsable_card_ui(item, prefix):
     )
 
 
-def editor():
-    isotope_and_shift = create_isotope_and_shift_fields()
-    shielding_symmetric = create_shielding_symmetric_fields()
-    quadrupolar = create_quadrupolar_fields()
+def ui():
+    isotope_and_shift = isotope_and_shift_ui()
+    shielding_symmetric = shielding_symmetric_ui()
+    quadrupolar = quadrupolar_ui()
     return html.Div([isotope_and_shift, shielding_symmetric, quadrupolar])
+
+
+site_ui = ui()

@@ -9,7 +9,7 @@ from dash.dependencies import State
 from app import app
 
 
-SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods"]
+SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "spectrum"]
 
 
 def home():
@@ -28,6 +28,12 @@ def method():
     """Method tab."""
     icon = html.I(className="fas fa-cube fa-lg")
     return html.Li(html.Span(icon), id="view-methods")
+
+
+def spectrum():
+    """Spectrum tab."""
+    icon = html.I(className="fac fa-spectrum fa-lg")
+    return html.Li(html.Span(icon), id="view-spectrum")
 
 
 # toggle active class name for the tabs (home, spin system, method)
@@ -57,8 +63,14 @@ app.clientside_callback(
 
 def tooltips():
     """Tooltips for Home, Spin System, and Method tabs."""
-    tips = ["Home", "Spin Systems", "Methods", "Settings"]
-    targets = ["view-info", "view-spin_systems", "view-methods", "advance_setting"]
+    tips = ["Home", "Spin Systems", "Methods", "Spectrum", "Settings"]
+    targets = [
+        "view-info",
+        "view-spin_systems",
+        "view-methods",
+        "view-spectrum",
+        "advance-setting",
+    ]
     return html.Div(
         [
             dbc.Tooltip(tip, target=target, placement="right")
@@ -76,14 +88,14 @@ def sidebar_tabs():
     # file_menu_ui = (
     #     html.Div(html.Ul(file_menu, className="menu"), className="master-toolbar"),
     # )
-    content = [html.Br(), home(), spin_system(), method(), tooltips()]
+    content = [html.Br(), home(), spin_system(), method(), spectrum(), tooltips()]
     return html.Ul(content, className="sidebar")
 
 
 def settings():
     """Utility settings tab."""
     icon = html.Span(html.I(className="fas fa-cog fa-lg"))
-    return html.Li(icon, id="advance_setting")
+    return html.Li(icon, id="advance-setting")
 
 
 def advanced_settings_modal():
@@ -175,7 +187,7 @@ def advanced_settings_modal():
     app.clientside_callback(
         "function (n1, n2, is_open) { return !is_open; }",
         Output("modal_setting", "is_open"),
-        [Input("advance_setting", "n_clicks"), Input("close_setting", "n_clicks")],
+        [Input("advance-setting", "n_clicks"), Input("close_setting", "n_clicks")],
         [State("modal_setting", "is_open")],
         prevent_initial_call=True,
     )

@@ -270,7 +270,7 @@ var extract_site_object_from_fields = function () {
 var _searchSpinSystems = function (input) {
   let filter, li, i, j, elements1, elements2, elements, txtValue;
   filter = input.toUpperCase();
-  li = $("#spin-system-read-only div.display-form ul li");
+  li = $("#spin-system-read-only div.scrollable-list ul li");
 
   // Loop through all list items, and hide those who don't match the search
   // query
@@ -326,7 +326,7 @@ var spinSystemOnClick = function (obj) {
 //   data.spin_systems.push(result);
 //   // set_spin_system_index(l);
 
-//   let ul = $("#spin-system-read-only div.display-form ul");
+//   let ul = $("#spin-system-read-only div.scrollable-list ul");
 //   let li = document.createElement("li");
 //   li.innerHTML = update_info(result, l);
 //   li.className = "list-group-item";

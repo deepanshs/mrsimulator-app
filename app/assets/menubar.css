@@ -4,33 +4,28 @@
   align-items: center;
   justify-content: space-between;
 }
-
 .master-toolbar .right-menu {
   padding: 3px 8px;
   border-radius: 0.25em;
   display: block;
 }
-
 .master-toolbar .right-menu:hover {
   color: #494949;
   background-color: #e4e4e4;
 }
-
 .master-toolbar .menu {
   display: flex;
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
-
 .master-toolbar .menu .menu-item {
   position: relative;
   padding: 0;
   margin: 0;
 }
-
 .master-toolbar .menu .menu-item h6,
-.master-toolbar .menu .menu-item>div,
+.master-toolbar .menu .menu-item > div,
 .master-toolbar .menu .menu-item a {
   display: block;
   color: #494949;
@@ -40,15 +35,13 @@
   padding-right: 30px;
   cursor: pointer;
 }
-
 .master-toolbar .menu .menu-item h6:hover,
-.master-toolbar .menu .menu-item>div:hover,
+.master-toolbar .menu .menu-item > div:hover,
 .master-toolbar .menu .menu-item a:hover {
   color: white;
   background-color: var(--select-blue);
 }
-
-.master-toolbar .menu .menu-item>label {
+.master-toolbar .menu .menu-item > label {
   display: block;
   color: #494949;
   border-radius: 0.25em;
@@ -56,25 +49,20 @@
   padding: 7px 15px;
   margin: 0;
 }
-
-.master-toolbar .menu .menu-item:hover>label {
+.master-toolbar .menu .menu-item:hover > label {
   color: #494949;
   background-color: #e4e4e4;
 }
-
 .master-toolbar .menu .menu-item hr {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
 }
-
-.master-toolbar .menu .menu-item.has-sub-menu>a {
+.master-toolbar .menu .menu-item.has-sub-menu > a {
   position: relative;
 }
-
-.master-toolbar .menu .menu-item.has-sub-menu>a:hover:after {
+.master-toolbar .menu .menu-item.has-sub-menu > a:hover:after {
   color: white;
 }
-
 .master-toolbar .menu .menu-item.has-sub-menu .sub-menu {
   position: absolute;
   z-index: 999;
@@ -89,22 +77,18 @@
   border-radius: 0.5rem;
   box-shadow: 0 12px 50px 0 rgba(0, 0, 0, 0.3);
 }
-
 .master-toolbar .menu .menu-item.has-sub-menu .sub-menu .menu-item {
   width: 100%;
 }
-
-.master-toolbar .menu .menu-item.has-sub-menu:hover>.sub-menu {
+.master-toolbar .menu .menu-item.has-sub-menu:hover > .sub-menu {
   opacity: 1;
   transform: translateY(0);
   pointer-events: all;
 }
-
-.master-toolbar .menu .menu-item.has-sub-menu:hover>.sub-menu .sub-menu {
+.master-toolbar .menu .menu-item.has-sub-menu:hover > .sub-menu .sub-menu {
   top: 0;
   left: 100%;
 }
-
 .master-toolbar .close-menu {
   display: none;
   color: #FFF;

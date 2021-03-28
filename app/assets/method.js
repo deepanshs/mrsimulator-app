@@ -217,7 +217,7 @@ function searchMethods() {
   let input, filter, li, i, j, elements1, elements2, elements, txtValue;
   input = document.getElementById("search-method");
   filter = input.value.toUpperCase();
-  li = $("#method-read-only div.display-form ul li");
+  li = $("#method-read-only div.scrollable-list ul li");
 
   // Loop through all list items, and hide those who don't match the search
   // query

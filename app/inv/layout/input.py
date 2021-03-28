@@ -4,8 +4,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
-from app.graph import generate_graph_instance
-from app.spin_system.site import isotope_options_list
+from app.sims.graph import generate_graph_instance
+from app.sims.spin_system.site import isotope_options_list
 
 # Section 1
 # Input graph and fields

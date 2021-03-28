@@ -8,7 +8,7 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 
-from .site import editor as site_editor
+from .site import site_ui
 from app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
@@ -18,7 +18,7 @@ __email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
 
 
 def site_tab_ui():
-    return dbc.Tab(label="Site", children=site_editor(), className="tab-scroll")
+    return dbc.Tab(label="Site", children=site_ui, className="tab-scroll")
 
 
 def metadata_tab_ui():
@@ -47,20 +47,16 @@ def metadata_tab_ui():
     return dcc.Tab(label="Metadata", children=metadata, className="tab-scroll")
 
 
-def default_display():
-    title = html.H5("Load spin systems or start creating")
-    icon = html.Span(
-        [
-            html.I(className="fac fa-spin-systems fa-4x"),
-            html.H6("Add a spin system"),
-        ],
-        id="open-edit_spin_system",
-    )
-    return html.Div([title, icon], className="blank-display")
+def display():
+    comment = html.H5("Load spin systems or start creating")
+    icon = html.I(className="fac fa-spin-systems fa-4x")
+    sub_text = html.H6("Add a spin system")
+    title = html.Span([icon, sub_text], id="open-edit_spin_system")
+    return html.Div([comment, title], className="blank-display")
 
 
 def scrollable():
-    default = default_display()
+    default = display()
     app.clientside_callback(
         """
         function(n) {
@@ -187,8 +183,10 @@ def refresh(systems):
     """Return a html for rendering the display in the read-only spin-system section."""
     output = [generate_sidepanel(sys, i) for i, sys in enumerate(systems)]
     if output == []:
-        return default_display()
-    return html.Div([html.Ul(output, className="list-group")], className="display-form")
+        return display()
+    return html.Div(
+        [html.Ul(output, className="list-group")], className="scrollable-list"
+    )
 
 
 spin_system_body = ui()

@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 from app.custom_widgets import custom_input_group
-from app.graph import generate_graph_instance
+from app.sims.graph import generate_graph_instance
 
 graph_output = generate_graph_instance(id_="INV-output")
 graph_output.config["scrollZoom"] = True

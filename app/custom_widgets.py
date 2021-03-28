@@ -5,7 +5,6 @@ import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
-from dash.exceptions import PreventUpdate
 
 from . import app
 
@@ -24,13 +23,10 @@ def label_with_help_button(label="", help_text="", id=None):
         help_text: A string message displayed as help message.
         id: The id for the label.
     """
-    return html.Div(
-        [
-            dbc.Label(label, className="formtext pr-1"),
-            custom_hover_help(message=help_text, id=f"upload-{id}-url-help"),
-        ],
-        className="d-flex justify-content-start align-items-center",
-    )
+    label = dbc.Label(label, className="formtext pr-1")
+    help_ = custom_hover_help(message=help_text, id=f"upload-{id}-url-help")
+    className = "d-flex justify-content-start align-items-center"
+    return html.Div([label, help_], className=className)
 
 
 def custom_hover_help(message="", id=None):
@@ -40,18 +36,10 @@ def custom_hover_help(message="", id=None):
         message: A string message displayed as help message.
         id: The id for the label.
     """
-    button = html.Div(
-        [
-            html.I(
-                className="fas fa-question-circle",
-                style={"color": "white", "cursor": "pointer"},
-            ),
-            dbc.Tooltip(message, target=id, **tooltip_format),
-        ],
-        id=id,
-        className="align-self-start",
-    )
-    return button
+    style = {"color": "white", "cursor": "pointer"}
+    icon = html.I(className="fas fa-question-circle", style=style)
+    tooltip = dbc.Tooltip(message, target=id, **tooltip_format)
+    return html.Div([icon, tooltip], id=id, className="align-self-start")
 
 
 def custom_button(
@@ -110,17 +98,13 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
     )
 
-    @app.callback(
+    app.clientside_callback(
+        "function (n, active) { return !active; }",
         Output(id, "active"),
         [Input(id, "n_clicks")],
         [State(id, "active")],
         prevent_initial_call=True,
     )
-    def toggle_boolean_button(n, status):
-        """Toggle decompose button."""
-        if n is None:
-            raise PreventUpdate
-        return not status
 
     return button
 
@@ -181,19 +165,11 @@ def custom_input_group(
     """
     append_label = append_label if append_label is not None else ""
 
-    id_ = kwargs["id"]
-    return html.Div(
-        [
-            html.Label(
-                className="label-left", id=f"{id_}-left-label", children=prepend_label
-            ),
-            dcc.Input(type=input_type, autoComplete="off", **kwargs),
-            html.Label(
-                className="label-right", id=f"{id_}-right-label", children=append_label
-            ),
-        ],
-        className="input-form",
-    )
+    # id_ = kwargs["id"]
+    label_prepend = html.Label(className="label-left", children=prepend_label)
+    input_ = dcc.Input(type=input_type, autoComplete="off", **kwargs)
+    label_append = html.Label(className="label-right", children=append_label)
+    return html.Div([label_prepend, input_, label_append], className="input-form")
 
 
 def custom_collapsible(
@@ -215,12 +191,13 @@ def custom_collapsible(
     if is_open:
         collapse_classname += " show"
 
+    class_name = "d-flex justify-content-between align-items-center"
+    chevron_icon = html.I(className="icon-action fas fa-chevron-down")
+    btn_text = html.Div([text, chevron_icon], className=class_name)
+
     layout = [
         html.Button(
-            html.Div(
-                [text, html.I(className="icon-action fas fa-chevron-down")],
-                className="d-flex justify-content-between align-items-center",
-            ),
+            btn_text,
             # tooltip=tooltip,
             # icon=icon,
             style={"color": "black"},
@@ -240,11 +217,8 @@ def custom_collapsible(
 
 
 def container(text, featured_fields, **kwargs):
-    return custom_card(
-        text=html.Div(text),
-        children=html.Div(featured_fields, className="container"),
-        **kwargs,
-    )
+    children = html.Div(featured_fields, className="container")
+    return custom_card(text=html.Div(text), children=children, **kwargs)
 
 
 def collapsable_card(text, id_, featured_fields, hidden_fields):
@@ -266,15 +240,12 @@ def collapsable_card(text, id_, featured_fields, hidden_fields):
     )
     collapsible = dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)
 
-    @app.callback(
+    app.clientside_callback(
+        "function (n, is_open) { return !is_open; }",
         Output(f"{id_}-collapse-collapse", "is_open"),
         [Input(f"{id_}-collapse-button", "n_clicks")],
         [State(f"{id_}-collapse-collapse", "is_open")],
         prevent_initial_call=True,
     )
-    def toggle_orientation_collapsible(n, is_open):
-        if n is None:
-            raise PreventUpdate
-        return not is_open
 
     return collapsible

@@ -2,7 +2,7 @@
 import csdmpy as cp
 import numpy as np
 
-from app.methods.post_simulation_functions import line_broadening
+from .post_simulation_functions import line_broadening
 
 __author__ = ["Maxwell C. Venetos"]
 __email__ = ["venetos.5@buckeyemail.osu.edu"]

@@ -8,11 +8,10 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 
-from . import app
-from .custom_widgets import custom_button
-from .custom_widgets import custom_switch
 from .modal.help import simulation_help
-from .toolbar import toolbar_select_method
+from app import app
+from app.custom_widgets import custom_button
+from app.custom_widgets import custom_switch
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -193,7 +192,7 @@ def header():
 
 
 def layout():
-    return [header(), toolbar_select_method, graph_ui(), simulation_help]
+    return [header(), graph_ui(), simulation_help]
 
 
 def ui():
@@ -216,7 +215,9 @@ def ui():
     )
 
     return html.Div(
-        id="spectrum-body", className="my-card active", children=experiment_drop_upload
+        id="spectrum-body",
+        className="left-card active",
+        children=experiment_drop_upload,
     )
 
 

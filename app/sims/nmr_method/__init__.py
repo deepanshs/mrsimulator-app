@@ -4,7 +4,6 @@ from datetime import datetime
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import mrsimulator.methods as mt
 from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
@@ -12,71 +11,26 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-import app.nmr_method.fields as mrfields
+from . import fields as mrfields
+from .modal import METHOD_DIMENSIONS
+from .modal import METHOD_LIST
+from .modal import method_selection_modal
+from .post_simulation_widgets import gaussian_linebroadening_widget
 from app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
-from app.nmr_method.post_simulation_widgets import gaussian_linebroadening_widget
-from app.spin_system.site import isotope_options_list
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = ["deepansh2012@gmail.com"]
 
-METHOD_LIST = [
-    mt.BlochDecaySpectrum,
-    mt.BlochDecayCTSpectrum,
-    # mt.ThreeQ_VAS,
-]
-METHOD_DIMENSIONS = [item.ndim for item in METHOD_LIST]
-METHOD_OPTIONS = [
-    {"label": "Bloch Decay Spectrum", "value": 0},
-    {"label": "Bloch Decay Central Transition Spectrum", "value": 1},
-    # {"label": "Triple-quantum variable-angle spinning", "value": 2},
-    # {"label": "Custom 2D method", "value": "Custom2D"},
-]
+
+def hidden_method_select_element():
+    """The element is used for update plots based on method selection."""
+    select_method = dcc.Dropdown(id="select-method", value=0)
+    return html.Div(select_method, style={"display": "none"})
 
 
-def method_select_modal():
-    """Modal window for method selection"""
-    # title
-    head = dbc.ModalHeader("Select a method")
-
-    # method selection
-    method_selection = dcc.Dropdown(id="method-type", options=METHOD_OPTIONS, value=0)
-
-    # Channel selection
-    ch_label = dbc.InputGroupAddon("Channel", addon_type="prepend")
-    ch_selection = dbc.Select(options=isotope_options_list, value="1H", id="channel")
-    channel_ui = dbc.InputGroup([ch_label, ch_selection], className="container")
-
-    # select button
-    button = dbc.Button(
-        "Select",
-        id="close-method-selection",
-        color="dark",
-        className="ml-auto",
-        outline=True,
-    )
-
-    app.clientside_callback(
-        "function(n1, n2, is_open) { return !is_open; }",
-        Output("method-modal", "is_open"),
-        [
-            Input("add-method-button", "n_clicks"),
-            Input("close-method-selection", "n_clicks"),
-        ],
-        [State("method-modal", "is_open")],
-        prevent_initial_call=True,
-    )
-
-    return dbc.Modal(
-        [head, dbc.ModalBody(method_selection), channel_ui, dbc.ModalFooter(button)],
-        is_open=False,
-        id="method-modal",
-    )
-
-
-def post_simulation(n_dimensions):
+def post_simulation_ui(n_dimensions):
     # create line broadening => widgets for
     # 1) apodization function and
     # 2) apodization factor,
@@ -93,14 +47,12 @@ def post_simulation(n_dimensions):
 
 
 def dimension_tabs_ui():
-    return dbc.Tabs(
-        [
-            dbc.Tab(label="0", children=mrfields.spectral_dimension_ui(0), id="dim-0"),
-            dbc.Tab(label="1", children=mrfields.spectral_dimension_ui(1), id="dim-1"),
-        ],
-        # vertical=True,
-        className="vertical-tabs",
-    )
+    """Supports two dimensions."""
+    dim = [
+        dbc.Tab(label=f"{i}", children=mrfields.spectral_dimension_ui(i), id=f"dim-{i}")
+        for i in range(2)
+    ]
+    return dbc.Tabs(dim, className="vertical-tabs")
 
 
 def method_property_tab_ui():
@@ -115,25 +67,21 @@ def method_property_tab_ui():
 def signal_processing_tab_ui():
     return dbc.Tab(
         label="Signal Processing",
-        children=post_simulation(1),
+        children=post_simulation_ui(1),
         className="tab-scroll method",
     )
 
 
-def default_display():
-    title = html.H5("Load methods or start creating")
-    icon = html.Span(
-        [
-            html.I(className="fas fa-cube fa-4x"),
-            html.H6("Add a method"),
-        ],
-        id="open-edit_method",
-    )
-    return html.Div([title, icon], className="blank-display")
+def display():
+    comment = html.H5("Load methods or start creating")
+    icon = html.I(className="fas fa-cube fa-4x")
+    sub_text = html.H6("Add a method")
+    title = html.Span([icon, sub_text], id="open-edit_method")
+    return html.Div([comment, title], className="blank-display")
 
 
 def scrollable():
-    default = default_display()
+    default = display()
     app.clientside_callback(
         """
         function(n) {
@@ -178,7 +126,10 @@ def layout():
     # upload experiment dataset
     icon = html.I(className="fas fa-paperclip fa-lg")
     tooltip = dbc.Tooltip(
-        "Attach a measurement to the selected method",
+        (
+            "Click to attach a measurement file to the selected method. "
+            "Alternatively, drag and drop the file onto the Simulation area."
+        ),
         target="import-measurement-for-method",
     )
     clip_btn = html.Button([icon, tooltip], className="icon-button")
@@ -205,12 +156,14 @@ def layout():
 def ui():
     head = header()
     body = html.Div(
-        [scrollable(), layout(), tools()], id="met-slide", className="slide-offset"
+        [scrollable(), layout(), tools(), hidden_method_select_element()],
+        id="met-slide",
+        className="slide-offset",
     )
 
     return html.Div(
         className="left-card",
-        children=html.Div([head, body, method_select_modal()]),
+        children=html.Div([head, body, method_selection_modal]),
         id="methods-body",
     )
 
@@ -246,7 +199,11 @@ def generate_sidepanel(method, index):
 def refresh(methods):
     """Return a html for rendering the display in the read-only spin-system section."""
     output = [generate_sidepanel(mth, i) for i, mth in enumerate(methods)]
-    return html.Div([html.Ul(output, className="list-group")], className="display-form")
+    if output == []:
+        return display()
+    return html.Div(
+        [html.Ul(output, className="list-group")], className="scrollable-list"
+    )
 
 
 dimension_body = ui()

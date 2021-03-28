@@ -18,7 +18,7 @@ from mrinversion.linear_model import TSVDCompression
 
 from .layout import page
 from app import app
-from app.importer import load_csdm
+from app.sims.importer import load_csdm
 
 
 mrinv = html.Div(

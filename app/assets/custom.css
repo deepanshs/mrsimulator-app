@@ -17,51 +17,37 @@ input[type="search"]:focus {
   background-color: #f4f9ff;
 }
 
-[id$="-body"].left-card,
-#spectrum-body {
-  display: none;
-  width: 50vw;
-  padding: 1em;
-}
-#spectrum-body {
-  margin-right: 1em;
-}
 [id$="-body"].left-card {
+  display: none;
+  width: 45vw;
+  min-width: 45vw;
+  padding: 1em;
   height: var(--content-max-height);
-  background-color: #fff1f12c;
-  border: none;
-  box-shadow: none;
-  margin-right: 1em;
 }
 
-#spectrum-body.my-card {
-  width: 45vw;
+#spectrum-body.left-card {
+  display: block;
+  min-width: 45vw;
+  width: 100%;
+}
+#upload-from-graph {
+  display: block;
   box-shadow: 0 0 10px 0 silver;
-  height: calc(var(--content-max-height) - 3em);
   background-color: white;
+  border-radius: 0.6em;
+  height: 100%;
   padding: 0 1em;
 }
 
-#spectrum-body.my-card.active,
 [id$="-body"].left-card.active {
   overflow: hidden;
   min-height: var(--content-min-height);
   display: block;
-  /* margin: 1em 1em 0; */
-  border-radius: 0.6em;
-}
-
-#spectrum-body .dash-graph {
-  padding-right: 0.5em;
-}
-
-.dark-mode [id$="-body"].my-card {
-  background: rgb(218, 218, 218);
 }
 
 #nmr_spectrum {
-  min-height: calc(var(--content-min-height) - 7.85rem);
-  height: calc(var(--content-max-height) - 7.85rem);
+  min-height: calc(var(--content-min-height) - 7.5rem);
+  height: calc(var(--content-max-height) - 7.5rem);
 }
 
 .card-header {

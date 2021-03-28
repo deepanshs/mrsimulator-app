@@ -8,6 +8,7 @@
 .slide,
 .slide-offset {
   display: flex;
+  padding: 0 1em;
 }
 .slide::-webkit-scrollbar {
   display: none;
@@ -44,7 +45,7 @@
   border-top-right-radius: 1em;
 }
 
-.display-form ul {
+.scrollable-list ul {
   height: 100%;
   width: 100%;
   line-height: 1.2;
@@ -54,26 +55,26 @@
   cursor: pointer;
   border-radius: none;
 }
-.display-form li:nth-child(odd) {
+.scrollable-list li:nth-child(odd) {
   background-color: #ffffff;
 }
-.display-form li:nth-child(even) {
+.scrollable-list li:nth-child(even) {
   background-color: #f7f7f7;
 }
-.display-form li {
+.scrollable-list li {
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0;
   border-left: 2px solid silver;
   scrollbar-width: none;
 }
-.display-form li::-webkit-scrollbar {
+.scrollable-list li::-webkit-scrollbar {
   display: none;
 }
-.display-form li h6 {
+.scrollable-list li h6 {
   display: none;
 }
-.display-form li div {
+.scrollable-list li div {
   /* width: 100%;
   height: 100%; */
   display: flex;
@@ -84,15 +85,15 @@
   overflow: hidden;
 }
 
-.display-form li a {
+.scrollable-list li a {
   scroll-snap-align: start;
   padding: 1rem;
   width: var(--opt-side-scroll-width);
 }
-.display-form li::-webkit-scrollbar {
+.scrollable-list li::-webkit-scrollbar {
   display: none;
 }
-.display-form li.active {
+.scrollable-list li.active {
   background-color: #e1f0ff;
   color: black;
   font-weight: 400;
@@ -154,9 +155,9 @@
   cursor: pointer;
 }
 .ui_title {
-  width: 100%;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  padding: 0 1em;
 }
 .ui_title label {
   padding: 0.75em 0 1.5em;
@@ -174,15 +175,18 @@
 /* media for spin-systems and methods*/
 @media only screen and (max-width: 575px),
   (min-width: 810px) and (max-width: 1100px) {
-  .display-form li div {
+  .scrollable-list li div {
     display: none;
   }
-  .display-form li h6 {
+  .scrollable-list li h6 {
     display: block;
     width: 100%;
     height: 100%;
     margin: auto;
     padding: 0.75rem;
+  }
+  .slide {
+    padding: 0;
   }
   .slide .slider1 {
     width: var(--opt-side-scroll-min-width);

@@ -15,10 +15,10 @@ from dash.exceptions import PreventUpdate
 from mrsimulator import Simulator
 from mrsimulator.utils import get_spectral_dimensions
 
-import app.nmr_method as methods_UI
-import app.spin_system as spin_system_UI
-from . import app
-from .home import refresh_home
+from . import home as home_UI
+from . import nmr_method as methods_UI
+from . import spin_system as spin_system_UI
+from app import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -221,7 +221,7 @@ def save_info_modal():
 
     existing_data["trigger"] = False
 
-    home_overview = refresh_home(existing_data)
+    home_overview = home_UI.refresh(existing_data)
     return [
         "",
         False,
@@ -323,7 +323,7 @@ def modified_method():
     if new_method["operation"] == "add":
         data["methods"] += [method_data]
         methods_info = methods_UI.refresh(data["methods"])
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
@@ -334,7 +334,7 @@ def modified_method():
             method_data["experiment"] = data["methods"][index]["experiment"]
         data["methods"][index] = method_data
         methods_info = methods_UI.refresh(data["methods"])
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
@@ -343,7 +343,7 @@ def modified_method():
     if new_method["operation"] == "duplicate":
         data["methods"] += [method_data]
         methods_info = methods_UI.refresh(data["methods"])
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
         return default
@@ -353,7 +353,7 @@ def modified_method():
         if index is None:
             raise PreventUpdate
         del data["methods"][index]
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         methods_info = methods_UI.refresh(data["methods"])
         default[2], default[5] = data, methods_info
@@ -384,7 +384,7 @@ def modified_spin_system():
         data["spin_systems"][index] = spin_system_data
         config["index_last_modified"] = index
 
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         spin_systems_info = spin_system_UI.refresh(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
@@ -399,7 +399,7 @@ def modified_spin_system():
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         spin_systems_info = spin_system_UI.refresh(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
@@ -414,7 +414,7 @@ def modified_spin_system():
         config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
         config["index_last_modified"] = index
 
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         spin_systems_info = spin_system_UI.refresh(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
@@ -434,7 +434,7 @@ def modified_spin_system():
         del data["spin_systems"][index]
         config["index_last_modified"] = index
 
-        info_updates = refresh_home(data)
+        info_updates = home_UI.refresh(data)
         default[6] = info_updates
         spin_systems_info = spin_system_UI.refresh(data["spin_systems"])
         default[2], default[3], default[4] = data, config, spin_systems_info
@@ -551,7 +551,7 @@ def assemble_data(data):
         config,
         spin_system_UI.refresh(data["spin_systems"]),
         methods_UI.refresh(data["methods"]),
-        refresh_home(data),
+        home_UI.refresh(data),
         *pack,
     ]
 
