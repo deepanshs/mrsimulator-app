@@ -9,7 +9,7 @@ if (!window.localStorage.getItem("user-config")) {
   window.localStorage.setItem(
     "user-config",
     JSON.stringify({
-      auto_update: true,
+      auto_update: false,
       // 'open_recent': [{'path': 'test'}],
       // 'number_of_sidebands': 12
     })
@@ -20,10 +20,18 @@ var storeData = {
   previousIndex: 0,
   spin_system_index: 0,
   method_index: 0,
-  data: { name: "", description: [], spin_systems: [], methods: [] },
+  data: {
+    name: "",
+    description: [],
+    spin_systems: [],
+    methods: []
+  },
 };
 
-var previous_timestamps = [-1, -1, -1, -1];
+var previous_timestamps = {
+  sys: [-1, -1, -1, -1],
+  mth: [-1, -1, -1, -1],
+};
 var last_li_scroll_index = 0;
 let initial = 0;
 
@@ -43,7 +51,7 @@ window.dash_clientside.clientside = {
     return null;
   },
 
-  serializeSession: function (n, data) {
+  downloadSession: function (n, data) {
     if (n == null) {
       throw window.dash_clientside.PreventUpdate;
     }
@@ -55,7 +63,7 @@ window.dash_clientside.clientside = {
     let dataStr = "data:text/json;charset=utf-8,";
     dataStr += encodeURIComponent(JSON.stringify(data));
 
-    let dlAnchorElem = $("#serialize-session-link")[0];
+    let dlAnchorElem = $("#download-session-link")[0];
     dlAnchorElem.setAttribute("href", dataStr);
     dlAnchorElem.setAttribute("download", "session.mrsim");
     dlAnchorElem.click();
@@ -70,14 +78,16 @@ window.dash_clientside.clientside = {
     );
     let listomers = $("#spin-system-read-only div.display-form ul li");
 
+    // event listener to pensil in the home screen
     let overView = document.querySelectorAll("[data-edit-sys]");
     overView.forEach((edit) => {
       edit.addEventListener("click", () => {
-        $("#view-spin-systems")[0].click();
+        $("#view-spin_systems")[0].click();
       });
     });
 
-    overView = document.querySelectorAll("[data-table-sys] tr");
+    // event listener to side panel click and update the site fields.
+    overView = document.querySelectorAll("[data-table-sys] thead");
     overView.forEach((tr) => {
       tr.addEventListener("click", () => {
         let i = $(tr).index();
@@ -93,7 +103,8 @@ window.dash_clientside.clientside = {
       });
     });
 
-    activateSystemTools();
+    // activte the add, copy, and remove btn on the home page.
+    // activateSystemTools();
 
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("iso-slide");
@@ -145,7 +156,7 @@ window.dash_clientside.clientside = {
       });
     });
 
-    overView = document.querySelectorAll("[data-table-mth] tr");
+    overView = document.querySelectorAll("[data-table-mth] thead");
     overView.forEach((tr) => {
       tr.addEventListener("click", () => {
         let i = $(tr).index();
@@ -165,7 +176,9 @@ window.dash_clientside.clientside = {
       });
     });
 
-    activateMethodTools();
+    // activte the add, copy, and remove btn on the home page.
+    // activateMethodTools();
+
     // Toggle classname to slide the contents on smaller screens
     let element = document.getElementById("met-slide");
     if (element.classList.contains("slide-offset")) {
@@ -202,71 +215,34 @@ window.dash_clientside.clientside = {
     return storeData.data;
   },
 
-  create_json: function () {
-    // n1 is the trigger time for apply spin-system changes.
-    // n2 is the trigger time for add new spin-system.
-    // n3 is the trigger time for duplicate spin-system.
-    // n4 is the trigger time for delete spin-system.
-    let max_index, l, i, data;
-    let new_list = [];
+  create_spin_system_json: function () {
+    let trig_id = ctxTriggerID()[0].split('.')[0].split('-')[0];
+    console.log(trig_id);
 
-    for (i = 0; i < 4; i++) {
-      if (arguments[i] == null) {
-        new_list.push(-1);
-      } else {
-        new_list.push(arguments[i]);
-      }
-    }
+    let data = storeData.data;
+    let l = data.spin_systems.length;
+    if (trig_id === 'apply') return updateSystem();
+    if (trig_id === 'add') return addSystem(l);
+    if (trig_id === 'duplicate') return copySystem(data, l);
+    if (trig_id === 'remove') return delSystem(l);
 
-    let max_value = Math.max(...new_list);
-    if (max_value === -1 && initial === 0) {
-      initial = 1;
-      throw window.dash_clientside.PreventUpdate;
-    }
-
-    if (checkArrayEquality(new_list, previous_timestamps)) {
-      max_index = 0;
-    } else {
-      previous_timestamps = new_list;
-      max_index = new_list.indexOf(max_value);
-    }
-    new_list = null;
-
-    data = storeData.data;
-    l = data.spin_systems.length;
-    if (max_index === 0 || max_index >= 4) return updateSystem();
-    if (max_index === 1) return addSystem(l);
-    if (max_index === 2) return copySystem(data, l);
-    if (max_index === 3) return delSystem(max_value, l);
-
-    data = l = i = max_index = max_value = null;
+    data = l = trig_id = triggered = null;
     return null;
   },
 
-  create_method_json: function (n1, n2, n3, n4, method_template) {
-    // n1 is the trigger time for apply method changes.
-    // n2 is the trigger time for add new method.
-    // n3 is the trigger time for duplicate method.
-    // n4 is the trigger time for delete method.
-    let max, l, data;
-    if (n1 == null && n2 == null && n3 == null && n4 == null) {
-      throw window.dash_clientside.PreventUpdate;
-    }
-    if (n1 == null) n1 = -1;
-    if (n2 == null) n2 = -1;
-    if (n3 == null) n3 = -1;
-    if (n4 == null) n4 = -1;
+  create_method_json: function (method_template) {
+    let trig_id = ctxTriggerID()[0].split('.')[0].split('-')[0];
+    console.log(trig_id);
 
-    max = Math.max(n1, n2, n3, n4);
-    data = storeData.data;
-    l = data.methods.length;
+    method_template = ctxTriggerStates()['add-method-from-template.data'];
+    let data = storeData.data;
+    let l = data.methods.length;
+    if (trig_id === 'apply') return updateMethod();
+    if (trig_id === 'add') return addMethod(method_template, l);
+    if (trig_id === 'duplicate') return copyMethod(data, l);
+    if (trig_id === 'remove') return delMethod(l);
 
-    if (n1 === max) return updateMethod();
-    if (n2 === max) return addMethod(method_template, l);
-    if (n3 === max) return copyMethod(data, l);
-    if (n4 === max) return delMethod(n4, l);
-
-    data = l = max = null;
+    data = l = max_index = null;
     return null;
   },
 
@@ -290,16 +266,6 @@ window.dash_clientside.clientside = {
     return null;
   },
 
-  openAdvancedModalWindow: function (n1, n2, is_open) {
-    if (n1 == null && n2 == null) {
-      throw window.dash_clientside.PreventUpdate;
-    }
-    if (n1 || n2) {
-      return !is_open;
-    }
-    return is_open;
-  },
-
   setAutoUpdateOption: function (n1) {
     if (n1 == null) {
       throw window.dash_clientside.PreventUpdate;
@@ -311,6 +277,13 @@ window.dash_clientside.clientside = {
   },
 };
 
+function ctxTriggerID() {
+  return dash_clientside.callback_context.triggered.map(t => t["prop_id"]);
+}
+
+function ctxTriggerStates() {
+  return dash_clientside.callback_context.states;
+}
 // Spin system operations
 // update system
 function updateSystem() {
@@ -322,6 +295,7 @@ function updateSystem() {
   //   throw window.dash_clientside.PreventUpdate;
   // }
   // data.spin_systems[result.index] = result.data;
+  console.log("system modify");
   return result;
 }
 // add system
@@ -331,13 +305,19 @@ function addSystem(l) {
     name: `System ${l}`,
     description: "",
     abundance: 1,
-    sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
+    sites: [
+      {
+        isotope: "1H",
+        isotropic_chemical_shift: 0,
+      },
+    ],
   };
   result.index = l;
   result.operation = "add";
   result.time = Date.now();
   // set_spin_system_index(l);
   l = null;
+  console.log("system add");
   return result;
 }
 // copy system
@@ -349,20 +329,23 @@ function copySystem(data, l) {
   result.operation = "duplicate";
   // set_spin_system_index(l);
   data = l = null;
+  console.log("system copy");
   return result;
 }
 // delete system
-function delSystem(max_value, l) {
+function delSystem(l) {
   let result = {};
   checkForEmptyListForOperation("delete", "spin system", l);
   let new_val = get_spin_system_index();
-  result.data = max_value;
+  console.log('index to remove', new_val);
+  result.data = null;
   result.index = new_val;
   result.operation = "delete";
   // new_val -= 1;
   // new_val = new_val < 0 ? 0 : new_val;
   // set_spin_system_index(new_val);
-  max_value = l = new_val = null;
+  l = new_val = null;
+  console.log("system delete");
   return result;
 }
 
@@ -373,6 +356,7 @@ function updateMethod() {
   result.data = window.methods.updateData();
   result.index = get_method_index();
   result.operation = "modify";
+  console.log("method modify");
   return result;
 }
 // add method
@@ -384,6 +368,7 @@ function addMethod(method_template, l) {
   result.time = Date.now();
   // set_method_index(l);
   method_template = l = null;
+  console.log("method add");
   return result;
 }
 // copy method
@@ -395,16 +380,18 @@ function copyMethod(data, l) {
   result.operation = "duplicate";
   // set_method_index(l);
   data = l = null;
+  console.log("method copy");
   return result;
 }
 // delete method
-function delMethod(n4, l) {
+function delMethod(l) {
   let result = {};
   checkForEmptyListForOperation("delete", "method", l);
   let new_val = get_method_index();
-  result.data = n4;
+  result.data = null;
   result.index = new_val;
   result.operation = "delete";
+  console.log("method delete");
   // new_val -= 1;
   // new_val = new_val < 0 ? 0 : new_val;
   // set_method_index(new_val);
@@ -521,15 +508,9 @@ var activateMethodTools = function () {
   obj.forEach((li) => {
     li.addEventListener("click", () => {
       let i = $(li).index();
-      if (i == 0) {
-        $("#add-method-button")[0].click();
-      }
-      if (i == 1) {
-        $("#duplicate-method-button")[0].click();
-      }
-      if (i == 2) {
-        $("#remove-method-button")[0].click();
-      }
+      if (i == 0) $("#add-method-button")[0].click();
+      if (i == 1) $("#duplicate-method-button")[0].click();
+      if (i == 2) $("#remove-method-button")[0].click();
     });
   });
 };
@@ -539,15 +520,9 @@ var activateSystemTools = function () {
   obj.forEach((li) => {
     li.addEventListener("click", () => {
       let i = $(li).index();
-      if (i == 0) {
-        $("#add-spin-system-button")[0].click();
-      }
-      if (i == 1) {
-        $("#duplicate-spin-system-button")[0].click();
-      }
-      if (i == 2) {
-        $("#remove-spin-system-button")[0].click();
-      }
+      if (i == 0) $("#add-spin-system-button")[0].click();
+      if (i == 1) $("#duplicate-spin-system-button")[0].click();
+      if (i == 2) $("#remove-spin-system-button")[0].click();
     });
   });
 };

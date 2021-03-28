@@ -7,7 +7,7 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from .app import app
+from . import app
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -192,7 +192,7 @@ def custom_input_group(
                 className="label-right", id=f"{id_}-right-label", children=append_label
             ),
         ],
-        className="input-form-2",
+        className="input-form",
     )
 
 
@@ -237,3 +237,44 @@ def custom_collapsible(
     ]
 
     return html.Div(layout)
+
+
+def container(text, featured_fields, **kwargs):
+    return custom_card(
+        text=html.Div(text),
+        children=html.Div(featured_fields, className="container"),
+        **kwargs,
+    )
+
+
+def collapsable_card(text, id_, featured_fields, hidden_fields):
+    # collapsable button
+    icon = html.I(className="fas fa-chevron-down")
+    tooltip = dbc.Tooltip("Show/Hide Euler angles", target=f"{id_}-collapse-button")
+    chevron_down_btn = html.Label([icon, tooltip], id=f"{id_}-collapse-button")
+
+    # collapsed fields
+    collapsed_fields = dbc.Collapse(
+        hidden_fields, id=f"{id_}-collapse-collapse", is_open=False
+    )
+
+    # featured fields
+    featured_fields = html.Div(featured_fields)
+    content = custom_card(
+        text=html.Div([text, chevron_down_btn]),
+        children=html.Div([featured_fields, collapsed_fields], className="container"),
+    )
+    collapsible = dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)
+
+    @app.callback(
+        Output(f"{id_}-collapse-collapse", "is_open"),
+        [Input(f"{id_}-collapse-button", "n_clicks")],
+        [State(f"{id_}-collapse-collapse", "is_open")],
+        prevent_initial_call=True,
+    )
+    def toggle_orientation_collapsible(n, is_open):
+        if n is None:
+            raise PreventUpdate
+        return not is_open
+
+    return collapsible

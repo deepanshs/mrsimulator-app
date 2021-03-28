@@ -13,7 +13,7 @@ import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
 
-from app.app import app
+from app import app
 
 
 __author__ = "Deepansh J. Srivastava"

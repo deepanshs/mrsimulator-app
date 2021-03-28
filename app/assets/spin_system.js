@@ -264,26 +264,12 @@ var extract_site_object_from_fields = function () {
   return spin_system;
 };
 
-// print_label = [
-//   "Isotope",
-//   "Shift (δ)",
-//   "ζ",
-//   "η",
-//   "α",
-//   "β",
-//   "γ",
-//   "Cq",
-//   "η",
-//   "α",
-//   "β",
-//   "γ",
-// ];
-// unit = [null, "ppm", "ppm", "", "°", "°", "°", "MHz", "", "°", "°", "°"];
 
-function searchSpinSystems() {
-  let input, filter, li, i, j, elements1, elements2, elements, txtValue;
-  input = document.getElementById("search-spin-system");
-  filter = input.value.toUpperCase();
+
+
+var _searchSpinSystems = function (input) {
+  let filter, li, i, j, elements1, elements2, elements, txtValue;
+  filter = input.toUpperCase();
   li = $("#spin-system-read-only div.display-form ul li");
 
   // Loop through all list items, and hide those who don't match the search
@@ -302,7 +288,8 @@ function searchSpinSystems() {
       }
     }
   }
-  input = filter = li = i = j = elements1 = elements2 = elements = txtValue = null;
+  filter = li = i = j = elements1 = elements2 = elements = txtValue = null;
+  throw window.dash_clientside.PreventUpdate;
 }
 
 var spinSystemOnClick = function (obj) {
@@ -350,3 +337,8 @@ var spinSystemOnClick = function (obj) {
 //   li.click();
 //   data = result = l = ul = li = null;
 // };
+
+
+window.dash_clientside.spin_system = {
+  searchSpinSystems: _searchSpinSystems
+}

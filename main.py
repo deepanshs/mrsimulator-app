@@ -8,22 +8,23 @@ import numpy as np
 import plotly.graph_objs as go
 from dash import callback_context as ctx
 from dash import no_update
-from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator import Simulator
 
-from app.app import app
+from app import app
 from app.body import app_1
 from app.body import nav_group
-from app.body import sidebar
 from app.graph import DEFAULT_FIGURE
+from app.graph import plot_1D_trace
+from app.graph import plot_2D_trace
 from app.methods.post_simulation_functions import line_broadening
 from app.methods.post_simulation_functions import post_simulation
+from app.sidebar import sidebar
+from app_inv import mrinv
 
-# from app_inv import mrinv
 # from app_main import home_mrsims
 
 __author__ = "Deepansh J. Srivastava"
@@ -44,21 +45,23 @@ app.layout = html_body
 
 server = app.server
 
-# home = html.Div(
-#     [
-#         dcc.Link("Simulator", href="/simulator", id="simulator-app"),
-#         dcc.Link("Inversion", href="/inversion", id="inversion-app"),
-#         dcc.Link("Home", href="/home", id="home-app"),
-#     ],
-#     className="home-screen",
-#     **{"data-app-link": ""},
-# )
+home = html.Div(
+    [
+        dcc.Link("Simulator", href="/simulator", id="simulator-app"),
+        dcc.Link("Inversion", href="/inversion", id="inversion-app"),
+        # dcc.Link("Home", href="/home", id="home-app"),
+    ],
+    className="home-page",
+    # **{"data-app-link": ""},
+)
 mrsimulator_app = html.Div(
-    [nav_group, html.Div([sidebar, app_1], className="main-split")]
+    [nav_group, html.Div([sidebar, app_1], className="mrsim-page")]
 )
 
-# layout_2 = mrinv
+layout_2 = mrinv
 # layout_3 = home_mrsims
+
+counter = 0
 
 
 @app.callback(
@@ -67,23 +70,28 @@ mrsimulator_app = html.Div(
     [State("url", "search")],
 )
 def display_page(pathname, search):
-    print(pathname)
-    # if pathname == "/simulator":
-    #     return [mrsimulator_app, search]
-    # if pathname == "/inversion":
-    #     return [layout_2, search]
+    print("pathname", pathname, search)
+    global counter
+    print("counter", counter)
+    if search == "" and counter != 0:
+        counter = 1
+        return [no_update, search]
+    if pathname == "/simulator":
+        return [mrsimulator_app, search]
+    if pathname == "/inversion":
+        return [layout_2, search]
     # if pathname == "/home":
     #     return [layout_3, search]
     # else:
-    return [mrsimulator_app, search]
+    return [home, ""]
 
 
-app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="initialize"),
-    Output("placeholder", "children"),
-    [Input("simulator-app", "n_clicks")],
-    prevent_initial_call=True,
-)
+# app.clientside_callback(
+#     ClientsideFunction(namespace="clientside", function_name="initialize"),
+#     Output("placeholder", "children"),
+#     [Input("simulator-app", "n_clicks")],
+#     prevent_initial_call=True,
+# )
 
 
 def check_for_spin_system_update(new, old):
@@ -223,34 +231,12 @@ def check_for_simulation_update(
         Output("alert-message-simulation", "is_open"),
         Output("local-computed-data", "data"),
         Output("local-simulator-data", "data"),
-        Output("local-spin-system-index-map", "data"),
     ],
     [Input("local-mrsim-data", "data")],
-    [
-        State("local-simulator-data", "data"),
-        State("local-spin-system-index-map", "data"),
-        State("config", "data"),
-        State("nmr_spectrum", "figure"),
-    ],
+    prevent_initial_call=True,
 )
-def simulation(
-    # input
-    local_mrsim_data,
-    # state
-    previous_local_mrsim_data,
-    previous_local_spin_system_index_map,
-    config,
-    figure,
-):
+def simulation(local_mrsim_data):
     """Evaluate the spectrum and update the plot."""
-    # if "removed" in config.keys():
-    #     raise PreventUpdate
-    # exit when the following conditions are True
-    # if isotope_id is None:
-    #     if previous_local_computed_data is not None:
-    #         print("simulation cleared because isotope id is", isotope_id)
-    #         return [None, no_update, no_update]
-    #     raise PreventUpdate
 
     if not ctx.triggered:
         print("simulation stopped, ctx not triggered")
@@ -276,7 +262,7 @@ def simulation(
         sim = Simulator(**local_mrsim_data)
         sim.run()
     except Exception as e:
-        return [str(e), True, no_update, no_update, no_update]
+        return [str(e), True, no_update, no_update]
 
     local_computed_data = [
         item.simulation.to_dict(update_timestamp=True) for item in sim.methods
@@ -286,8 +272,7 @@ def simulation(
         "",
         False,
         local_computed_data,
-        sim.to_dict_with_units(include_methods=True),
-        sim.indexes,
+        sim.json(include_methods=True, include_version=True),
     ]
 
 
@@ -365,6 +350,7 @@ def simulation(
         State("nmr_spectrum", "figure"),
         State("config", "data"),
     ],
+    prevent_initial_call=True,
 )
 def plot(
     time_of_computation,
@@ -384,14 +370,14 @@ def plot(
     """Generate and return a one-dimensional plot instance."""
     print("inside plot, time of computation", time_of_computation)
     print("method_index", method_index, method_options)
-    if method_index is None or method_options == []:
-        return [DEFAULT_FIGURE, no_update]
+    # if method_index is None or method_options == []:
+    # return [DEFAULT_FIGURE, no_update]
 
     if local_computed_data is None and sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if not ctx.triggered:
-        raise PreventUpdate
+    # if not ctx.triggered:
+    #     raise PreventUpdate
 
     trigger = ctx.triggered[0]["prop_id"]
 
@@ -407,7 +393,8 @@ def plot(
     #     else local_computed_data["trigger-spin-system"]
     # )
     # print("local_computed_data", local_computed_data)
-    data = []
+    plot_trace = []
+
     if local_computed_data is not None:
         local_computed_data = [cp.parse_dict(item) for item in local_computed_data]
 
@@ -423,117 +410,19 @@ def plot(
 
         current_data = local_processed_data[method_index]
 
-        try:
-            [item.to("ppm", "nmr_frequency_ratio") for item in current_data.dimensions]
-        except (ZeroDivisionError, ValueError):
-            pass
+        # try:
+        #     [item.to("ppm", "nmr_frequency_ratio") for item in
+        #                   current_data.dimensions]
+        # except (ZeroDivisionError, ValueError):
+        #     pass
+
+        decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
 
         if len(current_data.dimensions) == 1:
-            x = current_data.dimensions[0].coordinates.value
-            x0 = x[0]
-            dx = x[1] - x[0]
-
-            # get the max data point
-            y_data = 0
-            maximum = 1.0
-            for datum in current_data.split():
-                y_data += datum
-
-            if normalized:
-                maximum = y_data.max()
-                y_data /= maximum
-
-            decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
-            if decompose:
-                for datum in current_data.dependent_variables:
-                    name = datum.name
-                    if name == "":
-                        name = None
-                    data.append(
-                        go.Scatter(
-                            x0=x0,
-                            dx=dx,
-                            y=datum.components[0] / maximum,
-                            mode="lines",
-                            opacity=0.6,
-                            line={"width": 1.2},
-                            fill="tozeroy",
-                            name=name,
-                        )
-                    )
-
-            else:
-                data.append(
-                    go.Scatter(
-                        x0=x0,
-                        dx=dx,
-                        y=y_data.dependent_variables[0].components[0],
-                        mode="lines",
-                        line={"color": "black", "width": 1.2},
-                        name="simulation",
-                    )
-                )
+            plot_trace += plot_1D_trace(current_data, normalized, decompose)
 
         if len(current_data.dimensions) == 2:
-            x = current_data.dimensions[0].coordinates.value
-            y = current_data.dimensions[1].coordinates.value
-
-            # get the max data point
-            y_data = 0
-            maximum = 1.0
-            for datum in current_data.split():
-                y_data += datum
-
-            if normalized:
-                maximum = y_data.max()
-                y_data /= maximum
-
-            decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
-            if decompose:
-                for datum in current_data.dependent_variables:
-                    name = datum.name
-                    if name == "":
-                        name = None
-                    data.append(
-                        go.Contour(
-                            dx=x[1] - x[0],
-                            dy=y[1] - y[0],
-                            x0=x[0],
-                            y0=y[0],
-                            z=datum.components[0] / maximum,
-                            fillcolor=False,
-                            # type="heatmap",
-                            showscale=False,
-                            # mode="lines",
-                            opacity=0.6,
-                            colorscale="dense",
-                            # line={"width": 1.2},
-                            # fill="tozeroy",
-                            name=name,
-                        )
-                    )
-
-            else:
-                data.append(
-                    go.Heatmap(
-                        dx=x[1] - x[0],
-                        dy=y[1] - y[0],
-                        x0=x[0],
-                        y0=y[0],
-                        z=y_data.dependent_variables[0].components[0],
-                        type="heatmap",
-                        showscale=False,
-                        # line_smoothing=0,
-                        # contours_coloring="lines",
-                        # line_width=1.2,
-                        # mode="lines",
-                        # line={"color": "black", "width": 1.2},
-                        colorscale="dense",
-                        # "tempo", "curl", "armyrose", "dense",  # "electric_r",
-                        # zmid=0,
-                        name="simulation",
-                    )
-                )
+            plot_trace += plot_2D_trace(current_data, normalized, decompose)
 
     local_exp_external_data = None
     if "experiment" in sim_data["methods"][method_index]:
@@ -543,7 +432,7 @@ def plot(
         local_exp_external_data = cp.parse_dict(local_exp_external_data)
 
         if local_exp_external_data.dimensions[0].origin_offset.value != 0:
-            local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+            # local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
             x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
         else:
             x_spectrum = (
@@ -555,13 +444,13 @@ def plot(
         y_spectrum = local_exp_external_data.dependent_variables[0].components[0]
         if normalized:
             y_spectrum /= np.abs(y_spectrum.max())
-        data.append(
+        plot_trace.append(
             go.Scatter(
                 x0=x0,
                 dx=dx,
                 y=y_spectrum.real,
                 mode="lines",
-                line={"color": "#af0072", "width": 1.2},
+                line={"color": "rgba(175, 0, 114, 0.494)", "width": 2.2},
                 name="experiment",
             )
         )
@@ -599,7 +488,7 @@ def plot(
     #     #     if i != index:
     #     #         data[i].opacity = 0.25
 
-    data_object = {"data": data, "layout": go.Layout(**layout)}
+    data_object = {"data": plot_trace, "layout": go.Layout(**layout)}
 
     if trigger_id in [
         "local-exp-external-data",

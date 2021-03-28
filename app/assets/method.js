@@ -99,6 +99,11 @@ window.methods = {
     let li = $("#dim-tab div div ul.vertical-tabs li");
     $("#method-title")[0].innerHTML = method.name;
 
+    let evt = method.spectral_dimensions[0].events[0];
+    setValue("magnetic_flux_density", evt.magnetic_flux_density);
+    setValue("rotor_frequency", evt.rotor_frequency / 1e3); // to kHz
+    setValue("rotor_angle", rad_to_deg(evt.rotor_angle));
+
     // setValue(`method-description`, method.description);
     // setValue(`channel`, method.channels[0]);
     for (i = 0; i < method.spectral_dimensions.length; i++) {
@@ -109,30 +114,29 @@ window.methods = {
       setValue(`count-${i}`, sd.count);
       setValue(`spectral_width-${i}`, sd.spectral_width / 1e3); // to kHz
       setValue(`reference_offset-${i}`, sd.reference_offset / 1e3); // to kHz
-      // setValue(`origin_offset-${i}`, sd.origin_offset / 1e6); // to MHz
       setValue(`label-${i}`, sd.label);
 
-      for (j = 0; j < sd.events.length; j++) {
-        // show events that are applicable for the given method.
-        showElement(`event-${i}-${j}`);
-        setValue(
-          `magnetic_flux_density-${i}-${j}`,
-          sd.events[j].magnetic_flux_density
-        );
-        setValue(
-          `rotor_frequency-${i}-${j}`,
-          sd.events[j].rotor_frequency / 1e3
-        ); // to kHz
-        setValue(`rotor_angle-${i}-${j}`, rad_to_deg(sd.events[j].rotor_angle));
-        setValue(
-          `transition-${i}-${j}`,
-          sd.events[j].transition_query["P"]["channel-1"][0][0]
-        );
-      }
-      for (j = sd.events.length; j < 2; j++) {
-        // hide events that are not applicable for the given method.
-        hideElement(`event-${i}-${j}`);
-      }
+      // for (j = 0; j < sd.events.length; j++) {
+      //   // show events that are applicable for the given method.
+      //   showElement(`event-${i}-${j}`);
+      //   setValue(
+      //     `magnetic_flux_density-${i}-${j}`,
+      //     sd.events[j].magnetic_flux_density
+      //   );
+      //   setValue(
+      //     `rotor_frequency-${i}-${j}`,
+      //     sd.events[j].rotor_frequency / 1e3
+      //   ); // to kHz
+      //   setValue(`rotor_angle-${i}-${j}`, rad_to_deg(sd.events[j].rotor_angle));
+      //   // setValue(
+      //   //   `transition-${i}-${j}`,
+      //   //   sd.events[j].transition_query["P"]["channel-1"][0][0]
+      //   // );
+      // }
+      // for (j = sd.events.length; j < 2; j++) {
+      //   // hide events that are not applicable for the given method.
+      //   hideElement(`event-${i}-${j}`);
+      // }
     }
 
     // hide the transition symmetry option for the last entry
@@ -154,16 +158,21 @@ window.methods = {
     }
     data = method = sd = li = ul = null;
   },
+
   updateData: function () {
-    let sd, ev, i, j;
+    let sd, i;
     // let channel = getValue(`channel`);
     // let description = getValue(`method-description`);
 
     let method = storeData.data.methods[get_method_index()];
 
+    let evt = method.spectral_dimensions[0].events[0];
+    evt.magnetic_flux_density = getValue(`magnetic_flux_density`); // in T
+    evt.rotor_angle = deg_to_rad(getValue(`rotor_angle`)); // in rad
+    evt.rotor_frequency = getValue(`rotor_frequency`) * 1e3; // in Hz
     // method.description = description;
     // method.channels = [channel];
-
+    // global params
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       sd = method.spectral_dimensions[i];
       sd.count = getValue(`count-${i}`);
@@ -171,25 +180,17 @@ window.methods = {
       sd.reference_offset = getValue(`reference_offset-${i}`) * 1e3; // to Hz
       // sd.origin_offset = getValue(`origin_offset-${i}`) * 1e6; // to Hz
 
-      for (j = 0; j < sd.events.length; j++) {
-        ev = sd.events[j];
-        if (ev.user_variables.includes("magnetic_flux_density")) {
-          ev.magnetic_flux_density = getValue(
-            `magnetic_flux_density-${i}-${j}`
-          ); // in T
-        }
-        if (ev.user_variables.includes("rotor_angle")) {
-          ev.rotor_angle = deg_to_rad(getValue(`rotor_angle-${i}-${j}`)); // in rad
-        }
-        if (ev.user_variables.includes("rotor_frequency")) {
-          ev.rotor_frequency = getValue(`rotor_frequency-${i}-${j}`) * 1e3; // in Hz
-        }
-        ev.transition_query["P"]["channel-1"][0][0] = getValue(
-          `transition-${i}-${j}`
-        );
-      }
+      // for (j = 0; j < sd.events.length; j++) {
+      //   ev = sd.events[j];
+      //   ev.magnetic_flux_density = getValue(`magnetic_flux_density-${i}-${j}`); // in T
+      //   ev.rotor_angle = deg_to_rad(getValue(`rotor_angle-${i}-${j}`)); // in rad
+      //   ev.rotor_frequency = getValue(`rotor_frequency-${i}-${j}`) * 1e3; // in Hz
+      //   // ev.transition_query["P"]["channel-1"][0][0] = getValue(
+      //   //   `transition-${i}-${j}`
+      //   // );
+      // }
     }
-    sd = ev = i = j = null;
+    sd = i = null;
     return method;
   },
 };

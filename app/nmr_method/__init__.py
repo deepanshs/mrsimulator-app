@@ -5,32 +5,29 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import mrsimulator.methods as mt
+from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from .toolbar import search_method
-from app.app import app
+import app.nmr_method.fields as mrfields
+from app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_card
 from app.nmr_method.post_simulation_widgets import gaussian_linebroadening_widget
-from app.nmr_method.simulation_widgets import property_setup
-from app.nmr_method.simulation_widgets import spectral_dimension_ui
-from app.spin_system import isotope_options_list
+from app.spin_system.site import isotope_options_list
 
-# from app.custom_widgets import custom_input_group
+__author__ = ["Deepansh J. Srivastava"]
+__email__ = ["deepansh2012@gmail.com"]
 
 METHOD_LIST = [
     mt.BlochDecaySpectrum,
-    mt.BlochDecayCentralTransitionSpectrum,
+    mt.BlochDecayCTSpectrum,
     # mt.ThreeQ_VAS,
 ]
-DIM_INDEX = [1, 1, 2]
-# "Custom2D": mt.Custom2D(spectral_dimensions=[{}, {}]).reduced_dict(),
-
-
+METHOD_DIMENSIONS = [item.ndim for item in METHOD_LIST]
 METHOD_OPTIONS = [
     {"label": "Bloch Decay Spectrum", "value": 0},
     {"label": "Bloch Decay Central Transition Spectrum", "value": 1},
@@ -38,24 +35,45 @@ METHOD_OPTIONS = [
     # {"label": "Custom 2D method", "value": "Custom2D"},
 ]
 
-__author__ = ["Deepansh J. Srivastava"]
-__email__ = ["deepansh2012@gmail.com"]
 
+def method_select_modal():
+    """Modal window for method selection"""
+    # title
+    head = dbc.ModalHeader("Select a method")
 
-# nmr_method parameters
-def generate_parameters(n_dimensions):
-    """Create a spectral dimension interface."""
+    # method selection
+    method_selection = dcc.Dropdown(id="method-type", options=METHOD_OPTIONS, value=0)
 
-    # create spectral dimension => widgets for
-    # 1) number of points,
-    # 2) spectral width,
-    # 3) reference offset, and
-    spectral_dimension_ui_ = [
-        custom_card(text=f"Spectral dimension - {i}", children=spectral_dimension_ui(i))
-        for i in range(n_dimensions)
-    ]
+    # Channel selection
+    ch_label = dbc.InputGroupAddon("Channel", addon_type="prepend")
+    ch_selection = dbc.Select(options=isotope_options_list, value="1H", id="channel")
+    channel_ui = dbc.InputGroup([ch_label, ch_selection], className="container")
 
-    return html.Div(spectral_dimension_ui_)
+    # select button
+    button = dbc.Button(
+        "Select",
+        id="close-method-selection",
+        color="dark",
+        className="ml-auto",
+        outline=True,
+    )
+
+    app.clientside_callback(
+        "function(n1, n2, is_open) { return !is_open; }",
+        Output("method-modal", "is_open"),
+        [
+            Input("add-method-button", "n_clicks"),
+            Input("close-method-selection", "n_clicks"),
+        ],
+        [State("method-modal", "is_open")],
+        prevent_initial_call=True,
+    )
+
+    return dbc.Modal(
+        [head, dbc.ModalBody(method_selection), channel_ui, dbc.ModalFooter(button)],
+        is_open=False,
+        id="method-modal",
+    )
 
 
 def post_simulation(n_dimensions):
@@ -74,202 +92,169 @@ def post_simulation(n_dimensions):
     )
 
 
-submit_button = html.Div(
-    custom_button(text="Submit Method", id="apply-method-changes", color="primary"),
-    className="submit-button",
-)
-
-edit_button = html.Div(
-    custom_button(text="Edit Method", id="edit-method", color="primary"),
-    className="submit-button",
-)
-
-# update-dataset
-btn = dbc.Button(
-    [
-        html.Span(
-            html.I(className="fas fa-paperclip fa-lg"),
-            className="d-flex align-items-center",
-        ),
-        dbc.Tooltip(
-            "Attach a measurement to the selected method",
-            target="import-measurement-for-method",
-        ),
-    ],
-    className="icon-button",
-)
-upload = dcc.Upload(btn, id="import-measurement-for-method")
-
-# method-title
-method_title = html.Div(
-    [html.Label(id="method-title"), upload], className="spin-system-title"
-)
-
-# method metadata
-method_description = html.Div(
-    [
-        html.Label("Description"),
-        dbc.Textarea(
-            value="",
-            placeholder="Add a description ... ",
-            id="method-description",
-            style={"height": "12rem"},
-        ),
-    ],
-    className="container",
-)
+def dimension_tabs_ui():
+    return dbc.Tabs(
+        [
+            dbc.Tab(label="0", children=mrfields.spectral_dimension_ui(0), id="dim-0"),
+            dbc.Tab(label="1", children=mrfields.spectral_dimension_ui(1), id="dim-1"),
+        ],
+        # vertical=True,
+        className="vertical-tabs",
+    )
 
 
-dimensions_tab = dbc.Tabs(
-    [
-        dbc.Tab(label="0", children=property_setup(0), id="dim-0"),
-        dbc.Tab(label="1", children=property_setup(1), id="dim-1"),
-    ],
-    # vertical=True,
-    className="vertical-tabs",
-)
-# method contents
-method_contents = dbc.Tabs(
-    children=[
-        dbc.Tab(label="Dimensions", children=dimensions_tab, id="dim-tab"),
-        # dbc.Tab(
-        #     label="Metadata",
-        #     children=[method_description],
-        #     className="tab-scroll method",
-        # ),
-        dbc.Tab(
-            label="Signal Processing",
-            children=[post_simulation(1)],
-            className="tab-scroll method",
-        ),
-    ],
-    id="dimension-tabs",
-)
-
-# channels
-# channel = dbc.InputGroup(
-#     [
-#         dbc.InputGroupAddon("Channel", addon_type="prepend"),
-#         dbc.Select(options=isotope_options_list, value="1H", id="channel"),
-#     ],
-#     className="container",
-# )
-
-# method editor
-method_editor = html.Form(
-    [html.Div([method_title, method_contents]), submit_button],
-    id="method-editor-content",
-)
-
-# method read only section
-method_read_only = html.Div(id="method-read-only")
-
-# slides
-method_slide_1 = html.Div(method_read_only, className="slider1")
-method_slide_2 = html.Div(method_editor, className="slider2")
-method_slide = html.Div(
-    [method_slide_1, method_slide_2], id="met-slide", className="slide-offset"
-)
-
-method_header = html.Div(
-    [
-        html.I(className="fas fa-cube fa-lg"),
-        html.H4("Methods", className="hide-label-sm"),
-    ]
-)
-
-# B0 = custom_input_group(
-#     prepend_label="Magnetic flux density (H₀)",
-#     append_label="T",
-#     value=9.4,
-#     id="modal-magnetic_flux_density",
-#     min=0.0,
-# )
-# vr = custom_input_group(
-#     prepend_label="Rotor frequency (𝜈ᵣ)",
-#     append_label="kHz",
-#     value=0.0,
-#     id="modal-rotor_frequency",
-#     min=0.0,
-# )
-# rt = custom_input_group(
-#     prepend_label="Rotor angle (θᵣ)",
-#     append_label="deg",
-#     value=54.735,
-#     id="modal-rotor_angle",
-#     max=90,
-#     min=0,
-# )
-# count = custom_input_group(
-#     prepend_label="Number of points",
-#     append_label="",
-#     value=1024,
-#     id="modal-count",
-#     min=8,
-# )
-# sw = custom_input_group(
-#     prepend_label="Spectral width",
-#     append_label="kHz",
-#     value=25,
-#     id="modal-spectral_width",
-#     min=0.1,
-# )
-# rf = custom_input_group(
-#     prepend_label="Reference offset",
-#     append_label="kHz",
-#     value=0,
-#     id="modal-reference_offset",
-# )
-# method modal list
-method_list_dropdown = dbc.Modal(
-    [
-        dbc.ModalHeader("Select a method"),
-        dbc.ModalBody(
-            [dcc.Dropdown(id="method-type", options=METHOD_OPTIONS, value=0)]
-        ),
-        dbc.InputGroup(
-            [
-                dbc.InputGroupAddon("Channel", addon_type="prepend"),
-                dbc.Select(options=isotope_options_list, value="1H", id="channel"),
-                # B0,
-                # vr,
-                # rt,
-                # count,
-                # sw,
-                # rf,
-            ],
-            className="container",
-        ),
-        dbc.ModalFooter(
-            dbc.Button(
-                "Select",
-                id="close-method-selection",
-                color="dark",
-                className="ml-auto",
-                outline=True,
-            )
-        ),
-    ],
-    is_open=False,
-    id="method-modal",
-)
+def method_property_tab_ui():
+    return dbc.Tab(
+        label="Properties",
+        children=[mrfields.global_environment(), dimension_tabs_ui()],
+        id="dim-tab",
+        className="tab-scroll method",
+    )
 
 
-# dimension layout
-dimension_body = html.Div(
-    className="left-card",
-    children=[
-        html.Div([method_header, search_method], className="card-header"),
-        method_slide,
-        method_list_dropdown,
-    ],
-    id="method-body",
-)
+def signal_processing_tab_ui():
+    return dbc.Tab(
+        label="Signal Processing",
+        children=post_simulation(1),
+        className="tab-scroll method",
+    )
+
+
+def default_display():
+    title = html.H5("Load methods or start creating")
+    icon = html.Span(
+        [
+            html.I(className="fas fa-cube fa-4x"),
+            html.H6("Add a method"),
+        ],
+        id="open-edit_method",
+    )
+    return html.Div([title, icon], className="blank-display")
+
+
+def scrollable():
+    default = default_display()
+    app.clientside_callback(
+        """
+        function(n) {
+            $('#add-method-button')[0].click();
+            throw window.dash_clientside.PreventUpdate;
+        }
+        """,
+        Output("open-edit_method", "children"),
+        [Input("open-edit_method", "n_clicks")],
+        prevent_initial_call=True,
+    )
+    method_read_only = html.Div(default, id="method-read-only")
+    return html.Div(method_read_only, className="slider1")
+
+
+def tools():
+    """Add, duplcicate, or remove methods"""
+    new = html.Button(id="add-method-button")
+    duplicate = html.Button(id="duplicate-method-button")
+    remove = html.Button(id="remove-method-button")
+
+    return html.Div(children=[new, duplicate, remove], style={"display": "none"})
+
+
+def header():
+    title = html.Div(
+        [
+            html.I(className="fas fa-cube fa-lg"),
+            html.H4("Methods", className="hide-label-sm"),
+        ]
+    )
+    search = dcc.Input(
+        value="", id="search-method", placeholder="Search methods", type="search"
+    )
+    return html.Div([title, search], className="card-header")
+
+
+def layout():
+    # label
+    label = html.Label(id="method-title")
+
+    # upload experiment dataset
+    icon = html.I(className="fas fa-paperclip fa-lg")
+    tooltip = dbc.Tooltip(
+        "Attach a measurement to the selected method",
+        target="import-measurement-for-method",
+    )
+    clip_btn = html.Button([icon, tooltip], className="icon-button")
+    upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
+
+    # title
+    title = html.Div([label, upload], className="ui_title")
+
+    # submit button
+    submit = custom_button(text="Submit Method", id="apply-method-changes")
+    submit = html.Div(submit, className="submit-button")
+
+    # tabs
+    tabs = dbc.Tabs([method_property_tab_ui(), signal_processing_tab_ui()])
+
+    # method layout
+    return html.Div(
+        [html.Div([title, tabs]), submit],
+        id="method-editor-content",
+        className="slider2",
+    )
+
+
+def ui():
+    head = header()
+    body = html.Div(
+        [scrollable(), layout(), tools()], id="met-slide", className="slide-offset"
+    )
+
+    return html.Div(
+        className="left-card",
+        children=html.Div([head, body, method_select_modal()]),
+        id="methods-body",
+    )
+
+
+def generate_sidepanel(method, index):
+    """Generate scrollable side panel listing for methods"""
+    title = html.B(f"Method {index}", className="")
+
+    # method name
+    name = method["name"]
+    name = f"{name[:15]}..." if len(name) > 15 else name
+    name = html.Div(name, className="")
+
+    # method channel(s)
+    channels = ", ".join(method["channels"])
+    channels = html.Div(f"Channel: {channels}")
+
+    # n dimensions
+    n_dim = len(method["spectral_dimensions"])
+    n_dim = html.Div(f"Dimensions: {n_dim}")
+
+    a_tag = html.A([title, name, channels, n_dim])
+
+    # The H6(index) only shows for smaller screen sizes.
+    return html.Li(
+        [html.H6(index), html.Div(a_tag)],
+        # draggable="true",
+        className="list-group-item",
+        id={"type": "select-method-index", "index": index},
+    )
+
+
+def refresh(methods):
+    """Return a html for rendering the display in the read-only spin-system section."""
+    output = [generate_sidepanel(mth, i) for i, mth in enumerate(methods)]
+    return html.Div([html.Ul(output, className="list-group")], className="display-form")
+
+
+dimension_body = ui()
 
 
 # callback code section =======================================================
 @app.callback(
-    Output("method-from-template", "data"),
+    Output("add-method-from-template", "data"),
     [Input("close-method-selection", "n_clicks")],
     [
         State("method-type", "value"),
@@ -287,54 +272,65 @@ def get_method_json(n, value, isotope):
     if n is None:
         raise PreventUpdate
     print(value)
-    dims = [{"count": 512, "spectral_width": 25000, "reference_offset": 0}]
+    d0 = {"count": 512, "spectral_width": 25000}
     return {
         "method": METHOD_LIST[value](
             channels=[isotope],
-            # magnetic_flux_density=B0,
-            # rotor_angle=rt * 3.14159265 / 180,
-            # rotor_frequency=vr * 1e3,
-            spectral_dimensions=dims,
+            spectral_dimensions=[d0] * METHOD_DIMENSIONS[value],
         ).reduced_dict(),
         "time": int(datetime.now().timestamp() * 1000),
     }
 
 
-@app.callback(
-    Output("method-modal", "is_open"),
-    [
-        Input("add-method-button", "n_clicks"),
-        Input("close-method-selection", "n_clicks"),
-    ],
-    [State("method-modal", "is_open")],
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="on_methods_load"),
+    Output("temp4", "children"),
+    [Input("method-read-only", "children")],
+    [State("config", "data")],
     prevent_initial_call=True,
 )
-def open_methods_model(n1, n2, state):
-    return not state
 
+app.clientside_callback(
+    """
+    function(n) {
+        set_method_index(n);
+        throw window.dash_clientside.PreventUpdate;
+    }
+    """,
+    Output("temp6", "children"),
+    [Input("select-method", "value")],
+    prevent_initial_call=True,
+)
+
+app.clientside_callback(
+    """
+    function(n, value) {
+        let index = get_method_index();
+        if (index == value) throw window.dash_clientside.PreventUpdate;
+        return index;
+    }
+    """,
+    Output("select-method", "value"),
+    [Input({"type": "select-method-index", "index": ALL}, "n_clicks")],
+    [State("select-method", "value")],
+    prevent_initial_call=True,
+)
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="create_method_json"),
     Output("new-method", "data"),
     [
-        Input("apply-method-changes", "n_clicks_timestamp"),
-        Input("method-from-template", "modified_timestamp"),
-        Input("duplicate-method-button", "n_clicks_timestamp"),
-        Input("remove-method-button", "n_clicks_timestamp"),
+        Input("apply-method-changes", "n_clicks"),
+        Input("add-method-from-template", "modified_timestamp"),
+        Input("duplicate-method-button", "n_clicks"),
+        Input("remove-method-button", "n_clicks"),
+        # Input("magnetic_flux_density-0", "value"),
+        # Input("rotor_angle-0", "value"),
+        # Input("rotor_frequency-0", "value"),
+        # *[Input(f"count-{i}", "value") for i in range(2)],
+        # *[Input(f"spectral_width-{i}", "value") for i in range(2)],
+        # *[Input(f"reference_offset-{i}", "value") for i in range(2)],
     ],
-    [State("method-from-template", "data")],
+    [State("add-method-from-template", "data")],
     prevent_initial_call=True,
 )
-
-
-# @app.callback(
-#     [Output("table-editing-simple", "data"), Output("method_edit_modal", "is_open")],
-#     [Input("edit-method", "n_clicks_timestamp")],
-#     [State("local-mrsim-data", "data"), State("current-method-index", "data")],
-#     prevent_initial_call=True,
-# )
-# def render_method_table(n, data, i):
-#     print("render_ table", n)
-#     print(data["methods"][i])
-#     table = events_table(data["methods"][i])
-#     return table, True

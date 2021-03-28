@@ -1,6 +1,6 @@
 .tab-scroll.method {
-  min-height: calc(var(--content-min-height) - 14.35em);
-  height: calc(var(--content-max-height) - 14.35em);
+  min-height: calc(var(--content-min-height) - 15.35em);
+  height: calc(var(--content-max-height) - 15.35em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -10,9 +10,6 @@
   display: none;
 } */
 
-#dim-tab > div > div {
-  display: flex;
-}
 
 .vertical-tabs {
   flex-direction: column;

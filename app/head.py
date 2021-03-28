@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-import datetime
 import json
 
-import dash_bootstrap_components as dbc
-from dash import Dash
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
 
-now = datetime.datetime.now()
-year = now.year
 
 PATH = "config/"
 
@@ -36,37 +31,24 @@ with open(PATH + "external_links.json", "r") as f:
 
 def create_links(link_dict):
     html_string = ""
-    for item in link_dict:
-        if "media" in item.keys():
-            html_string += "<link rel='{0}' href='{1}' media='{2}'/>".format(
-                item["rel"], item["href"], item["media"]
-            )
-        else:
-            html_string += "<link rel='{0}' href='{1}'/>".format(
-                item["rel"], item["href"]
-            )
+    for _ in link_dict:
+        html_string += (
+            f"""<link rel='{_["rel"]}' href='{_["href"]}' media='{_["media"]}'/>"""
+            if "media" in _
+            else f"""<link rel='{_["rel"]}' href='{_["href"]}'/>"""
+        )
     return html_string
 
 
-html_link_str = ""
+html_links = ""
 # Add splash screen links to the page as <link \> in the header.
-html_link_str += create_links(splash_screen_links)
+html_links += create_links(splash_screen_links)
 
 # Add external links to the page as <link \> in the header.
-html_link_str += create_links(external_links)
-
-# Initialize dash app
-app = Dash(
-    __name__,
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
-    external_scripts=external_scripts,
-    meta_tags=[*meta_tags, *apple_meta_tags],
-)
-app.config.suppress_callback_exceptions = True
-app.title = "Mrsimulator"
+html_links += create_links(external_links)
 
 
-# Dash html layout string
+# html head layout
 html_head = """
 <!DOCTYPE html>
 <html>
@@ -86,7 +68,9 @@ html_head = """
     {%favicon%}
     {%css%}
 """
-body_tail = """
+
+# html body tags
+html_body = """
     </head>
     <body>
         {%app_entry%}
@@ -98,4 +82,10 @@ body_tail = """
     </body>
 </html>
 """
-app.index_string = html_head + html_link_str + body_tail
+index_string = "".join([html_head, html_links, html_body])
+
+head_config = {
+    "external_scripts": external_scripts,
+    "meta_tags": [*meta_tags, *apple_meta_tags],
+    "index_string": index_string,
+}

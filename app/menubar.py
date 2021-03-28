@@ -8,15 +8,16 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.exceptions import PreventUpdate
 
-from .app import app
+from . import app
 from .modal.about import about_modals
-from app.app import year
+from app import year
 
 
 className = "d-flex align-items-center justify-items-center"
+TARGET = ["add", "duplicate", "remove"]
 
 
-def div_icon_text_display(icon, text, id=None):
+def menu_item(icon, text, id=None):
     if id is not None:
         return html.Div(
             [html.I(className=icon), html.Div(text, className="pl-2")],
@@ -24,28 +25,6 @@ def div_icon_text_display(icon, text, id=None):
             id=id,
         )
     return html.Div(
-        [html.I(className=icon), html.Div(text, className="pl-2")], className=className
-    )
-
-
-def div_icon_text_display_with_submenu(icon, text, id_=None):
-    return html.Div(
-        [
-            div_icon_text_display(icon=icon, text=text, id=id_),
-            div_icon_text_display(icon="fas fa-caret-right 2x", text=""),
-        ],
-        style={"display": "flex", "align-items": "space-between", "width": "100%"},
-    )
-
-
-def label_icon_text_display(icon, text, id=None):
-    if id is not None:
-        return html.Label(
-            [html.I(className=icon), html.Div(text, className="pl-2")],
-            className=className,
-            id=id,
-        )
-    return html.Label(
         [html.I(className=icon), html.Div(text, className="pl-2")], className=className
     )
 
@@ -61,162 +40,156 @@ def create_submenu(title, items):
     )
 
 
-# File menu ----------------------------------------------------------------- #
-# - New             |
-# - Open            |
-# --------------------------------------------------------------------------- #
-# import_items = [
-#     dcc.Upload("Spin systems", id="upload-and-add-spin-system-button"),
-# ]
-# import_remove_data = create_submenu(
-#     div_icon_text_display_with_submenu(
-#         "fas fa-file-import",
-#         "Import",
-#     ),
-#     import_items,
-# )
+def file_menu():
+    """File menu items
+    1. New Document
+    2. Open mrsimulator file (.mrsim)
+    """
+    file_items = [
+        html.A(menu_item("fas fa-file", "New Document"), href="/", target="_blank"),
+        dcc.Upload(
+            menu_item(icon="fas fa-folder-open", text="Open..."),
+            id="open-mrsimulator-file",
+            accept=".mrsim",
+        ),
+        # import_remove_data,
+    ]
+    return create_submenu(html.Span(html.I(className="fas fa-bars fa-lg")), file_items)
 
 
-file_items = [
-    html.A(
-        div_icon_text_display("fas fa-file", "New Document"),
-        href="/",
-        target="_blank",
-    ),
-    dcc.Upload(
-        div_icon_text_display(icon="fas fa-folder-open", text="Open..."),
-        id="open-mrsimulator-file",
-        accept=".mrsim",
-    ),
-    # import_remove_data,
-]
-file_menu = create_submenu(html.Span(html.I(className="fas fa-bars fa-lg")), file_items)
+def spin_system_menu():
+    """Spin system menu items
+    1. Add a new spin system
+    2. Duplicate selected spin system
+    3. Remove selected spin system
+    ----------------------------------
+    4. Clear spin systems
+    """
+    message_sys = "You are about to delete all spin systems. Do you want to continue?"
+    spin_system_items = [
+        menu_item("fas fa-plus-circle", "Add a new spin system", id="add_sys"),
+        menu_item("fas fa-clone", "Duplicate selection", id="duplicate_sys"),
+        menu_item("fas fa-minus-circle", "Remove selection", id="remove_sys"),
+        html.Hr(),
+        html.Div("Clear all spin systems", id="clear-spin-systems"),
+        dcc.ConfirmDialog(id="confirm-clear-spin-system", message=message_sys),
+    ]
 
+    # Callbacks for the add, dublicate, and remove spin systems
+    [
+        app.clientside_callback(
+            f"""
+            function() {{
+                $('#{t}-spin-system-button')[0].click();
+                throw window.dash_clientside.PreventUpdate;
+            }}
+            """,
+            Output(f"{t}-spin-system-button", "n_clicks"),
+            [Input(f"{t}_sys", "n_clicks")],
+            prevent_initial_call=True,
+        )
+        for t in TARGET
+    ]
 
-# Spin system menu ----------------------------------------------------------- #
-# - Add a new spin system            |
-# - Duplicate selected spin system   |
-# - Remove selected spin system      |
-# - -------------------------------- |
-# - Clear spin systems               |
-# ---------------------------------------------------------------------------- #
-message_sys = "You are about to delete all spin systems. Do you want to continue?"
-spin_system_items = [
-    div_icon_text_display("fas fa-plus-circle", "Add a new spin system", id="add_sys"),
-    div_icon_text_display("fas fa-clone", "Duplicate selection", id="copy_sys"),
-    div_icon_text_display("fas fa-minus-circle", "Remove selection", id="del_sys"),
-    html.Hr(),
-    html.Div("Clear all spin systems", id="clear-spin-systems"),
-    dcc.ConfirmDialog(id="confirm-clear-spin-system", message=message_sys),
-]
-spin_system_menu = create_submenu("Spin System", spin_system_items)
-
-target = ["add", "duplicate", "remove"]
-source = ["add", "copy", "del"]
-
-for t, s in zip(target, source):
-    fn = f"$('#{t}-spin-system-button')[0].click();"
+    # Callbacks for the clear all spin systems
     app.clientside_callback(
-        "function(){" + fn + "throw window.dash_clientside.PreventUpdate;}",
-        Output(f"{t}-spin-system-button", "n_clicks"),
-        [Input(f"{s}_sys", "n_clicks")],
+        """
+        function(n) {
+            if (n == null) throw window.dash_clientside.PreventUpdate;
+            return true;
+        }
+        """,
+        Output("confirm-clear-spin-system", "displayed"),
+        [Input("clear-spin-systems", "n_clicks")],
         prevent_initial_call=True,
     )
 
-app.clientside_callback(
+    return create_submenu("Spin System", spin_system_items)
+
+
+def method_menu():
+    """Method menu items
+    1. Add a new method
+    2. Duplicate selected method
+    3. Remove selected method
+    ------------------------------
+    4. Clear methods
     """
-    function(n){
-        if (n == null){
-            throw window.dash_clientside.PreventUpdate;
-        }
-        return true;
-    }
-    """,
-    Output("confirm-clear-spin-system", "displayed"),
-    [Input("clear-spin-systems", "n_clicks")],
-    prevent_initial_call=True,
-)
+    message_method = "You are about to delete all methods. Do you want to continue?"
+    method_items = [
+        menu_item("fas fa-plus-circle", "Add a new method", id="add_method"),
+        menu_item("fas fa-clone", "Duplicate selection", id="duplicate_method"),
+        menu_item("fas fa-minus-circle", "Remove selection", id="remove_method"),
+        html.Hr(),
+        menu_item(
+            "fas fa-times-circle",
+            "Remove measurement from selection",
+            id="remove-measurement-from-method",
+        ),
+        html.Hr(),
+        html.Div("Clear all methods", id="clear-methods"),
+        dcc.ConfirmDialog(id="confirm-clear-methods", message=message_method),
+    ]
 
+    # Callbacks for the add, dublicate, and remove methods
+    [
+        app.clientside_callback(
+            f"""
+            function() {{
+                $('#{t}-method-button')[0].click();
+                throw window.dash_clientside.PreventUpdate;
+            }}
+            """,
+            Output(f"{t}-method-button", "n_clicks"),
+            [Input(f"{t}_method", "n_clicks")],
+            prevent_initial_call=True,
+        )
+        for t in TARGET
+    ]
 
-# Method menu --------------------------------------------------------------- #
-# - Add a new method                        |
-# - Duplicate selected method               |
-# - Remove selected method                  |
-# - --------------------------------------- |
-# - Clear methods                           |
-# --------------------------------------------------------------------------- #
-message_method = "You are about to delete all methods. Do you want to continue?"
-method_items = [
-    div_icon_text_display("fas fa-plus-circle", "Add a new method", id="add_method"),
-    div_icon_text_display("fas fa-clone", "Duplicate selection", id="copy_method"),
-    div_icon_text_display("fas fa-minus-circle", "Remove selection", id="del_method"),
-    html.Hr(),
-    div_icon_text_display(
-        "fas fa-times-circle",
-        "Remove measurement from selected method",
-        id="remove-measurement-from-method",
-    ),
-    html.Hr(),
-    html.Div("Clear all methods", id="clear-methods"),
-    dcc.ConfirmDialog(id="confirm-clear-methods", message=message_method),
-]
-method_menu = create_submenu("Method", method_items)
-
-for t, s in zip(target, source):
-    fn = f"$('#{t}-method-button')[0].click();"
+    # Callbacks for the clear all methods
     app.clientside_callback(
-        "function(){" + fn + "throw window.dash_clientside.PreventUpdate;}",
-        Output(f"{t}-method-button", "n_clicks"),
-        [Input(f"{s}_method", "n_clicks")],
+        """
+        function(n) {
+            if (n == null) throw window.dash_clientside.PreventUpdate;
+            return true;
+        }
+        """,
+        Output("confirm-clear-methods", "displayed"),
+        [Input("clear-methods", "n_clicks")],
         prevent_initial_call=True,
     )
 
-app.clientside_callback(
-    """
-    function(n){
-        if (n == null){
-            throw window.dash_clientside.PreventUpdate;
-        }
-        return true;
-    }
-    """,
-    Output("confirm-clear-methods", "displayed"),
-    [Input("clear-methods", "n_clicks")],
-    prevent_initial_call=True,
-)
+    return create_submenu("Method", method_items)
 
 
-# Example menu -------------------------------------------------------------- #
-# - List of examples  |
-# - ...
-# - ...
-# --------------------------------------------------------------------------- #
-# Load a list of pre-defined examples from the example_link.json file.
-with open("examples/example_link.json", "r") as f:
-    mrsimulator_examples = json.load(f)
-example_length = len(mrsimulator_examples)
+def example_menu():
+    """Example menu contains a list of examples."""
+    with open("examples/example_link.json", "r") as f:
+        mrsimulator_examples = json.load(f)
+    example_length = len(mrsimulator_examples)
 
-# example_input serves as a temp input whose value is file location of the
-# selected example.
-example_items = [dcc.Input(id="selected-example", style={"display": "none"})]
-example_items += [
-    html.Div(item["label"], id=f"example-{i}")
-    for i, item in enumerate(mrsimulator_examples)
-]
-example_menu = create_submenu("Examples", example_items)
+    # example_input serves as a temp input whose value is file location of the
+    # selected example.
+    example_items = [dcc.Input(id="selected-example", style={"display": "none"})]
+    example_items += [
+        html.Div(item["label"], id=f"example-{i}")
+        for i, item in enumerate(mrsimulator_examples)
+    ]
 
+    @app.callback(
+        Output("selected-example", "value"),
+        [Input(f"example-{i}", "n_clicks") for i in range(example_length)],
+        prevent_initial_call=True,
+    )
+    def example_callback(*args):
+        if not ctx.triggered:
+            raise PreventUpdate
+        trigger_index = int(ctx.triggered[0]["prop_id"].split(".")[0].split("-")[1])
+        print(trigger_index)
+        return mrsimulator_examples[trigger_index]["value"]
 
-@app.callback(
-    Output("selected-example", "value"),
-    [Input(f"example-{i}", "n_clicks") for i in range(example_length)],
-    prevent_initial_call=True,
-)
-def example_callback(*args):
-    if not ctx.triggered:
-        raise PreventUpdate
-    trigger_index = int(ctx.triggered[0]["prop_id"].split(".")[0].split("-")[1])
-    print(trigger_index)
-    return mrsimulator_examples[trigger_index]["value"]
+    return create_submenu("Examples", example_items)
 
 
 # View menu ----------------------------------------------------------------- #
@@ -244,68 +217,44 @@ def example_callback(*args):
 #     )
 
 
-# Help menu ----------------------------------------------------------------- #
-# - Documentation       |
-# - Github              |
-# - Report              |
-# - Contributors        |
-# - About               |
-# --------------------------------------------------------------------------- #
-help_items = [
-    html.H6(f"Mrsimulator-app 2019-{year}"),
-    html.A(
-        div_icon_text_display("fas fa-book-open", "Documentation"),
-        href="https://mrsimulator.readthedocs.io/en/stable/",
-        target="_blank",
-    ),
-    html.A(
-        div_icon_text_display("fab fa-github", "Github"),
-        href="https://github.com/DeepanshS/mrsimulator",
-        className="",
-        target="_blank",
-    ),
-    div_icon_text_display("fas fa-flag", "Report", id="modal-Report-button"),
-    html.Div("Contributors", id="modal-Contributors-button"),
-    html.Div("About", id="modal-About-button"),
-]
-help_menu = create_submenu("Help", help_items)
-
-
-# Advanced settings ----------------------------------------------------------------- #
-# advance_setting_button = html.A(
-#     label_icon_text_display(icon="fas fa-cog", text="Setting", id="advance_setting"),
-#     className="default-button",
-# )
-
-# Master menu ------------------------------------------------------ #
-master_menubar = html.Div(
-    [
-        html.Ul(
-            [
-                # file_menu,
-                spin_system_menu,
-                method_menu,
-                example_menu,
-                # view_menu,
-                help_menu,
-            ],
-            className="menu",
+def help_menu():
+    """Help menu items
+    1. Documentation
+    2. Github
+    3. Report
+    4. Contributors
+    5. About
+    """
+    help_items = [
+        html.H6(f"Mrsimulator-app 2019-{year}"),
+        html.A(
+            menu_item("fas fa-book-open", "Documentation"),
+            href="https://mrsimulator.readthedocs.io/en/stable/",
+            target="_blank",
         ),
+        html.A(
+            menu_item("fab fa-github", "Github"),
+            href="https://github.com/DeepanshS/mrsimulator",
+            className="",
+            target="_blank",
+        ),
+        menu_item("fas fa-flag", "Report", id="modal-Report-button"),
+        menu_item("fas fa-users", "Contributors", id="modal-Contributors-button"),
+        menu_item("fas fa-info-circle", "About", id="modal-About-button"),
         about_modals,
-    ],
-    className="master-toolbar",
-)
+    ]
 
-# master_menubar = html.Div(
-#     [
-#         dbc.NavbarBrand(
-#             html.Img(
-#                 src="/assets/mrsimulator-logo-dark.svg",
-#                 height="50rem",
-#                 alt="Mrsimulator",
-#             )
-#         ),
-#         menubar,
-#     ],
-#     className="d-flex",
-# )
+    return create_submenu("Help", help_items)
+
+
+def layout():
+    return [file_menu(), spin_system_menu(), method_menu(), example_menu(), help_menu()]
+
+
+def ui():
+    return html.Div(
+        html.Ul(layout(), className="menu"), className="master-toolbar nav-composite"
+    )
+
+
+master_menubar = ui()

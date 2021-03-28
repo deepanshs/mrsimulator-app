@@ -23,15 +23,15 @@
 }
 .slide .slider1,
 .slide .slider2 {
-  min-height: calc(var(--content-min-height) - 4em);
-  height: calc(var(--content-max-height) - 4em);
+  min-height: calc(var(--content-min-height) - 5em);
+  height: calc(var(--content-max-height) - 5em);
   scrollbar-width: thin;
   overflow-y: auto;
 }
 
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 18.62em);
-  height: calc(var(--content-max-height) - 18.62em);
+  min-height: calc(var(--content-min-height) - 19.62em);
+  height: calc(var(--content-max-height) - 19.62em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -98,6 +98,7 @@
   font-weight: 400;
   border-top: 1px solid var(--select-blue);
   border-bottom: 1px solid var(--select-blue);
+  z-index: 0;
 }
 .sub-spin-system-card {
   border-radius: 0;
@@ -128,12 +129,12 @@
 }
 
 /* display when spin-system is empty */
-.blank-spin-system-display {
+.blank-display {
   height: 100%;
   padding: 2rem;
 }
-.blank-spin-system-display h5,
-.blank-spin-system-display span {
+.blank-display h5,
+.blank-display span {
   padding-top: 4rem;
   padding-bottom: 4rem;
   display: flex;
@@ -141,23 +142,23 @@
   align-items: center;
   justify-content: space-around;
 }
-.blank-spin-system-display h5 {
+.blank-display h5 {
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(134, 55, 10);
   text-align: center;
 }
-.blank-spin-system-display span:hover {
+.blank-display span:hover {
   transform: scale(1.1);
   color: rgb(136, 9, 30);
   transition: all 0.3s ease;
   cursor: pointer;
 }
-.spin-system-title {
+.ui_title {
   width: 100%;
   display: flex;
   justify-content: space-between;
 }
-.spin-system-title label {
+.ui_title label {
   padding: 0.75em 0 1.5em;
   color: rgb(0, 0, 0);
   text-align: center;
