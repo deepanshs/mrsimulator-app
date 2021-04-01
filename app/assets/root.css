@@ -6,7 +6,7 @@
   --opt-side-scroll-width: 125pt;
   --opt-side-scroll-min-width: 3rem;
   --select-blue: rgb(8, 124, 240);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 * {

@@ -67,8 +67,9 @@ def spectral_dimension_ui(i):
     return collapsable_card(
         text=f"Spectral Dimension - {i}",
         id_=f"dim-{i}",
-        featured_fields=[count, spectral_width, reference_offset],
-        hidden_fields=[label],
+        featured=[count, spectral_width, reference_offset],
+        hidden=[label],
+        message="Show/Hide",
     )
 
 
@@ -114,5 +115,5 @@ def global_environment():
 
     return container(
         text="Global Environment Parameters",
-        featured_fields=[flux_density, rotor_frequency, rotor_angle],
+        featured=[flux_density, rotor_frequency, rotor_angle],
     )

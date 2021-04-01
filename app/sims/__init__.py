@@ -12,19 +12,23 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator import Simulator
+from mrsimulator.signal_processing import SignalProcessor
 
 from . import navbar
+from .fit import fit_body
 from .graph import DEFAULT_FIGURE
 from .graph import plot_1D_trace
 from .graph import plot_2D_trace
 from .graph import spectrum_body
 from .home import home_body
-from .methods.post_simulation_functions import line_broadening
-from .methods.post_simulation_functions import post_simulation
-from .nmr_method import dimension_body
+from .method import method_body
 from .sidebar import sidebar
 from .spin_system import spin_system_body
 from app import app
+
+# from .method.post_simulation_widgets import appodization_ui
+# from .methods.post_simulation_functions import line_broadening
+# from .methods.post_simulation_functions import post_simulation
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = ["deepansh2012@gmail.com"]
@@ -42,7 +46,7 @@ store = [
     # memory for holding the computed + processed data. Processing over the
     # computed data is less computationally expensive.
     dcc.Store(id="local-processed-data", storage_type="memory"),
-    # memory for holding the nmr_method data
+    # memory for holding the method data
     dcc.Store(id="local-method-data", storage_type="memory"),
     dcc.Store(id="new-spin-system", storage_type="memory"),
     dcc.Store(id="new-method", storage_type="memory"),
@@ -51,6 +55,9 @@ store = [
     # method-template data
     dcc.Store(id="add-method-from-template", storage_type="memory"),
     dcc.Store(id="user-config", storage_type="local"),
+    # signal processor
+    dcc.Store(id="signal-processor-data", storage_type="memory"),
+    dcc.Store(id="signal-processor-data-temp", storage_type="memory"),
 ]
 store_items = html.Div(store)
 
@@ -85,7 +92,7 @@ top_nav = html.Div([navbar.navbar_top, simulation_alert, import_alert, graph_ale
 # bottom navbar items
 bottom_nav = navbar.navbar_bottom
 # main bodt items
-body_content = [home_body, spin_system_body, dimension_body, spectrum_body]
+body_content = [home_body, spin_system_body, method_body, fit_body, spectrum_body]
 main_body = html.Div(body_content, className="mobile-scroll")
 
 # temp items
@@ -270,6 +277,7 @@ def simulation(local_mrsim_data):
     try:
         sim = Simulator(**local_mrsim_data)
         sim.run()
+
     except Exception as e:
         return [str(e), True, no_update, no_update]
 
@@ -347,38 +355,28 @@ def simulation(local_mrsim_data):
         Input("local-computed-data", "modified_timestamp"),
         Input("local-simulator-data", "data"),
         Input("normalize_amp", "n_clicks"),
-        Input("broadening_points-0", "value"),
-        Input("Apodizing_function-0", "value"),
-        # Input("nmr_spectrum", "clickData"),
         Input("select-method", "value"),
-        Input("select-method", "options"),
+        Input("signal-processor-data-temp", "data"),
     ],
     [
         State("normalize_amp", "active"),
         State("local-computed-data", "data"),
         State("nmr_spectrum", "figure"),
-        State("config", "data"),
     ],
     prevent_initial_call=True,
 )
-def plot(
-    time_of_computation,
-    sim_data,
-    normalized_clicked,
-    broadening,
-    apodization,
-    # clickData,
-    method_index,
-    method_options,
-    # state
-    normalized,
-    local_computed_data,
-    figure,
-    config,
-):
+def plot(*args):
     """Generate and return a one-dimensional plot instance."""
+    time_of_computation = ctx.inputs["local-computed-data.modified_timestamp"]
+    sim_data = ctx.inputs["local-simulator-data.data"]
+    method_index = ctx.inputs["select-method.value"]
+
+    normalized = ctx.states["normalize_amp.active"]
+    local_computed_data = ctx.states["local-computed-data.data"]
+    figure = ctx.states["nmr_spectrum.figure"]
+
     print("inside plot, time of computation", time_of_computation)
-    print("method_index", method_index, method_options)
+    print("method_index", method_index)
     # if method_index is None or method_options == []:
     # return [DEFAULT_FIGURE, no_update]
 
@@ -406,22 +404,32 @@ def plot(
 
     if local_computed_data is not None:
         local_computed_data = [cp.parse_dict(item) for item in local_computed_data]
+        process_data = ctx.inputs["signal-processor-data-temp.data"]
+        if process_data is not None:
+            local_processed_data = []
+            print(process_data)
+            for proc, dat in zip(process_data, local_computed_data):
+                processor = SignalProcessor.parse_dict_with_units(proc)
+                local_processed_data.append(processor.apply_operations(data=dat).real)
+            # print(local_processed_data)
+        else:
+            local_processed_data = local_computed_data
+            # print(local_processed_data)
 
-        local_processed_data = [
-            post_simulation(
-                line_broadening,
-                csdm_object=item,
-                sigma=broadening,
-                broadType=apodization,
-            )
-            for item in local_computed_data
-        ]
+        # local_processed_data = [
+        #     post_simulation(
+        #         line_broadening,
+        #         csdm_object=item,
+        #         sigma=broadening,
+        #         broadType=apodization,
+        #     )
+        #     for item in local_computed_data
+        # ]
 
         current_data = local_processed_data[method_index]
 
         # try:
-        #     [item.to("ppm", "nmr_frequency_ratio") for item in
-        #                   current_data.dimensions]
+        [item.to("ppm", "nmr_frequency_ratio") for item in current_data.dimensions]
         # except (ZeroDivisionError, ValueError):
         #     pass
 
@@ -433,24 +441,28 @@ def plot(
         if len(current_data.dimensions) == 2:
             plot_trace += plot_2D_trace(current_data, normalized, decompose)
 
-    local_exp_external_data = None
-    if "experiment" in sim_data["methods"][method_index]:
-        local_exp_external_data = sim_data["methods"][method_index]["experiment"]
+    mth = sim_data["methods"][method_index]
+    local_experiment_data = None if "experiment" not in mth else mth["experiment"]
 
-    if local_exp_external_data is not None:
-        local_exp_external_data = cp.parse_dict(local_exp_external_data)
+    if local_experiment_data is not None:
+        local_experiment_data = cp.parse_dict(local_experiment_data)
 
-        if local_exp_external_data.dimensions[0].origin_offset.value != 0:
-            # local_exp_external_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
-            x_spectrum = local_exp_external_data.dimensions[0].coordinates.value
-        else:
-            x_spectrum = (
-                local_exp_external_data.dimensions[0].coordinates.to("Hz").value
-            )
+        dimensions = [
+            item.to("ppm", "nmr_frequency_ratio") or item.coordinates.value
+            if item.origin_offset.value != 0
+            else item.coordinates.to("Hz").value
+            for item in local_experiment_data.dimensions
+        ]
+        # if local_experiment_data.dimensions[0].origin_offset.value != 0:
+        #  local_experiment_data.dimensions[0].to("ppm", "nmr_frequency_ratio")
+        #  x_spectrum = local_experiment_data.dimensions[0].coordinates.value
+        # else:
+        #  x_spectrum = local_experiment_data.dimensions[0].coordinates.to("Hz").value
 
+        x_spectrum = dimensions[0]
         x0 = x_spectrum[0]
         dx = x_spectrum[1] - x_spectrum[0]
-        y_spectrum = local_exp_external_data.dependent_variables[0].components[0]
+        y_spectrum = local_experiment_data.dependent_variables[0].components[0]
         if normalized:
             y_spectrum /= np.abs(y_spectrum.max())
         plot_trace.append(

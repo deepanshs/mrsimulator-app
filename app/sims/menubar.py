@@ -80,7 +80,7 @@ def spin_system_menu():
         app.clientside_callback(
             f"""
             function() {{
-                $('#{t}-spin-system-button')[0].click();
+                document.getElementById("{t}-spin-system-button").click();
                 throw window.dash_clientside.PreventUpdate;
             }}
             """,
@@ -136,7 +136,7 @@ def method_menu():
         app.clientside_callback(
             f"""
             function() {{
-                $('#{t}-method-button')[0].click();
+                document.getElementById("{t}-method-button").click();
                 throw window.dash_clientside.PreventUpdate;
             }}
             """,
@@ -209,7 +209,7 @@ def example_menu():
 # source = ["menu_info", "menu_sys", "menu_method"]
 
 # for t, s in zip(target, source):
-#     fn = f"$('#view-{t}')[0].click();"
+#     fn = f"document.getElementById("view-{t}").click();"
 #     app.clientside_callback(
 #         "function(){" + fn + "throw window.dash_clientside.PreventUpdate;}",
 #         Output(f"view-{t}", "n_clicks"),

@@ -95,8 +95,9 @@ def collapsable_card_ui(item, prefix):
     return collapsable_card(
         text=f"{prefix.replace('_',' ')}",
         id_=prefix,
-        featured_fields=[item, eta_ui],
-        hidden_fields=euler_angles_ui,
+        featured=[item, eta_ui],
+        hidden=euler_angles_ui,
+        message="Show/Hide Euler angles",
     )
 
 
@@ -104,7 +105,7 @@ def ui():
     isotope_and_shift = isotope_and_shift_ui()
     shielding_symmetric = shielding_symmetric_ui()
     quadrupolar = quadrupolar_ui()
-    return html.Div([isotope_and_shift, shielding_symmetric, quadrupolar])
+    return [isotope_and_shift, shielding_symmetric, quadrupolar]
 
 
 site_ui = ui()

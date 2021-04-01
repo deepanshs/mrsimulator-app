@@ -216,36 +216,32 @@ def custom_collapsible(
     return html.Div(layout)
 
 
-def container(text, featured_fields, **kwargs):
-    children = html.Div(featured_fields, className="container")
+def container(text, featured, **kwargs):
+    children = html.Div(featured, className="container")
     return custom_card(text=html.Div(text), children=children, **kwargs)
 
 
-def collapsable_card(text, id_, featured_fields, hidden_fields):
+def collapsable_card(text, id_, featured, hidden, message):
     # collapsable button
     icon = html.I(className="fas fa-chevron-down")
-    tooltip = dbc.Tooltip("Show/Hide Euler angles", target=f"{id_}-collapse-button")
-    chevron_down_btn = html.Label([icon, tooltip], id=f"{id_}-collapse-button")
+    tooltip = dbc.Tooltip(message, target=f"{id_}-collapse-button")
+    chevron_down_btn = html.Label(
+        [icon, tooltip],
+        id=f"{id_}-collapse-button",
+        **{
+            "data-toggle": "collapse",
+            "data-target": f"#{id_}-collapse-fields",
+            "aria-expanded": "true",
+        },
+    )
 
     # collapsed fields
-    collapsed_fields = dbc.Collapse(
-        hidden_fields, id=f"{id_}-collapse-collapse", is_open=False
-    )
+    collapsed_fields = dbc.Collapse(hidden, id=f"{id_}-collapse-fields", is_open=False)
 
     # featured fields
-    featured_fields = html.Div(featured_fields)
+    featured = html.Div(featured)
     content = custom_card(
         text=html.Div([text, chevron_down_btn]),
-        children=html.Div([featured_fields, collapsed_fields], className="container"),
+        children=html.Div([featured, collapsed_fields], className="container"),
     )
-    collapsible = dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)
-
-    app.clientside_callback(
-        "function (n, is_open) { return !is_open; }",
-        Output(f"{id_}-collapse-collapse", "is_open"),
-        [Input(f"{id_}-collapse-button", "n_clicks")],
-        [State(f"{id_}-collapse-collapse", "is_open")],
-        prevent_initial_call=True,
-    )
-
-    return collapsible
+    return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

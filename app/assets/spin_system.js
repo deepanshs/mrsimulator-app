@@ -3,6 +3,8 @@
  * Email = ["srivastava.89@osu.edu"]
  */
 
+/* jshint esversion: 6 */
+
 const ISOTOPE_DATA = [
   "1H",
   "3He",
@@ -51,24 +53,23 @@ const ALL_KEYS = [
   "quadrupolar-gamma",
 ];
 
-/* Spin system functions */
-/* Return the selected li index from the spin-systems. */
-var get_spin_system_index = function () {
-  return storeData.spin_system_index;
-};
+if (!window.spinSystem) {
+  window.spinSystem = {};
+}
 
-var set_spin_system_index = function (index) {
-  storeData.spin_system_index = index;
-};
+window.spinSystem = {
+  getIndex: function () {
+    return storeData.spin_system_index;
+  },
 
-/* Initiate a click event for the li.
- * @param listomer: A list of li, each summarizing an spin-system.
- * @param index: The index of li to initiate the click.
- */
-var select_spin_system = function (listomers, index) {
-  if (listomers.length > 0) {
-    listomers[index].click();
-  }
+  setIndex: function (index) {
+    storeData.spin_system_index = index;
+  },
+  select: function (listomers, index) {
+    if (listomers.length > 0) {
+      listomers[index].click();
+    }
+  },
 };
 
 /* Extract the site attributes and set it to the UI fields.
@@ -149,7 +150,7 @@ var update_field_from_spin_system_at_index = function (index) {
   let name = spin_system.name;
   setValue("spin-system-name", name);
   name = name == "" ? `Spin system ${index}` : name;
-  $("#spin-system-title")[0].innerHTML = name;
+  document.getElementById("spin-system-title").innerHTML = name;
 
   let description = spin_system.description;
   description = description == null ? "" : description;
@@ -183,7 +184,7 @@ var extract_site_object_from_fields = function () {
     throw window.dash_clientside.PreventUpdate;
   }
   // Extract the current spin-system index, and get the respective spin-system.
-  let index = get_spin_system_index();
+  let index = window.spinSystem.getIndex();
   let spin_system = data.spin_systems[index];
 
   let site_index = 0;
@@ -264,13 +265,105 @@ var extract_site_object_from_fields = function () {
   return spin_system;
 };
 
+var spinSystemOnClick = function (obj, index) {
+  default_li_item_action(obj);
 
+  // store the current-spin-system-index in the session
+  window.spinSystem.setIndex(index);
 
+  // Update the spin-system fields
+  update_field_from_spin_system_at_index(index);
 
+  // Trigger hide quad for spin-1/2
+  hideQuad();
+
+  // Select the corresponding tr elements
+  overView = document.querySelectorAll("[data-table-sys] tr");
+  overView.forEach((tr) => {
+    tr.classList.remove("active");
+  });
+  overView[index + 1].classList.add("active");
+};
+
+var activateSystemTools = function () {
+  const obj = document.querySelectorAll("[data-table-header-sys] li");
+  obj.forEach((li, i) => {
+    li.addEventListener("click", () => {
+      if (i == 0) document.getElementById("add-spin-system-button").click();
+      if (i == 1)
+        document.getElementById("duplicate-spin-system-button").click();
+      if (i == 2) document.getElementById("remove-spin-system-button").click();
+    });
+  });
+};
+
+// update system
+var updateSystem = function () {
+  let result = {};
+  result.data = extract_site_object_from_fields();
+  result.index = window.spinSystem.getIndex();
+  result.operation = "modify";
+  return result;
+};
+
+// add system
+var addSystem = function (l) {
+  let result = {};
+  result.data = {
+    name: `System ${l}`,
+    description: "",
+    abundance: 1,
+    sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
+  };
+  result.index = l;
+  result.operation = "add";
+  result.time = Date.now();
+  l = null;
+  return result;
+};
+
+// copy system
+var copySystem = function (data, l) {
+  let result = {};
+  checkForEmptyListBeforeOperation("copy", "spin system", l);
+  result.data = data.spin_systems[window.spinSystem.getIndex()];
+  result.index = l;
+  result.operation = "duplicate";
+  data = l = null;
+  return result;
+};
+
+// delete system
+var delSystem = function (l) {
+  let result = {};
+  checkForEmptyListBeforeOperation("delete", "spin system", l);
+  let new_val = window.spinSystem.getIndex();
+  console.log("index to remove", new_val);
+  result.data = null;
+  result.index = new_val;
+  result.operation = "delete";
+  l = new_val = null;
+  return result;
+};
+
+var _updateSpinSystemJson = function () {
+  const trig_id = ctxTriggerID()[0].split(".")[0].split("-")[0];
+  const data = storeData.data;
+  const l = data.spin_systems.length;
+  if (trig_id === "apply") return updateSystem();
+  if (trig_id === "add") return addSystem(l);
+  if (trig_id === "duplicate") return copySystem(data, l);
+  if (trig_id === "remove") return delSystem(l);
+  return null;
+};
+
+// Search spin systems
 var _searchSpinSystems = function (input) {
   let filter, li, i, j, elements1, elements2, elements, txtValue;
   filter = input.toUpperCase();
-  li = $("#spin-system-read-only div.scrollable-list ul li");
+  li = document.querySelectorAll(
+    "#spin-system-read-only div.scrollable-list ul li"
+  );
 
   // Loop through all list items, and hide those who don't match the search
   // query
@@ -290,55 +383,73 @@ var _searchSpinSystems = function (input) {
   }
   filter = li = i = j = elements1 = elements2 = elements = txtValue = null;
   throw window.dash_clientside.PreventUpdate;
-}
-
-var spinSystemOnClick = function (obj) {
-  default_li_item_action(obj);
-
-  // store the current-spin-system-index in the session
-  let index = $(obj).index();
-  set_spin_system_index(index);
-
-  // Update the spin-system fields
-  update_field_from_spin_system_at_index(index);
-
-  // Trigger hide quad for spin-1/2
-  hideQuad();
-
-  // Select the corresponding tr elements
-  overView = document.querySelectorAll("[data-table-sys] tr");
-  overView.forEach((tr) => {
-    tr.classList.remove("active");
-  });
-  overView[index + 1].classList.add("active");
 };
 
-// var addNewSpinSystem = function () {
-//   let data = storeData.data;
-//   let result, l;
-//   l = data == null ? 0 : data.spin_systems.length;
-//   result = {
-//     name: `Spin system-${l}`,
-//     description: "",
-//     abundance: 1,
-//     sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
-//   };
-//   data.spin_systems.push(result);
-//   // set_spin_system_index(l);
+var _onSpinSystemsLoad = function () {
+  storeData.data = JSON.parse(
+    window.sessionStorage.getItem("local-mrsim-data")
+  );
+  const listomers = document.querySelectorAll(
+    "#spin-system-read-only div.scrollable-list ul li"
+  );
 
-//   let ul = $("#spin-system-read-only div.scrollable-list ul");
-//   let li = document.createElement("li");
-//   li.innerHTML = update_info(result, l);
-//   li.className = "list-group-item";
-//   ul[0].appendChild(li);
-//   $(li).click(function () {
-//     spinSystemOnClick(li);
-//   });
-//   li.click();
-//   data = result = l = ul = li = null;
-// };
+  // event listener to pensil in the home screen
+  let overView = document.querySelectorAll("[data-edit-sys]");
+  overView.forEach((edit) => {
+    edit.addEventListener("click", () => {
+      document.getElementById("view-spin_systems").click();
+    });
+  });
 
+  // event listener to side panel click and update the site fields.
+  overView = document.querySelectorAll("[data-table-sys] thead");
+  overView.forEach((tr, i) => {
+    tr.addEventListener("click", () => {
+      listomers[i - 1].click();
+      // Scroll to the selection.
+      let ul = listomers[i - 1].parentElement;
+      scrollTo(
+        ul.parentElement.parentElement,
+        listomers[i - 1].offsetTop - 200,
+        300,
+        "vertical"
+      );
+    });
+  });
+
+  // Toggle classname to slide the contents on smaller screens
+  const element = document.getElementById("iso-slide");
+  if (element.classList.contains("slide-offset")) {
+    element.classList.toggle("slide-offset");
+    element.classList.toggle("slide");
+  }
+
+  // Toggle classname to slide the contents on smaller screens
+  if (listomers.length === 0) {
+    element.classList.toggle("slide-offset");
+    element.classList.toggle("slide");
+  }
+
+  default_li_action(listomers);
+
+  // Add a fresh bind event to the list.
+  listomers.forEach((tr, i) => {
+    tr.addEventListener("click", (event) => {
+      spinSystemOnClick(tr, i);
+      event.preventDefault();
+    });
+  });
+
+  // Select the entry at current index by initiating a click. If the current
+  // index is greater then the length of the li, select 0;
+  let index = window.spinSystem.getIndex();
+  index = index >= listomers.length ? 0 : index;
+  window.spinSystem.select(listomers, index);
+  return null;
+};
 
 window.dash_clientside.spin_system = {
-  searchSpinSystems: _searchSpinSystems
-}
+  searchSpinSystems: _searchSpinSystems,
+  updateSpinSystemJson: _updateSpinSystemJson,
+  onSpinSystemsLoad: _onSpinSystemsLoad,
+};

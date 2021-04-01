@@ -3,19 +3,25 @@
  * Email = ["srivastava.89@osu.edu"]
  */
 
+/* jshint esversion: 6 */
+
 var init = function () {
   // Update spin-system card title when the value of the spin-system name
   // attribute change.
-  $("#spin-system-name").on("keyup", function (e) {
-    $("#spin-system-title")[0].innerHTML = this.value;
-    e.preventDefault();
+  let element = document.getElementById("spin-system-name");
+  element.addEventListener("keyup", (event) => {
+    document.getElementById("spin-system-title").innerHTML = getValue(
+      "spin-system-name"
+    );
+    event.preventDefault();
   });
 
   // Search and filter spin-systems
   // $("#search-spin-system").on("input", searchSpinSystems);
 
   // Search and filter methods
-  $("#search-method").on("input", searchMethods);
+  element = document.getElementById("search-method");
+  element.addEventListener("input", searchMethods);
 
   return null;
 };
@@ -31,9 +37,3 @@ var hideQuad = function () {
   if (check_quad) quad_collapse.classList.add("show");
   else quad_collapse.classList.remove("show");
 };
-
-// var hideMenu = function(element) {
-//   element.style.opacity = 0;
-//   element.style.pointerEvents = 'none';
-//   element.style.transform = 'translateY(-10px)';
-// }

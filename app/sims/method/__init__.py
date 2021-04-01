@@ -12,16 +12,17 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from . import fields as mrfields
+from . import post_simulation_widgets as ps
 from .modal import METHOD_DIMENSIONS
 from .modal import METHOD_LIST
 from .modal import method_selection_modal
-from .post_simulation_widgets import gaussian_linebroadening_widget
 from app import app
 from app.custom_widgets import custom_button
-from app.custom_widgets import custom_card
+
+# from .post_simulation_widgets import gaussian_linebroadening_widget
 
 __author__ = ["Deepansh J. Srivastava"]
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = ["srivastava.89@osu.edu"]
 
 
 def hidden_method_select_element():
@@ -34,31 +35,29 @@ def post_simulation_ui(n_dimensions):
     # create line broadening => widgets for
     # 1) apodization function and
     # 2) apodization factor,
+    # gaussian = ps.Gaussian(0, n_dimensions)
+    # lorentz = ps.Lorentzian(0, n_dimensions)
     return html.Div(
         [
-            custom_card(
-                text=f"Line broadening - {i}",
-                children=gaussian_linebroadening_widget(i),
-            )
-            for i in range(n_dimensions)
-        ],
-        className="method-scroll",
+            html.Div(ps.tools()),
+            html.Div(
+                [ps.appodization_ui(0)],
+                id="post_sim_child",
+                className="method-scroll",
+            ),
+        ]
     )
 
 
 def dimension_tabs_ui():
     """Supports two dimensions."""
-    dim = [
-        dbc.Tab(label=f"{i}", children=mrfields.spectral_dimension_ui(i), id=f"dim-{i}")
-        for i in range(2)
-    ]
-    return dbc.Tabs(dim, className="vertical-tabs")
+    return [mrfields.spectral_dimension_ui(i) for i in range(2)]
 
 
 def method_property_tab_ui():
     return dbc.Tab(
         label="Properties",
-        children=[mrfields.global_environment(), dimension_tabs_ui()],
+        children=[mrfields.global_environment(), *dimension_tabs_ui()],
         id="dim-tab",
         className="tab-scroll method",
     )
@@ -70,6 +69,24 @@ def signal_processing_tab_ui():
         children=post_simulation_ui(1),
         className="tab-scroll method",
     )
+
+
+app.clientside_callback(
+    """
+    function(val) {
+        console.log(val);
+        if (val === 'tab-0') {
+            return [{'display': 'none'}, {'display': 'block'}];
+        }
+        if (val === 'tab-1') {
+            return [{'display': 'block'}, {'display': 'none'}];
+        }
+    }
+    """,
+    [Output("signal-processor-div", "style"), Output("apply-method-div", "style")],
+    [Input("method-tabs", "active_tab")],
+    prevent_initial_call=True,
+)
 
 
 def display():
@@ -85,7 +102,7 @@ def scrollable():
     app.clientside_callback(
         """
         function(n) {
-            $('#add-method-button')[0].click();
+            document.getElementById("add-method-button").click();
             throw window.dash_clientside.PreventUpdate;
         }
         """,
@@ -138,16 +155,32 @@ def layout():
     # title
     title = html.Div([label, upload], className="ui_title")
 
-    # submit button
+    # submit method button
     submit = custom_button(text="Submit Method", id="apply-method-changes")
-    submit = html.Div(submit, className="submit-button")
+    submit = html.Div(
+        submit,
+        id="apply-method-div",
+        style={"display": "block"},
+        className="submit-button",
+    )
+
+    # submit proceeing button
+    submit_pro = custom_button(text="Submit Processor", id="signal-processor-button")
+    submit_pro = html.Div(
+        submit_pro,
+        id="signal-processor-div",
+        style={"display": "none"},
+        className="submit-button",
+    )
 
     # tabs
-    tabs = dbc.Tabs([method_property_tab_ui(), signal_processing_tab_ui()])
+    tabs = dbc.Tabs(
+        [method_property_tab_ui(), signal_processing_tab_ui()], id="method-tabs"
+    )
 
     # method layout
     return html.Div(
-        [html.Div([title, tabs]), submit],
+        [html.Div([title, tabs]), submit, submit_pro],
         id="method-editor-content",
         className="slider2",
     )
@@ -206,7 +239,7 @@ def refresh(methods):
     )
 
 
-dimension_body = ui()
+method_body = ui()
 
 
 # callback code section =======================================================
@@ -228,7 +261,6 @@ dimension_body = ui()
 def get_method_json(n, value, isotope):
     if n is None:
         raise PreventUpdate
-    print(value)
     d0 = {"count": 512, "spectral_width": 25000}
     return {
         "method": METHOD_LIST[value](
@@ -240,7 +272,7 @@ def get_method_json(n, value, isotope):
 
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="on_methods_load"),
+    ClientsideFunction(namespace="method", function_name="onMethodsLoad"),
     Output("temp4", "children"),
     [Input("method-read-only", "children")],
     [State("config", "data")],
@@ -250,7 +282,7 @@ app.clientside_callback(
 app.clientside_callback(
     """
     function(n) {
-        set_method_index(n);
+        window.method.setIndex(n);
         throw window.dash_clientside.PreventUpdate;
     }
     """,
@@ -262,7 +294,7 @@ app.clientside_callback(
 app.clientside_callback(
     """
     function(n, value) {
-        let index = get_method_index();
+        let index = window.method.getIndex();
         if (index == value) throw window.dash_clientside.PreventUpdate;
         return index;
     }
@@ -274,7 +306,7 @@ app.clientside_callback(
 )
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="create_method_json"),
+    ClientsideFunction(namespace="method", function_name="updateMethodJson"),
     Output("new-method", "data"),
     [
         Input("apply-method-changes", "n_clicks"),

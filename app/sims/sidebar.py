@@ -9,7 +9,7 @@ from dash.dependencies import State
 from app import app
 
 
-SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "spectrum"]
+SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "fit", "spectrum"]
 
 
 def home():
@@ -28,6 +28,12 @@ def method():
     """Method tab."""
     icon = html.I(className="fas fa-cube fa-lg")
     return html.Li(html.Span(icon), id="view-methods")
+
+
+def fit():
+    """Fit tab."""
+    icon = html.I(className="fas fa-bullseye fa-lg")
+    return html.Li(html.Span(icon), id="view-fit")
 
 
 def spectrum():
@@ -63,11 +69,12 @@ app.clientside_callback(
 
 def tooltips():
     """Tooltips for Home, Spin System, and Method tabs."""
-    tips = ["Home", "Spin Systems", "Methods", "Spectrum", "Settings"]
+    tips = ["Home", "Spin Systems", "Methods", "Fit", "Spectrum", "Settings"]
     targets = [
         "view-info",
         "view-spin_systems",
         "view-methods",
+        "view-fit",
         "view-spectrum",
         "advance-setting",
     ]
@@ -88,7 +95,15 @@ def sidebar_tabs():
     # file_menu_ui = (
     #     html.Div(html.Ul(file_menu, className="menu"), className="master-toolbar"),
     # )
-    content = [html.Br(), home(), spin_system(), method(), spectrum(), tooltips()]
+    content = [
+        html.Br(),
+        home(),
+        spin_system(),
+        method(),
+        fit(),
+        spectrum(),
+        tooltips(),
+    ]
     return html.Ul(content, className="sidebar")
 
 

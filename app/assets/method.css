@@ -10,7 +10,6 @@
   display: none;
 } */
 
-
 .vertical-tabs {
   flex-direction: column;
   width: 2.5em;
@@ -22,8 +21,4 @@
   display: block;
   overflow: hidden;
   width: 100%;
-}
-
-[id^="transition-"] {
-  display: none;
 }

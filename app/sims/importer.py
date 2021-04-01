@@ -16,7 +16,7 @@ from mrsimulator import Simulator
 from mrsimulator.utils import get_spectral_dimensions
 
 from . import home as home_UI
-from . import nmr_method as methods_UI
+from . import method as method_UI
 from . import spin_system as spin_system_UI
 from app import app
 
@@ -41,6 +41,7 @@ PATH = os.path.split(__file__)[0]
         Output("integration_volume", "value"),
         Output("number_of_sidebands", "value"),
         Output("decompose", "n_click"),
+        Output("signal-processor-data", "data"),
     ],
     [
         # main page->drag and drop
@@ -98,52 +99,6 @@ def update_simulator(*args):
     # existing_data = ctx.states["local-mrsim-data.data"]
     return CALLBACKS[trigger_id]()
 
-    # if trigger_id == "save_info_modal":
-    #     return save_info_modal()
-
-    # # when decompose is triggered, return the updated existing data
-    # if trigger_id == "decompose":
-    #     return update_decompose()
-
-    # if trigger_id == "close_setting":
-    #     return update_sim_config()
-
-    # # Add a new spin system object
-    # if trigger_id == "new-spin-system":
-    #     return modified_spin_system()
-
-    # # Add a new method object
-    # if trigger_id == "new-method":
-    #     return modified_method()
-
-    # # Load an example from pre-defined examples
-    # if trigger_id == "selected-example":
-    #     return example_selection()
-
-    # # Request load file from url
-    # if trigger_id == "url-search":
-    #     return import_from_url()
-
-    # # clear all spin systems
-    # if trigger_id == "confirm-clear-spin-system":
-    #     return clear("spin_systems", existing_data)
-
-    # # clear all methods
-    # if trigger_id == "confirm-clear-methods":
-    #     return clear("methods", existing_data)
-
-    # # Request load file from local file system
-    # if trigger_id in ["upload-spin-system-local", "open-mrsimulator-file"]:
-    #     return import_mrsim_file()
-
-    # # Request load experiment from local file system
-    # if trigger_id in ["import-measurement-for-method", "upload-from-graph"]:
-    #     return import_measurement_for_method()
-
-    # # Request remove experiment from the selected method
-    # if trigger_id == "remove-measurement-from-method":
-    #     return remove_measurement_from_method()
-
 
 def update_decompose():
     existing_data = ctx.states["local-mrsim-data.data"]
@@ -153,7 +108,7 @@ def update_decompose():
         existing_data["trigger"] = True
         existing_data["config"]["decompose_spectrum"] = decompose
 
-    return ["", False, existing_data, *([no_update] * 8)]
+    return ["", False, existing_data, *([no_update] * 9)]
 
 
 def update_sim_config():
@@ -166,7 +121,7 @@ def update_sim_config():
         for item in fields:
             existing_data["config"][item] = ctx.states[f"{item}.value"]
 
-    return ["", False, existing_data, *([no_update] * 8)]
+    return ["", False, existing_data, *([no_update] * 9)]
 
 
 def clear(attribute):
@@ -228,7 +183,7 @@ def save_info_modal():
         existing_data,
         *([no_update] * 3),
         home_overview,
-        *([no_update] * 4),
+        *([no_update] * 5),
     ]
 
 
@@ -259,7 +214,7 @@ def import_mrsim_file():
         data = fix_missing_keys(content)
     except Exception:
         message = "Error reading spin-systems."
-        return [message, True, existing_data, *([no_update * 8])]
+        return [message, True, existing_data, *([no_update * 9])]
     return assemble_data(parse_data(data))
 
 
@@ -273,7 +228,7 @@ def import_measurement_for_method():
 
     if not success:
         e = f"Error reading file. {error_message}"
-        return [e, True, no_update, *([no_update] * 8)]
+        return [e, True, no_update, *([no_update] * 9)]
 
     index = ctx.states["select-method.value"]
     method = existing_data["methods"][index]
@@ -285,14 +240,14 @@ def import_measurement_for_method():
     for i, dim in enumerate(mrsim_spectral_dims):
         spectral_dim[i].update(dim)
 
-    method_overview = methods_UI.refresh(existing_data["methods"])
+    method_overview = method_UI.refresh(existing_data["methods"])
     return [
         "",
         False,
         existing_data,
         *([no_update] * 2),
         method_overview,
-        *([no_update] * 5),
+        *([no_update] * 6),
     ]
 
 
@@ -301,13 +256,13 @@ def remove_measurement_from_method():
     index = ctx.states["select-method.value"]
     method = existing_data["methods"][index]
     method["experiment"] = None
-    return ["", False, existing_data, *([no_update] * 8)]
+    return ["", False, existing_data, *([no_update] * 9)]
 
 
 def modified_method():
     existing_data = ctx.states["local-mrsim-data.data"]
     new_method = ctx.states["new-method.data"]
-    default = [no_update for _ in range(11)]
+    default = [no_update for _ in range(12)]
     if new_method is None:
         raise PreventUpdate
 
@@ -322,7 +277,7 @@ def modified_method():
     # Add a new method
     if new_method["operation"] == "add":
         data["methods"] += [method_data]
-        methods_info = methods_UI.refresh(data["methods"])
+        methods_info = method_UI.refresh(data["methods"])
         info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
@@ -333,7 +288,7 @@ def modified_method():
         if "experiment" in data["methods"][index]:
             method_data["experiment"] = data["methods"][index]["experiment"]
         data["methods"][index] = method_data
-        methods_info = methods_UI.refresh(data["methods"])
+        methods_info = method_UI.refresh(data["methods"])
         info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
@@ -342,7 +297,7 @@ def modified_method():
     # Duplicate a method
     if new_method["operation"] == "duplicate":
         data["methods"] += [method_data]
-        methods_info = methods_UI.refresh(data["methods"])
+        methods_info = method_UI.refresh(data["methods"])
         info_updates = home_UI.refresh(data)
         default[6] = info_updates
         default[2], default[5] = data, methods_info
@@ -355,7 +310,7 @@ def modified_method():
         del data["methods"][index]
         info_updates = home_UI.refresh(data)
         default[6] = info_updates
-        methods_info = methods_UI.refresh(data["methods"])
+        methods_info = method_UI.refresh(data["methods"])
         default[2], default[5] = data, methods_info
         return default
 
@@ -365,7 +320,7 @@ def modified_spin_system():
     existing_data = ctx.states["local-mrsim-data.data"]
     new_spin_system = ctx.states["new-spin-system.data"]
     config = {"is_new_data": False, "length_changed": False}
-    default = [no_update for _ in range(11)]
+    default = [no_update for _ in range(12)]
 
     if new_spin_system is None:
         raise PreventUpdate
@@ -544,15 +499,17 @@ def assemble_data(data):
     # else:
     #     pack[-1] = no_update if check else clicks + 1
     pack[-1] = no_update
+    processor = no_update if "processor" not in data else data["processor"]
     return [
         "",
         False,
         data,
         config,
         spin_system_UI.refresh(data["spin_systems"]),
-        methods_UI.refresh(data["methods"]),
+        method_UI.refresh(data["methods"]),
         home_UI.refresh(data),
         *pack,
+        processor,
     ]
 
 

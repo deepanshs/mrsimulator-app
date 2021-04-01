@@ -13,19 +13,23 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrinversion.kernel.nmr import ShieldingPALineshape
-from mrinversion.linear_model import SmoothLasso
+from mrinversion.linear_model import SmoothLassoLS
 from mrinversion.linear_model import TSVDCompression
 
 from .layout import page
 from app import app
 from app.sims.importer import load_csdm
 
+# from mrinversion.linear_model import SmoothLasso
+
 
 mrinv = html.Div(
     [
         dbc.Navbar(
             html.Div(
-                dcc.Link(dbc.NavbarBrand("MrInversion"), href="/"),
+                dcc.Link(
+                    dbc.NavbarBrand("MRInversion", style={"color": "#d6d6d6"}), href="/"
+                ),
                 className="nav-burger",
             ),
             color=None,
@@ -214,7 +218,11 @@ def generate_kernel(
 
 
 @app.callback(
-    Output("INV-output", "figure"),
+    [
+        Output("INV-output", "figure"),
+        Output("INV-l1", "value"),
+        Output("INV-l2", "value"),
+    ],
     [Input("INV-solve", "n_clicks")],
     [
         State("INV-l1", "value"),
@@ -236,8 +244,12 @@ def solve(n, l1, l2, data, fig):
     # compressed_K = new_system.compressed_K
     # compressed_s = new_system.compressed_s
 
-    s_lasso = SmoothLasso(
-        alpha=l2, lambda1=l1, inverse_dimension=inverse_dimensions, method="lars"
+    s_lasso = SmoothLassoLS(
+        alpha=l2,
+        lambda1=l1,
+        inverse_dimension=inverse_dimensions,
+        method="lars",
+        tolerance=1e-3,
     )
     s_lasso.fit(K=compressed_K, s=compressed_s)
     # print(s_lasso.estimator.intercept_)
@@ -261,4 +273,4 @@ def solve(n, l1, l2, data, fig):
         colorscale="RdBu",
     )
     fig["data"][0] = trace
-    return fig
+    return [fig, s_lasso.hyperparameters["lambda"], s_lasso.hyperparameters["alpha"]]

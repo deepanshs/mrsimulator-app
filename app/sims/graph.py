@@ -227,7 +227,8 @@ spectrum_body = ui()
 def one_d_multi_trace(data, x0, dx, maximum):
     """Use for multi line plots. When decompose is true"""
     return [
-        go.Scatter(
+        dict(
+            type="scatter",
             x0=x0,
             dx=dx,
             y=datum.components[0] / maximum,
@@ -244,7 +245,8 @@ def one_d_multi_trace(data, x0, dx, maximum):
 def one_d_single_trace(data, x0, dx, maximum):
     """Use for single line plot"""
     return [
-        go.Scatter(
+        dict(
+            type="scatter",
             x0=x0,
             dx=dx,
             y=data[0].components[0] / maximum,
@@ -268,7 +270,7 @@ def plot_1D_trace(data, normalized=False, decompose=False):
 def plot_2D_trace(data, normalized=False, decompose=False):
     plot_trace = []
 
-    x, y = data.x[0].coordinates.value, data.y[1].coordinates.value
+    x, y = [item.coordinates.value for item in data.x]
 
     if decompose:
         maximum = max([yi.components.max() for yi in data.y]) if normalized else 1.0
@@ -301,14 +303,14 @@ def plot_2D_trace(data, normalized=False, decompose=False):
     if normalized:
         y_data /= y_data.max()
 
-    plot_trace.append(
-        go.Heatmap(
+    plot_trace += [
+        dict(
             dx=x[1] - x[0],
             dy=y[1] - y[0],
             x0=x[0],
             y0=y[0],
-            z=y_data.dependent_variables[0].components[0],
-            type="heatmap",
+            z=y_data.y[0].components[0],
+            type="heatmapgl",
             showscale=False,
             # line_smoothing=0,
             # contours_coloring="lines",
@@ -320,5 +322,5 @@ def plot_2D_trace(data, normalized=False, decompose=False):
             # zmid=0,
             name="simulation",
         )
-    )
+    ]
     return plot_trace

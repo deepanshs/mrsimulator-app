@@ -44,7 +44,9 @@ def metadata_tab_ui():
 
     # metadata
     metadata = html.Div([name, description], className="scroll-cards container")
-    return dcc.Tab(label="Metadata", children=metadata, className="tab-scroll")
+    return dcc.Tab(
+        label="Metadata", children=html.Div(metadata), className="tab-scroll"
+    )
 
 
 def display():
@@ -60,7 +62,7 @@ def scrollable():
     app.clientside_callback(
         """
         function(n) {
-            $('#add-spin-system-button')[0].click();
+            document.getElementById("add-spin-system-button").click();
             throw window.dash_clientside.PreventUpdate;
         }
         """,
@@ -192,7 +194,7 @@ def refresh(systems):
 spin_system_body = ui()
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="create_spin_system_json"),
+    ClientsideFunction(namespace="spin_system", function_name="updateSpinSystemJson"),
     Output("new-spin-system", "data"),
     [
         Input("apply-spin-system-changes", "n_clicks"),
@@ -221,7 +223,7 @@ app.clientside_callback(
 
 
 app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="on_spin_systems_load"),
+    ClientsideFunction(namespace="spin_system", function_name="onSpinSystemsLoad"),
     Output("temp2", "children"),
     [Input("spin-system-read-only", "children")],
     [State("config", "data")],

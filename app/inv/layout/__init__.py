@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from .input import input_layer
-from .output import output_layer
 
 storage_div = html.Div(
     [
@@ -14,4 +13,4 @@ storage_div = html.Div(
     ]
 )
 
-page = html.Div([input_layer, output_layer, storage_div])
+page = html.Div([input_layer, storage_div])
