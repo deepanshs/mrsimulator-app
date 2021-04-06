@@ -138,7 +138,11 @@ def system_overview_data(mrsim: dict):
     icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-sys": ""})
     for i, spin_system in enumerate(mrsim["spin_systems"]):
         name = "" if "name" not in spin_system else spin_system["name"]
-        abd = np.around(spin_system["abundance"], decimals=3)
+        abd = (
+            ""
+            if spin_system["abundance"] is None
+            else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
+        )
         n_site = len(spin_system["sites"])
         isotopes = "-".join(set([item["isotope"] for item in spin_system["sites"]]))
         pack = [i, name, abd, n_site, isotopes, icon]
@@ -158,9 +162,16 @@ def method_overview_data(mrsim: dict):
     for i, method in enumerate(mrsim["methods"]):
         name = "" if "name" not in method.keys() else method["name"]
         channels = "-".join(method["channels"])
-        location = method["spectral_dimensions"][0]["events"][0]
-        Bo = location["magnetic_flux_density"]
-        vr = location["rotor_frequency"] / 1e3
+        Bo = (
+            ""
+            if method["magnetic_flux_density"] is None
+            else method["magnetic_flux_density"].split(" ")[0]
+        )
+        vr = (
+            ""
+            if method["rotor_frequency"] is None
+            else float(method["rotor_frequency"].split(" ")[0]) / 1e3
+        )
         pack = [i, name, channels, Bo, vr, icon]
         method_row += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 

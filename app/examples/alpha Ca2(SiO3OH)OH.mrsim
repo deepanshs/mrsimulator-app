@@ -44,7 +44,21 @@
     "integration_density": 70,
     "decompose_spectrum": "none"
   },
-  "indexes": [
-    [0]
-  ]
+  "signal_processors": [{
+    "operations": [{
+        "dim_index": [0],
+        "function": "IFFT"
+      },
+      {
+        "FWHM": "50.0 Hz",
+        "dim_index": [0],
+        "function": "apodization",
+        "type": "Exponential"
+      },
+      {
+        "dim_index": [0],
+        "function": "FFT"
+      }
+    ]
+  }]
 }

@@ -6,7 +6,6 @@ import numpy as np
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
-from dash.dependencies import State
 
 from .site import site_ui
 from app import app
@@ -164,7 +163,10 @@ def generate_sidepanel(spin_system, index):
     name = html.Div(f"Name: {name}", className="")
 
     # spin system abundance
-    abundance = np.around(spin_system["abundance"], decimals=3)
+    if spin_system["abundance"] is None:
+        abundance = ""
+    else:
+        abundance = np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
     abundance = html.Div(f"Abundance: {abundance} %", className="")
 
     # number of sites
@@ -226,6 +228,6 @@ app.clientside_callback(
     ClientsideFunction(namespace="spin_system", function_name="onSpinSystemsLoad"),
     Output("temp2", "children"),
     [Input("spin-system-read-only", "children")],
-    [State("config", "data")],
+    # [State("config", "data")],
     prevent_initial_call=True,
 )

@@ -4,6 +4,7 @@
  * Author = "Deepansh J. Srivastava"
  * Email = ["srivastava.89@osu.edu"]
  */
+/* jshint esversion: 6 */
 
 /* Assign the value to the UI fields using UI id.
  * @param id: The id of the UI field.
@@ -13,16 +14,31 @@ var setValue = function (id, val) {
   document.getElementById(id).value = val;
 };
 
+var parseQuatityValue = function (val) {
+  val = (val == null) ? val : val.split(" ")[0];
+  return isNaN(+val) ? val : +val;
+  // document.getElementById(id).value = val;
+};
+
 /* Get the value from the UI fields using UI id. Convert the value from string
  * to float, if possible.
  * @param id: The id of the UI field.
  */
 var getValue = function (id) {
-  var val = document.getElementById(id).value;
-  if (val.trim() === "") {
-    return null;
+  let element = document.getElementById(id);
+  let val = element.value;
+  if (element.validity.valid == false) {
+    alert(`Invalid value encounted.`);
+    throw window.dash_clientside.PreventUpdate;
   }
+  console.log(element);
+  if (val.trim() === "") return null;
   return isNaN(+val) ? val : +val;
+};
+
+var toQuantityValue = function (val, unit) {
+  if (val === null) return null;
+  return val.toString().concat(` ${unit}`).trim();
 };
 
 /* Convert angle from radians to degrees and round to the 10 decimal place. */
