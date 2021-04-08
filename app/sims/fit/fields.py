@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 import json
-import dash_html_components as html
-import dash_core_components as dcc
+
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 from dash import callback_context as ctx
+from dash.dependencies import ALL
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
-from dash.dependencies import ALL
-from dash.dependencies import MATCH
 from dash.exceptions import PreventUpdate
+from lmfit import Parameters
+from mrsimulator import Simulator
+from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from app import app
 
 
-KEY_LIST = ["value", "vary", "min", "max", "brute_step"]
-LEN_KEY_LIST = len(KEY_LIST)
+KEY_LIST = ["vary", "value", "min", "max"]
+# LEN_KEY_LIST = len(KEY_LIST)
 WIDTHS = {
     "name": 3,
     "value": 2,
@@ -23,38 +25,34 @@ WIDTHS = {
     "min": 2,
     "max": 2,
     # "expr": 0,
-    "brute_step": 2,
+    # "brute_step": 2,
 }
-testing_params_dict = {
-    "param_name_1" : {"value": 0, "vary": True, "min": None, "max": 100, "brute_step": None},
-    "param_name_2" : {"value": 200, "vary": False, "min": 0, "max": None, "brute_step": None},
-    "param_name_3" : {"value": 17.3, "vary": True, "min": None, "max": 100, "brute_step": 0.5},
-}
+
 
 def fields_header():
     """Header labels for fitting parameters"""
     cols = [dbc.Col(html.Div("Name"), width=WIDTHS["name"])]
     cols += [
-        dbc.Col(html.Div(" ".join(key.split("_")).capitalize())) 
+        dbc.Col(html.Div(" ".join(key.split("_")).capitalize()))
         for key in KEY_LIST  # Needs width arguments
     ]
-    cols += [dbc.Col(html.Div("Remove"))]
     return html.Div(dbc.Row(cols))
 
 
-def fields_input():
-    """List of input fields"""
-    return html.Div(children=[], id="parameters-input-div") # Additional div formatting here
+def fields_body():
+    return html.Div(id="params-input-div", children=[])
 
 
 def delete_row_button(name):
     """Makes delete button for spesicied row name"""
-    return html.Button(id={"name": f"delete-{name}-row", "kind": "delete"}, children="Delete")
+    return html.Button(
+        id={"name": f"delete-{name}-row", "kind": "delete"}, children="x"
+    )
 
 
 def make_input_row(name, vals):
     """Constructs list of dbc.Col components for user input
-    
+
     Params:
         str name: Name of parameter
         dict vals: Dictonary of parameter values
@@ -62,35 +60,59 @@ def make_input_row(name, vals):
     Returns:
         dbc.Row object
     """
+    name_div = html.Div(id={"name": f"{name}-label", "kind": "name"}, children=[name])
+    vary_div = dbc.Checkbox(
+        id={"name": f"{name}-vary", "kind": "vary"},
+        checked=vals["vary"],
+    )
+    # value_div = None
+
     return dbc.Row(
-        id=f"{name}-row", 
+        id=f"{name}-row",
         # May need additional formatting to fit within bounds
         children=[
-            dbc.Col(html.Div(id={"name": f"{name}-label", "kind": "name"}, children=name), width=WIDTHS["name"]),
-            dbc.Col(dbc.Input(id={"name": f"{name}-value", "kind": "value"}, type="number", value=vals["value"])),
-            dbc.Col(dbc.Checkbox(id={"name": f"{name}-vary", "kind": "vary"}, checked=vals["vary"]), width=WIDTHS["vary"]),
-            dbc.Col(dbc.Input(id={"name": f"{name}-min", "kind": "min"}, type="number", value=vals["min"])),
-            dbc.Col(dbc.Input(id={"name": f"{name}-max", "kind": "max"}, type="number", value=vals["max"])),
-            # dbc.Col(dbc.Input(id={"name": f"-{name}-expr", "kind": "expr"}, type="text", value=vals["expr"])),  # NOT IMPLEMENTED
-            dbc.Col(dbc.Input(id={"name": f"{name}-brute-step", "kind": "brute-step"}, type="number", value=vals["brute_step"])),
-            dbc.Col(delete_row_button(name))
-        ]
+            dbc.Col([name_div, vary_div]),
+            dbc.Col(
+                dbc.Input(
+                    id={"name": f"{name}-value", "kind": "value"},
+                    type="number",
+                    value=vals["value"],
+                )
+            ),
+            dbc.Col(
+                dbc.Input(
+                    id={"name": f"{name}-min", "kind": "min"},
+                    type="number",
+                    value=vals["min"],
+                )
+            ),
+            dbc.Col(
+                dbc.Input(
+                    id={"name": f"{name}-max", "kind": "max"},
+                    type="number",
+                    value=vals["max"],
+                )
+            ),
+            dbc.Col(delete_row_button(name)),
+        ],
     )
 
 
 def ui():
     """Intputs fields with names and delete buttons"""
-    update_button = html.Button(id="update-button", children="Update", n_clicks=0)
+    update_button = html.Button(id="update-button", children="Simulate", n_clicks=0)
     reset_button = html.Button(id="reset-button", children="Reset", n_clicks=0)
-
-    temp_test_button = html.Button(id="SERVER-TRIGGER", children="Test")
+    run_fitting_button = html.Button(
+        id="run-fitting-button", children="Run Fitting", n_clicks=0
+    )
     return html.Div(
         children=[
-            fields_header(), 
-            fields_input(), 
-            update_button, 
-            reset_button, 
-            temp_test_button],
+            fields_header(),
+            fields_body(),
+            update_button,
+            reset_button,
+            run_fitting_button,
+        ],
         id="input-fields",
         # additional fields needed for formatting?
     )
@@ -99,91 +121,109 @@ def ui():
 fields = ui()
 
 
+def lmfit_jston_to_dict(lmfit_json):
+    """Makes dictonary representation of params object from json string
+    Params:
+        lmfit_json: JSON string of lmtit Parameters object
+
+    Return:
+        params_dict: dictonary of lmfit parameters
+    """
+    params_obj = Parameters().loads(lmfit_json)
+    params_dict = {}
+
+    for name, param in params_obj.items():
+        params_dict[name] = {key: getattr(param, key) for key in KEY_LIST}
+
+    return params_dict
+
+
 # Callbacks ===================================================================
 @app.callback(
-    Output("parameters-input-div", "children"),
-    Input("visible-parameters-data", "data"),
+    Output("params-input-div", "children"),
+    Input("params-data", "data"),
 )
-def update_fields_input(data):
+def update_fields_div(data):
     """Updated visible fields when visible data is changed"""
+
+    # Should output be moved to another place ex. 'importer.py'
+    # # Currently being triggered by reset-button on new data upload fom
+    # 'update_params_data'
+    # ISSUE : being updated by 'update_params_data' 'when update-button'
+    # is pressed
+    # Maybe 'update_params_data' can be triggered by local-mrsim-data
+
+    print("div", ctx.triggered)
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if trigger_id == "update-button":
+        print("update button")
         raise PreventUpdate
 
-    if data is None:  # Empty data
+    if data is None:
         return
 
-    rows = [make_input_row(k, v) for k, v in data.items()]
+    params_dict = lmfit_jston_to_dict(data)
+    rows = [make_input_row(k, v) for k, v in params_dict.items()]
     return rows
 
 
 @app.callback(
-    Output("stored-parameters-data", "data"),
-    Input("SERVER-TRIGGER", "n_clicks"),
-    State("stored-parameters-data", "data")
-)
-def update_stored_params_data(tr, stored_data):
-    """Sets stored params data on trigger from server"""
-    # How to send dict between server and client?
-
-    # Verify stored data on load 
-    if not ctx.triggered:
-        if not set(KEY_LIST) == set([k for d in stored_data.values() for k in d.keys()]):
-            return testing_params_dict
-            # return {}  # Remove invalid data
-        return stored_data
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if trigger_id == "SERVER-TRIGGER":
-        return testing_params_dict
-
-    return stored_data
-
-
-@app.callback(
-    Output("visible-parameters-data", "data"),
-
+    Output("params-data", "data"),
     Input("update-button", "n_clicks"),
+    Input("run-fitting-button", "n_clicks"),
     Input("reset-button", "n_clicks"),
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    Input("stored-parameters-data", "data"),
-
-    State("visible-parameters-data", "data"),
+    State("params-data", "data"),
+    State("local-mrsim-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),
     State({"kind": "value", "name": ALL}, "value"),
     State({"kind": "vary", "name": ALL}, "checked"),
     State({"kind": "min", "name": ALL}, "value"),
     State({"kind": "max", "name": ALL}, "value"),
     # State({"kind": "expr", "name": ALL}, "value"),
-    State({"kind": "brute-step", "name": ALL}, "value"),
+    # State({"kind": "brute-step", "name": ALL}, "value"),
 )
-def update_visible_data(n1, n2, n3, data, visible_data, names, *vals):
+def update_params_data(n1, n2, n3, n4, visible_data, local_data, *vals):
     """Sets visible data from either fields inputs or stored data"""
     if not ctx.triggered:
-        return data
-
+        # return test_str
+        raise PreventUpdate
+    print("dat", ctx.triggered)
     trigger_id = trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "update-button" or trigger_id == "run-fitting-button":
+        zip_vals = list(zip(*vals))
+        new_obj = Parameters()
+
+        for row in zip_vals:
+            new_obj.add(
+                name=row[0],
+                value=row[1],
+                vary=row[2],
+                min=row[3],
+                max=row[4],
+                # expr=,
+                # brute_step=float(row[4]) if row[4] is not None else 0,
+            )
+
+        return new_obj.dumps()
+
+    if trigger_id == "reset-button":
+        if local_data is None:
+            raise PreventUpdate
+        sim = Simulator(**local_data)
+        params_obj = make_LMFIT_params(sim)
+        return params_obj.dumps()
 
     # Comprehension triggers
     if trigger_id[0] == "{":
         trigger_id = json.loads(trigger_id)  # Cast to dict
         if "name" in trigger_id and trigger_id["name"][:6] == "delete":
-            del visible_data[trigger_id["name"].split("-")[1]]
-            return visible_data
+            params_obj = Parameters().loads(visible_data)
+            del params_obj[trigger_id["name"].split("-")[1]]
+            return params_obj.dumps()
+        # Start other context calls here
 
-    if trigger_id == "reset-button":
-        return data
-
-    if trigger_id == "update-button":
-        zip_vals = list(zip(*vals))
-        params_dict = {}
-        for i, name in enumerate(names):
-            params_dict[name] = {key: zip_vals[i][j] for j, key in enumerate(KEY_LIST)}
-        print(params_dict)
-        return params_dict
-
-    return data
-    
 
 # Validate input callback
 
