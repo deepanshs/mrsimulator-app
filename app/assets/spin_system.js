@@ -53,6 +53,21 @@ const ALL_KEYS = [
   "quadrupolar-gamma",
 ];
 
+const ALL_KEY_UNITS = [
+  "",
+  "ppm",
+  "ppm",
+  "",
+  "rad",
+  "rad",
+  "rad",
+  "Hz",
+  "",
+  "rad",
+  "rad",
+  "rad",
+];
+
 if (!window.spinSystem) {
   window.spinSystem = {};
 }
@@ -77,27 +92,28 @@ window.spinSystem = {
  */
 var set_site_attributes = function (site) {
   // isotope and isotropic chemical shift
+  // temp_site = {};
   setValue("isotope", site.isotope);
-  setValue("isotropic_chemical_shift", site.isotropic_chemical_shift);
+  setValue("isotropic_chemical_shift", parseQuatityValue(site.isotropic_chemical_shift));
 
   // shielding symmetric
   let key = "shielding_symmetric";
   if (site.hasOwnProperty(key)) {
     let ss = site[key];
-    setValue(`${key}-zeta`, ss.zeta);
+    setValue(`${key}-zeta`, parseQuatityValue(ss.zeta));
     setValue(`${key}-eta`, ss.eta);
     // Convert Euler angles in radians.
     setValue(
       `${key}-alpha`,
-      ss.hasOwnProperty("alpha") ? rad_to_deg(ss.alpha) : null
+      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuatityValue(ss.alpha)) : null
     );
     setValue(
       `${key}-beta`,
-      ss.hasOwnProperty("beta") ? rad_to_deg(ss.beta) : null
+      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuatityValue(ss.beta)) : null
     );
     setValue(
       `${key}-gamma`,
-      ss.hasOwnProperty("gamma") ? rad_to_deg(ss.gamma) : null
+      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuatityValue(ss.gamma)) : null
     );
     ss = null;
   } else {
@@ -112,20 +128,20 @@ var set_site_attributes = function (site) {
   key = "quadrupolar";
   if (site.hasOwnProperty(key)) {
     let ss = site[key];
-    setValue(`${key}-Cq`, ss.Cq / 1e6); // Convert Cq in MHz.
+    setValue(`${key}-Cq`, parseQuatityValue(ss.Cq) / 1e6); // Convert Cq in MHz.
     setValue(`${key}-eta`, ss.eta);
     // Convert Euler angles in radians.
     setValue(
       `${key}-alpha`,
-      ss.hasOwnProperty("alpha") ? rad_to_deg(ss.alpha) : null
+      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuatityValue(ss.alpha)) : null
     );
     setValue(
       `${key}-beta`,
-      ss.hasOwnProperty("beta") ? rad_to_deg(ss.beta) : null
+      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuatityValue(ss.beta)) : null
     );
     setValue(
       `${key}-gamma`,
-      ss.hasOwnProperty("gamma") ? rad_to_deg(ss.gamma) : null
+      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuatityValue(ss.gamma)) : null
     );
     ss = null;
   } else {
@@ -155,7 +171,7 @@ var update_field_from_spin_system_at_index = function (index) {
   let description = spin_system.description;
   description = description == null ? "" : description;
   setValue("spin-system-description", description);
-  setValue("spin-system-abundance", spin_system.abundance);
+  setValue("spin-system-abundance", parseQuatityValue(spin_system.abundance));
 
   // extract site information
   let site = spin_system.sites[0];
@@ -163,16 +179,16 @@ var update_field_from_spin_system_at_index = function (index) {
   data = spin_system = name = description = site = null;
 };
 
-/* Convert Euler angles from degrees to radians.
- * @params obj: An object dictionary holding the three Euler angles
- */
-var euler_angle_deg_to_rad = function (obj) {
-  for (let i = 0; i < euler_angle.length; i++) {
-    if (obj.hasOwnProperty(euler_angle[i])) {
-      obj[euler_angle[i]] /= to_deg;
-    }
-  }
-};
+// /* Convert Euler angles from degrees to radians.
+//  * @params obj: An object dictionary holding the three Euler angles
+//  */
+// var euler_angle_deg_to_rad = function (obj) {
+//   for (let i = 0; i < euler_angle.length; i++) {
+//     if (obj.hasOwnProperty(euler_angle[i])) {
+//       obj[euler_angle[i]] /= to_deg;
+//     }
+//   }
+// };
 
 /* Extract the site dictionary from the UI field using the UI ids. */
 var extract_site_object_from_fields = function () {
@@ -204,6 +220,7 @@ var extract_site_object_from_fields = function () {
     update = true;
   }
   temp = getValue("spin-system-abundance");
+  temp = toQuantityValue(temp, "%");
   if (spin_system.abundance != temp) {
     spin_system.abundance = temp;
     update = true;
@@ -222,7 +239,16 @@ var extract_site_object_from_fields = function () {
     id = ALL_KEYS[i];
     val = getValue(id);
     if (val != null) {
+      // val = val.toString().concat(` ${ALL_KEY_UNITS[i]}`).trim();
       key = id.split("-");
+
+      // Convert Cq from MHz to Hz.
+      if (key[1] === 'Cq') val *= 1e6;
+
+      // Convert Euler angles from degrees to radians.
+      else if (['alpha', 'beta', 'gamma'].indexOf(key[1]) >= 0) val = deg_to_rad(val);
+
+      val = toQuantityValue(val, ALL_KEY_UNITS[i]);
       if (key.length === 1) {
         site[key[0]] = val;
       }
@@ -231,14 +257,8 @@ var extract_site_object_from_fields = function () {
       }
     }
   }
-  // Convert Euler angles from degrees to radians.
-  euler_angle_deg_to_rad(site.shielding_symmetric);
-  euler_angle_deg_to_rad(site.quadrupolar);
+  console.log(site);
 
-  // Convert Cq from MHz to Hz.
-  if (site.quadrupolar.hasOwnProperty("Cq")) {
-    site.quadrupolar.Cq *= 1.0e6;
-  }
 
   // Check if the value of a key is an empty dictionary. If true, remove the
   // respective key-value pair.
@@ -312,8 +332,11 @@ var addSystem = function (l) {
   result.data = {
     name: `System ${l}`,
     description: "",
-    abundance: 1,
-    sites: [{ isotope: "1H", isotropic_chemical_shift: 0 }],
+    abundance: "100 %",
+    sites: [{
+      isotope: "1H",
+      isotropic_chemical_shift: "0 ppm",
+    }, ],
   };
   result.index = l;
   result.operation = "add";

@@ -144,18 +144,17 @@ window.dash_clientside.method = {
   updateMethodJson: _updateMethodJson,
   onMethodsLoad: _onMethodsLoad,
   export_simulation_from_selected_method: function (n, data) {
-    if (n == null) {
+    if (n === null) {
       alert("No method found. Try adding a method first.");
       return "";
     }
-    if (data == null) {
+    if (data === null) {
       alert("No simulation data available for the method.");
       return "";
     }
-    let i = window.method.getIndex();
+    // let i = window.method.getIndex();
 
-    // get the data corresponding to the selected method.
-    let selectedData = data[i];
+    // let selectedData = data;
 
     // // if decompose is false, add the data from all dependent variables.
     // if (!decompose) {
@@ -182,7 +181,7 @@ window.dash_clientside.method = {
 
     // prepare the download.
     let dataStr = "data:text/json;charset=utf-8,";
-    dataStr += encodeURIComponent(JSON.stringify(selectedData));
+    dataStr += encodeURIComponent(JSON.stringify(data));
 
     let dlAnchorElem = document.getElementById(
       "export-simulation-from-method-link"
@@ -251,13 +250,17 @@ window.method = {
   setFields: function (index) {
     let data = storeData.data;
     let method = data.methods[index];
-    let sd, i;
+    let sd, i, temp;
     document.getElementById("method-title").innerHTML = method.name;
 
-    let evt = method.spectral_dimensions[0].events[0];
-    setValue("magnetic_flux_density", evt.magnetic_flux_density);
-    setValue("rotor_frequency", evt.rotor_frequency / 1e3); // to kHz
-    setValue("rotor_angle", rad_to_deg(evt.rotor_angle));
+    temp = parseQuatityValue(method.magnetic_flux_density); // in T
+    setValue("magnetic_flux_density", temp);
+
+    temp = parseQuatityValue(method.rotor_frequency) / 1e3; // to kHz
+    setValue("rotor_frequency", temp);
+
+    temp = rad_to_deg(parseQuatityValue(method.rotor_angle)); // to deg
+    setValue("rotor_angle", temp);
 
     // setValue(`method-description`, method.description);
     // setValue(`channel`, method.channels[0]);
@@ -267,8 +270,13 @@ window.method = {
 
       sd = method.spectral_dimensions[i];
       setValue(`count-${i}`, sd.count);
-      setValue(`spectral_width-${i}`, sd.spectral_width / 1e3); // to kHz
-      setValue(`reference_offset-${i}`, sd.reference_offset / 1e3); // to kHz
+
+      temp = parseQuatityValue(sd.spectral_width) / 1e3; // to kHz
+      setValue(`spectral_width-${i}`, temp);
+
+      temp = parseQuatityValue(sd.reference_offset) / 1e3; // to kHz
+      setValue(`reference_offset-${i}`, temp); // to kHz
+
       setValue(`label-${i}`, sd.label);
 
       // for (j = 0; j < sd.events.length; j++) {
@@ -315,24 +323,35 @@ window.method = {
   },
 
   updateData: function () {
-    let sd, i;
+    let sd, i, temp;
     // let channel = getValue(`channel`);
     // let description = getValue(`method-description`);
 
     let method = storeData.data.methods[window.method.getIndex()];
 
-    let evt = method.spectral_dimensions[0].events[0];
-    evt.magnetic_flux_density = getValue(`magnetic_flux_density`); // in T
-    evt.rotor_angle = deg_to_rad(getValue(`rotor_angle`)); // in rad
-    evt.rotor_frequency = getValue(`rotor_frequency`) * 1e3; // in Hz
+    // let evt = method.spectral_dimensions[0].events[0];
+    temp = getValue('magnetic_flux_density');
+    method.magnetic_flux_density = toQuantityValue(temp, "T");
+
+    temp = deg_to_rad(getValue('rotor_angle'));
+    method.rotor_angle = toQuantityValue(temp, "rad");
+
+    temp = getValue('rotor_frequency') * 1e3; // to Hz
+    method.rotor_frequency = toQuantityValue(temp, "Hz");
+
     // method.description = description;
     // method.channels = [channel];
     // global params
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       sd = method.spectral_dimensions[i];
       sd.count = getValue(`count-${i}`);
-      sd.spectral_width = getValue(`spectral_width-${i}`) * 1e3; // to Hz
-      sd.reference_offset = getValue(`reference_offset-${i}`) * 1e3; // to Hz
+
+      temp = getValue(`spectral_width-${i}`) * 1e3; // to Hz
+      sd.spectral_width = toQuantityValue(temp, "Hz");
+
+      temp = getValue(`reference_offset-${i}`) * 1e3; // to Hz
+      sd.reference_offset = toQuantityValue(temp, "Hz");
+
       // sd.origin_offset = getValue(`origin_offset-${i}`) * 1e6; // to Hz
 
       // for (j = 0; j < sd.events.length; j++) {

@@ -26,7 +26,7 @@ var storeData = {
     name: "",
     description: [],
     spin_systems: [],
-    methods: []
+    methods: [],
   },
 };
 
@@ -47,10 +47,10 @@ window.dash_clientside.clientside = {
   },
 
   downloadSession: function (n, data) {
-    if (n == null) {
+    if (n === null) {
       throw window.dash_clientside.PreventUpdate;
     }
-    if (data == null) {
+    if (data === null) {
       throw window.dash_clientside.PreventUpdate;
     }
 
@@ -65,17 +65,16 @@ window.dash_clientside.clientside = {
 
     dataStr = ndlAnchorElem = null;
     return "";
-  }
+  },
 };
 
 function ctxTriggerID() {
-  return dash_clientside.callback_context.triggered.map(t => t["prop_id"]);
+  return dash_clientside.callback_context.triggered.map((t) => t["prop_id"]);
 }
 
 function ctxTriggerStates() {
   return dash_clientside.callback_context.states;
 }
-
 
 function checkForEmptyListBeforeOperation(operation, list, l) {
   if (l === 0) {
@@ -110,14 +109,14 @@ var default_li_item_action = function (obj) {
 
 /* Creates a smooth scroll based on the selected index of li. */
 function scrollTo(element, to, duration, direction) {
-  var start, change, currentTime, increment, animateScroll;
+  var start, change, currentTime, increment;
   if (direction === "vertical") {
     start = element.scrollTop;
     change = to - start;
     currentTime = 0;
     increment = 20;
 
-    animateScroll = function () {
+    let animateScroll = function () {
       currentTime += increment;
       let val = Math.easeInOutQuad(currentTime, start, change, duration);
       element.scrollTop = val;
@@ -125,6 +124,7 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
+    animateScroll();
   }
   if (direction === "horizontal") {
     start = element.scrollLeft;
@@ -132,7 +132,7 @@ function scrollTo(element, to, duration, direction) {
     currentTime = 0;
     increment = 20;
 
-    animateScroll = function () {
+    let animateScroll = function () {
       currentTime += increment;
       let val = Math.easeInOutQuad(currentTime, start, change, duration);
       element.scrollLeft = val;
@@ -140,8 +140,8 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
+    animateScroll();
   }
-  animateScroll();
 }
 
 // t = current time

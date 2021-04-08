@@ -12,12 +12,12 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
 from . import fields as mrfields
-from . import post_simulation_widgets as ps
 from .modal import METHOD_DIMENSIONS
 from .modal import METHOD_LIST
 from .modal import method_selection_modal
 from app import app
 from app.custom_widgets import custom_button
+from app.sims import post_simulation as ps
 
 # from .post_simulation_widgets import gaussian_linebroadening_widget
 
@@ -32,32 +32,22 @@ def hidden_method_select_element():
 
 
 def post_simulation_ui(n_dimensions):
-    # create line broadening => widgets for
-    # 1) apodization function and
-    # 2) apodization factor,
-    # gaussian = ps.Gaussian(0, n_dimensions)
-    # lorentz = ps.Lorentzian(0, n_dimensions)
-    return html.Div(
-        [
-            html.Div(ps.tools()),
-            html.Div(
-                [ps.appodization_ui(0)],
-                id="post_sim_child",
-                className="method-scroll",
-            ),
-        ]
-    )
+    tools = html.Div(ps.tools())
+    page_content = [ps.scale.page, ps.convolution.page]
+    page = html.Div(page_content, id="post_sim_child", className="method-scroll")
+    return html.Div([tools, page])
 
 
-def dimension_tabs_ui():
+def dimensions_ui():
     """Supports two dimensions."""
     return [mrfields.spectral_dimension_ui(i) for i in range(2)]
 
 
 def method_property_tab_ui():
+    contents = [mrfields.global_environment(), *dimensions_ui()]
     return dbc.Tab(
         label="Properties",
-        children=[mrfields.global_environment(), *dimension_tabs_ui()],
+        children=contents,
         id="dim-tab",
         className="tab-scroll method",
     )
@@ -266,7 +256,7 @@ def get_method_json(n, value, isotope):
         "method": METHOD_LIST[value](
             channels=[isotope],
             spectral_dimensions=[d0] * METHOD_DIMENSIONS[value],
-        ).reduced_dict(),
+        ).json(),
         "time": int(datetime.now().timestamp() * 1000),
     }
 
@@ -275,7 +265,7 @@ app.clientside_callback(
     ClientsideFunction(namespace="method", function_name="onMethodsLoad"),
     Output("temp4", "children"),
     [Input("method-read-only", "children")],
-    [State("config", "data")],
+    # [State("config", "data")],
     prevent_initial_call=True,
 )
 

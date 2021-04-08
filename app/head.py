@@ -20,10 +20,6 @@ with open(PATH + "apple_ios_tags.json", "r") as f:
 with open(PATH + "meta_tags.json", "r") as f:
     meta_tags = json.load(f)
 
-# Get splash screens for mobile devices.
-with open(PATH + "splash_screen_links.json", "r") as f:
-    splash_screen_links = json.load(f)
-
 # Get external links for mobile devices.
 with open(PATH + "external_links.json", "r") as f:
     external_links = json.load(f)
@@ -31,21 +27,14 @@ with open(PATH + "external_links.json", "r") as f:
 
 def create_links(link_dict):
     html_string = ""
-    for _ in link_dict:
-        html_string += (
-            f"""<link rel='{_["rel"]}' href='{_["href"]}' media='{_["media"]}'/>"""
-            if "media" in _
-            else f"""<link rel='{_["rel"]}' href='{_["href"]}'/>"""
-        )
+    for item in link_dict:
+        string = " ".join([f"{k}='{v}'" for k, v in item.items()])
+        html_string += f"<link {string}/>"
     return html_string
 
 
-html_links = ""
-# Add splash screen links to the page as <link \> in the header.
-html_links += create_links(splash_screen_links)
-
 # Add external links to the page as <link \> in the header.
-html_links += create_links(external_links)
+html_links = create_links(external_links)
 
 
 # html head layout
