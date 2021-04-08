@@ -310,7 +310,7 @@ def plot_2D_trace(data, normalized=False, decompose=False):
             x0=x[0],
             y0=y[0],
             z=y_data.y[0].components[0],
-            type="heatmapgl",
+            type="heatmap",
             showscale=False,
             # line_smoothing=0,
             # contours_coloring="lines",

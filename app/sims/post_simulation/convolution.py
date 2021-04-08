@@ -107,21 +107,20 @@ page = ui(0)
 def get_apodization_dict(i):
     states = ctx.states
     keys = ["dim_index", "dv_index", "type", "FWHM"]
-    vals = [
+    val = [
         states[f'{{"args":"{k}","function":"apodization","index":{i}}}.value']
         for k in keys
     ]
 
-    if vals[0] in [["None"], []]:
-        vals[0] = None
-
-    if vals[1] in [["None"], []]:
-        vals[1] = None
+    if val[0] in [["None"], []]:
+        val[0] = None
+    if val[1] in [["None"], []]:
+        val[1] = None
 
     return {
-        "dim_index": vals[0],
-        "dv_index": vals[1],
+        "dim_index": val[0],
+        "dv_index": val[1],
         "function": "apodization",
-        "type": vals[2],
-        "FWHM": f"{vals[3]} Hz",
+        "type": val[2],
+        "FWHM": f"{val[3]} Hz",
     }

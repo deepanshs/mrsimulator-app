@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from sys import modules
-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
@@ -13,7 +11,7 @@ from app.sims.utils import expand_output
 
 
 def tools():
-    """Add, duplcicate, or remove methods"""
+    """Add, duplicate, or remove methods"""
     # new = html.Button("add", id="add-post_sim-button")
     new = dbc.DropdownMenu(
         label="Add",
@@ -64,14 +62,18 @@ def cycle_over_all():
 
     for k, v in dict_.items():
         for index in set(v):
-            operations.append(getattr(modules[__name__], f"get_{k}_dict")(index))
+            if k == "apodization":
+                operations.append(Convolution.get_apodization_dict(index))
+            if k == "scale":
+                operations.append(Scale.get_scale_dict(index))
     return operations
 
 
-def generate_signal_processor_dict():
-    operations = [{"dim_index": [0], "function": "IFFT"}]
+def generate_signal_processor_dict(n_dims):
+    dims = [i for i in range(n_dims)]
+    operations = [{"dim_index": dims, "function": "IFFT"}]
     operations += cycle_over_all()
-    operations += [{"dim_index": [0], "function": "FFT"}]
+    operations += [{"dim_index": dims, "function": "FFT"}]
     processor = {"operations": operations}
     return processor
 
@@ -93,7 +95,8 @@ def setup_processor(*args):
 
     if trigger_id == "signal-processor-button":
 
-        processor = generate_signal_processor_dict()
+        n_dims = len(existing_data["methods"][method_index]["spectral_dimensions"])
+        processor = generate_signal_processor_dict(n_dims)
         existing_process_data[method_index] = processor
         print("existing_process_data", existing_process_data)
 

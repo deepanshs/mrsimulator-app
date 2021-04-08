@@ -132,7 +132,7 @@ def prep_valid_data_for_simulation(valid_data):
     """Generates output for callback when data is valid.
 
     Args:
-        valid_data: mrsimulator dict
+        valid_data: mrsimulator dict.
     """
     out = {
         "alert": ["", False],
@@ -215,7 +215,6 @@ def on_method_change():
     """Update method attribute."""
     existing_data = ctx.states["local-mrsim-data.data"]
     new_method = ctx.states["new-method.data"]
-    default = [no_update for _ in range(12)]
     if new_method is None:
         raise PreventUpdate
 
@@ -229,17 +228,20 @@ def on_method_change():
         existing_data["methods"] += [method_data]
         methods_info = method_UI.refresh(existing_data["methods"])
         info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        default[2], default[5] = existing_data, methods_info
         existing_data["trigger"]["method_index"] = [-1]
 
         if "signal_processors" not in existing_data:
             existing_data["signal_processors"] = []
         existing_data["signal_processors"] += [{"operations": []}]
 
-        if len(existing_data["methods"]) == 1:
-            default[-1] = []
-        return default
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [no_update, methods_info, info_updates],
+            "mrsim_config": [no_update] * 4,
+            "processor": [no_update],
+        }
+        return expand_output(out)
 
     # Modify a method
     if new_method["operation"] == "modify":
@@ -250,10 +252,16 @@ def on_method_change():
         existing_data["methods"][index]["simulation"] = None
         methods_info = method_UI.refresh(existing_data["methods"])
         info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        default[2], default[5] = existing_data, methods_info
         existing_data["trigger"]["method_index"] = [index]
-        return default
+
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [no_update, methods_info, info_updates],
+            "mrsim_config": [no_update] * 4,
+            "processor": [no_update],
+        }
+        return expand_output(out)
 
     # Duplicate a method
     if new_method["operation"] == "duplicate":
@@ -261,10 +269,16 @@ def on_method_change():
         existing_data["signal_processors"] += [{"operations": []}]
         methods_info = method_UI.refresh(existing_data["methods"])
         info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        default[2], default[5] = existing_data, methods_info
         existing_data["trigger"] = {"simulate": False, "method_index": None}
-        return default
+
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [no_update, methods_info, info_updates],
+            "mrsim_config": [no_update] * 4,
+            "processor": [no_update],
+        }
+        return expand_output(out)
 
     # Delete a method
     if new_method["operation"] == "delete":
@@ -274,10 +288,18 @@ def on_method_change():
         del existing_data["signal_processors"][index]
         existing_data["trigger"] = {"simulate": False, "method_index": None}
         info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
         methods_info = method_UI.refresh(existing_data["methods"])
-        default[2], default[5] = existing_data, methods_info
-        return default
+
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [no_update, methods_info, info_updates],
+            "mrsim_config": [no_update] * 4,
+            "processor": [] if len(existing_data["methods"]) == 0 else [no_update],
+        }
+        return expand_output(out)
+
+        # return default
 
 
 def on_spin_system_change():

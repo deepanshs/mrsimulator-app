@@ -125,7 +125,6 @@ mrsimulator_app = html.Div(
     [
         Input("local-mrsim-data", "data"),
     ],
-    # [State("local-mrsim-data", "data")],
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -136,34 +135,22 @@ def simulation(*args):
         raise PreventUpdate
 
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
+
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0:
+    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
         return [no_update, no_update, mrsim_data]
 
-    if len(mrsim_data["spin_systems"]) == 0:
-        return [no_update, no_update, mrsim_data]
+    try:
+        sim = Simulator.parse_dict_with_units(mrsim_data)
+        decompose = sim.config.decompose_spectrum[:]
+        sim.config.decompose_spectrum = "spin_system"
+        sim.run()
+        sim.config.decompose_spectrum = decompose
+    except Exception as e:
+        return [str(e), True, no_update]
 
-    # print(mrsim_data["methods"][0]["simulation"])
-    # try:
-    decompose = mrsim_data["config"]["decompose_spectrum"]
-    sim = Simulator.parse_dict_with_units(mrsim_data)
-    sim.config.decompose_spectrum = "spin_system"
-    # print("sim;", sim.methods[0].simulation)
-
-    # mth_index = [i for i, item in enumerate(sim.methods) if item.simulation is None]
-    # if mrsim_data["trigger"]["simulation"] or sim.methods[0].simulation is None:
-    # print("simulate", mth_index)
-    sim.run()
-    sim.config.decompose_spectrum = decompose
-    # except Exception as e:
-    #     return [str(e), True, no_update]
-
-    # process_data = None
-    # if mrsim_data["trigger"]["internal_processor"]:
-    #     process_data = mrsim_data["signal_processors"]
-    # else:
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
         processor = SignalProcessor.parse_dict_with_units(proc)
@@ -172,8 +159,6 @@ def simulation(*args):
     if decompose == "none":
         for mth in sim.methods:
             mth.simulation = add_csdm_with_multiple_dv_to_one(mth.simulation)
-    # except Exception as e:
-    #     return [str(e), True, no_update]
 
     serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
@@ -186,7 +171,7 @@ def add_csdm_with_multiple_dv_to_one(data):
     new_csdm = 0
     for item in new_data:
         new_csdm += item
-    return new_csdm
+    return new_csdm if new_data != [] else None
 
 
 @app.callback(
