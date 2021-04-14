@@ -4,7 +4,7 @@ from app.custom_widgets import container
 from app.custom_widgets import custom_input_group
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 def spectral_dimension_ui(i):
@@ -106,7 +106,7 @@ def global_environment():
     rotor_angle = custom_input_group(
         prepend_label="Rotor angle (θᵣ)",
         append_label="deg",
-        value=54.735,
+        value=54.735610317,
         id="rotor_angle",
         max=90,
         min=0,

@@ -1,6 +1,6 @@
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu"]
+ * Email = "srivastava.89@osu.edu"
  */
 
 /* jshint esversion: 6 */
@@ -106,17 +106,17 @@ var _onMethodsLoad = function () {
     });
   });
 
-  // activte the add, copy, and remove btn on the home page.
+  // activate the add, copy, and remove btn on the home page.
   // activateMethodTools();
 
-  // Toggle classname to slide the contents on smaller screens
+  // Toggle classnames to slide the contents on smaller screens
   const element = document.getElementById("met-slide");
   if (element.classList.contains("slide-offset")) {
     element.classList.toggle("slide-offset");
     element.classList.toggle("slide");
   }
 
-  // Toggle classname to slide the contents on smaller screens
+  // Toggle classnames to slide the contents on smaller screens
   if (listomers.length === 0) {
     element.classList.toggle("slide-offset");
     element.classList.toggle("slide");
@@ -137,6 +137,7 @@ var _onMethodsLoad = function () {
   let index = window.method.getIndex();
   index = index >= listomers.length ? 0 : index;
   window.method.select(listomers, index);
+
   return null;
 };
 
@@ -152,32 +153,6 @@ window.dash_clientside.method = {
       alert("No simulation data available for the method.");
       return "";
     }
-    // let i = window.method.getIndex();
-
-    // let selectedData = data;
-
-    // // if decompose is false, add the data from all dependent variables.
-    // if (!decompose) {
-    //   let sum, obj, component, ix, len;
-    //   obj = selectedData.csdm.dependent_variables;
-    //   objLength = obj.length;
-    //   // get the data corresponding to the first dependent variable and add the
-    //   // rest to it.
-    //   sum = decodeFromBase64(obj[0].components[0]);
-    //   console.log(sum);
-    //   len = sum.length;
-    //   for (j = objLength; j-- > 1; ) {
-    //     component = decodeFromBase64(obj[j].components[0]);
-    //     for (ix = len; ix-- > 0; ) sum[ix] += component[ix];
-    //     obj.pop();
-    //   }
-    //   console.log(sum);
-    //   let base64String = btoa(
-    //     String.fromCharCode(...new Uint8Array(sum.buffer))
-    //   );
-    //   //   let base64String = Buffer.from(sum.buffer).toString('base64');
-    //   obj[0].components[0] = base64String;
-    // }
 
     // prepare the download.
     let dataStr = "data:text/json;charset=utf-8,";
@@ -203,11 +178,10 @@ var decodeFromBase64 = function (encodedString) {
   for (let i = 0; i < binary_string.length; i++) {
     bytes_buffer[i] = binary_string.charCodeAt(i);
   }
-
   return new Float64Array(buffer);
 };
 
-/* Intiate a click event for the li.
+/* Initiate a click event for the li.
  * @param listomer: A list of li, each summarizing a method.
  * @param index: The index of li to initiate the click.
  */
@@ -253,83 +227,46 @@ window.method = {
     let sd, i, temp;
     document.getElementById("method-title").innerHTML = method.name;
 
-    temp = parseQuatityValue(method.magnetic_flux_density); // in T
+    temp = parseQuantityValue(method.magnetic_flux_density); // in T
     setValue("magnetic_flux_density", temp);
 
-    temp = parseQuatityValue(method.rotor_frequency) / 1e3; // to kHz
+    temp = parseQuantityValue(method.rotor_frequency) / 1e3; // to kHz
     setValue("rotor_frequency", temp);
 
-    temp = rad_to_deg(parseQuatityValue(method.rotor_angle)); // to deg
+    temp = rad_to_deg(parseQuantityValue(method.rotor_angle)); // to deg
     setValue("rotor_angle", temp);
 
-    // setValue(`method-description`, method.description);
-    // setValue(`channel`, method.channels[0]);
     for (i = 0; i < method.spectral_dimensions.length; i++) {
-      // show dimension tabs that are applicable for the given method.
-      // li[i].classList.remove("hide-display");
-
       sd = method.spectral_dimensions[i];
       setValue(`count-${i}`, sd.count);
 
-      temp = parseQuatityValue(sd.spectral_width) / 1e3; // to kHz
+      temp = parseQuantityValue(sd.spectral_width) / 1e3; // to kHz
       setValue(`spectral_width-${i}`, temp);
 
-      temp = parseQuatityValue(sd.reference_offset) / 1e3; // to kHz
-      setValue(`reference_offset-${i}`, temp); // to kHz
-
+      temp = parseQuantityValue(sd.reference_offset) / 1e3; // to kHz
+      setValue(`reference_offset-${i}`, temp);
       setValue(`label-${i}`, sd.label);
-
-      // for (j = 0; j < sd.events.length; j++) {
-      //   // show events that are applicable for the given method.
-      //   showElement(`event-${i}-${j}`);
-      //   setValue(
-      //     `magnetic_flux_density-${i}-${j}`,
-      //     sd.events[j].magnetic_flux_density
-      //   );
-      //   setValue(
-      //     `rotor_frequency-${i}-${j}`,
-      //     sd.events[j].rotor_frequency / 1e3
-      //   ); // to kHz
-      //   setValue(`rotor_angle-${i}-${j}`, rad_to_deg(sd.events[j].rotor_angle));
-      //   // setValue(
-      //   //   `transition-${i}-${j}`,
-      //   //   sd.events[j].transition_query["P"]["channel-1"][0][0]
-      //   // );
-      // }
-      // for (j = sd.events.length; j < 2; j++) {
-      //   // hide events that are not applicable for the given method.
-      //   hideElement(`event-${i}-${j}`);
-      // }
     }
 
-    // hide the transition symmetry option for the last entry
-    // i = method.spectral_dimensions.length - 1;
-    // j = method.spectral_dimensions[i].events.length - 1;
-    // hideElement(`transition-${i}-${j}-left-label`);
-    // hideElement(`transition-${i}-${j}`);
-    // hideElement(`transition-${i}-${j}-right-label`);
-
-    // hide dimension tabs that are not applicable for the given method
-    // for (i = method.spectral_dimensions.length; i < 2; i++) {
-    //   li[i].classList.add("hide-display");
-    // }
-    // if (method.spectral_dimensions.length === 1) {
-    //   li[0].children[0].click();
-    //   ul[0].classList.add("hide-display");
-    // } else {
-    //   ul[0].classList.remove("hide-display");
-    // }
+    // show/hide desired number of dimensions.
+    let dimUI, n_dim = method.spectral_dimensions.length;
+    let total = 2;
+    for (i = 0; i < total; i++) {
+      dimUI = document.getElementById(`dim-${i}-feature-collapse`);
+      console.log(dimUI);
+      if (i < n_dim) {
+        dimUI.classList.add("show");
+      } else {
+        dimUI.classList.remove("show");
+      }
+    }
     data = method = sd = null;
   },
 
   updateData: function () {
     let sd, i, temp;
-    // let channel = getValue(`channel`);
-    // let description = getValue(`method-description`);
-
     let method = storeData.data.methods[window.method.getIndex()];
 
-    // let evt = method.spectral_dimensions[0].events[0];
     temp = getValue('magnetic_flux_density');
     method.magnetic_flux_density = toQuantityValue(temp, "T");
 
@@ -339,9 +276,6 @@ window.method = {
     temp = getValue('rotor_frequency') * 1e3; // to Hz
     method.rotor_frequency = toQuantityValue(temp, "Hz");
 
-    // method.description = description;
-    // method.channels = [channel];
-    // global params
     for (i = 0; i < method.spectral_dimensions.length; i++) {
       sd = method.spectral_dimensions[i];
       sd.count = getValue(`count-${i}`);
@@ -351,18 +285,6 @@ window.method = {
 
       temp = getValue(`reference_offset-${i}`) * 1e3; // to Hz
       sd.reference_offset = toQuantityValue(temp, "Hz");
-
-      // sd.origin_offset = getValue(`origin_offset-${i}`) * 1e6; // to Hz
-
-      // for (j = 0; j < sd.events.length; j++) {
-      //   ev = sd.events[j];
-      //   ev.magnetic_flux_density = getValue(`magnetic_flux_density-${i}-${j}`); // in T
-      //   ev.rotor_angle = deg_to_rad(getValue(`rotor_angle-${i}-${j}`)); // in rad
-      //   ev.rotor_frequency = getValue(`rotor_frequency-${i}-${j}`) * 1e3; // in Hz
-      //   // ev.transition_query["P"]["channel-1"][0][0] = getValue(
-      //   //   `transition-${i}-${j}`
-      //   // );
-      // }
     }
     sd = i = null;
     return method;

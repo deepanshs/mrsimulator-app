@@ -7,7 +7,7 @@ from .menubar import master_menubar
 from app import year
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 # The navgation bar displayed on the top of the web app.

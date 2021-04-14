@@ -1,25 +1,51 @@
 .master-toolbar {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.master-toolbar .right-menu {
+/* .master-toolbar .right-menu {
   padding: 3px 8px;
   border-radius: 0.25em;
   display: block;
-}
-.master-toolbar .right-menu:hover {
+} */
+/* .master-toolbar .right-menu:hover {
   color: #494949;
   background-color: #e4e4e4;
-}
+} */
 .master-toolbar .menu {
   display: flex;
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
-.master-toolbar .menu .menu-item {
+
+.dropdown.nav-item .dropdown-menu {
+  box-shadow: 0 12px 20px 0 #8f8f8f4d;
+}
+
+.dropdown.nav-item .dropdown-menu button,
+.dropdown.nav-item .dropdown-menu a {
+  padding: 0.4em 1.4em;
+}
+
+.dropdown.nav-item .dropdown-menu button:hover,
+.dropdown.nav-item .dropdown-menu a:hover {
+  color: white;
+  background-color: var(--select-blue);
+}
+.dropdown.nav-item > a {
+  color: #313131;
+}
+
+.dropdown.nav-item.show {
+  background-color: #cfcfcfb6;
+  border-radius: 0.25em;
+}
+
+.dropdown .dropdown-divider {
+  margin: 3px;
+}
+/* .master-toolbar .menu .menu-item {
   position: relative;
   padding: 0;
   margin: 0;
@@ -88,12 +114,10 @@
 .master-toolbar .menu .menu-item.has-sub-menu:hover > .sub-menu .sub-menu {
   top: 0;
   left: 100%;
-}
-.master-toolbar .close-menu {
+} */
+/* .master-toolbar .close-menu {
   display: none;
-  color: #FFF;
+  color: #fff;
   text-decoration: none;
   text-align: center;
-}
-
-/*# sourceMappingURL=menubar.css.map */
+} */ ;

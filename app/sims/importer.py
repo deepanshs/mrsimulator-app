@@ -13,8 +13,12 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
+from lmfit import fit_report
+from lmfit import Minimizer
 from mrsimulator import parse
 from mrsimulator.utils import get_spectral_dimensions
+from mrsimulator.utils.spectral_fitting import LMFIT_min_function
+from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from . import home as home_UI
 from . import method as method_UI
@@ -25,7 +29,7 @@ from .utils import expand_output
 from app import app
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 PATH = os.path.split(__file__)[0]
 
@@ -56,13 +60,12 @@ PATH = os.path.split(__file__)[0]
         # Input("upload-and-add-spin-system-button", "contents"),
         # method->add measurement
         Input("import-measurement-for-method", "contents"),
+        Input("add-measurement-for-method", "contents"),
         # method->remove measurement
         Input("remove-measurement-from-method", "n_clicks"),
         # graph->drag and drop
         Input("upload-from-graph", "contents"),
         Input("url-search", "href"),
-        # examples
-        Input("selected-example", "value"),
         # when spin-system is modified
         Input("new-spin-system", "modified_timestamp"),
         # when method is modified
@@ -82,6 +85,7 @@ PATH = os.path.split(__file__)[0]
         Input("add-post_sim-convolutions", "n_clicks"),
         Input("select-method", "value"),
         # Input("new-method", "modified_timestamp"),
+        Input("fit-button", "n_clicks"),
     ],
     [
         # State("upload-spin-system-url", "value"),
@@ -178,8 +182,9 @@ def clear(attribute):
     existing_data = ctx.states["local-mrsim-data.data"]
     existing_data[attribute] = []
     existing_data["trigger"] = {"simulate": True, "method_index": None}
-    for proc in existing_data["signal_processors"]:
-        proc["operations"] = []
+    if "signal_processors" in existing_data:
+        for proc in existing_data["signal_processors"]:
+            proc["operations"] = []
     return assemble_data(existing_data)
 
 
@@ -211,8 +216,22 @@ def save_info_modal():
     return expand_output(out)
 
 
-def on_method_change():
+def on_method_update():
     """Update method attribute."""
+
+    def generate_outputs(existing_data, n=None):
+        home_overview = home_UI.refresh(existing_data)
+        method_overview = method_UI.refresh(existing_data["methods"])
+
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [no_update, method_overview, home_overview],
+            "mrsim_config": [no_update] * 4,
+            "processor": [[]] if len(existing_data["methods"]) == n else [no_update],
+        }
+        return expand_output(out)
+
     existing_data = ctx.states["local-mrsim-data.data"]
     new_method = ctx.states["new-method.data"]
     if new_method is None:
@@ -226,89 +245,52 @@ def on_method_change():
     # Add a new method
     if new_method["operation"] == "add":
         existing_data["methods"] += [method_data]
-        methods_info = method_UI.refresh(existing_data["methods"])
-        info_updates = home_UI.refresh(existing_data)
         existing_data["trigger"]["method_index"] = [-1]
-
         if "signal_processors" not in existing_data:
             existing_data["signal_processors"] = []
         existing_data["signal_processors"] += [{"operations": []}]
-
-        out = {
-            "alert": ["", False],
-            "mrsim": [existing_data, no_update],
-            "children": [no_update, methods_info, info_updates],
-            "mrsim_config": [no_update] * 4,
-            "processor": [no_update],
-        }
-        return expand_output(out)
+        return generate_outputs(existing_data, n=1)
 
     # Modify a method
     if new_method["operation"] == "modify":
         existing_data["methods"][index].update(method_data)
-        # if "experiment" in existing_data["methods"][index]:
-        #     method_data["experiment"] = existing_data["methods"][index]["experiment"]
-        # existing_data["methods"][index] = method_data
         existing_data["methods"][index]["simulation"] = None
-        methods_info = method_UI.refresh(existing_data["methods"])
-        info_updates = home_UI.refresh(existing_data)
         existing_data["trigger"]["method_index"] = [index]
+        return generate_outputs(existing_data)
 
-        out = {
-            "alert": ["", False],
-            "mrsim": [existing_data, no_update],
-            "children": [no_update, methods_info, info_updates],
-            "mrsim_config": [no_update] * 4,
-            "processor": [no_update],
-        }
-        return expand_output(out)
-
-    # Duplicate a method
+    # Duplicate an existing method
     if new_method["operation"] == "duplicate":
         existing_data["methods"] += [method_data]
         existing_data["signal_processors"] += [{"operations": []}]
-        methods_info = method_UI.refresh(existing_data["methods"])
-        info_updates = home_UI.refresh(existing_data)
         existing_data["trigger"] = {"simulate": False, "method_index": None}
-
-        out = {
-            "alert": ["", False],
-            "mrsim": [existing_data, no_update],
-            "children": [no_update, methods_info, info_updates],
-            "mrsim_config": [no_update] * 4,
-            "processor": [no_update],
-        }
-        return expand_output(out)
+        return generate_outputs(existing_data)
 
     # Delete a method
     if new_method["operation"] == "delete":
-        if index is None:
-            raise PreventUpdate
         del existing_data["methods"][index]
         del existing_data["signal_processors"][index]
         existing_data["trigger"] = {"simulate": False, "method_index": None}
-        info_updates = home_UI.refresh(existing_data)
-        methods_info = method_UI.refresh(existing_data["methods"])
-
-        out = {
-            "alert": ["", False],
-            "mrsim": [existing_data, no_update],
-            "children": [no_update, methods_info, info_updates],
-            "mrsim_config": [no_update] * 4,
-            "processor": [] if len(existing_data["methods"]) == 0 else [no_update],
-        }
-        return expand_output(out)
-
-        # return default
+        return generate_outputs(existing_data, n=0)
 
 
 def on_spin_system_change():
     """Update spin system attribute."""
+
+    def generate_outputs(existing_data):
+        home_overview = home_UI.refresh(existing_data)
+        spin_system_overview = spin_system_UI.refresh(existing_data["spin_systems"])
+
+        out = {
+            "alert": ["", False],
+            "mrsim": [existing_data, no_update],
+            "children": [spin_system_overview, no_update, home_overview],
+            "mrsim_config": [no_update] * 4,
+            "processor": [no_update],
+        }
+        return expand_output(out)
+
     existing_data = ctx.states["local-mrsim-data.data"]
     new_spin_system = ctx.states["new-spin-system.data"]
-    # config = {"is_new_data": False, "length_changed": False}
-    config = no_update
-    default = [no_update for _ in range(12)]
 
     if new_spin_system is None:
         raise PreventUpdate
@@ -318,68 +300,25 @@ def on_spin_system_change():
     spin_system_data = new_spin_system["data"]
     print("new_spin_system type", new_spin_system["operation"])
 
-    # Modify spin-system
-    # The following section applies to when the spin-systems update is triggered from
-    # the GUI fields. This is a very common trigger, so we place it at the start.
-    if new_spin_system["operation"] == "modify":
-        existing_data["spin_systems"][index] = spin_system_data
-        # config["index_last_modified"] = index
-
-        info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        spin_systems_info = spin_system_UI.refresh(existing_data["spin_systems"])
-        default[2], default[3], default[4] = existing_data, config, spin_systems_info
-        return default
-
     # Add a new spin system
-    # The following section applies to when the a new spin-systems is added from
-    # add-spin-system-button.
     if new_spin_system["operation"] == "add":
         existing_data["spin_systems"] += [spin_system_data]
-        # config["length_changed"] = True
-        # config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
-        # config["index_last_modified"] = index
+        return generate_outputs(existing_data)
 
-        info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        spin_systems_info = spin_system_UI.refresh(existing_data["spin_systems"])
-        default[2], default[3], default[4] = existing_data, config, spin_systems_info
-        return default
+    # Modify a spin-system
+    if new_spin_system["operation"] == "modify":
+        existing_data["spin_systems"][index] = spin_system_data
+        return generate_outputs(existing_data)
 
-    # Copy an existing spin-system
-    # The following section applies to when a request to duplicate the spin-systems
-    # is initiated using the duplicate-spin-system-button.
+    # Duplicate an existing spin-system
     if new_spin_system["operation"] == "duplicate":
         existing_data["spin_systems"] += [spin_system_data]
-        # config["length_changed"] = True
-        # config["added"] = [site["isotope"] for site in spin_system_data["sites"]]
-        # config["index_last_modified"] = index
+        return generate_outputs(existing_data)
 
-        info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        spin_systems_info = spin_system_UI.refresh(existing_data["spin_systems"])
-        default[2], default[3], default[4] = existing_data, config, spin_systems_info
-        return default
-
-    # Delete an spin-system
-    # The following section applies to when a request to remove an spin-systems is
-    # initiated using the remove-spin-system-button.
+    # Delete a spin-system
     if new_spin_system["operation"] == "delete":
-        if index is None:
-            raise PreventUpdate
-
-        # the index to remove is given by spin_system_index
-        # config["removed"] = [
-        #     site["isotope"] for site in existing_data["spin_systems"][index]["sites"]
-        # ]
         del existing_data["spin_systems"][index]
-        # config["index_last_modified"] = index
-
-        info_updates = home_UI.refresh(existing_data)
-        default[6] = info_updates
-        spin_systems_info = spin_system_UI.refresh(existing_data["spin_systems"])
-        default[2], default[3], default[4] = existing_data, config, spin_systems_info
-        return default
+        return generate_outputs(existing_data)
 
 
 def add_measurement_to_a_method():
@@ -405,7 +344,7 @@ def add_measurement_to_a_method():
     method["experiment"] = exp_data.to_dict()
     spectral_dim = method["spectral_dimensions"]
 
-    mrsim_spectral_dims = get_spectral_dimensions(exp_data)
+    mrsim_spectral_dims = get_spectral_dimensions(exp_data, units=True)
 
     for i, dim in enumerate(mrsim_spectral_dims):
         spectral_dim[i].update(dim)
@@ -437,17 +376,10 @@ def remove_measurement_from_a_method():
 
 def load_file_from_url(url):
     """Load the selected data from url."""
-    response = urlopen(url)
+    url_path = get_absolute_url_path(url, PATH)
+    response = urlopen(url_path)
     contents = json.loads(response.read())
-    return parse_file_contents(contents, url.endswith(".mrsys"))
-
-
-def load_selected_example():
-    """Load the selected example."""
-    example = ctx.inputs["selected-example.value"]
-    if example in ["", None]:
-        raise PreventUpdate
-    return load_file_from_url(get_absolute_url_path(example, PATH))
+    return parse_file_contents(contents, url_path.endswith(".mrsys"))
 
 
 def import_from_url():
@@ -479,12 +411,12 @@ def import_mrsim_file():
 def parse_file_contents(content, spin_sys=False):
     content = {"spin_systems": content} if spin_sys else content
 
-    # try:
-    data = fix_missing_keys(content)
-    return assemble_data(parse_data(data))
-    # except Exception as e:
-    #     message = f"FileReadError: {e}"
-    #     return on_fail_message(message)
+    try:
+        data = fix_missing_keys(content)
+        return assemble_data(parse_data(data))
+    except Exception as e:
+        message = f"FileReadError: {e}"
+        return on_fail_message(message)
 
 
 def fix_missing_keys(json_data):
@@ -497,10 +429,6 @@ def fix_missing_keys(json_data):
         "config": {},
     }
     default_data.update(json_data)
-    # data_keys = json_data.keys()
-    # for k in default_data.keys():
-    #     if k not in data_keys:
-    #         json_data[k] = default_data[k]
     return default_data
 
 
@@ -539,16 +467,105 @@ def assemble_data(data):
     spin_system_overview = spin_system_UI.refresh(data["spin_systems"])
     method_overview = method_UI.refresh(data["methods"])
     home_overview = home_UI.refresh(data)
+    post_sim_overview = post_sim_UI.refresh(data) if data["methods"] != [] else []
 
-    post_sim_view = post_sim_UI.refresh(data) if data["methods"] != [] else []
     out = {
         "alert": ["", False],
         "mrsim": [data, no_update],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": mrsim_config,
-        "processor": [post_sim_view],
+        "processor": [post_sim_overview],
     }
     return expand_output(out)
+
+
+def load_csdm(content):
+    """Load a JSON file. Return a list with members
+    - Success: True if file is read correctly,
+    - Data: File content is success, otherwise an empty string,
+    - message: An error message when JSON file load fails, else an empty string.
+    """
+    content = str(content, encoding="UTF-8")
+    try:
+        data = cp.loads(content)
+        return True, data, ""
+    except Exception as e:
+        return False, "", e
+
+
+def least_squares_fit():
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+
+    if mrsim_data is None:
+        raise PreventUpdate
+
+    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+        raise PreventUpdate
+
+    # try:
+    sim, processor, result = parse(mrsim_data)
+    for mth in sim.methods:
+        mth.experiment = mth.experiment.real
+
+    # Optimize the script by pre-setting the transition pathways for each spin system
+    # from the method.
+    for sys in sim.spin_systems:
+        sys.transition_pathways = sim.methods[0].get_transition_pathways(sys)
+
+    decompose = sim.config.decompose_spectrum[:]
+    sim.config.decompose_spectrum = "spin_system"
+
+    params = make_LMFIT_params(sim, processor)
+    print(params.pretty_print(columns=["value", "min", "max", "vary", "expr"]))
+
+    minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor))
+    result = minner.minimize()
+    print(fit_report(result))
+
+    sim.config.decompose_spectrum = decompose
+    for sys in sim.spin_systems:
+        sys.transition_pathways = None
+
+    fit_data = sim.json(include_methods=True, include_version=True)
+    fit_data["signal_processors"] = [proc.json() for proc in processor]
+
+    spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
+    method_overview = method_UI.refresh(fit_data["methods"])
+    home_overview = home_UI.refresh(fit_data)
+    post_sim_overview = (
+        post_sim_UI.refresh(fit_data) if fit_data["methods"] != [] else []
+    )
+    out = {
+        "alert": ["", False],
+        "mrsim": [fit_data, no_update],
+        "children": [spin_system_overview, method_overview, home_overview],
+        "mrsim_config": [no_update] * 4,
+        "processor": [post_sim_overview],
+    }
+    return expand_output(out)
+
+
+CALLBACKS = {
+    "save_info_modal": save_info_modal,
+    "decompose": on_decompose_click,
+    "close_setting": on_mrsim_config_change,
+    "new-spin-system": on_spin_system_change,
+    "new-method": on_method_update,
+    "url-search": import_from_url,
+    "confirm-clear-spin-system": clear_spin_systems,
+    "confirm-clear-methods": clear_methods,
+    "upload-spin-system-local": import_mrsim_file,
+    "open-mrsimulator-file": import_mrsim_file,
+    "import-measurement-for-method": add_measurement_to_a_method,
+    "add-measurement-for-method": add_measurement_to_a_method,
+    "upload-from-graph": add_measurement_to_a_method,
+    "remove-measurement-from-method": remove_measurement_from_a_method,
+    "signal-processor-button": setup_processor,
+    "add-post_sim-scalar": setup_processor,
+    "add-post_sim-convolutions": setup_processor,
+    "select-method": setup_processor,
+    "fit-button": least_squares_fit,
+}
 
 
 # convert client-side function
@@ -569,37 +586,12 @@ def update_list_of_methods(data):
     return options
 
 
-def load_csdm(content):
-    """Load a JSON file. Return a list with members
-    - Success: True if file is read correctly,
-    - Data: File content is success, otherwise an empty string,
-    - message: An error message when JSON file load fails, else an empty string.
-    """
-    content = str(content, encoding="UTF-8")
-    try:
-        data = cp.loads(content)
-        return True, data, ""
-    except Exception as e:
-        return False, "", e
-
-
-CALLBACKS = {
-    "save_info_modal": save_info_modal,
-    "decompose": on_decompose_click,
-    "close_setting": on_mrsim_config_change,
-    "new-spin-system": on_spin_system_change,
-    "new-method": on_method_change,
-    "selected-example": load_selected_example,
-    "url-search": import_from_url,
-    "confirm-clear-spin-system": clear_spin_systems,
-    "confirm-clear-methods": clear_methods,
-    "upload-spin-system-local": import_mrsim_file,
-    "open-mrsimulator-file": import_mrsim_file,
-    "import-measurement-for-method": add_measurement_to_a_method,
-    "upload-from-graph": add_measurement_to_a_method,
-    "remove-measurement-from-method": remove_measurement_from_a_method,
-    "signal-processor-button": setup_processor,
-    "add-post_sim-scalar": setup_processor,
-    "add-post_sim-convolutions": setup_processor,
-    "select-method": setup_processor,
-}
+# @app.callback(
+#     Output("select-method", "value"),
+#     Input("select-method", "options"),
+#     State("select-method", "value"),
+# )
+# def update_method_index(options, val):
+#     if len(options) >= val:
+#         return len(options) - 1
+#     raise PreventUpdate

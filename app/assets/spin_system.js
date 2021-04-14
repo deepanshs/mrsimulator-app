@@ -1,6 +1,6 @@
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu"]
+ * Email = "srivastava.89@osu.edu"
  */
 
 /* jshint esversion: 6 */
@@ -94,26 +94,26 @@ var set_site_attributes = function (site) {
   // isotope and isotropic chemical shift
   // temp_site = {};
   setValue("isotope", site.isotope);
-  setValue("isotropic_chemical_shift", parseQuatityValue(site.isotropic_chemical_shift));
+  setValue("isotropic_chemical_shift", parseQuantityValue(site.isotropic_chemical_shift));
 
   // shielding symmetric
   let key = "shielding_symmetric";
   if (site.hasOwnProperty(key)) {
     let ss = site[key];
-    setValue(`${key}-zeta`, parseQuatityValue(ss.zeta));
+    setValue(`${key}-zeta`, parseQuantityValue(ss.zeta));
     setValue(`${key}-eta`, ss.eta);
     // Convert Euler angles in radians.
     setValue(
       `${key}-alpha`,
-      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuatityValue(ss.alpha)) : null
+      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuantityValue(ss.alpha)) : null
     );
     setValue(
       `${key}-beta`,
-      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuatityValue(ss.beta)) : null
+      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuantityValue(ss.beta)) : null
     );
     setValue(
       `${key}-gamma`,
-      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuatityValue(ss.gamma)) : null
+      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuantityValue(ss.gamma)) : null
     );
     ss = null;
   } else {
@@ -128,20 +128,20 @@ var set_site_attributes = function (site) {
   key = "quadrupolar";
   if (site.hasOwnProperty(key)) {
     let ss = site[key];
-    setValue(`${key}-Cq`, parseQuatityValue(ss.Cq) / 1e6); // Convert Cq in MHz.
+    setValue(`${key}-Cq`, parseQuantityValue(ss.Cq) / 1e6); // Convert Cq in MHz.
     setValue(`${key}-eta`, ss.eta);
     // Convert Euler angles in radians.
     setValue(
       `${key}-alpha`,
-      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuatityValue(ss.alpha)) : null
+      ss.hasOwnProperty("alpha") ? rad_to_deg(parseQuantityValue(ss.alpha)) : null
     );
     setValue(
       `${key}-beta`,
-      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuatityValue(ss.beta)) : null
+      ss.hasOwnProperty("beta") ? rad_to_deg(parseQuantityValue(ss.beta)) : null
     );
     setValue(
       `${key}-gamma`,
-      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuatityValue(ss.gamma)) : null
+      ss.hasOwnProperty("gamma") ? rad_to_deg(parseQuantityValue(ss.gamma)) : null
     );
     ss = null;
   } else {
@@ -171,7 +171,7 @@ var update_field_from_spin_system_at_index = function (index) {
   let description = spin_system.description;
   description = description == null ? "" : description;
   setValue("spin-system-description", description);
-  setValue("spin-system-abundance", parseQuatityValue(spin_system.abundance));
+  setValue("spin-system-abundance", parseQuantityValue(spin_system.abundance));
 
   // extract site information
   let site = spin_system.sites[0];

@@ -1,52 +1,20 @@
 # -*- coding: utf-8 -*-
 import sys
 
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
-from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 
 from app import app
 from app.inv import mrinv
+from app.root import root_app
 from app.sims import mrsimulator_app
 
-# from app_main import home_mrsims
-
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["srivastava.89@osu.edu", "deepansh2012@gmail.com"]
-
-
-html_body = html.Div(
-    [
-        dcc.Location(id="url", refresh=False),
-        html.Div(id="page-content"),
-        # html.Div(id="placeholder"),
-        html.A(id="url-search", href=""),
-    ],
-    className="main",
-)
-
-app.layout = html_body
+__email__ = "srivastava.89@osu.edu"
 
 server = app.server
-
-home = html.Div(
-    [
-        dcc.Link("Simulator", href="/simulator", id="simulator-app"),
-        dcc.Link("Inversion", href="/inversion", id="inversion-app"),
-        # dcc.Link("Home", href="/home", id="home-app"),
-    ],
-    className="home-page",
-    # **{"data-app-link": ""},
-)
-
-layout_2 = mrinv
-# layout_3 = home_mrsims
-
-counter = 0
 
 
 @app.callback(
@@ -56,27 +24,11 @@ counter = 0
 )
 def display_page(pathname, search):
     print("pathname", pathname, search)
-    global counter
-    print("counter", counter)
-    if search == "" and counter != 0:
-        counter = 1
-        return [no_update, search]
     if pathname == "/simulator":
         return [mrsimulator_app, search]
     if pathname == "/inversion":
-        return [layout_2, search]
-    # if pathname == "/home":
-    #     return [layout_3, search]
-    # else:
-    return [home, ""]
-
-
-# app.clientside_callback(
-#     ClientsideFunction(namespace="clientside", function_name="initialize"),
-#     Output("placeholder", "children"),
-#     [Input("simulator-app", "n_clicks")],
-#     prevent_initial_call=True,
-# )
+        return [mrinv, search]
+    return [root_app, ""]
 
 
 if __name__ == "__main__":

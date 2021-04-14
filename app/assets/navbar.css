@@ -15,14 +15,13 @@
   position: absolute;
   bottom: 0;
   left: 1rem;
-  width: 100%;
 }
 
 .nav-composite {
   position: absolute;
   bottom: 0;
-  left: 12rem;
-  width: 100%;
+  left: 12em;
+  width: calc(100% - 12em);
   background-color: white;
   border-top-left-radius: 3em;
   padding: 2px 0 2px 2em;

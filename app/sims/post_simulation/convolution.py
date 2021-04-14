@@ -8,8 +8,8 @@ from app.custom_widgets import collapsable_card
 from app.custom_widgets import custom_input_group
 from app.sims.utils import expand_output
 
-__author__ = ["Deepansh Srivastava"]
-__email__ = ["srivastava.89@osu.edu"]
+__author__ = "Deepansh Srivastava"
+__email__ = "srivastava.89@osu.edu"
 
 
 def ui(index, data=None, n_dim=1, n_dv=1):

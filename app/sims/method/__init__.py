@@ -22,7 +22,7 @@ from app.sims import post_simulation as ps
 # from .post_simulation_widgets import gaussian_linebroadening_widget
 
 __author__ = ["Deepansh J. Srivastava"]
-__email__ = ["srivastava.89@osu.edu"]
+__email__ = "srivastava.89@osu.edu"
 
 
 def hidden_method_select_element():
@@ -277,7 +277,7 @@ app.clientside_callback(
     }
     """,
     Output("temp6", "children"),
-    [Input("select-method", "value")],
+    Input("select-method", "value"),
     prevent_initial_call=True,
 )
 
@@ -290,7 +290,10 @@ app.clientside_callback(
     }
     """,
     Output("select-method", "value"),
-    [Input({"type": "select-method-index", "index": ALL}, "n_clicks")],
+    [
+        Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
+        # Input("select-method", "options"),
+    ],
     [State("select-method", "value")],
     prevent_initial_call=True,
 )

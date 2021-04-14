@@ -5,8 +5,8 @@ from dash import no_update
 from app.custom_widgets import custom_input_group
 from app.sims.utils import expand_output
 
-__author__ = ["Deepansh Srivastava"]
-__email__ = ["srivastava.89@osu.edu"]
+__author__ = "Deepansh Srivastava"
+__email__ = "srivastava.89@osu.edu"
 
 # {"factor": 1, "function": "Scale"}
 

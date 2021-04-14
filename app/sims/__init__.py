@@ -25,12 +25,9 @@ from .sidebar import sidebar
 from .spin_system import spin_system_body
 from app import app
 
-# from .method.post_simulation_widgets import appodization_ui
-# from .methods.post_simulation_functions import line_broadening
-# from .methods.post_simulation_functions import post_simulation
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 DEFAULT_MRSIM_DATA = {
     "name": "",
@@ -66,7 +63,7 @@ store = [
 ]
 store_items = html.Div(store)
 
-# aler items
+# alert items
 simulation_alert = dbc.Alert(
     id="alert-message-simulation",
     color="danger",
@@ -91,12 +88,11 @@ graph_alert = dbc.Alert(
     is_open=False,
 )
 
-# top navbar items
+# top and bottom navbar items
 top_nav = html.Div([navbar.navbar_top, simulation_alert, import_alert, graph_alert])
-
-# bottom navbar items
 bottom_nav = navbar.navbar_bottom
-# main bodt items
+
+# main body items
 body_content = [home_body, spin_system_body, method_body, fit_body, spectrum_body]
 main_body = html.Div(body_content, className="mobile-scroll")
 
@@ -122,9 +118,7 @@ mrsimulator_app = html.Div(
         # Output("local-computed-data", "data"),
         Output("local-simulator-data", "data"),
     ],
-    [
-        Input("local-mrsim-data", "data"),
-    ],
+    [Input("local-mrsim-data", "data")],
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -134,6 +128,10 @@ def simulation(*args):
         print("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
+    return one_time_simulation()
+
+
+def one_time_simulation():
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
 
     if mrsim_data is None:
@@ -149,7 +147,7 @@ def simulation(*args):
         sim.run()
         sim.config.decompose_spectrum = decompose
     except Exception as e:
-        return [str(e), True, no_update]
+        return [f"SimulationError: {e}", True, no_update]
 
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
@@ -197,10 +195,7 @@ def plot(*args):
     if sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if sim_data["methods"] == []:
-        return [DEFAULT_FIGURE, no_update]
-
-    if sim_data["spin_systems"] == []:
+    if sim_data["methods"] == [] and sim_data["spin_systems"] == []:
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
@@ -229,40 +224,22 @@ def plot(*args):
     if trigger == "normalize_amp.n_clicks":
         normalized = not normalized
 
-    decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
+    decompose = False
+    if "decompose_spectrum" in sim_data["config"]:
+        decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
 
     trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
     plot_trace = []
-    if simulation_data is not None:
-        plot_trace += get_plot_trace(simulation_data, normalized, decompose=decompose)
-        # simulation_data = cp.parse_dict(simulation_data)
-
-        # # try:
-        # [item.to("ppm", "nmr_frequency_ratio") for item in simulation_data.dimensions]
-        # # except (ZeroDivisionError, ValueError):
-        # #     pass
-
-        # if len(simulation_data.dimensions) == 1:
-        #     plot_trace += plot_1D_trace(simulation_data, normalized, decompose)
-
-        # if len(simulation_data.dimensions) == 2:
-        #     plot_trace += plot_2D_trace(simulation_data, normalized, decompose)
-
     if experiment_data is not None:
-        plot_trace += get_plot_trace(experiment_data, normalized, decompose=False)
-        # experiment_data = cp.parse_dict(experiment_data)
-        # [
-        #     item.to("ppm", "nmr_frequency_ratio")
-        #     for item in experiment_data.dimensions
-        #     if item.origin_offset.value != 0
-        # ]
-        # if len(simulation_data.dimensions) == 1:
-        #     plot_trace += plot_1D_trace(experiment_data, normalized, False)
-
-        # if len(simulation_data.dimensions) == 1:
-        #     plot_trace += plot_2D_trace(experiment_data, normalized, False)
+        plot_trace += get_plot_trace(
+            experiment_data, normalized, decompose=False, name="experiment"
+        )
+    if simulation_data is not None:
+        plot_trace += get_plot_trace(
+            simulation_data, normalized, decompose=decompose, name="simulation"
+        )
 
     layout = figure["layout"]
     layout["xaxis"]["autorange"] = "reversed"
@@ -284,7 +261,7 @@ def plot(*args):
     return [data_object, simulation_data]
 
 
-def get_plot_trace(data, normalized, decompose=False):
+def get_plot_trace(data, normalized, decompose=False, name=""):
     plot_trace = []
     data = cp.parse_dict(data).real
     [
@@ -293,7 +270,7 @@ def get_plot_trace(data, normalized, decompose=False):
         if item.origin_offset.value != 0
     ]
     if len(data.dimensions) == 1:
-        plot_trace += plot_1D_trace(data, normalized, decompose)
+        plot_trace += plot_1D_trace(data, normalized, decompose, name)
 
     if len(data.dimensions) == 2:
         plot_trace += plot_2D_trace(data, normalized, decompose)
