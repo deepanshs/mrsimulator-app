@@ -13,14 +13,17 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrinversion.kernel.nmr import ShieldingPALineshape
-from mrinversion.linear_model import SmoothLassoLS
 from mrinversion.linear_model import TSVDCompression
 
 from .layout import page
 from app import app
 from app.sims.importer import load_csdm
 
+# from mrinversion.linear_model import SmoothLassoLS
+
 # from mrinversion.linear_model import SmoothLasso
+
+SmoothLassoLS = None
 
 
 mrinv = html.Div(

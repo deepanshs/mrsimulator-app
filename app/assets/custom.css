@@ -216,12 +216,14 @@ table td:last-child {
   border-right: none;
 }
 span[data-edit-sys],
-span[data-edit-mth] {
+span[data-edit-mth],
+span[data-edit-fit] {
   color: #cacaca;
   cursor: pointer;
 }
 span[data-edit-sys]:hover,
-span[data-edit-mth]:hover {
+span[data-edit-mth]:hover,
+span[data-edit-fit]:hover {
   color: #414141;
 }
 
