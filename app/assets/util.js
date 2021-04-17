@@ -2,7 +2,7 @@
 
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu"]
+ * Email = "srivastava.89@osu.edu"
  */
 /* jshint esversion: 6 */
 
@@ -14,7 +14,7 @@ var setValue = function (id, val) {
   document.getElementById(id).value = val;
 };
 
-var parseQuatityValue = function (val) {
+var parseQuantityValue = function (val) {
   val = (val == null) ? val : val.split(" ")[0];
   return isNaN(+val) ? val : +val;
   // document.getElementById(id).value = val;
@@ -28,7 +28,7 @@ var getValue = function (id) {
   let element = document.getElementById(id);
   let val = element.value;
   if (element.validity.valid == false) {
-    alert(`Invalid value encounted.`);
+    alert(`Invalid value encounter.`);
     throw window.dash_clientside.PreventUpdate;
   }
   console.log(element);

@@ -113,6 +113,9 @@ section {
   display: flex;
 }
 
+.alert-danger {
+  margin: 0;
+}
 @media only screen and (max-width: 810px) {
   :root {
     --content-max-height: calc(100vh - 6.7em);
@@ -123,6 +126,7 @@ section {
     min-width: calc(100vw - 0.25rem);
     scroll-snap-align: center;
     padding: 0;
+    height: calc(var(--content-max-height) - 1.35rem);
   }
   .slide {
     padding: 0;
@@ -194,6 +198,7 @@ section {
 
   .nav-composite {
     left: 0;
+    width: 100%;
     transition: all 0.3s ease;
   }
 

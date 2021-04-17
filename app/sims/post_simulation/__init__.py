@@ -12,18 +12,13 @@ from app.sims.utils import expand_output
 
 def tools():
     """Add, duplicate, or remove methods"""
-    # new = html.Button("add", id="add-post_sim-button")
-    new = dbc.DropdownMenu(
-        label="Add",
-        children=[
-            dbc.DropdownMenuItem("Amplitude Scalar", id="add-post_sim-scalar"),
-            dbc.DropdownMenuItem("Convolutions", id="add-post_sim-convolutions"),
-        ],
-    )
-    duplicate = html.Button("duplicate", id="duplicate-post_sim-button")
-    remove = html.Button("remove", id="remove-post_sim-button")
+    items = [
+        dbc.DropdownMenuItem("Amplitude Scalar", id="add-post_sim-scalar"),
+        dbc.DropdownMenuItem("Convolutions", id="add-post_sim-convolution"),
+    ]
+    new = dbc.DropdownMenu(label="Add", children=items)
 
-    return html.Div(children=[new, duplicate, remove])
+    return html.Div(children=new)
 
 
 def refresh(data):
@@ -38,11 +33,13 @@ def refresh(data):
     n_dim, n_dv = len(mth[method_index]["spectral_dimensions"]), len(sys)
     print("py_dict", post[method_index])
 
-    for i, item in enumerate(post[method_index]["operations"]):
+    i = 0
+    for item in post[method_index]["operations"]:
         if item["function"] == "apodization":
             obj.append(Convolution.ui(i, item, n_dim, n_dv))
         if item["function"] == "Scale":
             obj.append(Scale.ui(i, item))
+        i += 1
     return obj
 
 
@@ -78,53 +75,62 @@ def generate_signal_processor_dict(n_dims):
     return processor
 
 
-def setup_processor(*args):
+def setup():
     method_index = ctx.inputs["select-method.value"]
-    method_options = ctx.states["select-method.options"]
     existing_data = ctx.states["local-mrsim-data.data"]
     existing_process_data = existing_data["signal_processors"]
+
     if method_index is None:
         raise PreventUpdate
 
+    method_options = ctx.states["select-method.options"]
     print("method_options", method_options)
     method_options = [1] or method_options
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if existing_process_data is None:
         existing_process_data = [{"operations": []} for _ in method_options]
+    return existing_data, method_index
 
-    if trigger_id == "signal-processor-button":
 
-        n_dims = len(existing_data["methods"][method_index]["spectral_dimensions"])
-        processor = generate_signal_processor_dict(n_dims)
-        existing_process_data[method_index] = processor
-        print("existing_process_data", existing_process_data)
+def on_method_select():
+    existing_data, _ = setup()
+    out = {
+        "alert": ["", False],
+        "mrsim": [no_update, no_update],
+        "children": [no_update] * 3,
+        "mrsim_config": [no_update] * 4,
+        "processor": [refresh(existing_data)],
+    }
+    return expand_output(out)
 
-        out = {
-            "alert": ["", False],
-            "mrsim": [existing_data, no_update],
-            "children": [no_update] * 3,
-            "mrsim_config": [no_update] * 4,
-            "processor": [no_update],
-        }
 
-        return expand_output(out)
+def on_add_post_sim_scalar():
+    return Scale.refresh()
 
-    # if method_index not in data:
-    #     data[method_index] = {"operations": []}
-    if trigger_id == "select-method":
-        print("existing_process_data", existing_process_data)
-        out = {
-            "alert": ["", False],
-            "mrsim": [no_update, no_update],
-            "children": [no_update] * 3,
-            "mrsim_config": [no_update] * 4,
-            "processor": [refresh(existing_data)],
-        }
-        return expand_output(out)
 
-    if trigger_id == "add-post_sim-convolutions":
-        return Convolution.refresh()
+def on_add_post_sim_convolutions():
+    return Convolution.refresh()
 
-    if trigger_id == "add-post_sim-scalar":
-        return Scale.refresh()
+
+def on_remove_post_sim_convolutions(index):
+    return Convolution.refresh(index)
+
+
+def on_submit_signal_processor_button():
+    existing_data, method_index = setup()
+    existing_process_data = existing_data["signal_processors"]
+
+    n_dims = len(existing_data["methods"][method_index]["spectral_dimensions"])
+    processor = generate_signal_processor_dict(n_dims)
+    existing_process_data[method_index] = processor
+    print("submit process_data", existing_process_data)
+
+    out = {
+        "alert": ["", False],
+        "mrsim": [existing_data, no_update],
+        "children": [no_update] * 3,
+        "mrsim_config": [no_update] * 4,
+        "processor": [no_update],
+    }
+
+    return expand_output(out)

@@ -2,8 +2,8 @@
     "short_name": "Mrsimulator",
     "name": "Mrsimulator",
     "display": "standalone",
-    "description": "A fast online solid-state NMR lineshape simulator. Supports chemical shift anisotropy (CSA) and quadrupolar ssNMR lineshape under static, magic-angle spinning (MAS) and variable-angle spinning (VAS) conditions.",
-    "start_url": "/simulator",
+    "description": "A fast online solid-state NMR spectra simulator.",
+    "start_url": "/",
     "icons": [{
             "src": "/assets/icons/android-chrome-192x192.png",
             "type": "image/png",

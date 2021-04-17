@@ -1,6 +1,6 @@
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu"]
+ * Email = "srivastava.89@osu.edu"
  */
 
 var spin_system_icon = {

@@ -222,12 +222,3 @@ app.clientside_callback(
     # [State('live-update', 'value')]
     prevent_initial_call=True,
 )
-
-
-app.clientside_callback(
-    ClientsideFunction(namespace="spin_system", function_name="onSpinSystemsLoad"),
-    Output("temp2", "children"),
-    [Input("spin-system-read-only", "children")],
-    # [State("config", "data")],
-    prevent_initial_call=True,
-)

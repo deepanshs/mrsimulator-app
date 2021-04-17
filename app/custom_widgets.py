@@ -9,7 +9,7 @@ from dash.dependencies import State
 from . import app
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 tooltip_format = {"placement": "bottom", "delay": {"show": 250, "hide": 10}}
@@ -165,11 +165,11 @@ def custom_input_group(
     """
     append_label = append_label if append_label is not None else ""
 
-    # id_ = kwargs["id"]
-    label_prepend = html.Label(className="label-left", children=prepend_label)
-    input_ = dcc.Input(type=input_type, autoComplete="off", **kwargs)
-    label_append = html.Label(className="label-right", children=append_label)
-    return html.Div([label_prepend, input_, label_append], className="input-form")
+    append_ui = html.Label(className="label-right", children=append_label)
+    prepend_ui = html.Label(className="label-left", children=prepend_label)
+    input_ui = dcc.Input(type=input_type, autoComplete="off", **kwargs)
+
+    return html.Div([prepend_ui, input_ui, append_ui], className="input-form")
 
 
 def custom_collapsible(
@@ -240,8 +240,9 @@ def collapsable_card(text, id_, featured, hidden, message):
 
     # featured fields
     featured = html.Div(featured)
+    text = [text] if not isinstance(text, list) else text
     content = custom_card(
-        text=html.Div([text, chevron_down_btn]),
+        text=html.Div([*text, chevron_down_btn]),
         children=html.Div([featured, collapsed_fields], className="container"),
     )
     return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

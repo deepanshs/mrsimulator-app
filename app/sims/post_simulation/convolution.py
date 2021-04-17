@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 
@@ -8,8 +9,8 @@ from app.custom_widgets import collapsable_card
 from app.custom_widgets import custom_input_group
 from app.sims.utils import expand_output
 
-__author__ = ["Deepansh Srivastava"]
-__email__ = ["srivastava.89@osu.edu"]
+__author__ = "Deepansh Srivastava"
+__email__ = "srivastava.89@osu.edu"
 
 
 def ui(index, data=None, n_dim=1, n_dv=1):
@@ -73,7 +74,12 @@ def ui(index, data=None, n_dim=1, n_dv=1):
     featured = [function_type(index), arguments(index)]
     hidden = [dimension_index(index), dependent_variable_index(index)]
     return collapsable_card(
-        text="Convolution",
+        text=[
+            html.Button(
+                "x", id={"type": "remove-post_sim-convolution", "index": index}
+            ),
+            "Convolution",
+        ],
         id_=f"apodization-post-sim-{index}",
         featured=featured,
         hidden=hidden,
@@ -81,15 +87,21 @@ def ui(index, data=None, n_dim=1, n_dv=1):
     )
 
 
-def refresh():
+def refresh(index=None):
+    """If index is none, add an entry else remove the entry at index"""
     post_sim_obj = ctx.states["post_sim_child.children"]
     existing_data = ctx.states["local-mrsim-data.data"]
     method_index = ctx.inputs["select-method.value"]
 
     n_dim = len(existing_data["methods"][method_index]["spectral_dimensions"])
     n_dv = len(existing_data["spin_systems"])
-    index = len(post_sim_obj)
-    post_sim_obj.append(ui(index, n_dim=n_dim, n_dv=n_dv))
+
+    if index is None:  # add an entry
+        index = len(post_sim_obj)
+        post_sim_obj.append(ui(index, n_dim=n_dim, n_dv=n_dv))
+
+    else:
+        del post_sim_obj[index]
 
     out = {
         "alert": ["", False],

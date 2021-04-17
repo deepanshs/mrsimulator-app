@@ -16,7 +16,7 @@
   },
   {
     "label": "Cuspidine",
-    "value": "./examples/cuspidine.mrsim"
+    "value": "./examples/cuspidine_fit.mrsim"
   },
   {
     "label": "\u03B3-Ca2SiO4",
@@ -39,16 +39,20 @@
     "value": "./examples/scawtite.mrsim"
   },
   {
-    "label": "Wollastonite",
-    "value": "./examples/wollastonite.mrsim"
+    "label": "Wollastonite, (Ca₃Si₃O₉)",
+    "value": "./examples/wollastonite_fit.mrsim",
+    "img": "/assets/images/wollastonite.png",
+    "description": "29Si MAS"
   },
   {
     "label": "Xonotlite",
-    "value": "./examples/xonotlite.mrsim"
+    "value": "./examples/xonotlite_fit.mrsim"
   },
   {
     "label": "Coesite",
-    "value": "./examples/O17/coesite.mrsim"
+    "value": "./examples/O17/coesite.mrsim",
+    "img": "/assets/images/coesite.png",
+    "description": "17O MAS"
   },
   {
     "label": "Cristobalite",

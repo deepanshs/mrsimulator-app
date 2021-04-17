@@ -1,6 +1,6 @@
 /*
  * Author = "Deepansh J. Srivastava"
- * Email = ["srivastava.89@osu.edu"]
+ * Email = "srivastava.89@osu.edu"
  */
 
 /* jshint esversion: 6 */
@@ -44,6 +44,12 @@ window.dash_clientside.clientside = {
     activateSystemTools();
 
     return null;
+  },
+
+  onReload: function (data) {
+    storeData.data = data;
+    _onSpinSystemsLoad();
+    _onMethodsLoad();
   },
 
   downloadSession: function (n, data) {

@@ -14,7 +14,7 @@ from app.custom_widgets import custom_button
 from app.custom_widgets import custom_switch
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 default_data = go.Scatter(
@@ -104,7 +104,7 @@ def generate_graph_instance(id_=""):
 def graph_ui():
     plotly_graph = generate_graph_instance(id_="nmr_spectrum")
 
-    # initializa app with graph instance
+    # initialize app with graph instance
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="initialize"),
         Output("temp1", "children"),
@@ -216,7 +216,7 @@ def ui():
 
     return html.Div(
         id="spectrum-body",
-        className="left-card active",
+        className="left-card",
         children=experiment_drop_upload,
     )
 
@@ -224,7 +224,7 @@ def ui():
 spectrum_body = ui()
 
 
-def one_d_multi_trace(data, x0, dx, maximum):
+def one_d_multi_trace(data, x0, dx, maximum, name=None):
     """Use for multi line plots. When decompose is true"""
     return [
         dict(
@@ -234,16 +234,21 @@ def one_d_multi_trace(data, x0, dx, maximum):
             y=datum.components[0] / maximum,
             mode="lines",
             opacity=0.6,
-            line={"width": 1.2},
+            line={"width": 1},
             fill="tozeroy",
-            name=None if datum.name == "" else datum.name,
+            name=name if datum.name == "" else datum.name,
         )
         for datum in data
     ]
 
 
-def one_d_single_trace(data, x0, dx, maximum):
+def one_d_single_trace(data, x0, dx, maximum, name=""):
     """Use for single line plot"""
+    line = (
+        {"color": "black", "width": 1.2}
+        if name == "simulation"
+        else {"color": "#7e0a7e", "width": 2.4}
+    )
     return [
         dict(
             type="scatter",
@@ -251,19 +256,19 @@ def one_d_single_trace(data, x0, dx, maximum):
             dx=dx,
             y=data[0].components[0] / maximum,
             mode="lines",
-            line={"color": "black", "width": 1.2},
-            name="simulation",
+            line=line,
+            name=name,
         )
     ]
 
 
-def plot_1D_trace(data, normalized=False, decompose=False):
+def plot_1D_trace(data, normalized=False, decompose=False, name=""):
     x = data.x[0].coordinates.value
     x0 = x[0]
     dx = x[1] - x[0]
     maximum = max([yi.components.max() for yi in data.y]) if normalized else 1.0
 
-    args = (data.y, x0, dx, maximum)
+    args = (data.y, x0, dx, maximum, name)
     return one_d_multi_trace(*args) if decompose else one_d_single_trace(*args)
 
 

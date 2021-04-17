@@ -241,6 +241,7 @@ div[data-home-table] ul[data-edit-tools] li {
   margin: auto;
   list-style-type: none;
   color: gray;
+  cursor: pointer;
 }
 div[data-home-table] ul[data-edit-tools] li:hover {
   color: black;

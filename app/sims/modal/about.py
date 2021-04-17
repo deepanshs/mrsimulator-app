@@ -17,7 +17,7 @@ from app import app
 
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 PATH = "config/"

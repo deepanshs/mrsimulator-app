@@ -5,11 +5,12 @@
 }
 .input-form {
   width: 100%;
-  padding: 0 0.75em;
+  padding: 0 0.2em;
   display: flex;
 }
 
-.input-form .label-left {
+.input-form .label-left,
+.input-form .input-group-prepend {
   margin: auto 0;
   padding-right: 0.5rem;
   white-space: nowrap;
@@ -18,7 +19,12 @@
   text-overflow: ellipsis;
   color: var(--text-color);
 }
-
+.input-form .input-group-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-color);
+}
 .input-form .label-right {
   margin: 0;
   padding-top: 0.4em;
@@ -39,12 +45,7 @@
   border: 1px solid transparent;
   border-bottom: 1px solid var(--text-box-underline-color);
 }
-.input-form select {
-  text-align: right;
-  padding-right: 2.5em;
-  max-width: 50%;
-  min-width: 25%;
-}
+
 .input-form input:valid {
   color: rgb(0, 0, 0);
 }
@@ -64,6 +65,16 @@
   background-color: white;
   border: 1px solid #48a3ff;
   box-shadow: 0 0 2px 1px #48a3ff7c;
+}
+
+.input-form .dash-dropdown,
+.input-form select {
+  width: 50%;
+  max-width: 50%;
+  min-width: 25%;
+}
+.input-form select {
+  text-align: right;
 }
 
 textarea {

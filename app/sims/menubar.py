@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import json
-
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash import callback_context as ctx
 from dash.dependencies import Input
 from dash.dependencies import Output
-from dash.exceptions import PreventUpdate
+from dash.dependencies import State
 
 from .modal.about import about_modals
 from app import app
@@ -17,26 +15,19 @@ className = "d-flex align-items-center justify-items-center"
 TARGET = ["add", "duplicate", "remove"]
 
 
-def menu_item(icon, text, id=None):
-    if id is not None:
-        return html.Div(
-            [html.I(className=icon), html.Div(text, className="pl-2")],
-            className=className,
-            id=id,
-        )
+def icon_text(icon, text):
     return html.Div(
         [html.I(className=icon), html.Div(text, className="pl-2")], className=className
     )
 
 
+def menu_item(children=None, **kwargs):
+    return dbc.DropdownMenuItem(children=children, **kwargs)
+
+
 def create_submenu(title, items):
-    parse_items = [
-        html.Li(item, className="menu-item") if not isinstance(item, html.Hr) else item
-        for item in items
-    ]
-    return html.Li(
-        [html.Label(title), html.Ul(parse_items, className="sub-menu")],
-        className="menu-item has-sub-menu",
+    return dbc.DropdownMenu(
+        label=title, children=items, caret=False, in_navbar=True, nav=True
     )
 
 
@@ -46,15 +37,33 @@ def file_menu():
     2. Open mrsimulator file (.mrsim)
     """
     file_items = [
-        html.A(menu_item("fas fa-file", "New Document"), href="/", target="_blank"),
+        menu_item(
+            icon_text("fas fa-file", "New Document"),
+            href="/simulator",
+            external_link=True,
+            target="_blank",
+        ),
         dcc.Upload(
-            menu_item(icon="fas fa-folder-open", text="Open..."),
+            menu_item(icon_text("fas fa-folder-open", "Open...")),
             id="open-mrsimulator-file",
             accept=".mrsim",
         ),
-        # import_remove_data,
+        menu_item(
+            icon_text("fas fa-file-download fa-lg", "Download Session"),
+            id="download-session-menu-button",
+        ),
     ]
-    return create_submenu(html.Span(html.I(className="fas fa-bars fa-lg")), file_items)
+
+    # callback for downloading session from menu
+    app.clientside_callback(
+        """function(n) { return n+1; }""",
+        Output("download-session-button", "n_clicks"),
+        Input("download-session-menu-button", "n_clicks"),
+        State("download-session-button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+
+    return create_submenu("File", file_items)
 
 
 def spin_system_menu():
@@ -67,15 +76,19 @@ def spin_system_menu():
     """
     message_sys = "You are about to delete all spin systems. Do you want to continue?"
     spin_system_items = [
-        menu_item("fas fa-plus-circle", "Add a new spin system", id="add_sys"),
-        menu_item("fas fa-clone", "Duplicate selection", id="duplicate_sys"),
-        menu_item("fas fa-minus-circle", "Remove selection", id="remove_sys"),
-        html.Hr(),
-        html.Div("Clear all spin systems", id="clear-spin-systems"),
+        menu_item(
+            icon_text("fas fa-plus-circle", "Add a new spin system"), id="add_sys"
+        ),
+        menu_item(icon_text("fas fa-clone", "Duplicate selection"), id="duplicate_sys"),
+        menu_item(
+            icon_text("fas fa-minus-circle", "Remove selection"), id="remove_sys"
+        ),
+        menu_item(divider=True),
+        menu_item(icon_text("", "Clear all spin systems"), id="clear-spin-systems"),
         dcc.ConfirmDialog(id="confirm-clear-spin-system", message=message_sys),
     ]
 
-    # Callbacks for the add, dublicate, and remove spin systems
+    # Callbacks for the add, duplicate, and remove spin systems
     [
         app.clientside_callback(
             f"""
@@ -117,21 +130,31 @@ def method_menu():
     """
     message_method = "You are about to delete all methods. Do you want to continue?"
     method_items = [
-        menu_item("fas fa-plus-circle", "Add a new method", id="add_method"),
-        menu_item("fas fa-clone", "Duplicate selection", id="duplicate_method"),
-        menu_item("fas fa-minus-circle", "Remove selection", id="remove_method"),
-        html.Hr(),
+        menu_item(icon_text("fas fa-plus-circle", "Add a new method"), id="add_method"),
         menu_item(
-            "fas fa-times-circle",
-            "Remove measurement from selection",
+            icon_text("fas fa-clone", "Duplicate selection"), id="duplicate_method"
+        ),
+        menu_item(
+            icon_text("fas fa-minus-circle", "Remove selection"), id="remove_method"
+        ),
+        menu_item(divider=True),
+        menu_item("Clear all methods", id="clear-methods"),
+        menu_item(divider=True),
+        menu_item("Measurement", header=True),
+        menu_item(
+            dcc.Upload(
+                icon_text("fas fa-paperclip", "Add to selection"),
+                id="add-measurement-for-method",
+            )
+        ),
+        menu_item(
+            icon_text("fas fa-times-circle", "Remove from selection"),
             id="remove-measurement-from-method",
         ),
-        html.Hr(),
-        html.Div("Clear all methods", id="clear-methods"),
         dcc.ConfirmDialog(id="confirm-clear-methods", message=message_method),
     ]
 
-    # Callbacks for the add, dublicate, and remove methods
+    # Callbacks for the add, duplicate, and remove methods
     [
         app.clientside_callback(
             f"""
@@ -161,36 +184,6 @@ def method_menu():
     )
 
     return create_submenu("Method", method_items)
-
-
-def example_menu():
-    """Example menu contains a list of examples."""
-    with open("app/examples/example_link.json", "r") as f:
-        mrsimulator_examples = json.load(f)
-    example_length = len(mrsimulator_examples)
-
-    # example_input serves as a temp input whose value is file location of the
-    # selected example.
-    example_items = [dcc.Input(id="selected-example", style={"display": "none"})]
-    example_items += [
-        html.Div(item["label"], id=f"example-{i}")
-        for i, item in enumerate(mrsimulator_examples)
-    ]
-
-    @app.callback(
-        Output("selected-example", "value"),
-        [Input(f"example-{i}", "n_clicks") for i in range(example_length)],
-        prevent_initial_call=True,
-    )
-    def example_callback(*args):
-        if not ctx.triggered:
-            raise PreventUpdate
-        trigger_index = int(ctx.triggered[0]["prop_id"].split(".")[0].split("-")[1])
-        print("example index", trigger_index)
-        print(mrsimulator_examples[trigger_index]["value"])
-        return mrsimulator_examples[trigger_index]["value"]
-
-    return create_submenu("Examples", example_items)
 
 
 # View menu ----------------------------------------------------------------- #
@@ -227,21 +220,24 @@ def help_menu():
     5. About
     """
     help_items = [
-        html.H6(f"Mrsimulator-app 2019-{year}"),
-        html.A(
-            menu_item("fas fa-book-open", "Documentation"),
+        menu_item(f"Mrsimulator-app 2019-{year}", header=True),
+        menu_item(
+            icon_text("fas fa-book-open", "Documentation"),
             href="https://mrsimulator.readthedocs.io/en/stable/",
+            external_link=True,
             target="_blank",
         ),
-        html.A(
-            menu_item("fab fa-github", "Github"),
+        menu_item(
+            icon_text("fab fa-github", "Github"),
             href="https://github.com/DeepanshS/mrsimulator",
-            className="",
+            external_link=True,
             target="_blank",
         ),
-        menu_item("fas fa-flag", "Report", id="modal-Report-button"),
-        menu_item("fas fa-users", "Contributors", id="modal-Contributors-button"),
-        menu_item("fas fa-info-circle", "About", id="modal-About-button"),
+        menu_item(icon_text("fas fa-flag", "Report"), id="modal-Report-button"),
+        menu_item(
+            icon_text("fas fa-users", "Contributors"), id="modal-Contributors-button"
+        ),
+        menu_item(icon_text("fas fa-info-circle", "About"), id="modal-About-button"),
         about_modals,
     ]
 
@@ -249,7 +245,7 @@ def help_menu():
 
 
 def layout():
-    return [file_menu(), spin_system_menu(), method_menu(), example_menu(), help_menu()]
+    return [file_menu(), spin_system_menu(), method_menu(), help_menu()]
 
 
 def ui():
