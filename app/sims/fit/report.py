@@ -5,10 +5,11 @@ from dash.dependencies import Output
 from lmfit.printfuncs import fitreport_html_table
 
 from app import app
+
 # from mrsimulator import Simulator
 
 
-css_str = '*{font-family:"Helvetica",sans-serif;}td{padding: 0 8px}'
+CSS_STR = '*{font-family:"Helvetica",sans-serif;}td{padding: 0 8px}'
 
 
 def ui():
@@ -24,7 +25,7 @@ def make_html_string(result, css):
     """
     html_str = fitreport_html_table(result)
     style_str = f"<html><head><style>{css}</style></head>"
-    return style_str + html_str + "</html>"
+    return f"{style_str}{html_str}</html>"
 
 
 report = ui()
