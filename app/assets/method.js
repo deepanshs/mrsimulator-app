@@ -20,7 +20,7 @@ var activateMethodTools = function () {
 // update method
 var updateMethod = function () {
   let result = {};
-  result.data = window.method.updateData();
+  result.data = window.method.updateFields();
   result.index = window.method.getIndex();
   result.operation = "modify";
   return result;
@@ -73,9 +73,6 @@ var _updateMethodJson = function () {
 };
 
 var _onMethodsLoad = function () {
-  storeData.data = JSON.parse(
-    window.sessionStorage.getItem("local-mrsim-data")
-  );
   const listomers = document.querySelectorAll(
     "#method-read-only div.scrollable-list ul li"
   );
@@ -139,6 +136,59 @@ var _onMethodsLoad = function () {
   window.method.select(listomers, index);
 
   return null;
+};
+
+var _setFields = function (index) {
+  let data = storeData.data;
+  let method = data.methods[index];
+  let sd, i, temp;
+  document.getElementById("method-title").innerHTML = method.name;
+
+  // noise standard deviation
+  if (method.experiment != null) {
+    let application = method.experiment.csdm.dependent_variables[0].application;
+    if (application['com.github.DeepanshS.mrsimulator'] == null) {
+      application['com.github.DeepanshS.mrsimulator'] = {
+        'sigma': 1.0
+      };
+    }
+    let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+    setValue("measurement-sigma", sigma);
+  }
+  temp = parseQuantityValue(method.magnetic_flux_density); // in T
+  setValue("magnetic_flux_density", temp);
+
+  temp = parseQuantityValue(method.rotor_frequency) / 1e3; // to kHz
+  setValue("rotor_frequency", temp);
+
+  temp = rad_to_deg(parseQuantityValue(method.rotor_angle)); // to deg
+  setValue("rotor_angle", temp);
+
+  for (i = 0; i < method.spectral_dimensions.length; i++) {
+    sd = method.spectral_dimensions[i];
+    setValue(`count-${i}`, sd.count);
+
+    temp = parseQuantityValue(sd.spectral_width) / 1e3; // to kHz
+    setValue(`spectral_width-${i}`, temp);
+
+    temp = parseQuantityValue(sd.reference_offset) / 1e3; // to kHz
+    setValue(`reference_offset-${i}`, temp);
+    setValue(`label-${i}`, sd.label);
+  }
+
+  // show/hide desired number of dimensions.
+  let dimUI, n_dim = method.spectral_dimensions.length;
+  let total = 2;
+  for (i = 0; i < total; i++) {
+    dimUI = document.getElementById(`dim-${i}-feature-collapse`);
+    console.log(dimUI);
+    if (i < n_dim) {
+      dimUI.classList.add("show");
+    } else {
+      dimUI.classList.remove("show");
+    }
+  }
+  data = method = sd = null;
 };
 
 window.dash_clientside.method = {
@@ -221,51 +271,21 @@ window.method = {
     overView[index + 1].classList.add("active");
   },
 
-  setFields: function (index) {
-    let data = storeData.data;
-    let method = data.methods[index];
-    let sd, i, temp;
-    document.getElementById("method-title").innerHTML = method.name;
+  setFields: _setFields,
 
-    temp = parseQuantityValue(method.magnetic_flux_density); // in T
-    setValue("magnetic_flux_density", temp);
-
-    temp = parseQuantityValue(method.rotor_frequency) / 1e3; // to kHz
-    setValue("rotor_frequency", temp);
-
-    temp = rad_to_deg(parseQuantityValue(method.rotor_angle)); // to deg
-    setValue("rotor_angle", temp);
-
-    for (i = 0; i < method.spectral_dimensions.length; i++) {
-      sd = method.spectral_dimensions[i];
-      setValue(`count-${i}`, sd.count);
-
-      temp = parseQuantityValue(sd.spectral_width) / 1e3; // to kHz
-      setValue(`spectral_width-${i}`, temp);
-
-      temp = parseQuantityValue(sd.reference_offset) / 1e3; // to kHz
-      setValue(`reference_offset-${i}`, temp);
-      setValue(`label-${i}`, sd.label);
-    }
-
-    // show/hide desired number of dimensions.
-    let dimUI, n_dim = method.spectral_dimensions.length;
-    let total = 2;
-    for (i = 0; i < total; i++) {
-      dimUI = document.getElementById(`dim-${i}-feature-collapse`);
-      console.log(dimUI);
-      if (i < n_dim) {
-        dimUI.classList.add("show");
-      } else {
-        dimUI.classList.remove("show");
-      }
-    }
-    data = method = sd = null;
-  },
-
-  updateData: function () {
+  updateFields: function () {
     let sd, i, temp;
     let method = storeData.data.methods[window.method.getIndex()];
+
+    // noise standard deviation
+    if (method.experiment != null) {
+      temp = getValue('measurement-sigma');
+      let application = method.experiment.csdm.dependent_variables[0].application;
+      if (application['com.github.DeepanshS.mrsimulator'] == null) {
+        application['com.github.DeepanshS.mrsimulator'] = {};
+      }
+      application['com.github.DeepanshS.mrsimulator'].sigma = temp;
+    }
 
     temp = getValue('magnetic_flux_density');
     method.magnetic_flux_density = toQuantityValue(temp, "T");

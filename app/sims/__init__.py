@@ -195,7 +195,7 @@ def plot(*args):
     if sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if sim_data["methods"] == [] and sim_data["spin_systems"] == []:
+    if sim_data["methods"] == [] or sim_data["spin_systems"] == []:
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]

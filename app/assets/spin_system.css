@@ -74,22 +74,30 @@
 .scrollable-list li h6 {
   display: none;
 }
-.scrollable-list li div {
-  /* width: 100%;
-  height: 100%; */
+.scrollable-list li > div {
   display: flex;
-  /* justify-content: space-between; */
-  align-items: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  flex-direction: column;
+  width: auto;
 }
 
 .scrollable-list li a {
   scroll-snap-align: start;
   padding: 1rem;
-  width: var(--opt-side-scroll-width);
+  width: 100%;
 }
+.scrollable-list a b {
+  height: 15em;
+}
+.scrollable-list a div {
+  width: 100%;
+  height: 1.3em;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .scrollable-list li::-webkit-scrollbar {
   display: none;
 }

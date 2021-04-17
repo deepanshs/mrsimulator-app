@@ -18,7 +18,7 @@ def isotope_and_shift_ui():
         label = dbc.InputGroupAddon("Isotope", addon_type="prepend")
         select = dbc.Select(options=isotope_options_list, value="1H", id="isotope")
 
-        # callback to hide the quadupolar fields when isotope is I=1/2
+        # callback to hide the quadrupolar fields when isotope is I=1/2
         app.clientside_callback(
             """
             function (isotope) {
@@ -33,7 +33,7 @@ def isotope_and_shift_ui():
         return dbc.InputGroup([label, select], className="input-form")
 
     # isotropic chemical shift
-    isotropic_chemcial_shift_ui = custom_input_group(
+    isotropic_chemical_shift_ui = custom_input_group(
         prepend_label="Isotropic chemical shift (δ)",
         append_label="ppm",
         id="isotropic_chemical_shift",
@@ -41,7 +41,7 @@ def isotope_and_shift_ui():
     )
 
     return html.Div(
-        [isotope_ui(), isotropic_chemcial_shift_ui],
+        [isotope_ui(), isotropic_chemical_shift_ui],
         className="container scroll-cards",
     )
 

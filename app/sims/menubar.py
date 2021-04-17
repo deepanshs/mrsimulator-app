@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
+from dash.dependencies import State
 
 from .modal.about import about_modals
 from app import app
@@ -25,15 +26,6 @@ def menu_item(children=None, **kwargs):
 
 
 def create_submenu(title, items):
-    # parse_items = [
-    #     html.Li(item, className="menu-item") if not isinstance(item, html.Hr)
-    #     else item
-    #     for item in items
-    # ]
-    # return html.Li(
-    #     [html.Label(title), html.Ul(parse_items, className="sub-menu")],
-    #     className="menu-item has-sub-menu",
-    # )
     return dbc.DropdownMenu(
         label=title, children=items, caret=False, in_navbar=True, nav=True
     )
@@ -47,7 +39,7 @@ def file_menu():
     file_items = [
         menu_item(
             icon_text("fas fa-file", "New Document"),
-            href="/",
+            href="/simulator",
             external_link=True,
             target="_blank",
         ),
@@ -56,10 +48,22 @@ def file_menu():
             id="open-mrsimulator-file",
             accept=".mrsim",
         ),
-        # import_remove_data,
+        menu_item(
+            icon_text("fas fa-file-download fa-lg", "Download Session"),
+            id="download-session-menu-button",
+        ),
     ]
+
+    # callback for downloading session from menu
+    app.clientside_callback(
+        """function(n) { return n+1; }""",
+        Output("download-session-button", "n_clicks"),
+        Input("download-session-menu-button", "n_clicks"),
+        State("download-session-button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+
     return create_submenu("File", file_items)
-    # create_submenu(html.Span(html.I(className="fas fa-bars fa-lg")), file_items)
 
 
 def spin_system_menu():

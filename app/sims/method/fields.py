@@ -1,10 +1,51 @@
 # -*- coding: utf-8 -*-
+import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input
+from dash.dependencies import Output
+
+from app import app
 from app.custom_widgets import collapsable_card
 from app.custom_widgets import container
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
+
+
+def experiment_ui():
+
+    # upload experiment dataset
+    icon = html.I(className="fas fa-paperclip fa-lg")
+    tooltip = dbc.Tooltip(
+        (
+            "Click to attach a measurement file to the selected method. "
+            "Alternatively, drag and drop the file onto the Simulation area."
+        ),
+        target="import-measurement-for-method",
+    )
+    clip_btn = html.Button([icon, tooltip], className="icon-button")
+    upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
+
+    label = dbc.InputGroupAddon("Measurement data", addon_type="prepend")
+    upload_ui = dbc.InputGroup([label, upload], className="input-form")
+
+    # standard deviation
+    sigma = custom_input_group(
+        prepend_label="Noise standard deviation (σ)",
+        append_label="",
+        value=1.0,
+        min=1e-6,
+        id="measurement-sigma",
+        debounce=True,
+    )
+
+    return container(
+        text="Experiment",
+        featured=[upload_ui, sigma],
+    )
 
 
 def spectral_dimension_ui(i):
@@ -103,17 +144,38 @@ def global_environment():
     )
 
     # rotor angle
+    magic_angle = custom_button(
+        icon_classname="fas fa-magic",
+        tooltip="Set to magic angle",
+        id="set-to-magic-angle",
+        className="icon-button",
+        module="html",
+    )
+    # dbc.Button(
+    #     html.I(className="fas fa-magic"),
+    #     color="light",
+    #     id="set-to-magic-angle",
+    #     size="sm",
+    # )
+    datalist = html.Datalist([0, 54.7356103172, 90], id="datalist-magic-angle")
     rotor_angle = custom_input_group(
-        prepend_label="Rotor angle (θᵣ)",
+        prepend_label=html.Div(["Rotor angle (θᵣ)", magic_angle]),
         append_label="deg",
-        value=54.735610317,
+        value=54.7356103172,
         id="rotor_angle",
         max=90,
         min=0,
         debounce=True,
+        list="datalist-magic-angle",
+    )
+
+    app.clientside_callback(
+        """function(n) { return 54.7356103172; }""",
+        Output("rotor_angle", "value"),
+        Input("set-to-magic-angle", "n_clicks"),
     )
 
     return container(
         text="Global Environment Parameters",
-        featured=[flux_density, rotor_frequency, rotor_angle],
+        featured=[flux_density, rotor_frequency, rotor_angle, datalist],
     )

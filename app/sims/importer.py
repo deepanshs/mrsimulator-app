@@ -5,10 +5,12 @@ import os
 from urllib.request import urlopen
 
 import csdmpy as cp
+import numpy as np
 from csdmpy.dependent_variables.download import get_absolute_url_path
 from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import ALL
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -23,8 +25,8 @@ from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 from . import home as home_UI
 from . import method as method_UI
 from . import post_simulation as post_sim_UI
+from . import post_simulation as PostSim
 from . import spin_system as spin_system_UI
-from .post_simulation import setup_processor
 from .utils import expand_output
 from app import app
 
@@ -80,12 +82,13 @@ PATH = os.path.split(__file__)[0]
         Input("close_setting", "n_clicks"),
         Input("save_info_modal", "n_clicks"),
         # post simulation triggers
-        Input("signal-processor-button", "n_clicks"),
+        Input("submit-signal-processor-button", "n_clicks"),
         Input("add-post_sim-scalar", "n_clicks"),
-        Input("add-post_sim-convolutions", "n_clicks"),
+        Input("add-post_sim-convolution", "n_clicks"),
         Input("select-method", "value"),
         # Input("new-method", "modified_timestamp"),
         Input("fit-button", "n_clicks"),
+        Input({"type": "remove-post_sim-convolution", "index": ALL}, "n_clicks"),
     ],
     [
         # State("upload-spin-system-url", "value"),
@@ -113,6 +116,12 @@ PATH = os.path.split(__file__)[0]
 def update_simulator(*args):
     """Update the local spin-systems when a new file is imported."""
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print(trigger_id)
+    if trigger_id.startswith("{"):
+        py_dict = json.loads(trigger_id)
+        index, trigger_id = py_dict["index"], py_dict["type"]
+        return CALLBACKS[trigger_id](index)
+
     return CALLBACKS[trigger_id]()
 
 
@@ -504,6 +513,17 @@ def least_squares_fit():
 
     # try:
     sim, processor, result = parse(mrsim_data)
+
+    check_for_exp = np.asarray([mth.experiment is None for mth in sim.methods])
+    print(check_for_exp)
+    check_for_exp = np.where(check_for_exp == 1)[0]
+    print(check_for_exp, check_for_exp.size)
+    if check_for_exp.size != 0:
+        return on_fail_message(
+            "LeastSquaresAnalysisError: Please attach measurement(s) for method(s) at "
+            f"index(es) {check_for_exp} before performing the least-squares analysis."
+        )
+
     for mth in sim.methods:
         mth.experiment = mth.experiment.real
 
@@ -512,13 +532,21 @@ def least_squares_fit():
     for sys in sim.spin_systems:
         sys.transition_pathways = sim.methods[0].get_transition_pathways(sys)
 
+    # noise standard deviation
+    sigma = []
+    for mth in sim.methods:
+        csdm_application = mth.experiment.dependent_variables[0].application
+        sigma.append(csdm_application["com.github.DeepanshS.mrsimulator"]["sigma"])
+
+    print("sigma", sigma)
+
     decompose = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
 
     params = make_LMFIT_params(sim, processor)
     print(params.pretty_print(columns=["value", "min", "max", "vary", "expr"]))
 
-    minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor))
+    minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor, sigma))
     result = minner.minimize()
     print(fit_report(result))
 
@@ -560,10 +588,11 @@ CALLBACKS = {
     "add-measurement-for-method": add_measurement_to_a_method,
     "upload-from-graph": add_measurement_to_a_method,
     "remove-measurement-from-method": remove_measurement_from_a_method,
-    "signal-processor-button": setup_processor,
-    "add-post_sim-scalar": setup_processor,
-    "add-post_sim-convolutions": setup_processor,
-    "select-method": setup_processor,
+    "submit-signal-processor-button": PostSim.on_submit_signal_processor_button,
+    "add-post_sim-scalar": PostSim.on_add_post_sim_scalar,
+    "add-post_sim-convolution": PostSim.on_add_post_sim_convolutions,
+    "remove-post_sim-convolution": PostSim.on_remove_post_sim_convolutions,
+    "select-method": PostSim.on_method_select,
     "fit-button": least_squares_fit,
 }
 
@@ -595,3 +624,10 @@ def update_list_of_methods(data):
 #     if len(options) >= val:
 #         return len(options) - 1
 #     raise PreventUpdate
+
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="onReload"),
+    Output("temp2", "children"),
+    [Input("local-mrsim-data", "data")],
+    prevent_initial_call=True,
+)

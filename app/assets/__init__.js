@@ -46,6 +46,12 @@ window.dash_clientside.clientside = {
     return null;
   },
 
+  onReload: function (data) {
+    storeData.data = data;
+    _onSpinSystemsLoad();
+    _onMethodsLoad();
+  },
+
   downloadSession: function (n, data) {
     if (n === null) {
       throw window.dash_clientside.PreventUpdate;

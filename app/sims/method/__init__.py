@@ -19,7 +19,6 @@ from app import app
 from app.custom_widgets import custom_button
 from app.sims import post_simulation as ps
 
-# from .post_simulation_widgets import gaussian_linebroadening_widget
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = "srivastava.89@osu.edu"
@@ -44,7 +43,11 @@ def dimensions_ui():
 
 
 def method_property_tab_ui():
-    contents = [mrfields.global_environment(), *dimensions_ui()]
+    contents = [
+        mrfields.experiment_ui(),
+        mrfields.global_environment(),
+        *dimensions_ui(),
+    ]
     return dbc.Tab(
         label="Properties",
         children=contents,
@@ -130,20 +133,20 @@ def layout():
     # label
     label = html.Label(id="method-title")
 
-    # upload experiment dataset
-    icon = html.I(className="fas fa-paperclip fa-lg")
-    tooltip = dbc.Tooltip(
-        (
-            "Click to attach a measurement file to the selected method. "
-            "Alternatively, drag and drop the file onto the Simulation area."
-        ),
-        target="import-measurement-for-method",
-    )
-    clip_btn = html.Button([icon, tooltip], className="icon-button")
-    upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
+    # # upload experiment dataset
+    # icon = html.I(className="fas fa-paperclip fa-lg")
+    # tooltip = dbc.Tooltip(
+    #     (
+    #         "Click to attach a measurement file to the selected method. "
+    #         "Alternatively, drag and drop the file onto the Simulation area."
+    #     ),
+    #     target="import-measurement-for-method",
+    # )
+    # clip_btn = html.Button([icon, tooltip], className="icon-button")
+    # upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
 
     # title
-    title = html.Div([label, upload], className="ui_title")
+    title = html.Div(label, className="ui_title")
 
     # submit method button
     submit = custom_button(text="Submit Method", id="apply-method-changes")
@@ -154,8 +157,10 @@ def layout():
         className="submit-button",
     )
 
-    # submit proceeing button
-    submit_pro = custom_button(text="Submit Processor", id="signal-processor-button")
+    # submit processing button
+    submit_pro = custom_button(
+        text="Submit Processor", id="submit-signal-processor-button"
+    )
     submit_pro = html.Div(
         submit_pro,
         id="signal-processor-div",
@@ -196,9 +201,7 @@ def generate_sidepanel(method, index):
     title = html.B(f"Method {index}", className="")
 
     # method name
-    name = method["name"]
-    name = f"{name[:15]}..." if len(name) > 15 else name
-    name = html.Div(name, className="")
+    name = html.Div(method["name"], className="")
 
     # method channel(s)
     channels = ", ".join(method["channels"])
@@ -260,14 +263,6 @@ def get_method_json(n, value, isotope):
         "time": int(datetime.now().timestamp() * 1000),
     }
 
-
-app.clientside_callback(
-    ClientsideFunction(namespace="method", function_name="onMethodsLoad"),
-    Output("temp4", "children"),
-    [Input("method-read-only", "children")],
-    # [State("config", "data")],
-    prevent_initial_call=True,
-)
 
 app.clientside_callback(
     """

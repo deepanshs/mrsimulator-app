@@ -179,6 +179,15 @@ var update_field_from_spin_system_at_index = function (index) {
   data = spin_system = name = description = site = null;
 };
 
+// var update_field_from_spin_system_at_index = function (index) {
+//   window.dash_clientside.clientside.getData().then(data => {
+//     console.log('data', data);
+//     _update_field_from_spin_system_at_index(data, index);
+//   }).catch(() => {
+//     setTimeout(update_field_from_spin_system_at_index, 25);
+//   });
+// };
+
 // /* Convert Euler angles from degrees to radians.
 //  * @params obj: An object dictionary holding the three Euler angles
 //  */
@@ -409,14 +418,11 @@ var _searchSpinSystems = function (input) {
 };
 
 var _onSpinSystemsLoad = function () {
-  storeData.data = JSON.parse(
-    window.sessionStorage.getItem("local-mrsim-data")
-  );
   const listomers = document.querySelectorAll(
     "#spin-system-read-only div.scrollable-list ul li"
   );
 
-  // event listener to pensil in the home screen
+  // event listener to pencil in the home screen
   let overView = document.querySelectorAll("[data-edit-sys]");
   overView.forEach((edit) => {
     edit.addEventListener("click", () => {

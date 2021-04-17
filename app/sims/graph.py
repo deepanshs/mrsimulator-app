@@ -104,7 +104,7 @@ def generate_graph_instance(id_=""):
 def graph_ui():
     plotly_graph = generate_graph_instance(id_="nmr_spectrum")
 
-    # initializa app with graph instance
+    # initialize app with graph instance
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="initialize"),
         Output("temp1", "children"),
@@ -245,9 +245,9 @@ def one_d_multi_trace(data, x0, dx, maximum, name=None):
 def one_d_single_trace(data, x0, dx, maximum, name=""):
     """Use for single line plot"""
     line = (
-        {"color": "red", "width": 1.2}
+        {"color": "black", "width": 1.2}
         if name == "simulation"
-        else {"color": "black", "width": 2.2}
+        else {"color": "#7e0a7e", "width": 2.4}
     )
     return [
         dict(
