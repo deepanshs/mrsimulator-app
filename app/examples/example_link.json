@@ -1,42 +1,52 @@
 [{
     "label": "Rankinite",
-    "value": "./examples/rankinite.mrsim"
+    "value": "./examples/rankinite.mrsim",
+    "description": "29Si MAS"
   },
   {
-    "label": "\u03B1-Ca2(SiO3OH)OH",
-    "value": "./examples/alpha Ca2(SiO3OH)OH.mrsim"
+    "label": "\u03B1-Ca₂(SiO₃OH)OH",
+    "value": "./examples/alpha Ca2(SiO3OH)OH.mrsim",
+    "description": "29Si MAS"
   },
   {
-    "label": "\u03B2-Ca2SiO4",
-    "value": "./examples/beta Ca2SiO4.mrsim"
+    "label": "\u03B2-Ca₂SiO₄",
+    "value": "./examples/beta Ca2SiO4.mrsim",
+    "description": "29Si MAS"
   },
   {
-    "label": "Ca3SiO4Cl2",
-    "value": "./examples/Ca3SiO4Cl2.mrsim"
+    "label": "Ca₃SiO₄Cl₂",
+    "value": "./examples/Ca3SiO4Cl2.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Cuspidine",
-    "value": "./examples/cuspidine_fit.mrsim"
+    "value": "./examples/cuspidine_fit.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "\u03B3-Ca2SiO4",
-    "value": "./examples/gamma Ca2SiO4.mrsim"
+    "value": "./examples/gamma Ca₂SiO₄.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Hillebrandite",
-    "value": "./examples/hillebrandite.mrsim"
+    "value": "./examples/hillebrandite.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Kyanite",
-    "value": "./examples/kyanite.mrsim"
+    "value": "./examples/kyanite.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Pseudowollastonite",
-    "value": "./examples/pseudowollastonite.mrsim"
+    "value": "./examples/pseudowollastonite.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Scawtite",
-    "value": "./examples/scawtite.mrsim"
+    "value": "./examples/scawtite.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Wollastonite, (Ca₃Si₃O₉)",
@@ -46,7 +56,8 @@
   },
   {
     "label": "Xonotlite",
-    "value": "./examples/xonotlite_fit.mrsim"
+    "value": "./examples/xonotlite_fit.mrsim",
+    "description": "29Si MAS"
   },
   {
     "label": "Coesite",

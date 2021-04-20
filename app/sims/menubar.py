@@ -25,10 +25,8 @@ def menu_item(children=None, **kwargs):
     return dbc.DropdownMenuItem(children=children, **kwargs)
 
 
-def create_submenu(title, items):
-    return dbc.DropdownMenu(
-        label=title, children=items, caret=False, in_navbar=True, nav=True
-    )
+def create_submenu(**kwargs):
+    return dbc.DropdownMenu(caret=False, in_navbar=True, nav=True, **kwargs)
 
 
 def file_menu():
@@ -63,7 +61,7 @@ def file_menu():
         prevent_initial_call=True,
     )
 
-    return create_submenu("File", file_items)
+    return create_submenu(label="File", children=file_items)
 
 
 def spin_system_menu():
@@ -117,7 +115,7 @@ def spin_system_menu():
         prevent_initial_call=True,
     )
 
-    return create_submenu("Spin System", spin_system_items)
+    return create_submenu(label="Spin System", children=spin_system_items, right=True)
 
 
 def method_menu():
@@ -183,7 +181,7 @@ def method_menu():
         prevent_initial_call=True,
     )
 
-    return create_submenu("Method", method_items)
+    return create_submenu(label="Method", children=method_items, right=False)
 
 
 # View menu ----------------------------------------------------------------- #
@@ -241,11 +239,11 @@ def help_menu():
         about_modals,
     ]
 
-    return create_submenu("Help", help_items)
+    return create_submenu(label="Help", children=help_items, right=True)
 
 
 def layout():
-    return [file_menu(), spin_system_menu(), method_menu(), help_menu()]
+    return [file_menu(), method_menu(), spin_system_menu(), help_menu()]
 
 
 def ui():

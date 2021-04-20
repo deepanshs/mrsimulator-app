@@ -221,13 +221,15 @@ def container(text, featured, **kwargs):
     return custom_card(text=html.Div(text), children=children, **kwargs)
 
 
-def collapsable_card(text, id_, featured, hidden, message):
+def collapsable_card(text, id_, featured, hidden=None, message=None):
     # collapsable button
     icon = html.I(className="fas fa-chevron-down")
     tooltip = dbc.Tooltip(message, target=f"{id_}-collapse-button")
+    vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
     chevron_down_btn = html.Label(
         [icon, tooltip],
         id=f"{id_}-collapse-button",
+        style=vis,
         **{
             "data-toggle": "collapse",
             "data-target": f"#{id_}-collapse-fields",
@@ -235,14 +237,17 @@ def collapsable_card(text, id_, featured, hidden, message):
         },
     )
 
-    # collapsed fields
-    collapsed_fields = dbc.Collapse(hidden, id=f"{id_}-collapse-fields", is_open=False)
-
     # featured fields
-    featured = html.Div(featured)
+    featured = [html.Div(featured)]
     text = [text] if not isinstance(text, list) else text
+    text.append(chevron_down_btn)
+
+    # collapsed fields
+    if hidden is not None:
+        featured += [dbc.Collapse(hidden, id=f"{id_}-collapse-fields", is_open=False)]
+
     content = custom_card(
-        text=html.Div([*text, chevron_down_btn]),
-        children=html.Div([featured, collapsed_fields], className="container"),
+        text=html.Div(text),
+        children=html.Div(featured, className="container"),
     )
     return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

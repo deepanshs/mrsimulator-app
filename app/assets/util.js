@@ -31,7 +31,6 @@ var getValue = function (id) {
     alert(`Invalid value encounter.`);
     throw window.dash_clientside.PreventUpdate;
   }
-  console.log(element);
   if (val.trim() === "") return null;
   return isNaN(+val) ? val : +val;
 };

@@ -88,7 +88,7 @@ PATH = os.path.split(__file__)[0]
         Input("select-method", "value"),
         # Input("new-method", "modified_timestamp"),
         Input("fit-button", "n_clicks"),
-        Input({"type": "remove-post_sim-convolution", "index": ALL}, "n_clicks"),
+        Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
     ],
     [
         # State("upload-spin-system-url", "value"),
@@ -591,7 +591,7 @@ CALLBACKS = {
     "submit-signal-processor-button": PostSim.on_submit_signal_processor_button,
     "add-post_sim-scalar": PostSim.on_add_post_sim_scalar,
     "add-post_sim-convolution": PostSim.on_add_post_sim_convolutions,
-    "remove-post_sim-convolution": PostSim.on_remove_post_sim_convolutions,
+    "remove-post_sim-functions": PostSim.on_remove_post_sim_function,
     "select-method": PostSim.on_method_select,
     "fit-button": least_squares_fit,
 }

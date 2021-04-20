@@ -98,8 +98,8 @@ def sidebar_tabs():
     content = [
         html.Br(),
         home(),
-        spin_system(),
         method(),
+        spin_system(),
         fit(),
         spectrum(),
         tooltips(),

@@ -32,7 +32,6 @@ var hideQuad = function () {
   let isotope_id, quad_collapse, check_quad;
   isotope_id = getValue("isotope");
   quad_collapse = document.getElementById("quadrupolar-feature-collapse");
-  console.log(quad_collapse);
   check_quad = ISOTOPE_DATA.includes(isotope_id) ? false : true;
   if (check_quad) quad_collapse.classList.add("show");
   else quad_collapse.classList.remove("show");
