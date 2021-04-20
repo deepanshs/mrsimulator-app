@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 from dash import callback_context as ctx
-from dash import no_update
 
+from app.custom_widgets import collapsable_card
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
-from app.sims.utils import expand_output
+from app.sims.utils import update_processor_ui
 
 __author__ = "Deepansh Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
-# {"factor": 1, "function": "Scale"}
-
 
 def ui(index, data=None):
-    return custom_input_group(
-        prepend_label="Scaling Factor",
+    scale = custom_input_group(
+        prepend_label="Factor",
         value=1 if data is None else data["factor"],
         min=0,
         id={"function": "scale", "args": "factor", "index": index},
@@ -21,22 +20,27 @@ def ui(index, data=None):
         pattern="[0-9]*",
     )
 
+    return collapsable_card(
+        text=[
+            custom_button(
+                icon_classname="fas fa-times",
+                id={"type": "remove-post_sim-functions", "index": index},
+                className="icon-button",
+                module="html",
+            ),
+            "Scale",
+        ],
+        id_=f"scale-post-sim-{index}",
+        featured=scale,
+    )
+
 
 def refresh():
     post_sim_obj = ctx.states["post_sim_child.children"]
     index = len(post_sim_obj)
-    print("index", index)
     post_sim_obj.append(ui(index))
 
-    out = {
-        "alert": ["", False],
-        "mrsim": [no_update, no_update],
-        "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
-        "processor": [post_sim_obj],
-    }
-
-    return expand_output(out)
+    return update_processor_ui(post_sim_obj)
 
 
 page = ui(0)

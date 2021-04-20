@@ -16,9 +16,3 @@
   background-color: #f0f0f0;
   border-right: 1px solid silver;
 }
-
-#dim-tab > div > div > .tab-content {
-  display: block;
-  overflow: hidden;
-  width: 100%;
-}

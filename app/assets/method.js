@@ -181,12 +181,8 @@ var _setFields = function (index) {
   let total = 2;
   for (i = 0; i < total; i++) {
     dimUI = document.getElementById(`dim-${i}-feature-collapse`);
-    console.log(dimUI);
-    if (i < n_dim) {
-      dimUI.classList.add("show");
-    } else {
-      dimUI.classList.remove("show");
-    }
+    if (i < n_dim) dimUI.classList.add("show");
+    else dimUI.classList.remove("show");
   }
   data = method = sd = null;
 };

@@ -8,6 +8,7 @@ from dash.exceptions import PreventUpdate
 from . import convolution as Convolution
 from . import scale as Scale
 from app.sims.utils import expand_output
+from app.sims.utils import update_processor_ui
 
 
 def tools():
@@ -94,14 +95,8 @@ def setup():
 
 def on_method_select():
     existing_data, _ = setup()
-    out = {
-        "alert": ["", False],
-        "mrsim": [no_update, no_update],
-        "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
-        "processor": [refresh(existing_data)],
-    }
-    return expand_output(out)
+    processor = refresh(existing_data)
+    return update_processor_ui(processor)
 
 
 def on_add_post_sim_scalar():
@@ -112,8 +107,18 @@ def on_add_post_sim_convolutions():
     return Convolution.refresh()
 
 
-def on_remove_post_sim_convolutions(index):
-    return Convolution.refresh(index)
+def on_remove_post_sim_function(index):
+    post_sim_obj = ctx.states["post_sim_child.children"]
+
+    for i, item in enumerate(post_sim_obj):
+        sub_item = item["props"]["children"]["props"]["children"][0]
+        sub_sub_item = sub_item["props"]["children"]["props"]["children"][0]
+        if sub_sub_item["props"]["id"]["index"] == index:
+            break
+
+    del post_sim_obj[i]
+
+    return update_processor_ui(post_sim_obj)
 
 
 def on_submit_signal_processor_button():

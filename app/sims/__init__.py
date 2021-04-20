@@ -24,7 +24,7 @@ from .method import method_body
 from .sidebar import sidebar
 from .spin_system import spin_system_body
 from app import app
-
+from app.utils import slogger
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
@@ -125,7 +125,7 @@ def simulation(*args):
     """Evaluate the spectrum and update the plot."""
 
     if not ctx.triggered:
-        print("simulation stopped, ctx not triggered")
+        slogger("simulation stopped, ctx not triggered")
         raise PreventUpdate
 
     return one_time_simulation()

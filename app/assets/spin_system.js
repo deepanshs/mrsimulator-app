@@ -168,9 +168,9 @@ var update_field_from_spin_system_at_index = function (index) {
   name = name == "" ? `Spin system ${index}` : name;
   document.getElementById("spin-system-title").innerHTML = name;
 
-  let description = spin_system.description;
-  description = description == null ? "" : description;
-  setValue("spin-system-description", description);
+  // let description = spin_system.description;
+  // description = description == null ? "" : description;
+  // setValue("spin-system-description", description);
   setValue("spin-system-abundance", parseQuantityValue(spin_system.abundance));
 
   // extract site information
@@ -178,26 +178,6 @@ var update_field_from_spin_system_at_index = function (index) {
   set_site_attributes(site);
   data = spin_system = name = description = site = null;
 };
-
-// var update_field_from_spin_system_at_index = function (index) {
-//   window.dash_clientside.clientside.getData().then(data => {
-//     console.log('data', data);
-//     _update_field_from_spin_system_at_index(data, index);
-//   }).catch(() => {
-//     setTimeout(update_field_from_spin_system_at_index, 25);
-//   });
-// };
-
-// /* Convert Euler angles from degrees to radians.
-//  * @params obj: An object dictionary holding the three Euler angles
-//  */
-// var euler_angle_deg_to_rad = function (obj) {
-//   for (let i = 0; i < euler_angle.length; i++) {
-//     if (obj.hasOwnProperty(euler_angle[i])) {
-//       obj[euler_angle[i]] /= to_deg;
-//     }
-//   }
-// };
 
 /* Extract the site dictionary from the UI field using the UI ids. */
 var extract_site_object_from_fields = function () {
@@ -223,11 +203,11 @@ var extract_site_object_from_fields = function () {
     spin_system.name = temp;
     update = true;
   }
-  temp = getValue("spin-system-description");
-  if (spin_system.description != temp) {
-    spin_system.description = temp;
-    update = true;
-  }
+  // temp = getValue("spin-system-description");
+  // if (spin_system.description != temp) {
+  //   spin_system.description = temp;
+  //   update = true;
+  // }
   temp = getValue("spin-system-abundance");
   temp = toQuantityValue(temp, "%");
   if (spin_system.abundance != temp) {
@@ -266,7 +246,6 @@ var extract_site_object_from_fields = function () {
       }
     }
   }
-  console.log(site);
 
 
   // Check if the value of a key is an empty dictionary. If true, remove the

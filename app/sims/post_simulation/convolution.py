@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-import dash_html_components as html
 from dash import callback_context as ctx
-from dash import no_update
 
 from app.custom_widgets import collapsable_card
+from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
-from app.sims.utils import expand_output
+from app.sims.utils import update_processor_ui
 
 __author__ = "Deepansh Srivastava"
 __email__ = "srivastava.89@osu.edu"
@@ -75,8 +74,11 @@ def ui(index, data=None, n_dim=1, n_dv=1):
     hidden = [dimension_index(index), dependent_variable_index(index)]
     return collapsable_card(
         text=[
-            html.Button(
-                "x", id={"type": "remove-post_sim-convolution", "index": index}
+            custom_button(
+                icon_classname="fas fa-times",
+                id={"type": "remove-post_sim-functions", "index": index},
+                className="icon-button",
+                module="html",
             ),
             "Convolution",
         ],
@@ -87,7 +89,7 @@ def ui(index, data=None, n_dim=1, n_dv=1):
     )
 
 
-def refresh(index=None):
+def refresh():
     """If index is none, add an entry else remove the entry at index"""
     post_sim_obj = ctx.states["post_sim_child.children"]
     existing_data = ctx.states["local-mrsim-data.data"]
@@ -96,21 +98,10 @@ def refresh(index=None):
     n_dim = len(existing_data["methods"][method_index]["spectral_dimensions"])
     n_dv = len(existing_data["spin_systems"])
 
-    if index is None:  # add an entry
-        index = len(post_sim_obj)
-        post_sim_obj.append(ui(index, n_dim=n_dim, n_dv=n_dv))
+    index = len(post_sim_obj)
+    post_sim_obj.append(ui(index, n_dim=n_dim, n_dv=n_dv))
 
-    else:
-        del post_sim_obj[index]
-
-    out = {
-        "alert": ["", False],
-        "mrsim": [no_update, no_update],
-        "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
-        "processor": [post_sim_obj],
-    }
-    return expand_output(out)
+    return update_processor_ui(post_sim_obj)
 
 
 page = ui(0)

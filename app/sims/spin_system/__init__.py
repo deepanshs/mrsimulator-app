@@ -32,17 +32,17 @@ def metadata_tab_ui():
     )
 
     # description
-    label = html.Label("Description")
-    textarea = dbc.Textarea(
-        placeholder="Add a description ... ",
-        id="spin-system-description",
-        debounce=True,
-        style={"height": "12rem"},
-    )
-    description = html.Div([label, textarea])
+    # label = html.Label("Description")
+    # textarea = dbc.Textarea(
+    #     placeholder="Add a description ... ",
+    #     id="spin-system-description",
+    #     debounce=True,
+    #     style={"height": "12rem"},
+    # )
+    # description = html.Div([label, textarea])
 
     # metadata
-    metadata = html.Div([name, description], className="scroll-cards container")
+    metadata = html.Div([name], className="scroll-cards container")
     return dcc.Tab(
         label="Metadata", children=html.Div(metadata), className="tab-scroll"
     )

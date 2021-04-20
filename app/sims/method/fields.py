@@ -18,7 +18,7 @@ __email__ = "srivastava.89@osu.edu"
 def experiment_ui():
 
     # upload experiment dataset
-    icon = html.I(className="fas fa-paperclip fa-lg")
+    icon = html.I(className="fas fa-paperclip")
     tooltip = dbc.Tooltip(
         (
             "Click to attach a measurement file to the selected method. "
@@ -29,8 +29,8 @@ def experiment_ui():
     clip_btn = html.Button([icon, tooltip], className="icon-button")
     upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
 
-    label = dbc.InputGroupAddon("Measurement data", addon_type="prepend")
-    upload_ui = dbc.InputGroup([label, upload], className="input-form")
+    # label = dbc.InputGroupAddon("Measurement data", addon_type="prepend")
+    # upload_ui = dbc.InputGroup([label, upload], className="input-form")
 
     # standard deviation
     sigma = custom_input_group(
@@ -43,8 +43,8 @@ def experiment_ui():
     )
 
     return container(
-        text="Experiment",
-        featured=[upload_ui, sigma],
+        text=["Experiment", upload],
+        featured=[sigma],
     )
 
 

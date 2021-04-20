@@ -48,12 +48,7 @@ def method_property_tab_ui():
         mrfields.global_environment(),
         *dimensions_ui(),
     ]
-    return dbc.Tab(
-        label="Properties",
-        children=contents,
-        id="dim-tab",
-        className="tab-scroll method",
-    )
+    return dbc.Tab(label="Properties", children=contents, className="tab-scroll method")
 
 
 def signal_processing_tab_ui():
@@ -67,7 +62,6 @@ def signal_processing_tab_ui():
 app.clientside_callback(
     """
     function(val) {
-        console.log(val);
         if (val === 'tab-0') {
             return [{'display': 'none'}, {'display': 'block'}];
         }

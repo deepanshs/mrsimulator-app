@@ -34,43 +34,43 @@ def card(item, app_name):
     body = dbc.CardBody([title, html.P(des)])
     card_ = dbc.Card([img, body])
     a = html.A(card_, href=f"./{app_name}?a=" + item["value"])
-    return dbc.Col(a, lg=3, md=4, sm=6, xs=6)
+    return dbc.Col(a, xl=2, lg=3, md=3, sm=4, xs=6)
 
 
-def search_engine():
-    dropdown_menu_items = [
-        dbc.DropdownMenuItem("Mrsimulator", id="search-here"),
-        dbc.DropdownMenuItem("Material project", id="search-mp-contribs"),
-    ]
+# def search_engine():
+#     dropdown_menu_items = [
+#         dbc.DropdownMenuItem("Mrsimulator", id="search-here"),
+#         dbc.DropdownMenuItem("Material project", id="search-mp-contribs"),
+#     ]
 
-    search_button = dbc.Button("Search", id="mrsim-search-button", color="light")
-    search_bar = dbc.InputGroup(
-        [
-            dbc.DropdownMenu(
-                dropdown_menu_items, label="Target", color="light", addon_type="prepend"
-            ),
-            dbc.Input(id="input-group-search", placeholder="Search on site"),
-            dbc.InputGroupAddon(search_button, addon_type="append"),
-        ],
-        size="lg",
-    )
-    return search_bar
+#     search_button = dbc.Button("Search", id="mrsim-search-button", color="light")
+#     search_bar = dbc.InputGroup(
+#         [
+#             dbc.DropdownMenu(
+#                 dropdown_menu_items, label="Target", color="light",
+#                   addon_type="prepend"
+#             ),
+#             dbc.Input(id="input-group-search", placeholder="Search on site"),
+#             dbc.InputGroupAddon(search_button, addon_type="append"),
+#         ],
+#         size="lg",
+#     )
+#     return search_bar
 
 
-app.clientside_callback(
-    """
-    function () {
-        let trigger = dash_clientside.callback_context.triggered;
-        let trigger_id = trigger.map((t) => t["prop_id"])[0].split(".")[0];
-        console.log(trigger_id);
-        if (trigger_id == 'search-mp-contribs') return 'Search on Material project';
-        if (trigger_id == 'search-here') return 'Search on site';
-    }
-    """,
-    Output("input-group-search", "placeholder"),
-    [Input("search-mp-contribs", "n_clicks"), Input("search-here", "n_clicks")],
-    prevent_initial_call=True,
-)
+# app.clientside_callback(
+#     """
+#     function () {
+#         let trigger = dash_clientside.callback_context.triggered;
+#         let trigger_id = trigger.map((t) => t["prop_id"])[0].split(".")[0];
+#         if (trigger_id == 'search-mp-contribs') return 'Search on Material project';
+#         if (trigger_id == 'search-here') return 'Search on site';
+#     }
+#     """,
+#     Output("input-group-search", "placeholder"),
+#     [Input("search-mp-contribs", "n_clicks"), Input("search-here", "n_clicks")],
+#     prevent_initial_call=True,
+# )
 
 
 def examples_ui(examples, app_name):
@@ -95,7 +95,7 @@ def mrsimulator_ui():
     button = dbc.Button("Open App", href="/simulator", id="simulator-app")
 
     children = [
-        html.Section(search_engine()),
+        # html.Section(search_engine()),
         html.Section(
             [
                 html.H1("Featured Examples"),
@@ -107,25 +107,28 @@ def mrsimulator_ui():
 
 
 def mrinversion_ui():
-    image = html.Img(src="/assets/images/mrinversion.svg", alt="Mrinversion")
+    image = html.Img(src="/assets/images/mrinversion.png", alt="Mrinversion")
     description = ""
-    button = dbc.Button("Open App", href="/inversion", id="inversion-app")
+    button = dbc.Button("Comming Soon", href="/", id="inversion-app")
 
-    children = [
-        html.Section(
-            [
-                html.H1("Featured Examples"),
-                *examples_ui(mrinversion_examples, "inversion"),
-            ]
-        ),
-    ]
-    return generic_ui(image, description, button, children)
+    # children = [
+    #     html.Section(
+    #         [
+    #             html.H1("Featured Examples"),
+    #             *examples_ui(mrinversion_examples, "inversion"),
+    #         ]
+    #     ),
+    # ]
+    return generic_ui(image, description, button)  # , children)
 
 
-mrsim_btn = dbc.Button(
-    "mrsimulator", id="mrsim-app-selection-button", color="light", active=True
+mrsim_btn = html.Button(
+    html.Img(src="assets/fit.png"),
+    id="mrsim-app-selection-button",
+    # color="light",
+    # active=True,
 )
-mrinv_btn = dbc.Button("mrinversion", id="mrinv-app-selection-button", color="light")
+mrinv_btn = html.Button("Inversion", id="mrinv-app-selection-button")
 root_app = html.Div(
     [
         html.Section(
@@ -133,7 +136,7 @@ root_app = html.Div(
                 html.H1("Apps"),
                 mrsim_btn,
                 mrinv_btn,
-                html.Hr(),
+                # html.Hr(),
                 dcc.Loading(html.Div(children=mrsimulator_ui(), id="empty-main-div")),
             ]
         ),
@@ -145,8 +148,8 @@ root_app = html.Div(
 @app.callback(
     [
         Output("empty-main-div", "children"),
-        Output("mrsim-app-selection-button", "active"),
-        Output("mrinv-app-selection-button", "active"),
+        # Output("mrsim-app-selection-button", "active"),
+        # Output("mrinv-app-selection-button", "active"),
     ],
     [
         Input("mrsim-app-selection-button", "n_clicks"),
@@ -157,7 +160,7 @@ root_app = html.Div(
 def update_main_page(*args):
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == "mrsim-app-selection-button.n_clicks":
-        return [mrsimulator_ui(), True, False]
+        return [mrsimulator_ui()]  # , True, False]
     if trigger == "mrinv-app-selection-button.n_clicks":
-        return [mrinversion_ui(), False, True]
-    return [mrsimulator_ui(), True, False]
+        return [mrinversion_ui()]  # , False, True]
+    return [mrsimulator_ui()]  # , True, False]
