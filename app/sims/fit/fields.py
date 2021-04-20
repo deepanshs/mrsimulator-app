@@ -1,25 +1,172 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
+from dash import no_update
 from dash.dependencies import ALL
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from lmfit import Parameters
-from mrsimulator import Simulator
+from mrsimulator import parse
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from app import app
 
 
-def fitting_interface_table(params_dict):
-    """Creates list of components to pass into a html.Table for user input"""
+CSS_STR = '*{font-family:"Helvetica",sans-serif;}td{padding: 0 8px}'
+
+
+def inputs():
+    """Parameters input html div"""
+    return html.Div(id="params-input-div", children=[])
+
+
+def buttons():
+    """Static user interface buttons"""
+    btns = [
+        html.Button(id="reset-button", children="Reset"),
+        html.Button(id="simulate-button", children="Simulate Spectrum"),
+        html.Button(id="run-fitting-button", children="Run Fitting"),
+    ]
+    return html.Div(btns)
+
+
+def report():
+    """LMFIT report html div"""
+    return html.Div(id="params-report-div", children=[])
+
+
+def ui():
+    """Main UI for fitting interface"""
+    return html.Div(children=[inputs(), buttons(), report()], id="input-fields")
+
+
+fields = ui()
+
+
+# Callbacks ============================================================================
+@app.callback(
+    Output("params-input-div", "children"),
+    Output("params-report-div", "children"),
+    Output("params-report-div", "hidden"),
+    Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    Input("reset-button", "n_clicks"),
+    Input("local-mrsim-data", "data"),
+    State("local-mrsim-data", "data"),
+    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
+    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
+    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
+    State({"kind": "min", "name": ALL}, "value"),
+    State({"kind": "max", "name": ALL}, "value"),
+)
+def update_fitting_elements(n1, n2, _1, mr_data, *vals):
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("fitting elements", trigger_id)
+    if trigger_id.startswith("{"):
+        py_dict = json.loads(trigger_id)
+        name, trigger_id = py_dict["name"], py_dict["kind"]
+        return CALLBACKS[trigger_id](name, vals)
+
+    return CALLBACKS[trigger_id](vals)
+
+
+# Main data callback
+@app.callback(
+    Output("params-data", "data"),
+    Output("trigger-sim", "data"),
+    Output("trigger-fit", "data"),
+    Input("simulate-button", "n_clicks"),
+    Input("run-fitting-button", "n_clicks"),
+    State("local-mrsim-data", "data"),
+    State("params-data", "data"),
+    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
+    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
+    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
+    State({"kind": "min", "name": ALL}, "value"),
+    State({"kind": "max", "name": ALL}, "value"),
+)
+# def update_fitting_data(n1, n2, n3, n4, _, mr_data, p_data, *vals):
+def update_fitting_data(n1, n2, mr_data, _, *vals):
+    """Main callback for fitting parameters interface"""
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("fitting data", trigger_id)
+
+    return CALLBACKS[trigger_id](vals)
+
+
+# Helper Methods =======================================================================
+def update_params_and_simulate(vals):
+    """Updates stored Parameters object JSON and triggers a simulation"""
+    return get_new_params_json(vals), int(datetime.now().timestamp() * 1000), no_update
+
+
+def update_params_and_fit(vals):
+    """Updates stored Parameters object JSON and triggers fitting"""
+    params_data = ctx.states["params-data.data"]
+
+    print("FITTING")
+    print(params_data)
+
+    return get_new_params_json(vals), no_update, int(datetime.now().timestamp() * 1000)
+
+
+def delete_param(name, vals):
+    """Deletes specified param (row) from interface and updates stored JSON"""
+    params_data = get_new_params_json(vals)
+    params_obj = Parameters().loads(params_data)
+
+    name = name.split("-")[1]
+    del params_obj[name]
+
+    params_dict = params_obj_to_dict(params_obj)
+    table = fit_table(params_dict)
+
+    return table, no_update, no_update
+
+
+def construct_params_body(_):
+    data = ctx.states["local-mrsim-data.data"]
+
+    if len(data["spin_systems"]) == 0:
+        table = fit_table({})
+        return table, no_update, True
+
+    if "params" in data and data["params"] is not None:
+        params_obj = Parameters().loads(data["params"])
+    else:
+        sim, processor, fit_report = parse(data)
+        params_obj = make_LMFIT_params(sim, processor)
+
+    params_dict = params_obj_to_dict(params_obj)
+    table = fit_table(params_dict)
+    report, hide = ("", True) if "report" not in data else (data["report"], False)
+    report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
+
+    return table, report, hide
+
+
+# Add 'expression' field after code refactored
+#   requires validation? or can take errors from 'lmfit' library
+# Truncate decimal places (using css?)
+def fit_table(params_dict):
+    """Constructs html table of parameter inputs fields for user input
+
+    Params:
+        params_dict: dict representation of Parameters object
+
+    Returns:
+        html.Table with inputs
+    """
     fit_header = ["", "Name", "Value", "Min", "Max", ""]
-    fit_row = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
+    fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     for key, vals in params_dict.items():
         vary_id = {"name": f"{key}-vary", "kind": "vary"}
@@ -35,48 +182,31 @@ def fitting_interface_table(params_dict):
         name_div = html.Div([name_wrapper, tooltip])
 
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
-        val = dbc.Input(id=val_id, type="number", value=vals["value"])
+        val = dbc.Input(
+            id=val_id, type="number", value=vals["value"]
+        )  # Safari raises input invalid with type=number and a float value
         min = dbc.Input(id=min_id, type="number", value=vals["min"])
         max = dbc.Input(id=max_id, type="number", value=vals["max"])
-        ic = html.Span(  # Way to add shadow when hovered?
+        ic = html.Span(
             html.I(className="fas fa-times", title="Remove Parameter"),
             id={"name": f"delete-{key}-row", "kind": "delete"},
             **{"data-edit-mth": ""},
         )
         pack = [vary, name_div, val, min, max, ic]
-        fit_row += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
+        fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
-    return fit_row
-
-
-def fields_body():
-    return html.Div(id="params-input-div", children=[])
+    return html.Table(id="fields-table", children=fit_rows)
 
 
-def ui():
-    """Intputs fields with names and delete buttons"""
-    reset_button = html.Button(id="reset-button", children="Reset")
-    simulate_button = html.Button(id="simulate-button", children="Simulate Spectrum")
-    run_fitting_button = html.Button(id="run-fitting-button", children="Run Fitting")
-    return html.Div(
-        children=[fields_body(), reset_button, simulate_button, run_fitting_button],
-        id="input-fields",
-    )
-
-
-fields = ui()
-
-
-def lmfit_jston_to_dict(lmfit_json):
+def params_obj_to_dict(params_obj):
     """Makes dictonary representation of params object from json string
     Params:
-        lmfit_json: JSON string of lmtit Parameters object
+        params_obj: Parameters object
 
     Return:
         params_dict: dictonary of lmfit parameters
     """
-    KEY_LIST = ["vary", "value", "min", "max"]
-    params_obj = Parameters().loads(lmfit_json)
+    KEY_LIST = ["vary", "value", "min", "max"]  # Add expr eventually
     params_dict = {}
 
     for name, param in params_obj.items():
@@ -85,68 +215,31 @@ def lmfit_jston_to_dict(lmfit_json):
     return params_dict
 
 
-# Callbacks ===================================================================
-@app.callback(
-    Output("params-input-div", "children"),
-    Input("params-data", "data"),
-    State("do-fit-div-update", "data"),
-)
-def update_fields_div(data, do_update):
-    """Updated visible fields when visible data is changed"""
-    if not do_update:
-        raise PreventUpdate
+def get_new_params_json(vals):
+    """Returns new Parameters JSON dump from input values"""
+    zip_vals = list(zip(*vals))
+    new_obj = Parameters()
 
-    if data is None:
-        return html.Table(id="fields-table", children=fitting_interface_table({}))
+    for row in zip_vals:
+        print(row)
+        new_obj.add(*row)
 
-    params_dict = lmfit_jston_to_dict(data)
-    rows = fitting_interface_table(params_dict)
-    return html.Table(id="fields-table", children=rows)
+    return new_obj.dumps()
 
 
-@app.callback(
-    Output("params-data", "data"),
-    Output("do-fit-div-update", "data"),  # Latch to prevent 'update_fields_div'
-    Input("simulate-button", "n_clicks"),
-    Input("run-fitting-button", "n_clicks"),
-    Input("reset-button", "n_clicks"),
-    Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    Input("local-mrsim-data", "data"),
-    State("params-data", "data"),
-    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
-    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
-    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
-    State({"kind": "min", "name": ALL}, "value"),
-    State({"kind": "max", "name": ALL}, "value"),
-)
-def update_params_data(n1, n2, n3, n4, mrsim_data, visible_data, *vals):
-    """Sets visible data from either fields inputs or stored data"""
-    if not ctx.triggered:
-        return None, True
-        # raise PreventUpdate
-    trigger_id = trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+CALLBACKS = {
+    "simulate-button": update_params_and_simulate,
+    "run-fitting-button": update_params_and_fit,
+    "reset-button": construct_params_body,
+    "local-mrsim-data": construct_params_body,
+    "delete": delete_param,
+}
 
-    if trigger_id == "simulate-button" or trigger_id == "run-fitting-button":
-        zip_vals = list(zip(*vals))
-        new_obj = Parameters()
 
-        for row in zip_vals:
-            new_obj.add(*row)
-
-        return new_obj.dumps(), False
-
-    if trigger_id == "reset-button" or trigger_id == "local-mrsim-data":
-        if len(mrsim_data["spin_systems"]) == 0:
-            raise PreventUpdate
-        sim = Simulator.parse_dict_with_units(mrsim_data)
-        params_obj = make_LMFIT_params(sim)
-        return params_obj.dumps(), True
-
-    # Comprehension triggers
-    if trigger_id[0] == "{":
-        trigger_id = json.loads(trigger_id)  # Cast to dict
-        if "name" in trigger_id and trigger_id["name"][:6] == "delete":
-            params_obj = Parameters().loads(visible_data)
-            del params_obj[trigger_id["name"].split("-")[1]]
-            return params_obj.dumps(), True
-        # Start other context calls here
+# def expand_output(out):
+#     """Plotly callback outputs for `update_fitting` function"""
+#     return [
+#         *out["params"],
+#         *out["body"],
+#         *out["trigger"]
+#     ]

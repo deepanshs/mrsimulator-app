@@ -15,12 +15,12 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from lmfit import fit_report
 from lmfit import Minimizer
+from lmfit import Parameters
+from lmfit.printfuncs import fitreport_html_table
 from mrsimulator import parse
 from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils.spectral_fitting import LMFIT_min_function
-from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from . import home as home_UI
 from . import method as method_UI
@@ -29,6 +29,8 @@ from . import post_simulation as PostSim
 from . import spin_system as spin_system_UI
 from .utils import expand_output
 from app import app
+
+# from lmfit import fit_report
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
@@ -87,7 +89,8 @@ PATH = os.path.split(__file__)[0]
         Input("add-post_sim-convolution", "n_clicks"),
         Input("select-method", "value"),
         # Input("new-method", "modified_timestamp"),
-        Input("fit-button", "n_clicks"),
+        Input("trigger-fit", "data"),
+        Input("trigger-sim", "data"),
         Input({"type": "remove-post_sim-convolution", "index": ALL}, "n_clicks"),
     ],
     [
@@ -110,6 +113,7 @@ PATH = os.path.split(__file__)[0]
         State({"function": "scale", "args": "factor", "index": ALL}, "value"),
         State("post_sim_child", "children"),
         State("select-method", "options"),
+        State("params-data", "data"),
     ],
     prevent_initial_call=True,
 )
@@ -502,8 +506,21 @@ def load_csdm(content):
         return False, "", e
 
 
+def simulate_test():
+    print("The Simulate Spectrum button has been clicked")
+    out = {
+        "alert": ["", False],
+        "mrsim": [no_update, no_update],
+        "children": [no_update, no_update, no_update],
+        "mrsim_config": [no_update] * 4,
+        "processor": [no_update],
+    }
+    return expand_output(out)
+
+
 def least_squares_fit():
     mrsim_data = ctx.states["local-mrsim-data.data"]
+    params_data = ctx.states["params-data.data"]
 
     if mrsim_data is None:
         raise PreventUpdate
@@ -543,12 +560,14 @@ def least_squares_fit():
     decompose = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
 
-    params = make_LMFIT_params(sim, processor)
-    print(params.pretty_print(columns=["value", "min", "max", "vary", "expr"]))
+    # params = make_LMFIT_params(sim, processor)
+    # params-data
+    params = Parameters().loads(params_data)
+    # print(params.pretty_print(columns=["value", "min", "max", "vary", "expr"]))
 
     minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor, sigma))
     result = minner.minimize()
-    print(fit_report(result))
+    # print(fit_report(result))
 
     sim.config.decompose_spectrum = decompose
     for sys in sim.spin_systems:
@@ -556,6 +575,11 @@ def least_squares_fit():
 
     fit_data = sim.json(include_methods=True, include_version=True)
     fit_data["signal_processors"] = [proc.json() for proc in processor]
+    fit_data["params"] = result.params.dumps()
+    fit_data["report"] = fitreport_html_table(result)
+
+    print("IMPORTER")
+    print(result.params.dumps())
 
     spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
     method_overview = method_UI.refresh(fit_data["methods"])
@@ -593,7 +617,8 @@ CALLBACKS = {
     "add-post_sim-convolution": PostSim.on_add_post_sim_convolutions,
     "remove-post_sim-convolution": PostSim.on_remove_post_sim_convolutions,
     "select-method": PostSim.on_method_select,
-    "fit-button": least_squares_fit,
+    "trigger-sim": simulate_test,
+    "trigger-fit": least_squares_fit,
 }
 
 
