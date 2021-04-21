@@ -125,7 +125,7 @@ def simulation(*args):
     """Evaluate the spectrum and update the plot."""
 
     if not ctx.triggered:
-        slogger("simulation stopped, ctx not triggered")
+        slogger("simulation", "simulation stopped, ctx not triggered")
         raise PreventUpdate
 
     return one_time_simulation()
