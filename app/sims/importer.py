@@ -63,10 +63,10 @@ PATH = os.path.split(__file__)[0]
         # method->add measurement
         Input("import-measurement-for-method", "contents"),
         Input("add-measurement-for-method", "contents"),
+        Input("upload-measurement-from-graph", "contents"),
         # method->remove measurement
         Input("remove-measurement-from-method", "n_clicks"),
-        # graph->drag and drop
-        Input("upload-from-graph", "contents"),
+        # url search input
         Input("url-search", "href"),
         # when spin-system is modified
         Input("new-spin-system", "modified_timestamp"),
@@ -360,12 +360,29 @@ def add_measurement_to_a_method():
 
     method_overview = method_UI.refresh(existing_data["methods"])
 
+    post_sim_overview = no_update
+    if existing_data["signal_processors"][index] in [None, {"operations": []}]:
+        vector = exp_data.y[0].components[0].real
+        amp = vector.sum()
+        existing_data["signal_processors"][index]["operations"] = [
+            {"dim_index": [0], "function": "IFFT"},
+            {
+                "dim_index": [0],
+                "FWHM": "200 Hz",
+                "function": "apodization",
+                "type": "Exponential",
+            },
+            {"dim_index": [0], "function": "FFT"},
+            {"factor": amp / 30, "function": "Scale"},
+        ]
+        post_sim_overview = post_sim_UI.refresh(existing_data)
+
     out = {
         "alert": ["", False],
         "mrsim": [existing_data, no_update],
         "children": [no_update, method_overview, no_update],
         "mrsim_config": [no_update] * 4,
-        "processor": [no_update],
+        "processor": [post_sim_overview],
     }
     return expand_output(out)
 
@@ -586,7 +603,7 @@ CALLBACKS = {
     "open-mrsimulator-file": import_mrsim_file,
     "import-measurement-for-method": add_measurement_to_a_method,
     "add-measurement-for-method": add_measurement_to_a_method,
-    "upload-from-graph": add_measurement_to_a_method,
+    "upload-measurement-from-graph": add_measurement_to_a_method,
     "remove-measurement-from-method": remove_measurement_from_a_method,
     "submit-signal-processor-button": PostSim.on_submit_signal_processor_button,
     "add-post_sim-scalar": PostSim.on_add_post_sim_scalar,

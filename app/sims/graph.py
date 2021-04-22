@@ -198,7 +198,7 @@ def layout():
 def ui():
     experiment_drop_upload = dcc.Upload(
         layout(),
-        id="upload-from-graph",
+        id="upload-measurement-from-graph",
         disable_click=True,
         # accept="application/json, text/plain, .csdf",
         style_active={
@@ -245,9 +245,9 @@ def one_d_multi_trace(data, x0, dx, maximum, name=None):
 def one_d_single_trace(data, x0, dx, maximum, name=""):
     """Use for single line plot"""
     line = (
-        {"color": "black", "width": 1.2}
+        {"color": "black", "width": 1}
         if name == "simulation"
-        else {"color": "#7e0a7e", "width": 2.4}
+        else {"color": "#7e0a7e", "width": 1}
     )
     return [
         dict(

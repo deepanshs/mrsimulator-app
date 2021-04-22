@@ -30,7 +30,7 @@ input[type="search"]:focus {
   min-width: 45vw;
   width: 100%;
 }
-#upload-from-graph {
+#upload-measurement-from-graph {
   display: block;
   box-shadow: 0 0 10px 0 silver;
   background-color: white;

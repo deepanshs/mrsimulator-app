@@ -11,6 +11,8 @@ from app.custom_widgets import container
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 
+# from dash.dependencies import State
+
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
@@ -18,7 +20,7 @@ __email__ = "srivastava.89@osu.edu"
 def experiment_ui():
 
     # upload experiment dataset
-    icon = html.I(className="fas fa-paperclip")
+    icon = html.I(className="fas fa-paperclip fa-lg")
     tooltip = dbc.Tooltip(
         (
             "Click to attach a measurement file to the selected method. "
@@ -35,7 +37,7 @@ def experiment_ui():
     # standard deviation
     sigma = custom_input_group(
         prepend_label="Noise standard deviation (σ)",
-        append_label="",
+        # append_label=html.Button("N"),
         value=1.0,
         min=1e-6,
         id="measurement-sigma",
@@ -48,9 +50,31 @@ def experiment_ui():
     )
 
 
+# app.clientside_callback(
+#     """
+#     function(index, data) {
+#         console.log(data);
+#         if (data == null) { throw window.dash_clientside.PreventUpdate; }
+#         if (data.methods[index] == null){throw window.dash_clientside.PreventUpdate;}
+#         if (data.methods[index].experiment == null) {
+#             return [false, false, false, false, false, false];
+#         }
+#         else { return [true, true, true, true, true, true]; }
+#     }
+#     """,
+#     [
+#         *[Output(f"count-{i}", "disabled") for i in range(2)],
+#         *[Output(f"spectral_width-{i}", "disabled") for i in range(2)],
+#         *[Output(f"reference_offset-{i}", "disabled") for i in range(2)],
+#     ],
+#     Input("select-method", "value"),
+#     Input("local-mrsim-data", "data"),
+#     prevent_initial_call=True,
+# )
+
+
 def spectral_dimension_ui(i):
-    """
-    Return a list of widgets whose entries are used in evaluating the dimension
+    """Return a list of widgets whose entries are used in evaluating the dimension
     coordinates along the i^th dimension. The widgets includes number of points,
     spectral width, and reference offset.
 

@@ -141,7 +141,7 @@ var _onMethodsLoad = function () {
 var _setFields = function (index) {
   let data = storeData.data;
   let method = data.methods[index];
-  let sd, i, temp;
+  let sd, i, temp; //, array = [];
   document.getElementById("method-title").innerHTML = method.name;
 
   // noise standard deviation
@@ -153,25 +153,32 @@ var _setFields = function (index) {
       };
     }
     let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+    // array.push(sigma);
     setValue("measurement-sigma", sigma);
   }
   temp = parseQuantityValue(method.magnetic_flux_density); // in T
+  // array.push(temp);
   setValue("magnetic_flux_density", temp);
 
   temp = parseQuantityValue(method.rotor_frequency) / 1e3; // to kHz
+  // array.push(temp);
   setValue("rotor_frequency", temp);
 
   temp = rad_to_deg(parseQuantityValue(method.rotor_angle)); // to deg
+  // array.push(temp);
   setValue("rotor_angle", temp);
 
   for (i = 0; i < method.spectral_dimensions.length; i++) {
     sd = method.spectral_dimensions[i];
+    // array.push(sd.count);
     setValue(`count-${i}`, sd.count);
 
     temp = parseQuantityValue(sd.spectral_width) / 1e3; // to kHz
+    // array.push(temp);
     setValue(`spectral_width-${i}`, temp);
 
     temp = parseQuantityValue(sd.reference_offset) / 1e3; // to kHz
+    // array.push(temp);
     setValue(`reference_offset-${i}`, temp);
     setValue(`label-${i}`, sd.label);
   }

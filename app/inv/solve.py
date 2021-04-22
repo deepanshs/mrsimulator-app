@@ -2,7 +2,7 @@
 import csdmpy as cp
 import numpy as np
 import plotly.graph_objs as go
-from mrinversion.linear_model import SmoothLassoLS
+from mrinversion.linear_model import SmoothLassoCV
 
 
 def solve(l1, l2, data):
@@ -13,9 +13,16 @@ def solve(l1, l2, data):
     compressed_K = np.asarray(data["kernel"], dtype=np.float64)
     compressed_s = cp.parse_dict(data["signal"])
 
-    s_lasso = SmoothLassoLS(
-        alpha=l2,
-        lambda1=l1,
+    # s_lasso = SmoothLassoLS(
+    #     alpha=l2,
+    #     lambda1=l1,
+    #     inverse_dimension=inverse_dimensions,
+    #     method="lars",
+    #     tolerance=1e-3,
+    # )
+    s_lasso = SmoothLassoCV(
+        # alphas=l2,
+        # lambdas=l1,
         inverse_dimension=inverse_dimensions,
         method="lars",
         tolerance=1e-3,

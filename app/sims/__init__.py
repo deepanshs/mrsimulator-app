@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 import csdmpy as cp
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -137,7 +139,8 @@ def one_time_simulation():
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+    if len(mrsim_data["methods"]) == 0:
+        mrsim_data["timestamp"] = datetime.datetime.now()
         return [no_update, no_update, mrsim_data]
 
     try:
@@ -195,7 +198,7 @@ def plot(*args):
     if sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if sim_data["methods"] == [] or sim_data["spin_systems"] == []:
+    if sim_data["methods"] == []:
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
