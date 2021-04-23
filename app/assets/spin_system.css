@@ -193,7 +193,8 @@
     margin: auto;
     padding: 0.75rem;
   }
-  .slide {
+  .slide,
+  .fit-scroll {
     padding: 0;
   }
   .slide .slider1 {

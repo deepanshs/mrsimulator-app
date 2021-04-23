@@ -59,7 +59,9 @@ input[type="search"]:focus {
   background-color: transparent;
   border-bottom: none;
 }
-
+.card-header .btn-group {
+  padding: 0;
+}
 .card-header input {
   min-width: 5rem;
   border-radius: 0.35rem;

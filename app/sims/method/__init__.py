@@ -102,7 +102,7 @@ def scrollable():
 
 
 def tools():
-    """Add, duplcicate, or remove methods"""
+    """Add, duplicate, or remove methods"""
     new = html.Button(id="add-method-button")
     duplicate = html.Button(id="duplicate-method-button")
     remove = html.Button(id="remove-method-button")
@@ -111,12 +111,9 @@ def tools():
 
 
 def header():
-    title = html.Div(
-        [
-            html.I(className="fas fa-cube fa-lg"),
-            html.H4("Methods", className="hide-label-sm"),
-        ]
-    )
+    icon = html.I(className="fas fa-cube fa-lg")
+    text = html.H4("Methods", className="hide-label-sm")
+    title = html.Div([icon, text])
     search = dcc.Input(
         value="", id="search-method", placeholder="Search methods", type="search"
     )

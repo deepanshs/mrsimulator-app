@@ -24,13 +24,6 @@ from app import app
 from app.sims.importer import load_csdm
 from app.utils import slogger
 
-# from mrinversion.linear_model import SmoothLassoLS
-
-# from mrinversion.linear_model import SmoothLasso
-
-SmoothLassoLS = None
-
-
 # class Worker:
 #     def __init__(self, filename='semaphore.txt'):
 #         self.filename = filename

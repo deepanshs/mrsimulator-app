@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
@@ -26,16 +27,6 @@ def inputs():
     return html.Div(id="params-input-div", children=[])
 
 
-def buttons():
-    """Static user interface buttons"""
-    btns = [
-        html.Button(id="reset-button", children="Reset"),
-        html.Button(id="simulate-button", children="Simulate Spectrum"),
-        html.Button(id="run-fitting-button", children="Run Fitting"),
-    ]
-    return html.Div(btns)
-
-
 def report():
     """LMFIT report html div"""
     return html.Div(id="params-report-div", children=[])
@@ -43,7 +34,9 @@ def report():
 
 def ui():
     """Main UI for fitting interface"""
-    return html.Div(children=[inputs(), buttons(), report()], id="input-fields")
+    return html.Div(
+        children=[inputs(), report()], id="input-fields", className="fit-scroll"
+    )
 
 
 fields = ui()
@@ -142,7 +135,7 @@ def construct_params_body(_):
     if "params" in data and data["params"] is not None:
         params_obj = Parameters().loads(data["params"])
     else:
-        sim, processor, fit_report = parse(data)
+        sim, processor, _ = parse(data)
         params_obj = make_LMFIT_params(sim, processor)
 
     params_dict = params_obj_to_dict(params_obj)
@@ -168,6 +161,7 @@ def fit_table(params_dict):
     fit_header = ["", "Name", "Value", "Min", "Max", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
+    input_args = {"type": "number", "autoComplete": "off"}
     for key, vals in params_dict.items():
         vary_id = {"name": f"{key}-vary", "kind": "vary"}
         name_id = {"name": f"{key}-label", "kind": "name"}
@@ -182,29 +176,28 @@ def fit_table(params_dict):
         name_div = html.Div([name_wrapper, tooltip])
 
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
-        val = dbc.Input(
-            id=val_id, type="number", value=vals["value"]
-        )  # Safari raises input invalid with type=number and a float value
-        min = dbc.Input(id=min_id, type="number", value=vals["min"])
-        max = dbc.Input(id=max_id, type="number", value=vals["max"])
+        # Safari raises input invalid with type=number and a float value
+        val = dcc.Input(id=val_id, value=vals["value"], **input_args)
+        min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
+        max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
         ic = html.Span(
             html.I(className="fas fa-times", title="Remove Parameter"),
             id={"name": f"delete-{key}-row", "kind": "delete"},
             **{"data-edit-mth": ""},
         )
-        pack = [vary, name_div, val, min, max, ic]
+        pack = [vary, name_div, val, min_, max_, ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(id="fields-table", children=fit_rows)
 
 
 def params_obj_to_dict(params_obj):
-    """Makes dictonary representation of params object from json string
+    """Makes dictionary representation of params object from json string
     Params:
         params_obj: Parameters object
 
     Return:
-        params_dict: dictonary of lmfit parameters
+        params_dict: dictionary of lmfit parameters
     """
     KEY_LIST = ["vary", "value", "min", "max"]  # Add expr eventually
     params_dict = {}
