@@ -5,6 +5,7 @@ import os
 from urllib.request import urlopen
 
 import csdmpy as cp
+import mrsimulator as mrsim
 import numpy as np
 from csdmpy.dependent_variables.download import get_absolute_url_path
 from dash import callback_context as ctx
@@ -18,9 +19,9 @@ from dash.exceptions import PreventUpdate
 from lmfit import Minimizer
 from lmfit import Parameters
 from lmfit.printfuncs import fitreport_html_table
-from mrsimulator import parse
 from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils.spectral_fitting import LMFIT_min_function
+from mrsimulator.utils.spectral_fitting import update_mrsim_obj_from_params
 
 from . import home as home_UI
 from . import method as method_UI
@@ -447,7 +448,7 @@ def fix_missing_keys(json_data):
 
 def parse_data(data):
     """Parse units from the data and return a Simulator dict."""
-    sim, signal_processors, params = parse(data, parse_units=True)
+    sim, signal_processors, params = mrsim.parse(data, parse_units=True)
     for item in sim.methods:
         item.simulation = None
 
@@ -508,9 +509,24 @@ def load_csdm(content):
 
 def simulate_test():
     print("The Simulate Spectrum button has been clicked")
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    params_data = ctx.states["params-data.data"]
+
+    if mrsim_data is None:
+        raise PreventUpdate
+
+    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+        raise PreventUpdate
+
+    sim, processor, saved_params = mrsim.parse(mrsim_data)
+    params = Parameters().loads(params_data)
+
+    update_mrsim_obj_from_params(params, sim, processor)
+    new_mrsim_data = mrsim.dict(sim, processor, saved_params)
+
     out = {
         "alert": ["", False],
-        "mrsim": [no_update, no_update],
+        "mrsim": [new_mrsim_data, no_update],
         "children": [no_update, no_update, no_update],
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -529,12 +545,10 @@ def least_squares_fit():
         raise PreventUpdate
 
     # try:
-    sim, processor, result = parse(mrsim_data)
+    sim, processor, result = mrsim.parse(mrsim_data)
 
     check_for_exp = np.asarray([mth.experiment is None for mth in sim.methods])
-    print(check_for_exp)
     check_for_exp = np.where(check_for_exp == 1)[0]
-    print(check_for_exp, check_for_exp.size)
     if check_for_exp.size != 0:
         return on_fail_message(
             "LeastSquaresAnalysisError: Please attach measurement(s) for method(s) at "
@@ -560,10 +574,7 @@ def least_squares_fit():
     decompose = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
 
-    # params = make_LMFIT_params(sim, processor)
-    # params-data
     params = Parameters().loads(params_data)
-    # print(params.pretty_print(columns=["value", "min", "max", "vary", "expr"]))
 
     minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor, sigma))
     result = minner.minimize()
@@ -573,9 +584,7 @@ def least_squares_fit():
     for sys in sim.spin_systems:
         sys.transition_pathways = None
 
-    fit_data = sim.json(include_methods=True, include_version=True)
-    fit_data["signal_processors"] = [proc.json() for proc in processor]
-    fit_data["params"] = result.params.dumps()
+    fit_data = mrsim.dict(sim, processor, result.params)
     fit_data["report"] = fitreport_html_table(result)
 
     print("IMPORTER")

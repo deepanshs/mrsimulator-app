@@ -139,7 +139,7 @@ def construct_params_body(*args):
     if trigger_id == "reset-button":
         sim, processor, _ = parse(data)
         params_obj = make_LMFIT_params(sim, processor)
-
+        report, hide = ("", True)
     else:
         if "params" in data and data["params"] is not None:
             params_obj = Parameters().loads(data["params"])
@@ -147,9 +147,10 @@ def construct_params_body(*args):
             sim, processor, _ = parse(data)
             params_obj = make_LMFIT_params(sim, processor)
 
+        report, hide = ("", True) if "report" not in data else (data["report"], False)
+
     params_dict = params_obj_to_dict(params_obj)
     table = fit_table(params_dict)
-    report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
     return table, report, hide
