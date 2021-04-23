@@ -17,7 +17,8 @@ TARGET = ["add", "duplicate", "remove"]
 
 def icon_text(icon, text):
     return html.Div(
-        [html.I(className=icon), html.Div(text, className="pl-2")], className=className
+        [html.I(className=icon, title=text), html.Div(text, className="pl-2")],
+        className=className,
     )
 
 

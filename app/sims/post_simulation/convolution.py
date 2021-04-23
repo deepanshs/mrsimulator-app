@@ -79,6 +79,7 @@ def ui(index, data=None, n_dim=1, n_dv=1):
                 id={"type": "remove-post_sim-functions", "index": index},
                 className="icon-button",
                 module="html",
+                tooltip="Remove convolution module.",
             ),
             "Convolution",
         ],

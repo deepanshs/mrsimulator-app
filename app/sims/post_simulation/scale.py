@@ -27,6 +27,7 @@ def ui(index, data=None):
                 id={"type": "remove-post_sim-functions", "index": index},
                 className="icon-button",
                 module="html",
+                tooltip="Remove scaling module.",
             ),
             "Scale",
         ],

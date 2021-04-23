@@ -128,7 +128,9 @@ def layout():
     title = html.Div(label, className="ui_title")
 
     # submit method button
-    submit = custom_button(text="Submit Method", id="apply-method-changes")
+    submit = custom_button(
+        text="Submit Method", id="apply-method-changes", tooltip="Submit Method"
+    )
     submit = html.Div(
         submit,
         id="apply-method-div",
@@ -138,7 +140,9 @@ def layout():
 
     # submit processing button
     submit_pro = custom_button(
-        text="Submit Processor", id="submit-signal-processor-button"
+        text="Submit Processor",
+        id="submit-signal-processor-button",
+        tooltip="Submit Processor",
     )
     submit_pro = html.Div(
         submit_pro,

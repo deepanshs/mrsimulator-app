@@ -119,7 +119,7 @@ def tools():
         """CSDM download per method and associated callback"""
         download_btn = custom_button(
             icon_classname="fas fa-download fa-lg",
-            tooltip="Download Simulation",
+            tooltip="Download Simulation from selected method.",
             id="export-simulation-from-method",
             className="icon-button",
             module="html",
@@ -173,15 +173,15 @@ def header():
 
     # help button and associated callback
     help_button = html.Div(
-        html.I(className="fas fa-question-circle pl-1 fa-lg"),
+        html.I(className="fas fa-question-circle pl-1 fa-lg", title="Show help"),
         id="pop-up-simulation-button",
         style={"cursor": "pointer"},
     )
     app.clientside_callback(
         "function (n, is_open) { return !is_open; }",
         Output("modal-simulation-help", "is_open"),
-        [Input("pop-up-simulation-button", "n_clicks")],
-        [State("modal-simulation-help", "is_open")],
+        Input("pop-up-simulation-button", "n_clicks"),
+        State("modal-simulation-help", "is_open"),
         prevent_initial_call=True,
     )
 

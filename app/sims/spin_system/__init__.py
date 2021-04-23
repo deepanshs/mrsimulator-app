@@ -82,12 +82,9 @@ def tools():
 
 
 def header():
-    title = html.Div(
-        [
-            html.I(className="fac fa-spin-systems fa-lg"),
-            html.H4("Spin Systems", className="hide-label-sm"),
-        ]
-    )
+    icon = html.I(className="fac fa-spin-systems fa-lg")
+    text = html.H4("Spin Systems", className="hide-label-sm")
+    title = html.Div([icon, text])
     search = dcc.Input(
         value="",
         id="search-spin-system",
@@ -107,18 +104,16 @@ def header():
 
 def layout():
     # abundance
-    abundance = html.Div(
-        custom_input_group(
-            append_label="%",
-            prepend_label="Abundance",
-            placeholder="Spin system abundance",
-            id="spin-system-abundance",
-            debounce=True,
-            max=100,
-            min=0,
-        ),
-        className="container",
+    abundance_group = custom_input_group(
+        append_label="%",
+        prepend_label="Abundance",
+        placeholder="Spin system abundance",
+        id="spin-system-abundance",
+        debounce=True,
+        max=100,
+        min=0,
     )
+    abundance = html.Div(abundance_group, className="container")
 
     # title
     label = html.Label(id="spin-system-title")
@@ -126,7 +121,10 @@ def layout():
 
     # submit button
     submit = custom_button(
-        text="Submit Spin System", id="apply-spin-system-changes", color="primary"
+        text="Submit Spin System",
+        id="apply-spin-system-changes",
+        color="primary",
+        tooltip="Submit Spin System",
     )
     submit = html.Div(submit, className="submit-button")
 

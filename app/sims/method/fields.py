@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input
@@ -20,15 +19,12 @@ __email__ = "srivastava.89@osu.edu"
 def experiment_ui():
 
     # upload experiment dataset
-    icon = html.I(className="fas fa-paperclip fa-lg")
-    tooltip = dbc.Tooltip(
-        (
-            "Click to attach a measurement file to the selected method. "
-            "Alternatively, drag and drop the file onto the Simulation area."
-        ),
-        target="import-measurement-for-method",
+    tooltip = (
+        "Click to attach a measurement file to the selected method. "
+        "Alternatively, drag and drop the file onto the Simulation area."
     )
-    clip_btn = html.Button([icon, tooltip], className="icon-button")
+    icon = html.I(className="fas fa-paperclip fa-lg", title=tooltip)
+    clip_btn = html.Button(icon, className="icon-button")
     upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
 
     # label = dbc.InputGroupAddon("Measurement data", addon_type="prepend")
@@ -170,7 +166,7 @@ def global_environment():
     # rotor angle
     magic_angle = custom_button(
         icon_classname="fas fa-magic",
-        tooltip="Set to magic angle",
+        tooltip="Set value to the magic angle.",
         id="set-to-magic-angle",
         className="icon-button",
         module="html",

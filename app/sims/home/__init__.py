@@ -21,7 +21,7 @@ from app.custom_widgets import custom_button
 def edit_sample_info_button_ui():
     return custom_button(
         icon_classname="fas fa-pencil-alt",
-        tooltip="Edit",
+        tooltip="Click to edit title and description.",
         id="title-home-button",
         className="icon-button",
         module="html",
@@ -29,10 +29,11 @@ def edit_sample_info_button_ui():
 
 
 def download_session_ui():
+    """Download session"""
     session_link = html.A(id="download-session-link", style={"display": "none"})
     session_button = custom_button(
         icon_classname="fas fa-file-download fa-lg",
-        tooltip="Download Session",
+        tooltip="Click to download the session",
         id="download-session-button",
         className="icon-button",
         module="html",
@@ -50,12 +51,13 @@ def download_session_ui():
 
 
 def tools():
+    """Add, duplicate, and remove tools."""
+    add = html.I(className="fas fa-plus-circle fa-lg", title="Add")
+    copy = html.I(className="fas fa-clone fa-lg", title="Duplicate")
+    remove = html.I(className="fas fa-minus-circle fa-lg", title="Remove")
+
     return html.Ul(
-        [
-            html.Li(html.Span(html.I(className="fas fa-plus-circle fa-lg"))),
-            html.Li(html.Span(html.I(className="fas fa-clone fa-lg"))),
-            html.Li(html.Span(html.I(className="fas fa-minus-circle fa-lg"))),
-        ],
+        [html.Li(html.Span(item)) for item in [add, copy, remove]],
         **{"data-edit-tools": ""},
     )
 
@@ -135,7 +137,8 @@ def system_overview_data(mrsim: dict):
     if "spin_systems" not in mrsim:
         return sys_row
 
-    icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-sys": ""})
+    icon = html.I(className="fas fa-pencil-alt", title="Edit spin system")
+    icon_span = html.Span(icon, **{"data-edit-sys": ""})
     for i, spin_system in enumerate(mrsim["spin_systems"]):
         name = "" if "name" not in spin_system else spin_system["name"]
         abd = (
@@ -145,7 +148,7 @@ def system_overview_data(mrsim: dict):
         )
         n_site = len(spin_system["sites"])
         isotopes = "-".join(set([item["isotope"] for item in spin_system["sites"]]))
-        pack = [i, name, abd, n_site, isotopes, icon]
+        pack = [i, name, abd, n_site, isotopes, icon_span]
         sys_row += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return sys_row
@@ -158,7 +161,8 @@ def method_overview_data(mrsim: dict):
     if "methods" not in mrsim:
         return method_row
 
-    icon = html.Span(html.I(className="fas fa-pencil-alt"), **{"data-edit-mth": ""})
+    icon = html.I(className="fas fa-pencil-alt", title="Edit method")
+    icon_span = html.Span(icon, **{"data-edit-mth": ""})
     for i, method in enumerate(mrsim["methods"]):
         name = "" if "name" not in method.keys() else method["name"]
         channels = "-".join(method["channels"])
@@ -172,7 +176,7 @@ def method_overview_data(mrsim: dict):
             if method["rotor_frequency"] is None
             else float(method["rotor_frequency"].split(" ")[0]) / 1e3
         )
-        pack = [i, name, channels, Bo, vr, icon]
+        pack = [i, name, channels, Bo, vr, icon_span]
         method_row += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return method_row
