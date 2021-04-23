@@ -44,7 +44,8 @@ table thead tr td div div {
 #fields-table input[type="checkbox"] {
   align-items: center;
 }
-#fields-table input[type="number"] {
+#fields-table input[type="number"],
+#fields-table input[type="text"] {
   width: 100%;
   padding: 0.5em;
   border-radius: 0.2em;

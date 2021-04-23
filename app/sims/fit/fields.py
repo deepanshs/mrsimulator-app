@@ -50,14 +50,15 @@ fields = ui()
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
     Input("reset-button", "n_clicks"),
     Input("local-mrsim-data", "data"),
-    State("local-mrsim-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
     State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
     State({"kind": "min", "name": ALL}, "value"),
     State({"kind": "max", "name": ALL}, "value"),
+    State({"kind": "expr", "name": ALL}, "value"),
+    prevent_initial_call=True,
 )
-def update_fitting_elements(n1, n2, _1, mr_data, *vals):
+def update_fitting_elements(n1, n2, mr_data, *vals):
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fitting elements", trigger_id)
     if trigger_id.startswith("{"):
@@ -82,6 +83,8 @@ def update_fitting_elements(n1, n2, _1, mr_data, *vals):
     State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
     State({"kind": "min", "name": ALL}, "value"),
     State({"kind": "max", "name": ALL}, "value"),
+    State({"kind": "expr", "name": ALL}, "value"),
+    prevent_initial_call=True,
 )
 # def update_fitting_data(n1, n2, n3, n4, _, mr_data, p_data, *vals):
 def update_fitting_data(n1, n2, mr_data, _, *vals):
@@ -125,18 +128,24 @@ def delete_param(name, vals):
     return table, no_update, no_update
 
 
-def construct_params_body(_):
-    data = ctx.states["local-mrsim-data.data"]
+def construct_params_body(*args):
+    data = ctx.inputs["local-mrsim-data.data"]
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if len(data["spin_systems"]) == 0:
         table = fit_table({})
         return table, no_update, True
 
-    if "params" in data and data["params"] is not None:
-        params_obj = Parameters().loads(data["params"])
-    else:
+    if trigger_id == "reset-button":
         sim, processor, _ = parse(data)
         params_obj = make_LMFIT_params(sim, processor)
+
+    else:
+        if "params" in data and data["params"] is not None:
+            params_obj = Parameters().loads(data["params"])
+        else:
+            sim, processor, _ = parse(data)
+            params_obj = make_LMFIT_params(sim, processor)
 
     params_dict = params_obj_to_dict(params_obj)
     table = fit_table(params_dict)
@@ -158,7 +167,7 @@ def fit_table(params_dict):
     Returns:
         html.Table with inputs
     """
-    fit_header = ["", "Name", "Value", "Min", "Max", ""]
+    fit_header = ["", "Name", "Value", "Min", "Max", "expr", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -168,6 +177,7 @@ def fit_table(params_dict):
         val_id = {"name": f"{key}-value", "kind": "value"}
         min_id = {"name": f"{key}-min", "kind": "min"}
         max_id = {"name": f"{key}-max", "kind": "max"}
+        expr_id = {"name": f"{key}-expr", "kind": "expr"}
 
         # Name with tooltip on hover and pattern matching id
         name = html.Div(id=name_id, children=key)
@@ -180,12 +190,13 @@ def fit_table(params_dict):
         val = dcc.Input(id=val_id, value=vals["value"], **input_args)
         min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
         max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
+        expr_ = dcc.Input(id=expr_id, value=vals["expr"])
         ic = html.Span(
             html.I(className="fas fa-times", title="Remove Parameter"),
             id={"name": f"delete-{key}-row", "kind": "delete"},
             **{"data-edit-mth": ""},
         )
-        pack = [vary, name_div, val, min_, max_, ic]
+        pack = [vary, name_div, val, min_, max_, expr_, ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(id="fields-table", children=fit_rows)
@@ -199,13 +210,17 @@ def params_obj_to_dict(params_obj):
     Return:
         params_dict: dictionary of lmfit parameters
     """
-    KEY_LIST = ["vary", "value", "min", "max"]  # Add expr eventually
-    params_dict = {}
+    KEY_LIST = ["vary", "value", "min", "max", "expr"]  # Add expr eventually
+    # params_dict = {}
 
-    for name, param in params_obj.items():
-        params_dict[name] = {key: getattr(param, key) for key in KEY_LIST}
+    # for name, param in params_obj.items():
+    #     params_dict[name] = {key: getattr(param, key) for key in KEY_LIST}
+    # return params_dict
 
-    return params_dict
+    return {
+        name: {key: getattr(param, key) for key in KEY_LIST}
+        for name, param in params_obj.items()
+    }
 
 
 def get_new_params_json(vals):
