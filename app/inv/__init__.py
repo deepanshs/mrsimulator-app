@@ -122,7 +122,7 @@ def update_input_graph(contents, tr_val, url, figure, data):
 
 
 def pre_figure(exp_data, figure):
-    [item.to("ppm", "nmr_frequency_ratio") for item in exp_data.x]
+    _ = [item.to("ppm", "nmr_frequency_ratio") for item in exp_data.x]
     x, y = [item.coordinates.value for item in exp_data.x]
     z = exp_data.y[0].components[0].real
     trace = go.Heatmap(x=x, y=y, z=z, colorscale="jet")
@@ -299,9 +299,9 @@ def start_task_callback(n_clicks, task_id, l1, l2, data):
         # invalid input
         slogger("start_task_callback", "user has not selected any year")
         return "none"
-    else:
-        # valid, so proceed
-        slogger("start_task_callback", f"l1={l1} l2={l2}")
+
+    # valid, so proceed
+    slogger("start_task_callback", f"l1={l1} l2={l2}")
 
     # Put search function in the queue and return task id
     # (arguments must always be passed as a list)
@@ -324,22 +324,19 @@ def toggle_interval_speed(task_id, task_status):
     if task_id == "none":
         slogger("toggle_interval_speed", "no task-id --> slow refresh")
         return 24 * 60 * 60 * 1000
+
     if task_id != "none" and (task_status in ["SUCCESS", "FAILURE"]):
         slogger(
             "toggle_interval_speed",
-            "task-id is {} and status is {} --> slow refresh".format(
-                task_id, task_status
-            ),
+            f"task-id is {task_id} and status is {task_status} --> slow refresh",
         )
         return 24 * 60 * 60 * 1000
-    else:
-        slogger(
-            "toggle_interval_speed",
-            "task-id is {} and status is {} --> fast refresh".format(
-                task_id, task_status
-            ),
-        )
-        return 5000
+
+    slogger(
+        "toggle_interval_speed",
+        f"task-id is {task_id} and status is {task_status} --> fast refresh",
+    )
+    return 5000
 
 
 # Don't touch this:
@@ -354,12 +351,12 @@ def show_hide_spinner(n_intervals, task_status):
     if task_status == "PROGRESS":
         slogger("show_hide_spinner", "show spinner")
         return None
-    else:
-        slogger(
-            "show_hide_spinner",
-            "hide spinner because task_status={}".format(task_status),
-        )
-        return {"display": "none"}
+
+    slogger(
+        "show_hide_spinner",
+        "hide spinner because task_status={}".format(task_status),
+    )
+    return {"display": "none"}
 
 
 # Don't touch this:
@@ -399,9 +396,8 @@ def get_results(task_status, task_id):
             return ["We couldn't find any results.  Try broadening your search."]
         # Otherwise return the populated DataTable
         return result
-    else:
-        # don't display any results
-        raise PreventUpdate
+
+    raise PreventUpdate
 
 
 @app.callback(
@@ -411,7 +407,7 @@ def get_results(task_status, task_id):
 )
 def update_plot(data):
     res = cp.parse_dict(data)
-    [item.to("ppm", "nmr_frequency_ratio") for item in res.x]
+    _ = [item.to("ppm", "nmr_frequency_ratio") for item in res.x]
     x, y, z = [item.coordinates.value for item in res.x]
     x_, y_, z_ = np.meshgrid(x, y, z, indexing="ij")
 

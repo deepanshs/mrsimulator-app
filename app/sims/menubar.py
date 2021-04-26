@@ -88,7 +88,7 @@ def spin_system_menu():
     ]
 
     # Callbacks for the add, duplicate, and remove spin systems
-    [
+    _ = [
         app.clientside_callback(
             f"""
             function() {{
@@ -154,7 +154,7 @@ def method_menu():
     ]
 
     # Callbacks for the add, duplicate, and remove methods
-    [
+    _ = [
         app.clientside_callback(
             f"""
             function() {{

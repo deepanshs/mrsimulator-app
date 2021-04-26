@@ -35,9 +35,8 @@ const ISOTOPE_DATA = [
   "203Tl",
   "207Pb",
 ];
-const to_deg = 180 / 3.14159265359;
+
 const ATTR_PER_SITE = 12;
-const euler_angle = ["alpha", "beta", "gamma"];
 const ALL_KEYS = [
   "isotope",
   "isotropic_chemical_shift",

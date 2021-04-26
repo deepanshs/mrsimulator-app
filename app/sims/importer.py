@@ -532,9 +532,7 @@ def least_squares_fit():
     sim, processor, result = parse(mrsim_data)
 
     check_for_exp = np.asarray([mth.experiment is None for mth in sim.methods])
-    print(check_for_exp)
     check_for_exp = np.where(check_for_exp == 1)[0]
-    print(check_for_exp, check_for_exp.size)
     if check_for_exp.size != 0:
         return on_fail_message(
             "LeastSquaresAnalysisError: Please attach measurement(s) for method(s) at "

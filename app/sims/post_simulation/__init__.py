@@ -114,9 +114,10 @@ def on_remove_post_sim_function(index):
         sub_item = item["props"]["children"][0]
         sub_sub_item = sub_item["props"]["children"]["props"]["children"][1]
         if sub_sub_item["props"]["id"]["index"] == index:
+            index = i
             break
 
-    del post_sim_obj[i]
+    del post_sim_obj[index]
 
     return update_processor_ui(post_sim_obj)
 
