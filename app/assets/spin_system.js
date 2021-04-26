@@ -285,7 +285,7 @@ var spinSystemOnClick = function (obj, index) {
   hideQuad();
 
   // Select the corresponding tr elements
-  overView = document.querySelectorAll("[data-table-sys] tr");
+  let overView = document.querySelectorAll("[data-table-sys] tr");
   overView.forEach((tr) => {
     tr.classList.remove("active");
   });

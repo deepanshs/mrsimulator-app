@@ -192,6 +192,9 @@ table thead th:first-child,
 table thead th:last-child {
   width: 10%;
 }
+table thead th:nth-child(2) {
+  width: 30%;
+}
 table thead tr th,
 table thead tr td {
   text-align: center;

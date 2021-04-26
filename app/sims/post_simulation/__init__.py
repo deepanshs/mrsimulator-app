@@ -79,17 +79,16 @@ def generate_signal_processor_dict(n_dims):
 def setup():
     method_index = ctx.inputs["select-method.value"]
     existing_data = ctx.states["local-mrsim-data.data"]
-    existing_process_data = existing_data["signal_processors"]
 
     if method_index is None:
         raise PreventUpdate
 
-    method_options = ctx.states["select-method.options"]
-    print("method_options", method_options)
-    method_options = [1] or method_options
+    mth_options = ctx.states["select-method.options"]
+    print("method_options", mth_options)
+    mth_options = [1] or mth_options
 
-    if existing_process_data is None:
-        existing_process_data = [{"operations": []} for _ in method_options]
+    if existing_data["signal_processors"] is None:
+        existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
     return existing_data, method_index
 
 

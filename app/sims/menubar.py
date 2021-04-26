@@ -227,16 +227,25 @@ def help_menu():
             target="_blank",
         ),
         menu_item(
-            icon_text("fab fa-github", "Github"),
+            icon_text("fab fa-github", "Github project"),
             href="https://github.com/DeepanshS/mrsimulator",
             external_link=True,
             target="_blank",
         ),
         menu_item(icon_text("fas fa-flag", "Report"), id="modal-Report-button"),
         menu_item(
-            icon_text("fas fa-users", "Contributors"), id="modal-Contributors-button"
+            icon_text("fas fa-users", "Contributors"),
+            href="https://github.com/DeepanshS/mrsimulator-app/graphs/contributors",
+            external_link=True,
+            target="_blank",
         ),
-        menu_item(icon_text("fas fa-info-circle", "About"), id="modal-About-button"),
+        menu_item(
+            icon_text("fas fa-comments", "Start a discussion"),
+            href="https://github.com/DeepanshS/mrsimulator-app/discussions",
+            external_link=True,
+            target="_blank",
+        ),
+        menu_item(icon_text("fas fa-info-circle", "About"), id="modal-about-button"),
         about_modals,
     ]
 
