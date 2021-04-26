@@ -190,9 +190,8 @@ def overview_page(mrsim):
     sample_overview = sample_overview_layout(title, description)
     method_overview = method_overview_layout(mrsim)
     system_overview = spin_system_overview_layout(mrsim)
-    fit_button = html.Button("Fit", id="fit-button")
     return html.Div(
-        [*sample_overview, *method_overview, *system_overview, fit_button],
+        [*sample_overview, *method_overview, *system_overview],
         **{"data-home-table": ""},
     )
 

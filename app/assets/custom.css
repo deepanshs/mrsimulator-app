@@ -59,7 +59,9 @@ input[type="search"]:focus {
   background-color: transparent;
   border-bottom: none;
 }
-
+.card-header .btn-group {
+  padding: 0;
+}
 .card-header input {
   min-width: 5rem;
   border-radius: 0.35rem;
@@ -227,12 +229,14 @@ table td:last-child {
   border-right: none;
 }
 span[data-edit-sys],
-span[data-edit-mth] {
+span[data-edit-mth],
+span[data-edit-fit] {
   color: #cacaca;
   cursor: pointer;
 }
 span[data-edit-sys]:hover,
-span[data-edit-mth]:hover {
+span[data-edit-mth]:hover,
+span[data-edit-fit]:hover {
   color: #414141;
 }
 
