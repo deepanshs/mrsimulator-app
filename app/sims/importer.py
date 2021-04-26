@@ -487,8 +487,11 @@ def assemble_data(data):
         "number_of_sidebands",
         "decompose_spectrum",
     ]
-    mrsim_config = [data["config"][item] for item in fields]
-    mrsim_config[-1] = no_update
+    if data["config"] != {}:
+        mrsim_config = [data["config"][item] for item in fields]
+        mrsim_config[-1] = no_update
+    else:
+        mrsim_config = [no_update] * 4
 
     spin_system_overview = spin_system_UI.refresh(data["spin_systems"])
     method_overview = method_UI.refresh(data["methods"])
