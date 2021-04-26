@@ -111,8 +111,8 @@ def on_remove_post_sim_function(index):
     post_sim_obj = ctx.states["post_sim_child.children"]
 
     for i, item in enumerate(post_sim_obj):
-        sub_item = item["props"]["children"]["props"]["children"][0]
-        sub_sub_item = sub_item["props"]["children"]["props"]["children"][0]
+        sub_item = item["props"]["children"][0]
+        sub_sub_item = sub_item["props"]["children"]["props"]["children"][1]
         if sub_sub_item["props"]["id"]["index"] == index:
             break
 

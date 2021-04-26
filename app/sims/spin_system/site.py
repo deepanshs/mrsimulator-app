@@ -67,10 +67,10 @@ def quadrupolar_ui():
     )
 
     # asymmetry and Euler angles
-    return collapsable_card_ui(Cq_ui, "quadrupolar")
+    return collapsable_card_ui(Cq_ui, "quadrupolar", True)
 
 
-def collapsable_card_ui(item, prefix):
+def collapsable_card_ui(item, prefix, outer_collapse=False):
     eta_ui = custom_input_group(
         prepend_label="Asymmetry (η)",
         append_label="",
@@ -98,6 +98,7 @@ def collapsable_card_ui(item, prefix):
         featured=[item, eta_ui],
         hidden=euler_angles_ui,
         message="Show/Hide Euler angles",
+        outer=outer_collapse,
     )
 
 

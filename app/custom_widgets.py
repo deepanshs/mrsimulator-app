@@ -206,19 +206,32 @@ def container(text, featured, **kwargs):
     return custom_card(text=html.Div(text), children=children, **kwargs)
 
 
-def collapsable_card(text, id_, featured, hidden=None, message=None):
+def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False):
     # collapsable button
     icon = html.I(className="fas fa-chevron-down", title=message)
     vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
+    # if isinstance(id_, dict):
+    #     id_button = {**id_, "collapse": "button"}
+    #     id_button_callable = deepcopy(id_button)
+    #     id_button_callable.update({"index": MATCH})
+    #     id_field = {**id_, "collapse": "fields"}
+    #     id_field_callable = deepcopy(id_field)
+    #     id_field_callable.update({"index": MATCH})
+    # if isinstance(id_, str):
+    id_button = f"{id_}-collapse-button"
+    id_button_callable = id_button
+    id_field = f"{id_}-collapse-fields"
+    id_field_callable = id_field
+
     chevron_down_btn = html.Label(
         icon,
-        id=f"{id_}-collapse-button",
+        id=id_button,
         style=vis,
-        **{
-            "data-toggle": "collapse",
-            "data-target": f"#{id_}-collapse-fields",
-            "aria-expanded": "true",
-        },
+        # **{
+        #     "data-toggle": "collapse",
+        #     "data-target": f"#{id_}-collapse-fields",
+        #     "aria-expanded": "true",
+        # },
     )
 
     # featured fields
@@ -228,10 +241,22 @@ def collapsable_card(text, id_, featured, hidden=None, message=None):
 
     # collapsed fields
     if hidden is not None:
-        featured += [dbc.Collapse(hidden, id=f"{id_}-collapse-fields", is_open=False)]
+        featured += [dbc.Collapse(hidden, id=id_field, is_open=False)]
 
     content = custom_card(
         text=html.Div(text),
         children=html.Div(featured, className="container"),
     )
+
+    app.clientside_callback(
+        """function (n, open) { return !open; }""",
+        Output(id_field_callable, "is_open"),
+        Input(id_button_callable, "n_clicks"),
+        State(id_field_callable, "is_open"),
+        prevent_initial_call=True,
+    )
+
+    if not outer:
+        return content
+
     return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

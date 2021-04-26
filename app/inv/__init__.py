@@ -376,7 +376,7 @@ def update_task_status(n_intervals, task_id):
 
 @app.callback(
     [
-        Output("INV-output", "figure"),
+        Output("INV-output-data", "data"),
         Output("INV-l1", "value"),
         Output("INV-l2", "value"),
     ],
@@ -402,3 +402,28 @@ def get_results(task_status, task_id):
     else:
         # don't display any results
         raise PreventUpdate
+
+
+@app.callback(
+    Output("INV-output", "figure"),
+    Input("INV-output-data", "data"),
+    prevent_initial_call=True,
+)
+def update_plot(data):
+    res = cp.parse_dict(data)
+    [item.to("ppm", "nmr_frequency_ratio") for item in res.x]
+    x, y, z = [item.coordinates.value for item in res.x]
+    x_, y_, z_ = np.meshgrid(x, y, z, indexing="ij")
+
+    trace = go.Volume(
+        x=x_.ravel(),
+        y=y_.ravel(),
+        z=z_.ravel(),
+        value=res.y[0].components[0].T.ravel(),
+        isomin=0.05,
+        isomax=0.95,
+        opacity=0.1,  # needs to be small to see through all surfaces
+        surface_count=25,  # needs to be a large number for good volume rendering
+        colorscale="RdBu",
+    )
+    return {"data": [trace]}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dash import callback_context as ctx
 
-from app.custom_widgets import collapsable_card
+from app.custom_widgets import container
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 from app.sims.utils import update_processor_ui
@@ -20,8 +20,9 @@ def ui(index, data=None):
         pattern="[0-9]*",
     )
 
-    return collapsable_card(
+    return container(
         text=[
+            "Scale",
             custom_button(
                 icon_classname="fas fa-times",
                 id={"type": "remove-post_sim-functions", "index": index},
@@ -29,9 +30,7 @@ def ui(index, data=None):
                 module="html",
                 tooltip="Remove scaling module.",
             ),
-            "Scale",
         ],
-        id_=f"scale-post-sim-{index}",
         featured=scale,
     )
 

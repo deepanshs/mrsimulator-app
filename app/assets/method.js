@@ -53,7 +53,7 @@ var delMethod = function (l) {
   let result = {};
   checkForEmptyListBeforeOperation("delete", "method", l);
   let new_val = window.method.getIndex();
-  result.data = null;
+  result.data = Date.now();
   result.index = new_val;
   result.operation = "delete";
   n4 = l = new_val = null;

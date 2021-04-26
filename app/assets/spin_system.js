@@ -349,8 +349,7 @@ var delSystem = function (l) {
   let result = {};
   checkForEmptyListBeforeOperation("delete", "spin system", l);
   let new_val = window.spinSystem.getIndex();
-  console.log("index to remove", new_val);
-  result.data = null;
+  result.data = Date.now();
   result.index = new_val;
   result.operation = "delete";
   l = new_val = null;

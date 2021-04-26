@@ -131,6 +131,7 @@ def spectral_dimension_ui(i):
         featured=[count, spectral_width, reference_offset],
         hidden=[label],
         message="Show/Hide",
+        outer=True,
     )
 
 
