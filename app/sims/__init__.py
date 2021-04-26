@@ -267,7 +267,7 @@ def plot(*args):
 def get_plot_trace(data, normalized, decompose=False, name=""):
     plot_trace = []
     data = cp.parse_dict(data).real
-    [
+    _ = [
         item.to("ppm", "nmr_frequency_ratio")
         for item in data.dimensions
         if item.origin_offset.value != 0
