@@ -52,16 +52,6 @@ table thead tr td div div {
   border: 1px solid var(--text-box-underline-color);
 }
 
-#fields-table input:valid {
-  color: rgb(0, 0, 0);
-}
-
-#fields-table input:invalid {
-  color: #ec1a36ea;
-  text-decoration: line-through;
-  outline: none;
-}
-
 #fields-table input:focus,
 #fields-table:focus {
   color: black;

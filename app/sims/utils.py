@@ -16,7 +16,7 @@ def expand_output(out):
 def update_processor_ui(processor):
     out = {
         "alert": ["", False],
-        "mrsim": [no_update, no_update],
+        "mrsim": [no_update, no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [processor],

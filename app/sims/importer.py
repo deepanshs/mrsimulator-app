@@ -3,6 +3,7 @@ import base64
 import json
 import os
 from urllib.request import urlopen
+from datetime import datetime
 
 import csdmpy as cp
 import mrsimulator as mrsim
@@ -47,6 +48,7 @@ PATH = os.path.split(__file__)[0]
         Output("alert-message-import", "is_open"),
         Output("local-mrsim-data", "data"),
         Output("config", "data"),
+        Output("trigger-table-update", "data"),
         Output("spin-system-read-only", "children"),
         Output("method-read-only", "children"),
         Output("info-read-only", "children"),
@@ -138,7 +140,7 @@ def on_fail_message(message):
     """
     out = {
         "alert": [message, True],
-        "mrsim": [no_update, no_update],
+        "mrsim": [no_update, no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -154,7 +156,7 @@ def prep_valid_data_for_simulation(valid_data):
     """
     out = {
         "alert": ["", False],
-        "mrsim": [valid_data, no_update],
+        "mrsim": [valid_data, no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -222,7 +224,7 @@ def save_info_modal():
     home_overview = home_UI.refresh(existing_data)
     out = {
         "alert": ["", False],
-        "mrsim": [existing_data, no_update],
+        "mrsim": [existing_data, no_update, no_update],
         "children": [no_update, no_update, home_overview],
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -239,7 +241,7 @@ def on_method_update():
 
         out = {
             "alert": ["", False],
-            "mrsim": [existing_data, no_update],
+            "mrsim": [existing_data, no_update, int(datetime.now().timestamp() * 1000)],
             "children": [no_update, method_overview, home_overview],
             "mrsim_config": [no_update] * 4,
             "processor": [[]] if len(existing_data["methods"]) == n else [no_update],
@@ -296,7 +298,7 @@ def on_spin_system_change():
 
         out = {
             "alert": ["", False],
-            "mrsim": [existing_data, no_update],
+            "mrsim": [existing_data, no_update, int(datetime.now().timestamp() * 1000)],
             "children": [spin_system_overview, no_update, home_overview],
             "mrsim_config": [no_update] * 4,
             "processor": [no_update],
@@ -367,7 +369,7 @@ def add_measurement_to_a_method():
 
     out = {
         "alert": ["", False],
-        "mrsim": [existing_data, no_update],
+        "mrsim": [existing_data, no_update, no_update],
         "children": [no_update, method_overview, no_update],
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -485,7 +487,7 @@ def assemble_data(data):
 
     out = {
         "alert": ["", False],
-        "mrsim": [data, no_update],
+        "mrsim": [data, no_update, int(datetime.now().timestamp() * 1000)],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": mrsim_config,
         "processor": [post_sim_overview],
@@ -507,8 +509,7 @@ def load_csdm(content):
         return False, "", e
 
 
-def simulate_test():
-    print("The Simulate Spectrum button has been clicked")
+def simulate_spectrum():
     mrsim_data = ctx.states["local-mrsim-data.data"]
     params_data = ctx.states["params-data.data"]
 
@@ -523,12 +524,14 @@ def simulate_test():
 
     update_mrsim_obj_from_params(params, sim, processor)
     new_mrsim_data = mrsim.dict(sim, processor, saved_params)
+    new_mrsim_data["params"] = params.dumps()
+    # new_mrsim_data = mrsim.dict(sim, processor, params)  # Use this line? Or something else
 
     out = {
         "alert": ["", False],
-        "mrsim": [new_mrsim_data, no_update],
+        "mrsim": [new_mrsim_data, no_update, no_update],
         "children": [no_update, no_update, no_update],
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update, no_update, no_update, no_update],
         "processor": [no_update],
     }
     return expand_output(out)
@@ -584,11 +587,8 @@ def least_squares_fit():
     for sys in sim.spin_systems:
         sys.transition_pathways = None
 
-    fit_data = mrsim.dict(sim, processor, result.params)
+    fit_data = mrsim.dict(sim, processor, result.params)  # Params in fitting tab are not grabbed correctly
     fit_data["report"] = fitreport_html_table(result)
-
-    print("IMPORTER")
-    print(result.params.dumps())
 
     spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
     method_overview = method_UI.refresh(fit_data["methods"])
@@ -598,7 +598,7 @@ def least_squares_fit():
     )
     out = {
         "alert": ["", False],
-        "mrsim": [fit_data, no_update],
+        "mrsim": [fit_data, no_update, int(datetime.now().timestamp() * 1000)],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": [no_update] * 4,
         "processor": [post_sim_overview],
@@ -626,7 +626,7 @@ CALLBACKS = {
     "add-post_sim-convolution": PostSim.on_add_post_sim_convolutions,
     "remove-post_sim-functions": PostSim.on_remove_post_sim_function,
     "select-method": PostSim.on_method_select,
-    "trigger-sim": simulate_test,
+    "trigger-sim": simulate_spectrum,
     "trigger-fit": least_squares_fit,
 }
 

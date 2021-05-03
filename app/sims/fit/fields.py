@@ -21,7 +21,7 @@ from app import app
 
 CSS_STR = '*{font-family:"Helvetica",sans-serif;}td{padding: 0 8px}'
 
-
+# Reorganize layout of fitting elements to be more user friendly (modals, grouping)
 def inputs():
     """Parameters input html div"""
     return html.Div(id="params-input-div", children=[])
@@ -43,39 +43,15 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-@app.callback(
-    Output("params-input-div", "children"),
-    Output("params-report-div", "children"),
-    Output("params-report-div", "hidden"),
-    Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    Input("reset-button", "n_clicks"),
-    Input("local-mrsim-data", "data"),
-    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
-    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
-    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
-    State({"kind": "min", "name": ALL}, "value"),
-    State({"kind": "max", "name": ALL}, "value"),
-    State({"kind": "expr", "name": ALL}, "value"),
-    prevent_initial_call=True,
-)
-def update_fitting_elements(n1, n2, mr_data, *vals):
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("fitting elements", trigger_id)
-    if trigger_id.startswith("{"):
-        py_dict = json.loads(trigger_id)
-        name, trigger_id = py_dict["name"], py_dict["kind"]
-        return CALLBACKS[trigger_id](name, vals)
-
-    return CALLBACKS[trigger_id](vals)
-
-
-# Main data callback
+# Two callbacks are needed to avoid circular dependecy error
 @app.callback(
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
+
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
+
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
@@ -86,14 +62,45 @@ def update_fitting_elements(n1, n2, mr_data, *vals):
     State({"kind": "expr", "name": ALL}, "value"),
     prevent_initial_call=True,
 )
-# def update_fitting_data(n1, n2, n3, n4, _, mr_data, p_data, *vals):
-def update_fitting_data(n1, n2, mr_data, _, *vals):
-    """Main callback for fitting parameters interface"""
+def update_fit_data(n1, n2, mr_data, p_data, *vals):
+    """Main fitting callback dealing with data management"""
     if not ctx.triggered:
         raise PreventUpdate
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("fitting data", trigger_id)
+    print("fit data", trigger_id)
+
+    return CALLBACKS[trigger_id](vals)
+
+
+@app.callback(
+    Output("params-input-div", "children"),
+    Output("params-report-div", "children"),
+    Output("params-report-div", "hidden"),
+
+    Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    Input("reset-button", "n_clicks"),  # Goes away soon
+    # Input("local-mrsim-data", "data"),
+    Input("trigger-table-update", "data"),
+
+    State("local-mrsim-data", "data"),
+    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
+    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
+    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
+    State({"kind": "min", "name": ALL}, "value"),
+    State({"kind": "max", "name": ALL}, "value"),
+    State({"kind": "expr", "name": ALL}, "value"),
+    prevent_initial_call=True,
+)
+def update_fit_elements(n1, n2, trig, mr_data, *vals):
+    "Main fitting callback dealing with visible elements"
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("fit elements", trigger_id)
+
+    if trigger_id.startswith("{"):
+        py_dict = json.loads(trigger_id)
+        name, trigger_id = py_dict["name"], py_dict["kind"]
+        return CALLBACKS[trigger_id](name, vals)
 
     return CALLBACKS[trigger_id](vals)
 
@@ -106,11 +113,6 @@ def update_params_and_simulate(vals):
 
 def update_params_and_fit(vals):
     """Updates stored Parameters object JSON and triggers fitting"""
-    params_data = ctx.states["params-data.data"]
-
-    print("FITTING")
-    print(params_data)
-
     return get_new_params_json(vals), no_update, int(datetime.now().timestamp() * 1000)
 
 
@@ -120,6 +122,7 @@ def delete_param(name, vals):
     params_obj = Parameters().loads(params_data)
 
     name = name.split("-")[1]
+    # Add check to make sure name is in params
     del params_obj[name]
 
     params_dict = params_obj_to_dict(params_obj)
@@ -128,37 +131,47 @@ def delete_param(name, vals):
     return table, no_update, no_update
 
 
-def construct_params_body(*args):
-    data = ctx.inputs["local-mrsim-data.data"]
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+def reset_params_body(*args):
+    # data = ctx.inputs["local-mrsim-data.data"]
+    data = ctx.states["local-mrsim-data.data"]
 
     if len(data["spin_systems"]) == 0:
         table = fit_table({})
-        return table, no_update, True
+        return table, no_update, no_update
 
-    if trigger_id == "reset-button":
-        sim, processor, _ = parse(data)
-        params_obj = make_LMFIT_params(sim, processor)
-        report, hide = ("", True)
-    else:
-        if "params" in data and data["params"] is not None:
-            params_obj = Parameters().loads(data["params"])
-        else:
-            sim, processor, _ = parse(data)
-            params_obj = make_LMFIT_params(sim, processor)
-
-        report, hide = ("", True) if "report" not in data else (data["report"], False)
-
-    params_dict = params_obj_to_dict(params_obj)
-    table = fit_table(params_dict)
+    sim, processor, report = parse(data)
+    params_obj = make_LMFIT_params(sim, processor)
+    table = fit_table(params_obj_to_dict(params_obj))
+    report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
     return table, report, hide
 
 
-# Add 'expression' field after code refactored
-#   requires validation? or can take errors from 'lmfit' library
+def update_params_body(*args):
+    # data = ctx.inputs["local-mrsim-data.data"]
+    data = ctx.states["local-mrsim-data.data"]
+
+    if len(data["spin_systems"]) == 0:
+        table = fit_table({})
+        return table, no_update, True
+
+    sim, processor, report = parse(data)
+    
+    if "params" in data and data["params"] is not None:
+        params_obj = Parameters().loads(data["params"])
+    else:
+        params_obj = make_LMFIT_params(sim, processor)
+
+    table = fit_table(params_obj_to_dict(params_obj))
+    report, hide = ("", True) if "report" not in data else (data["report"], False)
+    report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
+
+    return table, report, hide
+
+
 # Truncate decimal places (using css?)
+# Redo layout with modals for space
 def fit_table(params_dict):
     """Constructs html table of parameter inputs fields for user input
 
@@ -187,7 +200,6 @@ def fit_table(params_dict):
         name_div = html.Div([name_wrapper, tooltip])
 
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
-        # Safari raises input invalid with type=number and a float value
         val = dcc.Input(id=val_id, value=vals["value"], **input_args)
         min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
         max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
@@ -212,11 +224,6 @@ def params_obj_to_dict(params_obj):
         params_dict: dictionary of lmfit parameters
     """
     KEY_LIST = ["vary", "value", "min", "max", "expr"]  # Add expr eventually
-    # params_dict = {}
-
-    # for name, param in params_obj.items():
-    #     params_dict[name] = {key: getattr(param, key) for key in KEY_LIST}
-    # return params_dict
 
     return {
         name: {key: getattr(param, key) for key in KEY_LIST}
@@ -230,7 +237,6 @@ def get_new_params_json(vals):
     new_obj = Parameters()
 
     for row in zip_vals:
-        print(row)
         new_obj.add(*row)
 
     return new_obj.dumps()
@@ -239,16 +245,17 @@ def get_new_params_json(vals):
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "reset-button": construct_params_body,
-    "local-mrsim-data": construct_params_body,
+    "reset-button": reset_params_body,
+    "trigger-table-update": update_params_body,
+    # "local-mrsim-data": update_params_body,
     "delete": delete_param,
 }
 
 
-# def expand_output(out):
-#     """Plotly callback outputs for `update_fitting` function"""
+# def expand_fit_output(out):
 #     return [
-#         *out["params"],
-#         *out["body"],
-#         *out["trigger"]
+#         *out["table"],
+#         *out["report"],
+#         *out["params_data"],
+#         *out["trigger"],
 #     ]

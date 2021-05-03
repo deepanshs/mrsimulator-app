@@ -9,10 +9,11 @@ from app.custom_widgets import custom_button
 
 store = [
     # JSON string of Parameters object
-    dcc.Store(id="params-data", storage_type="session"),  # Change back to memory
-    # Timestamps for triggering sim/fit in importer
+    dcc.Store(id="params-data", storage_type="memory"),
+    # Timestamps for triggering fitting callbacks
     dcc.Store(id="trigger-sim", storage_type="memory"),
     dcc.Store(id="trigger-fit", storage_type="memory"),
+    dcc.Store(id="trigger-table-update", storage_type="memory"),
 ]
 storage_div = html.Div(id="fitting-store", children=store)
 

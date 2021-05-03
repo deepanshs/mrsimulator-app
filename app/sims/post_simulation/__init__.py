@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
@@ -132,7 +134,7 @@ def on_submit_signal_processor_button():
 
     out = {
         "alert": ["", False],
-        "mrsim": [existing_data, no_update],
+        "mrsim": [existing_data, no_update, int(datetime.now().timestamp() * 1000)],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
