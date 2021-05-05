@@ -7,14 +7,17 @@ from dash.exceptions import PreventUpdate
 
 from . import convolution as Convolution
 from . import scale as Scale
+from . import constant_offset as ConstantOffset
 from app.sims.utils import expand_output
 from app.sims.utils import update_processor_ui
+import json
 
 
 def tools():
     """Add, duplicate, or remove methods"""
     items = [
         dbc.DropdownMenuItem("Amplitude Scalar", id="add-post_sim-scalar"),
+        dbc.DropdownMenuItem("Baseline Offset", id="add-post_sim-constant_offset"),
         dbc.DropdownMenuItem("Convolutions", id="add-post_sim-convolution"),
     ]
     new = dbc.DropdownMenu(label="Add", children=items)
@@ -23,9 +26,13 @@ def tools():
 
 
 def refresh(data):
+    """Refresh and update the signal processing UI elements.
+
+    Args:
+        data: The mrsim json data.
+    """
     method_index = ctx.inputs["select-method.value"]
 
-    obj = []
     mth = data["methods"]
     sys = data["spin_systems"]
     post = data["signal_processors"]
@@ -34,46 +41,49 @@ def refresh(data):
     n_dim, n_dv = len(mth[method_index]["spectral_dimensions"]), len(sys)
     print("py_dict", post[method_index])
 
-    i = 0
+    obj, i = [], 0
     for item in post[method_index]["operations"]:
-        if item["function"] == "apodization":
-            obj.append(Convolution.ui(i, item, n_dim, n_dv))
-        if item["function"] == "Scale":
-            obj.append(Scale.ui(i, item))
+        if item["function"] not in ["FFT", "IFFT"]:
+            obj.append(
+                FUNCTION_UI_REFRESH[item["function"]](i, item, n_dim=n_dim, n_dv=n_dv)
+            )
         i += 1
     return obj
 
 
-def cycle_over_all():
-    operations = []
+def function_to_id_index_map():
+    """Maps signal processing functions to the state element id."""
     keys = ctx.states.keys()
     keys = [item for item in keys if '"function":' in item]
-
-    dict_ = {}
+    dict_map = {}
     for k in keys:
-        info = eval(k.split(".")[0])
-        fn = info["function"]
-        index = info["index"]
-        if fn not in dict_:
-            dict_[fn] = []
-        dict_[fn].append(index)
-
-    for k, v in dict_.items():
-        for index in set(v):
-            if k == "apodization":
-                operations.append(Convolution.get_apodization_dict(index))
-            if k == "scale":
-                operations.append(Scale.get_scale_dict(index))
-    return operations
+        info = json.loads(k.split(".")[0])
+        fn, index = info["function"], info["index"]
+        if fn not in dict_map:
+            dict_map[fn] = []
+        dict_map[fn].append(index)
+    return dict_map
 
 
 def generate_signal_processor_dict(n_dims):
+    """Iterate over all function and generate a SignalProcessor dict.
+
+    Args:
+        n_dims: Number of dimensions supported by the method.
+    """
+    dict_map = function_to_id_index_map()
+
     dims = [i for i in range(n_dims)]
-    operations = [{"dim_index": dims, "function": "IFFT"}]
-    operations += cycle_over_all()
-    operations += [{"dim_index": dims, "function": "FFT"}]
-    processor = {"operations": operations}
-    return processor
+    apodize = [{"dim_index": dims, "function": "IFFT"}]
+    other = []
+    [
+        [apodize.append(FUNCTION_DICT[k](index)) for index in set(v)]
+        if k == "apodization"
+        else [other.append(FUNCTION_DICT[k](index)) for index in set(v)]
+        for k, v in dict_map.items()
+    ]
+    apodize += [{"dim_index": dims, "function": "FFT"}]
+    return {"operations": apodize + other}
 
 
 def setup():
@@ -98,15 +108,12 @@ def on_method_select():
     return update_processor_ui(processor)
 
 
-def on_add_post_sim_scalar():
-    return Scale.refresh()
-
-
-def on_add_post_sim_convolutions():
-    return Convolution.refresh()
-
-
 def on_remove_post_sim_function(index):
+    """Remove the signal processing object at index `index`.
+
+    Args:
+        index: The index of the object to remove.
+    """
     post_sim_obj = ctx.states["post_sim_child.children"]
 
     for i, item in enumerate(post_sim_obj):
@@ -117,7 +124,6 @@ def on_remove_post_sim_function(index):
             break
 
     del post_sim_obj[index]
-
     return update_processor_ui(post_sim_obj)
 
 
@@ -139,3 +145,22 @@ def on_submit_signal_processor_button():
     }
 
     return expand_output(out)
+
+
+CALLBACKS = {
+    "scalar": Scale.refresh,
+    "constant_offset": ConstantOffset.refresh,
+    "convolution": Convolution.refresh,
+}
+
+FUNCTION_DICT = {
+    "apodization": Convolution.get_apodization_dict,
+    "scale": Scale.get_scale_dict,
+    "constant_offset": ConstantOffset.get_constant_offset_dict,
+}
+
+FUNCTION_UI_REFRESH = {
+    "apodization": Convolution.ui,
+    "Scale": Scale.ui,
+    "ConstantOffset": ConstantOffset.ui,
+}

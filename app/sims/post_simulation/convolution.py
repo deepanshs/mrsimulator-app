@@ -12,7 +12,7 @@ __author__ = "Deepansh Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
 
-def ui(index, data=None, n_dim=1, n_dv=1):
+def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
     def function_type(index):
         type_label = dbc.InputGroupAddon("Type", addon_type="prepend")
         val = "Exponential" if data is None else data["type"]
