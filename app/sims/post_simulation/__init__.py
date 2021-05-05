@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
+import json
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 from dash.exceptions import PreventUpdate
 
+from . import constant_offset as ConstantOffset
 from . import convolution as Convolution
 from . import scale as Scale
-from . import constant_offset as ConstantOffset
 from app.sims.utils import expand_output
 from app.sims.utils import update_processor_ui
-import json
 
 
 def tools():
