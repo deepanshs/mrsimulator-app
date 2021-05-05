@@ -34,7 +34,7 @@ simulation_help = dbc.Modal(
             [
                 html.P("The simulations are shown here."),
                 html.P(message_1),
-                html.B("Button function"),
+                html.B("Button Functions"),
                 help_message,
             ]
         ),
