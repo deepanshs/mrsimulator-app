@@ -2,8 +2,13 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
 
 from .fields import fields
+from .fit_modal import fit_info_modal
+from app import app
 from app.custom_widgets import custom_button
 
 
@@ -43,14 +48,20 @@ def buttons():
 
 
 def fit_header():
+    """Header for fitting tab"""
+    help_button = html.Div(
+        html.I(className="fas fa-question-circle pl-1 fa-lg"),
+        id="fit-info-modal-button",
+        style={"cursor": "pointer"},
+    )
     icon = html.I(className="fas fa-bullseye fa-lg")
     text = html.H4("Fitting Parameters", className="hide-label-sm")
-    title = html.Div([icon, text])
+    title = html.Div([icon, text, help_button])
     return html.Div([title, buttons()], className="card-header")
 
 
 def ui():
-    page = html.Div([fit_header(), fields, storage_div])
+    page = html.Div([fit_header(), fields, fit_info_modal, storage_div])
     return html.Div(className="left-card", children=page, id="fit-body")
 
 

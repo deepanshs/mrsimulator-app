@@ -12,25 +12,26 @@
   overflow-x: auto;
   scrollbar-width: thin;
 }
-/* Reduce widths of all cols based on additional expression */
+
 #fields-table {
   margin: 0;
 }
+
 #fields-table thead tr td {
   padding: 0.4em;
 }
+/* Checkbox and delete */
 #fields-table thead th:first-child,
 #fields-table thead th:last-child {
-  width: 6%;
+  width: 7%;
 }
-
+/* Name */
 #fields-table thead th:nth-child(2) {
-  width: 40%;
+  width: 60%;
 }
-
-#fields-table thead th:nth-child(4),
-#fields-table thead th:nth-child(5) {
-  width: 12%;
+/* More Button */
+#fields-table thead th:nth-child(4) {
+  width: 10%;
 }
 
 table thead tr td div div {

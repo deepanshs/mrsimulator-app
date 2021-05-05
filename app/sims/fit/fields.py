@@ -8,6 +8,7 @@ import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import ALL
+from dash.dependencies import MATCH
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -19,12 +20,17 @@ from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 from app import app
 
 
-CSS_STR = '*{font-family:"Helvetica",sans-serif;}td{padding: 0 8px}'
+CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
 
 # Reorganize layout of fitting elements to be more user friendly (modals, grouping)
 def inputs():
     """Parameters input html div"""
     return html.Div(id="params-input-div", children=[])
+
+
+def modals():
+    """Hidden modals div"""
+    return html.Div(id="params-modals-div", children=[], hidden=False)
 
 
 def report():
@@ -35,7 +41,7 @@ def report():
 def ui():
     """Main UI for fitting interface"""
     return html.Div(
-        children=[inputs(), report()], id="input-fields", className="fit-scroll"
+        children=[inputs(), modals(), report()], id="input-fields", className="fit-scroll"
     )
 
 
@@ -48,10 +54,8 @@ fields = ui()
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
-
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
-
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
@@ -75,14 +79,13 @@ def update_fit_data(n1, n2, mr_data, p_data, *vals):
 
 @app.callback(
     Output("params-input-div", "children"),
+    Output("params-modals-div", "children"),
     Output("params-report-div", "children"),
     Output("params-report-div", "hidden"),
-
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
     Input("reset-button", "n_clicks"),  # Goes away soon
     # Input("local-mrsim-data", "data"),
     Input("trigger-table-update", "data"),
-
     State("local-mrsim-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
@@ -103,6 +106,31 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
         return CALLBACKS[trigger_id](name, vals)
 
     return CALLBACKS[trigger_id](vals)
+
+# Opens/closes params modal
+# BUG: All modals open on app load
+app.clientside_callback(
+    "function (n1, n2, is_open) { return !is_open }",
+    Output({"kind": "modal", "parrent": MATCH}, "is_open"),
+    Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
+    Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
+    State({"kind": "modal", "parrent": MATCH}, "is_open"),
+)
+# @app.callback(
+#     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
+#     # Output("temp-1", "children"),
+#     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
+#     Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
+#     # Input({"kind": "delete", "name": ALL}, "n_clicks"),
+#     # Input("temp-1", "n_clicks"),
+#     State({"kind": "modal", "parrent": MATCH}, "is_open"),
+#     pprevent_initial_call=True
+# )
+# def open_params_modal(n1, n2, is_open):
+#     print("open modal")
+#     return not is_open
+#     # return (not is_open), n2
+#     # return not is_open
 
 
 # Helper Methods =======================================================================
@@ -125,10 +153,10 @@ def delete_param(name, vals):
     # Add check to make sure name is in params
     del params_obj[name]
 
-    params_dict = params_obj_to_dict(params_obj)
-    table = fit_table(params_dict)
+    table = fit_table(params_obj_to_dict(params_obj))
+    modals = modals_div(params_obj_to_dict(params_obj))
 
-    return table, no_update, no_update
+    return table, modals, no_update, no_update
 
 
 def reset_params_body(*args):
@@ -142,10 +170,11 @@ def reset_params_body(*args):
     sim, processor, report = parse(data)
     params_obj = make_LMFIT_params(sim, processor)
     table = fit_table(params_obj_to_dict(params_obj))
+    modals = modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
-    return table, report, hide
+    return table, modals, report, hide
 
 
 def update_params_body(*args):
@@ -157,21 +186,63 @@ def update_params_body(*args):
         return table, no_update, True
 
     sim, processor, report = parse(data)
-    
+
     if "params" in data and data["params"] is not None:
         params_obj = Parameters().loads(data["params"])
     else:
         params_obj = make_LMFIT_params(sim, processor)
 
     table = fit_table(params_obj_to_dict(params_obj))
+    modals = modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
-    return table, report, hide
+    # for modal in modals:
+    #     print(modal)
+
+    return table, modals, report, hide
+
+
+def modals_div(params_dict):
+    """Constructs hidden html.Div containing params modals
+    
+    Params:
+        params_dict: dict representation of Parameters object
+
+    Returns: 
+        list of modals 
+    """
+
+    def make_modal(key, vals):
+        """Helper method to make each modal"""
+        min_id = {"name": f"{key}-min", "kind": "min"}
+        max_id = {"name": f"{key}-max", "kind": "max"}
+        expr_id = {"name": f"{key}-expr", "kind": "expr"}
+        modal_id = {"kind": "modal", "parrent": key}
+        submit_id = {"kind": "modal-sub-btn", "parrent": key}
+        min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
+        max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
+        expr_ = dcc.Input(id=expr_id, value=vals["expr"])
+        
+        head = dbc.ModalHeader(f"Param: {key}")
+        body = dbc.ModalBody([
+            html.P(["Minimum ", min_]),
+            html.P(["Maximum ", max_]),
+            html.P(["Expression ", expr_]),
+        ])
+        foot = dbc.ModalFooter(dbc.Button("Submit", id=submit_id))
+
+        return dbc.Modal([head, body, foot], id=modal_id)
+
+    input_args = {"type": "number", "autoComplete": "off"}
+    modals = []
+    for key, vals in params_dict.items():
+        modals += [make_modal(key, vals)]
+
+    return modals
 
 
 # Truncate decimal places (using css?)
-# Redo layout with modals for space
 def fit_table(params_dict):
     """Constructs html table of parameter inputs fields for user input
 
@@ -181,7 +252,8 @@ def fit_table(params_dict):
     Returns:
         html.Table with inputs
     """
-    fit_header = ["", "Name", "Value", "Min", "Max", "expr", ""]
+    # fit_header = ["", "Name", "Value", "Min", "Max", "expr", ""]
+    fit_header = ["", "Name", "Value", "More", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -189,27 +261,26 @@ def fit_table(params_dict):
         vary_id = {"name": f"{key}-vary", "kind": "vary"}
         name_id = {"name": f"{key}-label", "kind": "name"}
         val_id = {"name": f"{key}-value", "kind": "value"}
-        min_id = {"name": f"{key}-min", "kind": "min"}
-        max_id = {"name": f"{key}-max", "kind": "max"}
-        expr_id = {"name": f"{key}-expr", "kind": "expr"}
+        mod_btn_id = {"kind": "modal-btn", "parrent": key}
+        del_id = {"name": f"delete-{key}-row", "kind": "delete"}
 
-        # Name with tooltip on hover and pattern matching id
         name = html.Div(id=name_id, children=key)
-        name_wrapper = html.Div(name, id=f"{key}-tooltip-div-wrapper")
-        tooltip = dbc.Tooltip(key, target=f"{key}-tooltip-div-wrapper")
-        name_div = html.Div([name_wrapper, tooltip])
-
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
         val = dcc.Input(id=val_id, value=vals["value"], **input_args)
-        min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
-        max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
-        expr_ = dcc.Input(id=expr_id, value=vals["expr"])
-        ic = html.Span(
-            html.I(className="fas fa-times", title="Remove Parameter"),
-            id={"name": f"delete-{key}-row", "kind": "delete"},
+
+        modal_ic = html.Span(
+            html.I(className="fas fa-sliders-h", title="More Settings"),
+            id=mod_btn_id,
             **{"data-edit-mth": ""},
         )
-        pack = [vary, name_div, val, min_, max_, expr_, ic]
+
+        del_ic = html.Span(
+            html.I(className="fas fa-times", title="Remove Parameter"),
+            id=del_id,
+            **{"data-edit-mth": ""},
+        )
+
+        pack = [vary, name, val, modal_ic, del_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(id="fields-table", children=fit_rows)
@@ -223,7 +294,7 @@ def params_obj_to_dict(params_obj):
     Return:
         params_dict: dictionary of lmfit parameters
     """
-    KEY_LIST = ["vary", "value", "min", "max", "expr"]  # Add expr eventually
+    KEY_LIST = ["vary", "value", "min", "max", "expr"]
 
     return {
         name: {key: getattr(param, key) for key in KEY_LIST}
