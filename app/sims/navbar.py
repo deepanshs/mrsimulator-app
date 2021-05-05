@@ -15,12 +15,11 @@ def brand():
     icon = dcc.Link(
         html.Img(
             src="/assets/mrsimulator-logo-dark.svg",
-            height="50px",
+            height="40px",
             alt="Mrsimulator",
         ),
         href="/",
     )
-    # version = html.Div(f"{__version__}")
     return dbc.NavbarBrand(icon, className="logo")
 
 

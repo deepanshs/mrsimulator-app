@@ -31,8 +31,8 @@
 }
 
 .tab-scroll {
-  min-height: calc(var(--content-min-height) - 19.62em);
-  height: calc(var(--content-max-height) - 19.62em);
+  min-height: calc(var(--content-min-height) - 18.3em);
+  height: calc(var(--content-max-height) - 18.3em);
   overflow-y: auto;
   scrollbar-width: thin;
 }

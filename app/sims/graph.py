@@ -53,6 +53,7 @@ default_layout = go.Layout(
     # plot_bgcolor="rgba(255,255,255,0.3)",
     template="none",
     clickmode="event+select",
+    # dragmode="drawrect",
 )
 
 default_fig_config = {
@@ -77,6 +78,14 @@ default_fig_config = {
         "hoverCompareCartesian",
         "toggleHover",
         # "toggleSpikelines",
+    ],
+    "modeBarButtonsToAdd": [
+        "drawline",
+        "drawopenpath",
+        "drawclosedpath",
+        "drawcircle",
+        "drawrect",
+        "eraseshape",
     ],
     "displaylogo": False,
 }
@@ -247,6 +256,8 @@ def one_d_single_trace(data, x0, dx, maximum, name=""):
     line = (
         {"color": "black", "width": 1}
         if name == "simulation"
+        else {"color": "#706f1c", "width": 1}
+        if name == "residual"
         else {"color": "#7e0a7e", "width": 1}
     )
     return [

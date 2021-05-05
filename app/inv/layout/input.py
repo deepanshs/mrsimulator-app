@@ -103,7 +103,7 @@ def channel():
 
 def magnetic_flux_density():
     return custom_input_group(
-        prepend_label="Magnetic flux density (H₀)",
+        prepend_label="Magnetic flux density B₀)",
         append_label="T",
         value=9.4,
         id="INV-kernel-flux",

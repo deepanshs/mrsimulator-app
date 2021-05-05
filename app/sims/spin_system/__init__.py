@@ -154,6 +154,7 @@ def ui():
 
 def generate_sidepanel(spin_system, index):
     """Generate scrollable side panel listing for spin systems"""
+    # title
     title = html.B(f"Spin system {index}", className="")
 
     # spin system name
@@ -161,10 +162,11 @@ def generate_sidepanel(spin_system, index):
     name = html.Div(f"Name: {name}", className="")
 
     # spin system abundance
-    if spin_system["abundance"] is None:
-        abundance = ""
-    else:
-        abundance = np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
+    abundance = (
+        ""
+        if spin_system["abundance"] is None
+        else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
+    )
     abundance = html.Div(f"Abundance: {abundance} %", className="")
 
     # number of sites

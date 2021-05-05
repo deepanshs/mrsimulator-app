@@ -72,6 +72,23 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
+# app.clientside_callback(
+#     """function (n, classnames) {
+#         let active = classnames.includes('active');
+#         let target = [];
+#         target.push((!active) ? 'left-card active' : 'left-card');
+#         target.push((!active) ? 'active' : null);
+#         return target;
+#     }""",
+#     [
+#         Output(f"{item}-body", "className"),
+#         Output(f"view-{item}", "className"),
+#     ],
+#     Input(f"view-{item}", "n_clicks"),
+#     State(f"{item}-body", "className"),
+#     prevent_initial_call=True,
+# )
+
 
 def sidebar_tabs():
     """Includes
@@ -95,7 +112,7 @@ def advanced_settings_modal():
         return dbc.Row([dbc.Col(title), dbc.Col(field)])
 
     def integration_density():
-        """Integration densitiy: label [Input]"""
+        """Integration density: label [Input]"""
         title = dbc.Label("Integration density")
         field = dbc.Input(
             type="number", value=70, min=1, max=4096, step=1, id="integration_density"

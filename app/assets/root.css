@@ -1,6 +1,6 @@
 :root {
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 6.98em);
+  --content-max-height: calc(100vh - 5.98em);
   --content-min-height: calc(55.5rem - 17.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 125pt;

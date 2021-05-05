@@ -69,3 +69,59 @@ function checkArrayEquality(a, b) {
 function checkObjectEquality(obj1, obj2) {
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
+
+function activateHomeTableElements(selectors, list) {
+  selectors.forEach((tr, i) => {
+    tr.addEventListener("click", () => {
+      list[i - 1].click();
+    });
+  });
+}
+// Add events to pencil icon button displayed in home tab.
+// 1. The event action activates the target.
+function activatePencilButton(selectors, target) {
+  selectors.forEach((edit) => {
+    edit.addEventListener("click", () => {
+      document.getElementById(target).click();
+    });
+  });
+}
+
+// Toggle classnames to slide the contents on smaller screens
+function toggleClassNamesForSmallerScreens(element, length) {
+  if (element.classList.contains("slide-offset")) {
+    element.classList.toggle("slide-offset");
+    element.classList.toggle("slide");
+  }
+
+  // Toggle classnames to slide the contents on smaller screens
+  if (length === 0) {
+    element.classList.toggle("slide-offset");
+    element.classList.toggle("slide");
+  }
+}
+
+// Add event listeners to lists
+function updateListEventListener(list, fn) {
+  list.forEach((tr, i) => {
+    // remove previous event listeners
+    document.removeEventListener("click", tr);
+    tr.addEventListener("click", (event) => {
+      list.forEach((tri) => {
+        tri.classList.remove("active");
+      });
+      tr.classList.toggle("active");
+      fn(i);
+      event.preventDefault();
+
+      let ul = tr.parentElement;
+      console.log(ul);
+      scrollTo(
+        ul.parentElement,
+        tr.offsetTop - 200,
+        300,
+        "vertical"
+      );
+    });
+  });
+}

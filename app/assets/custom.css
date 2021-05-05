@@ -216,8 +216,8 @@ table thead {
 table thead:not(:first-child):hover {
   background-color: #cee3ff;
 }
-table thead tr.active,
-table thead tr.active:hover {
+table thead.active,
+table thead.active:hover {
   background-color: var(--select-blue);
   color: white;
 }

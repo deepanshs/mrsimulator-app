@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-import os
-from urllib.request import urlopen
 
-import csdmpy as cp
 import mrsimulator as mrsim
 import numpy as np
-from csdmpy.dependent_variables.download import get_absolute_url_path
 from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import ALL
@@ -24,19 +20,18 @@ from mrsimulator.utils.spectral_fitting import LMFIT_min_function
 from mrsimulator.utils.spectral_fitting import update_mrsim_obj_from_params
 
 from . import home as home_UI
+from . import io as sim_IO
 from . import method as method_UI
 from . import post_simulation as post_sim_UI
-from . import post_simulation as PostSim
 from . import spin_system as spin_system_UI
-from .utils import expand_output
+from . import utils as sim_utils
 from app import app
+from app.utils import load_csdm
 
 # from lmfit import fit_report
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
-
-PATH = os.path.split(__file__)[0]
 
 
 # method
@@ -121,29 +116,13 @@ PATH = os.path.split(__file__)[0]
 def update_simulator(*args):
     """Update the local spin-systems when a new file is imported."""
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print(trigger_id)
+    print("trigger_id", trigger_id)
     if trigger_id.startswith("{"):
         py_dict = json.loads(trigger_id)
         index, trigger_id = py_dict["index"], py_dict["type"]
         return CALLBACKS[trigger_id](index)
 
     return CALLBACKS[trigger_id]()
-
-
-def on_fail_message(message):
-    """Message to display on failure
-
-    Args:
-        ste message: The fail message.
-    """
-    out = {
-        "alert": [message, True],
-        "mrsim": [no_update, no_update],
-        "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
-        "processor": [no_update],
-    }
-    return expand_output(out)
 
 
 def prep_valid_data_for_simulation(valid_data):
@@ -159,7 +138,7 @@ def prep_valid_data_for_simulation(valid_data):
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
     }
-    return expand_output(out)
+    return sim_utils.expand_output(out)
 
 
 def on_decompose_click():
@@ -199,7 +178,7 @@ def clear(attribute):
     if "signal_processors" in existing_data:
         for proc in existing_data["signal_processors"]:
             proc["operations"] = []
-    return assemble_data(existing_data)
+    return sim_utils.assemble_data(existing_data)
 
 
 def clear_spin_systems():
@@ -227,7 +206,7 @@ def save_info_modal():
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
     }
-    return expand_output(out)
+    return sim_utils.expand_output(out)
 
 
 def on_method_update():
@@ -244,7 +223,7 @@ def on_method_update():
             "mrsim_config": [no_update] * 4,
             "processor": [[]] if len(existing_data["methods"]) == n else [no_update],
         }
-        return expand_output(out)
+        return sim_utils.expand_output(out)
 
     existing_data = ctx.states["local-mrsim-data.data"]
     new_method = ctx.states["new-method.data"]
@@ -301,7 +280,7 @@ def on_spin_system_change():
             "mrsim_config": [no_update] * 4,
             "processor": [no_update],
         }
-        return expand_output(out)
+        return sim_utils.expand_output(out)
 
     existing_data = ctx.states["local-mrsim-data.data"]
     new_spin_system = ctx.states["new-spin-system.data"]
@@ -389,7 +368,7 @@ def add_measurement_to_a_method():
         "mrsim_config": [no_update] * 4,
         "processor": [post_sim_overview],
     }
-    return expand_output(out)
+    return sim_utils.expand_output(out)
 
 
 def remove_measurement_from_a_method():
@@ -403,128 +382,6 @@ def remove_measurement_from_a_method():
     method = existing_data["methods"][index]
     method["experiment"] = None
     return prep_valid_data_for_simulation(existing_data)
-
-
-def load_file_from_url(url):
-    """Load the selected data from url."""
-    url_path = get_absolute_url_path(url, PATH)
-    response = urlopen(url_path)
-    contents = json.loads(response.read())
-    return parse_file_contents(contents, url_path.endswith(".mrsys"))
-
-
-def import_from_url():
-    """Import .mrsim file from url."""
-    url_search = ctx.inputs["url-search.href"]
-    print("url_search", url_search)
-    if url_search in [None, ""]:
-        raise PreventUpdate
-    return load_file_from_url(url_search[3:])
-
-
-def load_local_file(contents):
-    """Parse contents from the spin-systems file."""
-    content_string = contents.split(",")[1]
-    decoded = base64.b64decode(content_string)
-    contents = json.loads(str(decoded, encoding="UTF-8"))
-    return parse_file_contents(contents, isinstance(contents, list))
-
-
-def import_mrsim_file():
-    """Import .mrsim file from local file system."""
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    contents = ctx.inputs[f"{trigger_id}.contents"]
-    if contents is None:
-        raise PreventUpdate
-    return load_local_file(contents)
-
-
-def parse_file_contents(content, spin_sys=False):
-    content = {"spin_systems": content} if spin_sys else content
-
-    try:
-        data = fix_missing_keys(content)
-        return assemble_data(parse_data(data))
-    except Exception as e:
-        message = f"FileReadError: {e}"
-        return on_fail_message(message)
-
-
-def fix_missing_keys(json_data):
-    """Fill in missing data fields with default values."""
-    default_data = {
-        "name": "Sample",
-        "description": "Add a description ...",
-        "spin_systems": [],
-        "methods": [],
-        "config": {},
-    }
-    default_data.update(json_data)
-    return default_data
-
-
-def parse_data(data):
-    """Parse units from the data and return a Simulator dict."""
-    sim, signal_processors, params = mrsim.parse(data, parse_units=True)
-    for item in sim.methods:
-        item.simulation = None
-
-    sim = sim.json(include_methods=True, include_version=True)
-
-    sim["signal_processors"] = [{"operations": []} for _ in sim["methods"]]
-    if signal_processors is not None:
-        for i, item in enumerate(signal_processors):
-            sim["signal_processors"][i] = item.json()
-
-    sim["params"] = None
-    if params is not None:
-        sim["params"] = params.dumps()
-
-    return sim
-
-
-def assemble_data(data):
-    data["trigger"] = {"simulation": True, "method_index": None}
-
-    fields = [
-        "integration_density",
-        "integration_volume",
-        "number_of_sidebands",
-        "decompose_spectrum",
-    ]
-    if data["config"] != {}:
-        mrsim_config = [data["config"][item] for item in fields]
-        mrsim_config[-1] = no_update
-    else:
-        mrsim_config = [no_update] * 4
-
-    spin_system_overview = spin_system_UI.refresh(data["spin_systems"])
-    method_overview = method_UI.refresh(data["methods"])
-    home_overview = home_UI.refresh(data)
-    post_sim_overview = post_sim_UI.refresh(data) if data["methods"] != [] else []
-
-    out = {
-        "alert": ["", False],
-        "mrsim": [data, no_update],
-        "children": [spin_system_overview, method_overview, home_overview],
-        "mrsim_config": mrsim_config,
-        "processor": [post_sim_overview],
-    }
-    return expand_output(out)
-
-
-def load_csdm(content):
-    """Load a JSON file. Return a list with members
-    - Success: True if file is read correctly,
-    - Data: File content is success, otherwise an empty string,
-    - message: An error message when JSON file load fails, else an empty string.
-    """
-    content = str(content, encoding="UTF-8")
-    try:
-        data = cp.loads(content)
-        return True, data, ""
-    except Exception as e:
-        return False, "", e
 
 
 def simulate_test():
@@ -551,7 +408,7 @@ def simulate_test():
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
     }
-    return expand_output(out)
+    return sim_utils.expand_output(out)
 
 
 def least_squares_fit():
@@ -565,12 +422,12 @@ def least_squares_fit():
         raise PreventUpdate
 
     # try:
-    sim, processor, result = mrsim.parse(mrsim_data)
+    sim, processor, _ = mrsim.parse(mrsim_data)
 
     check_for_exp = np.asarray([mth.experiment is None for mth in sim.methods])
     check_for_exp = np.where(check_for_exp == 1)[0]
     if check_for_exp.size != 0:
-        return on_fail_message(
+        return sim_utils.on_fail_message(
             "LeastSquaresAnalysisError: Please attach measurement(s) for method(s) at "
             f"index(es) {check_for_exp} before performing the least-squares analysis."
         )
@@ -623,7 +480,7 @@ def least_squares_fit():
         "mrsim_config": [no_update] * 4,
         "processor": [post_sim_overview],
     }
-    return expand_output(out)
+    return sim_utils.expand_output(out)
 
 
 CALLBACKS = {
@@ -632,20 +489,20 @@ CALLBACKS = {
     "close_setting": on_mrsim_config_change,
     "new-spin-system": on_spin_system_change,
     "new-method": on_method_update,
-    "url-search": import_from_url,
+    "url-search": sim_IO.import_file_from_url,
+    "upload-spin-system-local": sim_IO.import_mrsim_file,
+    "open-mrsimulator-file": sim_IO.import_mrsim_file,
     "confirm-clear-spin-system": clear_spin_systems,
     "confirm-clear-methods": clear_methods,
-    "upload-spin-system-local": import_mrsim_file,
-    "open-mrsimulator-file": import_mrsim_file,
     "import-measurement-for-method": add_measurement_to_a_method,
     "add-measurement-for-method": add_measurement_to_a_method,
     "upload-measurement-from-graph": add_measurement_to_a_method,
     "remove-measurement-from-method": remove_measurement_from_a_method,
-    "submit-signal-processor-button": PostSim.on_submit_signal_processor_button,
-    "add-post_sim-scalar": PostSim.on_add_post_sim_scalar,
-    "add-post_sim-convolution": PostSim.on_add_post_sim_convolutions,
-    "remove-post_sim-functions": PostSim.on_remove_post_sim_function,
-    "select-method": PostSim.on_method_select,
+    "submit-signal-processor-button": post_sim_UI.on_submit_signal_processor_button,
+    "add-post_sim-scalar": post_sim_UI.on_add_post_sim_scalar,
+    "add-post_sim-convolution": post_sim_UI.on_add_post_sim_convolutions,
+    "remove-post_sim-functions": post_sim_UI.on_remove_post_sim_function,
+    "select-method": post_sim_UI.on_method_select,
     "trigger-sim": simulate_test,
     "trigger-fit": least_squares_fit,
 }
