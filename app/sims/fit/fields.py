@@ -108,29 +108,15 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
     return CALLBACKS[trigger_id](vals)
 
 # Opens/closes params modal
-# BUG: All modals open on app load
+# BUG: On update mrsim-data new modals open
 app.clientside_callback(
     "function (n1, n2, is_open) { return !is_open }",
     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
     Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
     State({"kind": "modal", "parrent": MATCH}, "is_open"),
+    prevent_initial_call=True,
 )
-# @app.callback(
-#     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
-#     # Output("temp-1", "children"),
-#     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
-#     Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
-#     # Input({"kind": "delete", "name": ALL}, "n_clicks"),
-#     # Input("temp-1", "n_clicks"),
-#     State({"kind": "modal", "parrent": MATCH}, "is_open"),
-#     pprevent_initial_call=True
-# )
-# def open_params_modal(n1, n2, is_open):
-#     print("open modal")
-#     return not is_open
-#     # return (not is_open), n2
-#     # return not is_open
 
 
 # Helper Methods =======================================================================
@@ -153,10 +139,10 @@ def delete_param(name, vals):
     # Add check to make sure name is in params
     del params_obj[name]
 
-    table = fit_table(params_obj_to_dict(params_obj))
-    modals = modals_div(params_obj_to_dict(params_obj))
+    tables = make_fit_tables(params_obj_to_dict(params_obj))  # UPDATE: tables
+    modals = make_modals_div(params_obj_to_dict(params_obj))
 
-    return table, modals, no_update, no_update
+    return tables, modals, no_update, no_update
 
 
 def reset_params_body(*args):
@@ -169,8 +155,8 @@ def reset_params_body(*args):
 
     sim, processor, report = parse(data)
     params_obj = make_LMFIT_params(sim, processor)
-    table = fit_table(params_obj_to_dict(params_obj))
-    modals = modals_div(params_obj_to_dict(params_obj))
+    tables = make_fit_tables(params_obj_to_dict(params_obj))
+    modals = make_modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
@@ -192,18 +178,18 @@ def update_params_body(*args):
     else:
         params_obj = make_LMFIT_params(sim, processor)
 
-    table = fit_table(params_obj_to_dict(params_obj))
-    modals = modals_div(params_obj_to_dict(params_obj))
+    tables = make_fit_tables(params_obj_to_dict(params_obj))
+    modals = make_modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
     # for modal in modals:
     #     print(modal)
 
-    return table, modals, report, hide
+    return tables, modals, report, hide
 
 
-def modals_div(params_dict):
+def make_modals_div(params_dict):
     """Constructs hidden html.Div containing params modals
     
     Params:
@@ -242,22 +228,49 @@ def modals_div(params_dict):
     return modals
 
 
+def make_fit_tables(params_dict):
+    """Makes list of grouped html.Table elements
+    
+    Params:
+        params_dict: dict reporesentation of whole Parameters object
+        
+    Returns:
+        tables: list of html.Table
+    """
+    tables = []
+    # Slice params_dict
+    keys = list(params_dict.keys())
+
+    if len(keys) == 0:
+        return fit_table({})
+    
+    prefix = keys[0][:5]
+    tmp = []
+    for key in keys:
+        if key[:5] != prefix:
+            tables.append(fit_table({k: params_dict[k] for k in tmp}))
+            tmp, prefix = [], key[:5]
+        tmp.append(key)
+    tables.append(fit_table({k: params_dict[k] for k in tmp}))
+
+    return tables
+
+
 # Truncate decimal places (using css?)
-def fit_table(params_dict):
-    """Constructs html table of parameter inputs fields for user input
+def fit_table(_dict):
+    """Constructs html table of parameter inputs fields
 
     Params:
-        params_dict: dict representation of Parameters object
+        _dict: slice from dict representation of Parameters object
 
     Returns:
-        html.Table with inputs
+        html.Table
     """
-    # fit_header = ["", "Name", "Value", "Min", "Max", "expr", ""]
     fit_header = ["", "Name", "Value", "More", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
-    for key, vals in params_dict.items():
+    for key, vals in _dict.items():
         vary_id = {"name": f"{key}-vary", "kind": "vary"}
         name_id = {"name": f"{key}-label", "kind": "name"}
         val_id = {"name": f"{key}-value", "kind": "value"}
@@ -283,7 +296,7 @@ def fit_table(params_dict):
         pack = [vary, name, val, modal_ic, del_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
-    return html.Table(id="fields-table", children=fit_rows)
+    return html.Table(className="fields-table", children=fit_rows)
 
 
 def params_obj_to_dict(params_obj):

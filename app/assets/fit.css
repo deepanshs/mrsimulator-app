@@ -13,24 +13,25 @@
   scrollbar-width: thin;
 }
 
-#fields-table {
-  margin: 0;
+.fields-table {
+  /* How should margin between be formatted? */
+  margin-bottom: 4%;  
 }
 
-#fields-table thead tr td {
+.fields-table thead tr td {
   padding: 0.4em;
 }
 /* Checkbox and delete */
-#fields-table thead th:first-child,
-#fields-table thead th:last-child {
+.fields-table thead th:first-child,
+.fields-table thead th:last-child {
   width: 7%;
 }
 /* Name */
-#fields-table thead th:nth-child(2) {
-  width: 60%;
+.fields-table thead th:nth-child(2) {
+  width: 55%;
 }
 /* More Button */
-#fields-table thead th:nth-child(4) {
+.fields-table thead th:nth-child(4) {
   width: 10%;
 }
 
@@ -42,19 +43,19 @@ table thead tr td div div {
   font-size: small;
 }
 
-#fields-table input[type="checkbox"] {
+.fields-table input[type="checkbox"] {
   align-items: center;
 }
-#fields-table input[type="number"],
-#fields-table input[type="text"] {
+.fields-table input[type="number"],
+.fields-table input[type="text"] {
   width: 100%;
   padding: 0.5em;
   border-radius: 0.2em;
   border: 1px solid var(--text-box-underline-color);
 }
 
-#fields-table input:focus,
-#fields-table:focus {
+.fields-table input:focus,
+.fields-table:focus {
   color: black;
   text-decoration: none;
   /* border-radius: 0.25em; */
