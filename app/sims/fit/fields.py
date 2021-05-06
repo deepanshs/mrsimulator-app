@@ -110,7 +110,7 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
 # Opens/closes params modal
 # BUG: On update mrsim-data new modals open
 app.clientside_callback(
-    "function (n1, n2, is_open) { return !is_open }",
+    "function (n1, n2, is_open) { if(n1 == null) { return false; } return !is_open }",
     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
     Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),

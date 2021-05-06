@@ -48,7 +48,7 @@ def info_body():
 
         ```sys[i].sites[j].attribute1.attribute2```
 
-        where `sys` represents a *Spin System* object.
+        where `sys` represents a **Spin System** object.
         More info on the [mrsimulator documentation page][1]
 
 
