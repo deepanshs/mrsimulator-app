@@ -8,8 +8,8 @@ import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 from dash.dependencies import ALL
-from dash.dependencies import MATCH
 from dash.dependencies import Input
+from dash.dependencies import MATCH
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
@@ -23,6 +23,8 @@ from app import app
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
 
 # Reorganize layout of fitting elements to be more user friendly (modals, grouping)
+
+
 def inputs():
     """Parameters input html div"""
     return html.Div(id="params-input-div", children=[])
@@ -41,7 +43,9 @@ def report():
 def ui():
     """Main UI for fitting interface"""
     return html.Div(
-        children=[inputs(), modals(), report()], id="input-fields", className="fit-scroll"
+        children=[inputs(), modals(), report()],
+        id="input-fields",
+        className="fit-scroll",
     )
 
 
@@ -107,6 +111,7 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
 
     return CALLBACKS[trigger_id](vals)
 
+
 # Opens/closes params modal
 # BUG: On update mrsim-data new modals open
 app.clientside_callback(
@@ -155,7 +160,7 @@ def reset_params_body(*args):
 
     sim, processor, report = parse(data)
     params_obj = make_LMFIT_params(sim, processor)
-    tables = make_fit_tables(params_obj_to_dict(params_obj))
+    # tables = make_fit_tables(params_obj_to_dict(params_obj))
     modals = make_modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
@@ -191,12 +196,12 @@ def update_params_body(*args):
 
 def make_modals_div(params_dict):
     """Constructs hidden html.Div containing params modals
-    
+
     Params:
         params_dict: dict representation of Parameters object
 
-    Returns: 
-        list of modals 
+    Returns:
+        list of modals
     """
 
     def make_modal(key, vals):
@@ -209,13 +214,15 @@ def make_modals_div(params_dict):
         min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
         max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
         expr_ = dcc.Input(id=expr_id, value=vals["expr"])
-        
+
         head = dbc.ModalHeader(f"Param: {key}")
-        body = dbc.ModalBody([
-            html.P(["Minimum ", min_]),
-            html.P(["Maximum ", max_]),
-            html.P(["Expression ", expr_]),
-        ])
+        body = dbc.ModalBody(
+            [
+                html.P(["Minimum ", min_]),
+                html.P(["Maximum ", max_]),
+                html.P(["Expression ", expr_]),
+            ]
+        )
         foot = dbc.ModalFooter(dbc.Button("Submit", id=submit_id))
 
         return dbc.Modal([head, body, foot], id=modal_id)
@@ -230,10 +237,10 @@ def make_modals_div(params_dict):
 
 def make_fit_tables(params_dict):
     """Makes list of grouped html.Table elements
-    
+
     Params:
         params_dict: dict reporesentation of whole Parameters object
-        
+
     Returns:
         tables: list of html.Table
     """
@@ -243,7 +250,7 @@ def make_fit_tables(params_dict):
 
     if len(keys) == 0:
         return fit_table({})
-    
+
     prefix = keys[0][:5]
     tmp = []
     for key in keys:

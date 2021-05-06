@@ -121,26 +121,13 @@ def header():
 
 
 def layout():
-    # label
     label = html.Label(id="method-title")
-
-    # # upload experiment dataset
-    # icon = html.I(className="fas fa-paperclip fa-lg")
-    # tooltip = dbc.Tooltip(
-    #     (
-    #         "Click to attach a measurement file to the selected method. "
-    #         "Alternatively, drag and drop the file onto the Simulation area."
-    #     ),
-    #     target="import-measurement-for-method",
-    # )
-    # clip_btn = html.Button([icon, tooltip], className="icon-button")
-    # upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
-
-    # title
     title = html.Div(label, className="ui_title")
 
     # submit method button
-    submit = custom_button(text="Submit Method", id="apply-method-changes")
+    submit = custom_button(
+        text="Submit Method", id="apply-method-changes", tooltip="Submit Method"
+    )
     submit = html.Div(
         submit,
         id="apply-method-div",
@@ -150,7 +137,9 @@ def layout():
 
     # submit processing button
     submit_pro = custom_button(
-        text="Submit Processor", id="submit-signal-processor-button"
+        text="Submit Processor",
+        id="submit-signal-processor-button",
+        tooltip="Submit Processor",
     )
     submit_pro = html.Div(
         submit_pro,
@@ -302,3 +291,25 @@ app.clientside_callback(
     [State("add-method-from-template", "data")],
     prevent_initial_call=True,
 )
+
+
+# app.clientside_callback(
+#     ClientsideFunction(
+#         namespace="method",
+#         function_name="setFields",
+#     ),
+#     [
+#         Output("measurement-sigma", "value"),
+#         Output("magnetic_flux_density", "value"),
+#         Output("rotor_frequency", "value"),
+#         Output("rotor_angle", "value"),
+#         Output("count-0", "value"),
+#         Output("spectral_width-0", "value"),
+#         Output("reference_offset-0", "value"),
+#         Output("count-1", "value"),
+#         Output("spectral_width-1", "value"),
+#         Output("reference_offset-1", "value"),
+#     ],
+#     Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
+#     prevent_initial_call=True,
+# )

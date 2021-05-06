@@ -35,9 +35,8 @@ const ISOTOPE_DATA = [
   "203Tl",
   "207Pb",
 ];
-const to_deg = 180 / 3.14159265359;
+
 const ATTR_PER_SITE = 12;
-const euler_angle = ["alpha", "beta", "gamma"];
 const ALL_KEYS = [
   "isotope",
   "isotropic_chemical_shift",
@@ -273,9 +272,7 @@ var extract_site_object_from_fields = function () {
   return spin_system;
 };
 
-var spinSystemOnClick = function (obj, index) {
-  default_li_item_action(obj);
-
+var spinSystemOnClick = function (index) {
   // store the current-spin-system-index in the session
   window.spinSystem.setIndex(index);
 
@@ -286,7 +283,7 @@ var spinSystemOnClick = function (obj, index) {
   hideQuad();
 
   // Select the corresponding tr elements
-  overView = document.querySelectorAll("[data-table-sys] tr");
+  let overView = document.querySelectorAll("[data-table-sys] thead");
   overView.forEach((tr) => {
     tr.classList.remove("active");
   });
@@ -324,7 +321,7 @@ var addSystem = function (l) {
     sites: [{
       isotope: "1H",
       isotropic_chemical_shift: "0 ppm",
-    }, ],
+    }],
   };
   result.index = l;
   result.operation = "add";
@@ -349,8 +346,7 @@ var delSystem = function (l) {
   let result = {};
   checkForEmptyListBeforeOperation("delete", "spin system", l);
   let new_val = window.spinSystem.getIndex();
-  console.log("index to remove", new_val);
-  result.data = null;
+  result.data = Date.now();
   result.index = new_val;
   result.operation = "delete";
   l = new_val = null;
@@ -401,52 +397,16 @@ var _onSpinSystemsLoad = function () {
     "#spin-system-read-only div.scrollable-list ul li"
   );
 
-  // event listener to pencil in the home screen
   let overView = document.querySelectorAll("[data-edit-sys]");
-  overView.forEach((edit) => {
-    edit.addEventListener("click", () => {
-      document.getElementById("view-spin_systems").click();
-    });
-  });
+  activatePencilButton(overView, "view-spin_systems");
 
-  // event listener to side panel click and update the site fields.
   overView = document.querySelectorAll("[data-table-sys] thead");
-  overView.forEach((tr, i) => {
-    tr.addEventListener("click", () => {
-      listomers[i - 1].click();
-      // Scroll to the selection.
-      let ul = listomers[i - 1].parentElement;
-      scrollTo(
-        ul.parentElement.parentElement,
-        listomers[i - 1].offsetTop - 200,
-        300,
-        "vertical"
-      );
-    });
-  });
+  activateHomeTableElements(overView, listomers);
 
-  // Toggle classname to slide the contents on smaller screens
+  // Toggle classnames to slide the contents on smaller screens
   const element = document.getElementById("iso-slide");
-  if (element.classList.contains("slide-offset")) {
-    element.classList.toggle("slide-offset");
-    element.classList.toggle("slide");
-  }
-
-  // Toggle classname to slide the contents on smaller screens
-  if (listomers.length === 0) {
-    element.classList.toggle("slide-offset");
-    element.classList.toggle("slide");
-  }
-
-  default_li_action(listomers);
-
-  // Add a fresh bind event to the list.
-  listomers.forEach((tr, i) => {
-    tr.addEventListener("click", (event) => {
-      spinSystemOnClick(tr, i);
-      event.preventDefault();
-    });
-  });
+  toggleClassNamesForSmallerScreens(element, listomers.length);
+  updateListEventListener(listomers, spinSystemOnClick);
 
   // Select the entry at current index by initiating a click. If the current
   // index is greater then the length of the li, select 0;

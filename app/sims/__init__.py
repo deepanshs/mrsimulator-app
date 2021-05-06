@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 import csdmpy as cp
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 import plotly.graph_objs as go
 from dash import callback_context as ctx
 from dash import no_update
@@ -125,7 +128,7 @@ def simulation(*args):
     """Evaluate the spectrum and update the plot."""
 
     if not ctx.triggered:
-        slogger("simulation stopped, ctx not triggered")
+        slogger("simulation", "simulation stopped, ctx not triggered")
         raise PreventUpdate
 
     return one_time_simulation()
@@ -137,7 +140,8 @@ def one_time_simulation():
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+    if len(mrsim_data["methods"]) == 0:
+        mrsim_data["timestamp"] = datetime.datetime.now()
         return [no_update, no_update, mrsim_data]
 
     try:
@@ -195,7 +199,7 @@ def plot(*args):
     if sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if sim_data["methods"] == [] or sim_data["spin_systems"] == []:
+    if sim_data["methods"] == []:
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
@@ -231,14 +235,40 @@ def plot(*args):
     trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
+    dim_axes = None
     plot_trace = []
     if experiment_data is not None:
+        dim_axes = made_dimensionless(experiment_data)
+        exp_data = cp.parse_dict(experiment_data).real
         plot_trace += get_plot_trace(
-            experiment_data, normalized, decompose=False, name="experiment"
+            exp_data,
+            normalized,
+            decompose=False,
+            name="experiment",
+            dimensionless_axes=dim_axes,
         )
+
     if simulation_data is not None:
+        sim_data = cp.parse_dict(simulation_data).real
         plot_trace += get_plot_trace(
-            simulation_data, normalized, decompose=decompose, name="simulation"
+            sim_data,
+            normalized,
+            decompose=decompose,
+            name="simulation",
+            dimensionless_axes=dim_axes,
+        )
+
+    if experiment_data is not None and simulation_data is not None:
+        index = [-i - 1 for i, x in enumerate(exp_data.x) if x.increment.value < 0]
+        residue = exp_data.copy()
+        sim_sum = np.asarray([y.components for y in sim_data.y]).sum(axis=0)
+        residue.y[0].components -= np.flip(sim_sum, axis=tuple(index))
+        plot_trace += get_plot_trace(
+            residue,
+            normalized,
+            decompose=decompose,
+            name="residual",
+            dimensionless_axes=dim_axes,
         )
 
     layout = figure["layout"]
@@ -261,14 +291,29 @@ def plot(*args):
     return [data_object, simulation_data]
 
 
-def get_plot_trace(data, normalized, decompose=False, name=""):
-    plot_trace = []
-    data = cp.parse_dict(data).real
-    [
-        item.to("ppm", "nmr_frequency_ratio")
-        for item in data.dimensions
-        if item.origin_offset.value != 0
+def made_dimensionless(exp):
+    return [
+        False
+        if "origin_offset" not in item
+        else cp.ScalarQuantity(item["origin_offset"]).quantity.value != 0
+        for item in exp["csdm"]["dimensions"]
     ]
+
+
+def get_plot_trace(data, normalized, decompose=False, name="", dimensionless_axes=None):
+    plot_trace = []
+
+    dimensionless_axes = (
+        dimensionless_axes
+        if dimensionless_axes is not None
+        else [True] * len(data.dimensions)
+    )
+    _ = [
+        dim.to("ppm", "nmr_frequency_ratio")
+        for item, dim in zip(dimensionless_axes, data.dimensions)
+        if item
+    ]
+
     if len(data.dimensions) == 1:
         plot_trace += plot_1D_trace(data, normalized, decompose, name)
 

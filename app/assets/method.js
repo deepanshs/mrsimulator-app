@@ -53,7 +53,7 @@ var delMethod = function (l) {
   let result = {};
   checkForEmptyListBeforeOperation("delete", "method", l);
   let new_val = window.method.getIndex();
-  result.data = null;
+  result.data = Date.now();
   result.index = new_val;
   result.operation = "delete";
   n4 = l = new_val = null;
@@ -78,56 +78,15 @@ var _onMethodsLoad = function () {
   );
 
   let overView = document.querySelectorAll("[data-edit-mth]");
-  overView.forEach((edit) => {
-    edit.addEventListener("click", () => {
-      document.getElementById("view-methods").click();
-    });
-  });
+  activatePencilButton(overView, "view-methods");
 
   overView = document.querySelectorAll("[data-table-mth] thead");
-  overView.forEach((tr, i) => {
-    tr.addEventListener("click", () => {
-      overView.forEach((tr) => {
-        tr.classList.remove("active");
-      });
-      tr.classList.add("active");
-      listomers[i - 1].click();
-      // Scroll to the selection.
-      let ul = listomers[i - 1].parentElement;
-      scrollTo(
-        ul.parentElement.parentElement,
-        listomers[i - 1].offsetTop - 200,
-        300,
-        "vertical"
-      );
-    });
-  });
-
-  // activate the add, copy, and remove btn on the home page.
-  // activateMethodTools();
+  activateHomeTableElements(overView, listomers);
 
   // Toggle classnames to slide the contents on smaller screens
   const element = document.getElementById("met-slide");
-  if (element.classList.contains("slide-offset")) {
-    element.classList.toggle("slide-offset");
-    element.classList.toggle("slide");
-  }
-
-  // Toggle classnames to slide the contents on smaller screens
-  if (listomers.length === 0) {
-    element.classList.toggle("slide-offset");
-    element.classList.toggle("slide");
-  }
-
-  default_li_action(listomers);
-
-  // Add a fresh bind event to the list.
-  listomers.forEach((tr, i) => {
-    tr.addEventListener("click", (event) => {
-      window.method.onClick(tr, i);
-      event.preventDefault();
-    });
-  });
+  toggleClassNamesForSmallerScreens(element, listomers.length);
+  updateListEventListener(listomers, window.method.onClick);
 
   // Select the entry at current index by initiating a click. If the current
   // index is greater then the length of the li, select 0;
@@ -141,37 +100,45 @@ var _onMethodsLoad = function () {
 var _setFields = function (index) {
   let data = storeData.data;
   let method = data.methods[index];
-  let sd, i, temp;
+  let sd, i, temp; //, array = [];
   document.getElementById("method-title").innerHTML = method.name;
 
   // noise standard deviation
   if (method.experiment != null) {
     let application = method.experiment.csdm.dependent_variables[0].application;
+    if (application == null) { application = {}; }
     if (application['com.github.DeepanshS.mrsimulator'] == null) {
       application['com.github.DeepanshS.mrsimulator'] = {
         'sigma': 1.0
       };
     }
     let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+    // array.push(sigma);
     setValue("measurement-sigma", sigma);
   }
   temp = parseQuantityValue(method.magnetic_flux_density); // in T
+  // array.push(temp);
   setValue("magnetic_flux_density", temp);
 
   temp = parseQuantityValue(method.rotor_frequency) / 1e3; // to kHz
+  // array.push(temp);
   setValue("rotor_frequency", temp);
 
   temp = rad_to_deg(parseQuantityValue(method.rotor_angle)); // to deg
+  // array.push(temp);
   setValue("rotor_angle", temp);
 
   for (i = 0; i < method.spectral_dimensions.length; i++) {
     sd = method.spectral_dimensions[i];
+    // array.push(sd.count);
     setValue(`count-${i}`, sd.count);
 
     temp = parseQuantityValue(sd.spectral_width) / 1e3; // to kHz
+    // array.push(temp);
     setValue(`spectral_width-${i}`, temp);
 
     temp = parseQuantityValue(sd.reference_offset) / 1e3; // to kHz
+    // array.push(temp);
     setValue(`reference_offset-${i}`, temp);
     setValue(`label-${i}`, sd.label);
   }
@@ -250,9 +217,7 @@ window.method = {
     }
   },
 
-  onClick: function (obj, index) {
-    default_li_item_action(obj);
-
+  onClick: function (index) {
     // store the current-spin-system-index in the session
     window.method.setIndex(index);
 
@@ -260,7 +225,7 @@ window.method = {
     window.method.setFields(index);
 
     // Select the corresponding tr elements
-    let overView = document.querySelectorAll("[data-table-mth] tr");
+    let overView = document.querySelectorAll("[data-table-mth] thead");
     overView.forEach((tr) => {
       tr.classList.remove("active");
     });
@@ -277,6 +242,7 @@ window.method = {
     if (method.experiment != null) {
       temp = getValue('measurement-sigma');
       let application = method.experiment.csdm.dependent_variables[0].application;
+      if (application == null) { application = {}; }
       if (application['com.github.DeepanshS.mrsimulator'] == null) {
         application['com.github.DeepanshS.mrsimulator'] = {};
       }

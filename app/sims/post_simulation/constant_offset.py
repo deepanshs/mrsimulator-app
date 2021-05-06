@@ -11,26 +11,25 @@ __email__ = "srivastava.89@osu.edu"
 
 
 def ui(index, data=None, **kwargs):
-    scale = custom_input_group(
-        prepend_label="Factor",
-        value=1 if data is None else data["factor"],
-        min=0,
-        id={"function": "scale", "args": "factor", "index": index},
+    offset = custom_input_group(
+        prepend_label="Offset",
+        value=0 if data is None else data["offset"],
+        id={"function": "constant_offset", "args": "offset", "index": index},
         debounce=True,
     )
 
     return container(
         text=[
-            "Scale",
+            "Constant Baseline Offset",
             custom_button(
                 icon_classname="fas fa-times",
                 id={"type": "remove-post_sim-functions", "index": index},
                 className="icon-button",
                 module="html",
-                tooltip="Remove scaling module.",
+                tooltip="Remove baseline offset module.",
             ),
         ],
-        featured=scale,
+        featured=offset,
     )
 
 
@@ -45,8 +44,8 @@ def refresh():
 page = ui(0)
 
 
-def get_scale_dict(i):
+def get_constant_offset_dict(i):
     states = ctx.states
-    val = states[f'{{"args":"factor","function":"scale","index":{i}}}.value']
+    val = states[f'{{"args":"offset","function":"constant_offset","index":{i}}}.value']
 
-    return {"factor": val, "function": "Scale"}
+    return {"offset": val, "function": "ConstantOffset"}

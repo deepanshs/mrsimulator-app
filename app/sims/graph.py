@@ -53,6 +53,7 @@ default_layout = go.Layout(
     # plot_bgcolor="rgba(255,255,255,0.3)",
     template="none",
     clickmode="event+select",
+    # dragmode="drawrect",
 )
 
 default_fig_config = {
@@ -77,6 +78,14 @@ default_fig_config = {
         "hoverCompareCartesian",
         "toggleHover",
         # "toggleSpikelines",
+    ],
+    "modeBarButtonsToAdd": [
+        "drawline",
+        "drawopenpath",
+        "drawclosedpath",
+        "drawcircle",
+        "drawrect",
+        "eraseshape",
     ],
     "displaylogo": False,
 }
@@ -119,7 +128,7 @@ def tools():
         """CSDM download per method and associated callback"""
         download_btn = custom_button(
             icon_classname="fas fa-download fa-lg",
-            tooltip="Download Simulation",
+            tooltip="Download Simulation from selected method.",
             id="export-simulation-from-method",
             className="icon-button",
             module="html",
@@ -173,15 +182,15 @@ def header():
 
     # help button and associated callback
     help_button = html.Div(
-        html.I(className="fas fa-question-circle pl-1 fa-lg"),
+        html.I(className="fas fa-question-circle pl-1 fa-lg", title="Show help"),
         id="pop-up-simulation-button",
         style={"cursor": "pointer"},
     )
     app.clientside_callback(
         "function (n, is_open) { return !is_open; }",
         Output("modal-simulation-help", "is_open"),
-        [Input("pop-up-simulation-button", "n_clicks")],
-        [State("modal-simulation-help", "is_open")],
+        Input("pop-up-simulation-button", "n_clicks"),
+        State("modal-simulation-help", "is_open"),
         prevent_initial_call=True,
     )
 
@@ -198,7 +207,7 @@ def layout():
 def ui():
     experiment_drop_upload = dcc.Upload(
         layout(),
-        id="upload-from-graph",
+        id="upload-measurement-from-graph",
         disable_click=True,
         # accept="application/json, text/plain, .csdf",
         style_active={
@@ -245,9 +254,11 @@ def one_d_multi_trace(data, x0, dx, maximum, name=None):
 def one_d_single_trace(data, x0, dx, maximum, name=""):
     """Use for single line plot"""
     line = (
-        {"color": "black", "width": 1.2}
+        {"color": "black", "width": 1}
         if name == "simulation"
-        else {"color": "#7e0a7e", "width": 2.4}
+        else {"color": "#706f1c", "width": 1}
+        if name == "residual"
+        else {"color": "#7e0a7e", "width": 1}
     )
     return [
         dict(

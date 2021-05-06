@@ -91,38 +91,16 @@ function checkForEmptyListBeforeOperation(operation, list, l) {
   }
 }
 
-var default_li_action = function (listomers) {
-  // Clear all previous selections and unbind the click events on list and
-  // buttons.
-  listomers.forEach((tr) => {
-    document.removeEventListener("click", tr);
-  });
-  listomers = null;
-};
-
-var default_li_item_action = function (obj) {
-  var ul = obj.parentElement;
-  let i, element;
-  for (i = 0; i < ul.childNodes.length; i++) {
-    element = ul.childNodes[i];
-    // Remove all highlights.
-    element.classList.remove("active");
-  }
-  // Highlight the selected list.
-  obj.classList.toggle("active");
-  element = i = null;
-};
-
 /* Creates a smooth scroll based on the selected index of li. */
 function scrollTo(element, to, duration, direction) {
-  var start, change, currentTime, increment;
+  var start, change, currentTime, increment, animateScroll;
   if (direction === "vertical") {
     start = element.scrollTop;
     change = to - start;
     currentTime = 0;
     increment = 20;
 
-    let animateScroll = function () {
+    animateScroll = function () {
       currentTime += increment;
       let val = Math.easeInOutQuad(currentTime, start, change, duration);
       element.scrollTop = val;
@@ -130,7 +108,7 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
-    animateScroll();
+
   }
   if (direction === "horizontal") {
     start = element.scrollLeft;
@@ -138,7 +116,7 @@ function scrollTo(element, to, duration, direction) {
     currentTime = 0;
     increment = 20;
 
-    let animateScroll = function () {
+    animateScroll = function () {
       currentTime += increment;
       let val = Math.easeInOutQuad(currentTime, start, change, duration);
       element.scrollLeft = val;
@@ -146,8 +124,8 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
-    animateScroll();
   }
+  animateScroll();
 }
 
 // t = current time

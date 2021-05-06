@@ -2,14 +2,15 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input
-from dash.dependencies import Output
-from dash.dependencies import State
 
 from .fields import fields
 from .fit_modal import fit_info_modal
-from app import app
 from app.custom_widgets import custom_button
+
+# from dash.dependencies import Input
+# from dash.dependencies import Output
+# from dash.dependencies import State
+# from app import app
 
 
 store = [

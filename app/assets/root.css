@@ -1,6 +1,6 @@
 :root {
   --element-bg-color: white;
-  --content-max-height: calc(100vh - 6.98em);
+  --content-max-height: calc(100vh - 5.98em);
   --content-min-height: calc(55.5rem - 17.9rem);
   --opt-width: 50vw;
   --opt-side-scroll-width: 125pt;
@@ -76,21 +76,6 @@ section {
   border-radius: 2em;
 }
 
-.mrsim-page .sidebar li {
-  list-style: none;
-  padding: 1em;
-  border-radius: 0;
-  border: none;
-  background: none;
-  color: gray;
-  border-left: 3px solid transparent;
-}
-
-.mrsim-page .sidebar li.active {
-  color: var(--select-blue);
-  border-left: 3px solid var(--select-blue);
-}
-
 .mrsim-page .app-1 {
   border-left: 1px solid silver;
   width: 100%;
@@ -111,6 +96,25 @@ section {
   height: 100%;
   width: 100%;
   display: flex;
+  padding: 1em 0;
+}
+.view-tools li {
+  cursor: pointer;
+  list-style: none;
+  padding: 1em;
+  border-radius: 0;
+  border: none;
+  background: none;
+  color: gray;
+  border-left: 3px solid transparent;
+}
+.view-tools li.active {
+  color: var(--select-blue);
+  border-left: 3px solid var(--select-blue);
+  background-color: #e9f2ff;
+}
+.view-tools li:hover {
+  background-color: #eeeeee;
 }
 
 .alert-danger {
@@ -155,15 +159,17 @@ section {
     display: block;
   }
 
-  .mrsim-page .sidebar li {
+  .view-tools {
+    flex-direction: row;
+    padding: 0;
+  }
+  .view-tools li {
     border-left: 3px solid transparent;
   }
-
-  .mrsim-page .sidebar li.hide {
+  .view-tools li.hide {
     display: none;
   }
-
-  .mrsim-page .sidebar li.active {
+  .view-tools li.active {
     border-left: 3px solid transparent;
     border-bottom: 3px solid var(--select-blue);
   }
@@ -177,10 +183,6 @@ section {
     margin: 0;
     flex-direction: row;
     justify-content: space-between;
-  }
-
-  .view-tools {
-    flex-direction: row;
   }
 
   .view-tools.sidebar {

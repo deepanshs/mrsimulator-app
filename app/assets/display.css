@@ -18,12 +18,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-color);
+  font-size: 1em;
 }
 .input-form .input-group-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-color);
+  font-size: 1em;
 }
 .input-form .label-right {
   margin: 0;
@@ -32,6 +34,7 @@
   text-align: right;
   border-bottom: 1px solid var(--text-box-underline-color);
   color: var(--text-color);
+  font-size: 1em;
 }
 
 .input-form input {
@@ -39,8 +42,8 @@
   min-width: 25%;
   max-width: 40%;
   height: 2.25em;
-  padding-right: 0.5em;
-  margin-left: auto;
+  padding: 0 5px 0 0;
+  margin: auto;
   background-color: transparent;
   border: 1px solid transparent;
   border-bottom: 1px solid var(--text-box-underline-color);
@@ -100,6 +103,7 @@ textarea {
   padding-left: 0;
   border: none;
   color: var(--text-color);
+  font-size: 1em;
 }
 
 .input-group select:active,

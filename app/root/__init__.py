@@ -109,7 +109,7 @@ def mrsimulator_ui():
 def mrinversion_ui():
     image = html.Img(src="/assets/images/mrinversion.png", alt="Mrinversion")
     description = ""
-    button = dbc.Button("Comming Soon", href="/", id="inversion-app")
+    button = dbc.Button("Coming Soon", href="/", id="inversion-app")
 
     # children = [
     #     html.Section(

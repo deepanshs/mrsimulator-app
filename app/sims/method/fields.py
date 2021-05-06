@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input
@@ -11,6 +10,8 @@ from app.custom_widgets import container
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 
+# from dash.dependencies import State
+
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
@@ -18,15 +19,12 @@ __email__ = "srivastava.89@osu.edu"
 def experiment_ui():
 
     # upload experiment dataset
-    icon = html.I(className="fas fa-paperclip")
-    tooltip = dbc.Tooltip(
-        (
-            "Click to attach a measurement file to the selected method. "
-            "Alternatively, drag and drop the file onto the Simulation area."
-        ),
-        target="import-measurement-for-method",
+    tooltip = (
+        "Click to attach a measurement file to the selected method. "
+        "Alternatively, drag and drop the file onto the Simulation area."
     )
-    clip_btn = html.Button([icon, tooltip], className="icon-button")
+    icon = html.I(className="fas fa-paperclip fa-lg", title=tooltip)
+    clip_btn = html.Button(icon, className="icon-button")
     upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
 
     # label = dbc.InputGroupAddon("Measurement data", addon_type="prepend")
@@ -35,7 +33,7 @@ def experiment_ui():
     # standard deviation
     sigma = custom_input_group(
         prepend_label="Noise standard deviation (σ)",
-        append_label="",
+        # append_label=html.Button("N"),
         value=1.0,
         min=1e-6,
         id="measurement-sigma",
@@ -48,9 +46,31 @@ def experiment_ui():
     )
 
 
+# app.clientside_callback(
+#     """
+#     function(index, data) {
+#         console.log(data);
+#         if (data == null) { throw window.dash_clientside.PreventUpdate; }
+#         if (data.methods[index] == null){throw window.dash_clientside.PreventUpdate;}
+#         if (data.methods[index].experiment == null) {
+#             return [false, false, false, false, false, false];
+#         }
+#         else { return [true, true, true, true, true, true]; }
+#     }
+#     """,
+#     [
+#         *[Output(f"count-{i}", "disabled") for i in range(2)],
+#         *[Output(f"spectral_width-{i}", "disabled") for i in range(2)],
+#         *[Output(f"reference_offset-{i}", "disabled") for i in range(2)],
+#     ],
+#     Input("select-method", "value"),
+#     Input("local-mrsim-data", "data"),
+#     prevent_initial_call=True,
+# )
+
+
 def spectral_dimension_ui(i):
-    """
-    Return a list of widgets whose entries are used in evaluating the dimension
+    """Return a list of widgets whose entries are used in evaluating the dimension
     coordinates along the i^th dimension. The widgets includes number of points,
     spectral width, and reference offset.
 
@@ -111,6 +131,7 @@ def spectral_dimension_ui(i):
         featured=[count, spectral_width, reference_offset],
         hidden=[label],
         message="Show/Hide",
+        outer=True,
     )
 
 
@@ -125,7 +146,7 @@ def global_environment():
     """
 
     flux_density = custom_input_group(
-        prepend_label="Magnetic flux density (H₀)",
+        prepend_label="Magnetic flux density (B₀)",
         append_label="T",
         value=9.4,
         id="magnetic_flux_density",
@@ -146,7 +167,7 @@ def global_environment():
     # rotor angle
     magic_angle = custom_button(
         icon_classname="fas fa-magic",
-        tooltip="Set to magic angle",
+        tooltip="Set value to the magic angle.",
         id="set-to-magic-angle",
         className="icon-button",
         module="html",

@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash import callback_context as ctx
 
-from app.custom_widgets import collapsable_card
+from app.custom_widgets import container
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 from app.sims.utils import update_processor_ui
@@ -12,7 +12,7 @@ __author__ = "Deepansh Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
 
-def ui(index, data=None, n_dim=1, n_dv=1):
+def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
     def function_type(index):
         type_label = dbc.InputGroupAddon("Type", addon_type="prepend")
         val = "Exponential" if data is None else data["type"]
@@ -72,20 +72,18 @@ def ui(index, data=None, n_dim=1, n_dv=1):
 
     featured = [function_type(index), arguments(index)]
     hidden = [dimension_index(index), dependent_variable_index(index)]
-    return collapsable_card(
+    return container(
         text=[
+            "Convolution",
             custom_button(
                 icon_classname="fas fa-times",
                 id={"type": "remove-post_sim-functions", "index": index},
                 className="icon-button",
                 module="html",
+                tooltip="Remove convolution module.",
             ),
-            "Convolution",
         ],
-        id_=f"apodization-post-sim-{index}",
-        featured=featured,
-        hidden=hidden,
-        message="Show/Hide",
+        featured=[*featured, *hidden],
     )
 
 

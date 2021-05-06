@@ -37,9 +37,8 @@ def custom_hover_help(message="", id=None):
         id: The id for the label.
     """
     style = {"color": "white", "cursor": "pointer"}
-    icon = html.I(className="fas fa-question-circle", style=style)
-    tooltip = dbc.Tooltip(message, target=id, **tooltip_format)
-    return html.Div([icon, tooltip], id=id, className="align-self-start")
+    icon = html.I(className="fas fa-question-circle", style=style, title=message)
+    return html.Div(icon, id=id, className="align-self-start")
 
 
 def custom_button(
@@ -64,23 +63,11 @@ def custom_button(
 
     label = html.Span([text, children], className="hide-label-sm pl-1")
     if icon_classname != "":
-        label = html.Span(
-            [html.I(className=icon_classname), label],
-            className="d-flex align-items-center",
-        )
-    if tooltip is not None:
-        if module == "dbc":
-            return dbc.Button(
-                [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)],
-                id=id,
-                **kwargs,
-            )
-        return html.Button(
-            [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
-        )
-    if module == "dbc":
-        return dbc.Button(label, id=id, **kwargs)
-    return html.Button(label, id=id, **kwargs)
+        icon = html.I(className=icon_classname, title=tooltip)
+        label = html.Span([icon, label], className="d-flex align-items-center")
+
+    obj = dbc.Button if module == "dbc" else html.Button
+    return obj(label, id=id, **kwargs)
 
 
 def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
@@ -101,8 +88,8 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     app.clientside_callback(
         "function (n, active) { return !active; }",
         Output(id, "active"),
-        [Input(id, "n_clicks")],
-        [State(id, "active")],
+        Input(id, "n_clicks"),
+        State(id, "active"),
         prevent_initial_call=True,
     )
 
@@ -192,14 +179,12 @@ def custom_collapsible(
         collapse_classname += " show"
 
     class_name = "d-flex justify-content-between align-items-center"
-    chevron_icon = html.I(className="icon-action fas fa-chevron-down")
+    chevron_icon = html.I(className="icon-action fas fa-chevron-down", title=tooltip)
     btn_text = html.Div([text, chevron_icon], className=class_name)
 
     layout = [
         html.Button(
             btn_text,
-            # tooltip=tooltip,
-            # icon=icon,
             style={"color": "black"},
             **{
                 "data-toggle": "collapse",
@@ -221,20 +206,32 @@ def container(text, featured, **kwargs):
     return custom_card(text=html.Div(text), children=children, **kwargs)
 
 
-def collapsable_card(text, id_, featured, hidden=None, message=None):
+def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False):
     # collapsable button
-    icon = html.I(className="fas fa-chevron-down")
-    tooltip = dbc.Tooltip(message, target=f"{id_}-collapse-button")
+    icon = html.I(className="fas fa-chevron-down", title=message)
     vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
+    # if isinstance(id_, dict):
+    #     id_button = {**id_, "collapse": "button"}
+    #     id_button_callable = deepcopy(id_button)
+    #     id_button_callable.update({"index": MATCH})
+    #     id_field = {**id_, "collapse": "fields"}
+    #     id_field_callable = deepcopy(id_field)
+    #     id_field_callable.update({"index": MATCH})
+    # if isinstance(id_, str):
+    id_button = f"{id_}-collapse-button"
+    id_button_callable = id_button
+    id_field = f"{id_}-collapse-fields"
+    id_field_callable = id_field
+
     chevron_down_btn = html.Label(
-        [icon, tooltip],
-        id=f"{id_}-collapse-button",
+        icon,
+        id=id_button,
         style=vis,
-        **{
-            "data-toggle": "collapse",
-            "data-target": f"#{id_}-collapse-fields",
-            "aria-expanded": "true",
-        },
+        # **{
+        #     "data-toggle": "collapse",
+        #     "data-target": f"#{id_}-collapse-fields",
+        #     "aria-expanded": "true",
+        # },
     )
 
     # featured fields
@@ -244,10 +241,22 @@ def collapsable_card(text, id_, featured, hidden=None, message=None):
 
     # collapsed fields
     if hidden is not None:
-        featured += [dbc.Collapse(hidden, id=f"{id_}-collapse-fields", is_open=False)]
+        featured += [dbc.Collapse(hidden, id=id_field, is_open=False)]
 
     content = custom_card(
         text=html.Div(text),
         children=html.Div(featured, className="container"),
     )
+
+    app.clientside_callback(
+        """function (n, open) { return !open; }""",
+        Output(id_field_callable, "is_open"),
+        Input(id_button_callable, "n_clicks"),
+        State(id_field_callable, "is_open"),
+        prevent_initial_call=True,
+    )
+
+    if not outer:
+        return content
+
     return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

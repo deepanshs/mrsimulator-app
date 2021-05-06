@@ -14,32 +14,38 @@ SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "fit", "spectrum"]
 
 def home():
     """Home tab."""
-    icon = html.I(className="fas fa-home fa-lg")
+    icon = html.I(className="fas fa-home fa-lg", title="Home")
     return html.Li(html.Span(icon), id="view-info", className="active")
 
 
 def spin_system():
     """Spin System tab."""
-    icon = html.I(className="fac fa-spin-systems fa-lg")
+    icon = html.I(className="fac fa-spin-systems fa-lg", title="Spin Systems")
     return html.Li(html.Span(icon), id="view-spin_systems")
 
 
 def method():
     """Method tab."""
-    icon = html.I(className="fas fa-cube fa-lg")
+    icon = html.I(className="fas fa-cube fa-lg", title="Methods")
     return html.Li(html.Span(icon), id="view-methods")
 
 
 def fit():
     """Fit tab."""
-    icon = html.I(className="fas fa-bullseye fa-lg")
+    icon = html.I(className="fas fa-bullseye fa-lg", title="Fit")
     return html.Li(html.Span(icon), id="view-fit")
 
 
 def spectrum():
     """Spectrum tab."""
-    icon = html.I(className="fac fa-spectrum fa-lg")
+    icon = html.I(className="fac fa-spectrum fa-lg", title="Spectrum")
     return html.Li(html.Span(icon), id="view-spectrum")
+
+
+def settings():
+    """Utility settings tab."""
+    icon = html.I(className="fas fa-cog fa-lg", title="Settings")
+    return html.Li(html.Span(icon), id="advance-setting")
 
 
 # toggle active class name for the tabs (home, spin system, method)
@@ -66,24 +72,22 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-
-def tooltips():
-    """Tooltips for Home, Spin System, and Method tabs."""
-    tips = ["Home", "Spin Systems", "Methods", "Fit", "Spectrum", "Settings"]
-    targets = [
-        "view-info",
-        "view-spin_systems",
-        "view-methods",
-        "view-fit",
-        "view-spectrum",
-        "advance-setting",
-    ]
-    return html.Div(
-        [
-            dbc.Tooltip(tip, target=target, placement="right")
-            for tip, target in zip(tips, targets)
-        ]
-    )
+# app.clientside_callback(
+#     """function (n, classnames) {
+#         let active = classnames.includes('active');
+#         let target = [];
+#         target.push((!active) ? 'left-card active' : 'left-card');
+#         target.push((!active) ? 'active' : null);
+#         return target;
+#     }""",
+#     [
+#         Output(f"{item}-body", "className"),
+#         Output(f"view-{item}", "className"),
+#     ],
+#     Input(f"view-{item}", "n_clicks"),
+#     State(f"{item}-body", "className"),
+#     prevent_initial_call=True,
+# )
 
 
 def sidebar_tabs():
@@ -92,25 +96,8 @@ def sidebar_tabs():
     2. Spin system
     3. Method
     """
-    # file_menu_ui = (
-    #     html.Div(html.Ul(file_menu, className="menu"), className="master-toolbar"),
-    # )
-    content = [
-        html.Br(),
-        home(),
-        method(),
-        spin_system(),
-        fit(),
-        spectrum(),
-        tooltips(),
-    ]
+    content = [home(), method(), spin_system(), fit(), spectrum()]
     return html.Ul(content, className="sidebar")
-
-
-def settings():
-    """Utility settings tab."""
-    icon = html.Span(html.I(className="fas fa-cog fa-lg"))
-    return html.Li(icon, id="advance-setting")
 
 
 def advanced_settings_modal():
@@ -125,7 +112,7 @@ def advanced_settings_modal():
         return dbc.Row([dbc.Col(title), dbc.Col(field)])
 
     def integration_density():
-        """Integration densitiy: label [Input]"""
+        """Integration density: label [Input]"""
         title = dbc.Label("Integration density")
         field = dbc.Input(
             type="number", value=70, min=1, max=4096, step=1, id="integration_density"
