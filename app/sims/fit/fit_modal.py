@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# import json
-# from datetime import datetime
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,14 +7,6 @@ from dash.dependencies import Output
 from dash.dependencies import State
 
 from app import app
-
-# from dash import callback_context as ctx
-# from dash import no_update
-# from dash.dependencies import ALL
-# from dash.exceptions import PreventUpdate
-# from lmfit import Parameters
-# from mrsimulator import parse
-# from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 
 def info_modal_ui():

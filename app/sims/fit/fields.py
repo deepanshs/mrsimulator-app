@@ -53,7 +53,7 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-# Two callbacks are needed to avoid circular dependecy error
+# Two callbacks are needed to avoid circular dependency error
 @app.callback(
     Output("params-data", "data"),
     Output("trigger-sim", "data"),

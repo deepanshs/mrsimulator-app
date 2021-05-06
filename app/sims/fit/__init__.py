@@ -7,11 +7,6 @@ from .fields import fields
 from .fit_modal import fit_info_modal
 from app.custom_widgets import custom_button
 
-# from dash.dependencies import Input
-# from dash.dependencies import Output
-# from dash.dependencies import State
-# from app import app
-
 
 store = [
     # JSON string of Parameters object
