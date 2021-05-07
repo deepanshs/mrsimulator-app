@@ -14,7 +14,7 @@ def ui(index, data=None, **kwargs):
     offset = custom_input_group(
         prepend_label="Offset",
         value=0 if data is None else data["offset"],
-        id={"function": "constant_offset", "args": "offset", "index": index},
+        id={"function": "baseline", "args": "offset", "index": index},
         debounce=True,
     )
 
@@ -44,8 +44,8 @@ def refresh():
 page = ui(0)
 
 
-def get_constant_offset_dict(i):
+def get_dict(i):
     states = ctx.states
-    val = states[f'{{"args":"offset","function":"constant_offset","index":{i}}}.value']
+    val = states[f'{{"args":"offset","function":"baseline","index":{i}}}.value']
 
-    return {"offset": val, "function": "ConstantOffset"}
+    return {"offset": val, "function": "baseline", "type": "ConstantOffset"}

@@ -45,7 +45,7 @@ def refresh():
 page = ui(0)
 
 
-def get_scale_dict(i):
+def get_dict(i):
     states = ctx.states
     val = states[f'{{"args":"factor","function":"scale","index":{i}}}.value']
 
