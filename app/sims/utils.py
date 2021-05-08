@@ -66,7 +66,7 @@ def on_fail_message(message):
     """
     out = {
         "alert": [message, True],
-        "mrsim": [no_update, no_update],
+        "mrsim": [no_update, no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],

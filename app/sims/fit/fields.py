@@ -161,12 +161,12 @@ def reset_params_body(*args):
 
     sim, processor, report = parse(data)
     params_obj = make_LMFIT_params(sim, processor)
-    # tables = make_fit_tables(params_obj_to_dict(params_obj))
+    tables = make_fit_tables(params_obj_to_dict(params_obj))
     modals = make_modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
 
-    return table, modals, report, hide
+    return tables, modals, report, hide
 
 
 def update_params_body(*args):

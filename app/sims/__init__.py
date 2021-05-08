@@ -15,6 +15,7 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from mrsimulator import Simulator
 from mrsimulator.signal_processing import SignalProcessor
+from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
 from .fit import fit_body
@@ -160,20 +161,12 @@ def one_time_simulation():
 
     if decompose == "none":
         for mth in sim.methods:
-            mth.simulation = add_csdm_with_multiple_dv_to_one(mth.simulation)
+            mth.simulation = add_csdm_dvs(mth.simulation)
 
     serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
 
     return ["", False, serialize]
-
-
-def add_csdm_with_multiple_dv_to_one(data):
-    new_data = data.split()
-    new_csdm = 0
-    for item in new_data:
-        new_csdm += item
-    return new_csdm if new_data != [] else None
 
 
 @app.callback(

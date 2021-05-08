@@ -105,7 +105,7 @@ def refresh():
 page = ui(0)
 
 
-def get_apodization_dict(i):
+def get_dict(i):
     states = ctx.states
     keys = ["dim_index", "dv_index", "type", "FWHM"]
     val = [

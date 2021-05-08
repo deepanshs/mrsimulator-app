@@ -8,7 +8,7 @@ from dash import callback_context as ctx
 from dash import no_update
 from dash.exceptions import PreventUpdate
 
-from . import constant_offset as ConstantOffset
+from . import baseline as Baseline
 from . import convolution as Convolution
 from . import scale as Scale
 from app.sims.utils import expand_output
@@ -19,7 +19,7 @@ def tools():
     """Add, duplicate, or remove methods"""
     items = [
         dbc.DropdownMenuItem("Amplitude Scalar", id="add-post_sim-scalar"),
-        dbc.DropdownMenuItem("Baseline Offset", id="add-post_sim-constant_offset"),
+        dbc.DropdownMenuItem("Baseline Offset", id="add-post_sim-baseline"),
         dbc.DropdownMenuItem("Convolutions", id="add-post_sim-convolution"),
     ]
     new = dbc.DropdownMenu(label="Add", children=items)
@@ -151,18 +151,18 @@ def on_submit_signal_processor_button():
 
 CALLBACKS = {
     "scalar": Scale.refresh,
-    "constant_offset": ConstantOffset.refresh,
+    "baseline": Baseline.refresh,
     "convolution": Convolution.refresh,
 }
 
 FUNCTION_DICT = {
-    "apodization": Convolution.get_apodization_dict,
-    "scale": Scale.get_scale_dict,
-    "constant_offset": ConstantOffset.get_constant_offset_dict,
+    "scale": Scale.get_dict,
+    "baseline": Baseline.get_dict,
+    "apodization": Convolution.get_dict,
 }
 
 FUNCTION_UI_REFRESH = {
-    "apodization": Convolution.ui,
     "Scale": Scale.ui,
-    "ConstantOffset": ConstantOffset.ui,
+    "baseline": Baseline.ui,
+    "apodization": Convolution.ui,
 }
