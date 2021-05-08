@@ -23,8 +23,6 @@ from app.custom_widgets import custom_input_group
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
 
-# Reorganize layout of fitting elements to be more user friendly (modals, grouping)
-
 
 def inputs():
     """Parameters input html div"""
@@ -313,13 +311,13 @@ def fit_table(_dict):
         modal_ic = html.Span(
             html.I(className="fas fa-sliders-h", title="More Settings"),
             id=mod_btn_id,
-            **{"data-edit-mth": ""},
+            **{"data-edit-fit": ""},
         )
 
         del_ic = html.Span(
             html.I(className="fas fa-times", title="Remove Parameter"),
             id=del_id,
-            **{"data-edit-mth": ""},
+            **{"data-edit-fit": ""},
         )
 
         pack = [vary, name, val, modal_ic, del_ic]
