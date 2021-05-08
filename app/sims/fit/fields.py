@@ -18,6 +18,7 @@ from mrsimulator import parse
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from app import app
+from app.custom_widgets import custom_input_group
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
@@ -211,23 +212,44 @@ def make_modals_div(params_dict):
         expr_id = {"name": f"{key}-expr", "kind": "expr"}
         modal_id = {"kind": "modal", "parrent": key}
         submit_id = {"kind": "modal-sub-btn", "parrent": key}
-        min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
-        max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
-        expr_ = dcc.Input(id=expr_id, value=vals["expr"])
+        # min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
+        # max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
+        # expr_ = dcc.Input(id=expr_id, value=vals["expr"])
+
+        min_ = custom_input_group(
+            prepend_label="Minimum",
+            value=vals["min"],
+            id=min_id,
+            debounce=True,
+        )
+        max_ = custom_input_group(
+            prepend_label="Maximum",
+            value=vals["max"],
+            id=max_id,
+            debounce=True,
+        )
+        expr = custom_input_group(
+            prepend_label="Expression",
+            input_type="text",
+            value=vals["expr"],
+            id=expr_id,
+            debounce=True,
+        )
 
         head = dbc.ModalHeader(f"Param: {key}")
-        body = dbc.ModalBody(
-            [
-                html.P(["Minimum ", min_]),
-                html.P(["Maximum ", max_]),
-                html.P(["Expression ", expr_]),
-            ]
-        )
+        # body = dbc.ModalBody(
+        #     [
+        #         html.P(["Minimum ", min_]),
+        #         html.P(["Maximum ", max_]),
+        #         html.P(["Expression ", expr_]),
+        #     ]
+        # )
+        body = dbc.ModalBody([min_, max_, expr])
         foot = dbc.ModalFooter(dbc.Button("Submit", id=submit_id))
 
         return dbc.Modal([head, body, foot], id=modal_id)
 
-    input_args = {"type": "number", "autoComplete": "off"}
+    # input_args = {"type": "number", "autoComplete": "off"}
     modals = []
     for key, vals in params_dict.items():
         modals += [make_modal(key, vals)]

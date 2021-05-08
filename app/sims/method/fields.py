@@ -31,9 +31,15 @@ def experiment_ui():
     # upload_ui = dbc.InputGroup([label, upload], className="input-form")
 
     # standard deviation
+    calc_tooltip = (
+        "Click to calculate the noise standard deviation from the selected reigon of ∂"
+        "the experiment spectrum."
+    )
+    calc_icon = html.I(className="fas fa-calculator", title=calc_tooltip)
+    calc_btn = html.Button(calc_icon, id="calc-sigma-button", className="icon-button")
     sigma = custom_input_group(
-        prepend_label="Noise standard deviation (σ)",
-        # append_label=html.Button("N"),
+        prepend_label="Noise standard deviation (σ)",  # Text overwraps the input field
+        append_label=calc_btn,
         value=1.0,
         min=1e-6,
         id="measurement-sigma",

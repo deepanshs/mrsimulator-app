@@ -4,6 +4,7 @@ from datetime import datetime
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
@@ -242,6 +243,44 @@ def get_method_json(n, value, isotope):
         ).json(),
         "time": int(datetime.now().timestamp() * 1000),
     }
+
+
+@app.callback(
+    Output("measurement-sigma", "value"),
+    Input("calc-sigma-button", "n_clicks"),
+    State("nmr_spectrum", "figure"),  # Graph selection and values
+    prevent_initial_call=True,
+)
+def calculate_sigma(n1, fig):
+    """Calculates standard deviation of noise on selected part of graph"""
+    print("sigma btn")
+
+    if "shapes" not in fig["layout"]:
+        print("no shapes in layout")
+        # Display error message "no area selected?"
+        raise PreventUpdate
+
+    if len(fig["layout"]["shapes"]) > 1:
+        print("shapes array too long")
+        # Display error message "too many selections?"
+        raise PreventUpdate
+
+    shape = fig["layout"]["shapes"][0]
+    if shape["type"] != "rect" and shape["type"] != "circle":
+        print("wrong type of shape")
+        # Display error message "please draw a rect or circle?"
+        raise PreventUpdate
+
+    # x-axis decreases from left to right
+    exp = next(item for item in fig["data"] if item["name"] == "experiment")
+    step = exp["dx"]
+    xrange = shape["x1"] - shape["x0"]
+    srt_idx = max(0, int((exp["x0"] - shape["x0"]) / step))  # Leftmost point index
+    end_idx = min(len(exp["y"]), int(xrange / step) + srt_idx)  # Rightmost point index
+    selected_data = exp["y"][srt_idx:end_idx]
+    print(selected_data)
+
+    return np.std(selected_data)
 
 
 app.clientside_callback(
