@@ -87,7 +87,7 @@ def update_fit_data(n1, n2, mr_data, p_data, *vals):
     Output("params-report-div", "children"),
     Output("params-report-div", "hidden"),
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    Input("reset-button", "n_clicks"),  # Goes away soon
+    Input("refresh-button", "n_clicks"),  # Goes away soon
     # Input("local-mrsim-data", "data"),
     Input("trigger-table-update", "data"),
     State("local-mrsim-data", "data"),
@@ -336,7 +336,7 @@ def get_new_params_json(vals):
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "reset-button": reset_params_body,
+    "refresh-button": reset_params_body,
     "trigger-table-update": update_params_body,
     # "local-mrsim-data": update_params_body,
     "delete": delete_param,

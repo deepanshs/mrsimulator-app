@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from dash import no_update
 
 from . import home as home_UI
@@ -48,7 +50,7 @@ def assemble_data(data):
 
     out = {
         "alert": ["", False],
-        "mrsim": [data, no_update],
+        "mrsim": [data, no_update, int(datetime.now().timestamp() * 1000)],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": mrsim_config,
         "processor": [post_sim_overview],

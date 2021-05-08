@@ -21,26 +21,29 @@ storage_div = html.Div(id="fitting-store", children=store)
 
 def buttons():
     """Static user interface buttons"""
-    kwargs = {"outline": True, "color": "dark", "size": "sm"}
-    reset = custom_button(
-        id="reset-button",
-        text="Reset",
-        tooltip="Reset the parameter to default values.",
+    kwargs = {"outline": True, "color": "dark", "size": "md"}
+    refresh = custom_button(
+        id="refresh-button",
+        # text="Reset",
+        icon_classname="fas fa-sync-alt",
+        tooltip="Refresh parameter values.",
         **kwargs
     )
     simulate = custom_button(
         id="simulate-button",
-        text="Simulate",
+        # text="Simulate",
+        icon_classname="far fa-chart-bar",
         tooltip="Simulate a spectrum using the current values.",
         **kwargs
     )
     fit = custom_button(
         id="run-fitting-button",
-        text="Fit",
+        # text="Fit",
+        icon_classname="fas fa-compress-alt",
         tooltip="Run least-squares minimization.",
         **kwargs
     )
-    return dbc.ButtonGroup([reset, simulate, fit])
+    return dbc.ButtonGroup([refresh, simulate, fit])
 
 
 def fit_header():

@@ -9,6 +9,29 @@ from dash.dependencies import State
 from app import app
 
 
+BUTTONS = {
+    # Refresh Button
+    "fas fa-sync-alt": (
+        "Refreshes the values in fit tables from input values within other tabs of the"
+        "app."
+    ),
+    # Simulate Button
+    "far fa-chart-bar": (
+        "Simulates the spectrum(s) for the given set of input parameters."
+    ),
+    # Run Fit Button
+    "fas fa-compress-alt": (
+        "Fits the parameters of the simulated spectrum to the experiment data using the"
+        "least squares algorithm. Spectrum and values will automatically update after"
+        "the fitting routine and a fit report will appear at the bottom of the page."
+    ),
+}
+
+
+def get_info_row(icon, description):
+    return html.Tr([html.Td(html.I(className=icon)), html.Td(description)])
+
+
 def info_modal_ui():
     """Info about fitting interface"""
     head = dbc.ModalHeader("Least Squares Fitting Interface Info")
@@ -41,15 +64,16 @@ def info_body():
         ```sys[i].sites[j].attribute1.attribute2```
 
         where `sys` represents a **Spin System** object.
-        More info on the [mrsimulator documentation page][1]
+        More info is on the [mrsimulator documentation page][1]
 
 
         [1]: https://mrsimulator.readthedocs.io/en/latest/api_py/fitting.html
     """
     )
     btn_title = html.B("Button Functions")
+    btn_table = html.Table([get_info_row(k, v) for k, v in BUTTONS.items()])
     # Table of icons and function
-    return dbc.ModalBody([message1, btn_title])
+    return dbc.ModalBody([message1, btn_title, btn_table])
 
 
 fit_info_modal = info_modal_ui()
