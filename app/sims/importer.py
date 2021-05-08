@@ -17,8 +17,7 @@ from lmfit import Minimizer
 from lmfit import Parameters
 from lmfit.printfuncs import fitreport_html_table
 from mrsimulator.utils import get_spectral_dimensions
-from mrsimulator.utils.spectral_fitting import LMFIT_min_function
-from mrsimulator.utils.spectral_fitting import update_mrsim_obj_from_params
+from mrsimulator.utils import spectral_fitting as sf
 
 from . import home as home_UI
 from . import io as sim_IO
@@ -84,7 +83,7 @@ __email__ = "srivastava.89@osu.edu"
         # post simulation triggers
         Input("submit-signal-processor-button", "n_clicks"),
         Input("add-post_sim-scalar", "n_clicks"),
-        Input("add-post_sim-constant_offset", "n_clicks"),
+        Input("add-post_sim-baseline", "n_clicks"),
         Input("add-post_sim-convolution", "n_clicks"),
         Input("select-method", "value"),
         # Input("new-method", "modified_timestamp"),
@@ -110,7 +109,7 @@ __email__ = "srivastava.89@osu.edu"
         State({"function": "apodization", "args": "dim_index", "index": ALL}, "value"),
         State({"function": "apodization", "args": "dv_index", "index": ALL}, "value"),
         State({"function": "scale", "args": "factor", "index": ALL}, "value"),
-        State({"function": "constant_offset", "args": "offset", "index": ALL}, "value"),
+        State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
         State("post_sim_child", "children"),
         State("select-method", "options"),
         State("params-data", "data"),
@@ -402,7 +401,7 @@ def simulate_test():
     sim, processor, saved_params = mrsim.parse(mrsim_data)
     params = Parameters().loads(params_data)
 
-    update_mrsim_obj_from_params(params, sim, processor)
+    sf.update_mrsim_obj_from_params(params, sim, processor)
     new_mrsim_data = mrsim.dict(sim, processor, saved_params)
     new_mrsim_data["params"] = params.dumps()
     # Use this line? Or something else
@@ -451,8 +450,11 @@ def least_squares_fit():
     sigma = []
     for mth in sim.methods:
         csdm_application = mth.experiment.dependent_variables[0].application
-        sigma.append(csdm_application["com.github.DeepanshS.mrsimulator"]["sigma"])
-
+        sigma.append(
+            1
+            if "com.github.DeepanshS.mrsimulator" not in csdm_application
+            else csdm_application["com.github.DeepanshS.mrsimulator"]["sigma"]
+        )
     print("sigma", sigma)
 
     decompose = sim.config.decompose_spectrum[:]
@@ -460,7 +462,7 @@ def least_squares_fit():
 
     params = Parameters().loads(params_data)
 
-    minner = Minimizer(LMFIT_min_function, params, fcn_args=(sim, processor, sigma))
+    minner = Minimizer(sf.LMFIT_min_function, params, fcn_args=(sim, processor, sigma))
     result = minner.minimize()
     # print(fit_report(result))
 
@@ -468,9 +470,14 @@ def least_squares_fit():
     for sys in sim.spin_systems:
         sys.transition_pathways = None
 
+    if decompose == "none":
+        for mth in sim.methods:
+            mth.simulation = sf.add_csdm_dvs(mth.simulation)
+
     fit_data = mrsim.dict(
         sim, processor, result.params
     )  # Params in fitting tab are not grabbed correctly
+
     fit_data["report"] = fitreport_html_table(result)
 
     spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
@@ -506,7 +513,7 @@ CALLBACKS = {
     "remove-measurement-from-method": remove_measurement_from_a_method,
     "submit-signal-processor-button": post_sim_UI.on_submit_signal_processor_button,
     "add-post_sim-scalar": post_sim_UI.CALLBACKS["scalar"],
-    "add-post_sim-constant_offset": post_sim_UI.CALLBACKS["constant_offset"],
+    "add-post_sim-baseline": post_sim_UI.CALLBACKS["baseline"],
     "add-post_sim-convolution": post_sim_UI.CALLBACKS["convolution"],
     "remove-post_sim-functions": post_sim_UI.on_remove_post_sim_function,
     "select-method": post_sim_UI.on_method_select,
@@ -532,16 +539,6 @@ def update_list_of_methods(data):
     ]
     return options
 
-
-# @app.callback(
-#     Output("select-method", "value"),
-#     Input("select-method", "options"),
-#     State("select-method", "value"),
-# )
-# def update_method_index(options, val):
-#     if len(options) >= val:
-#         return len(options) - 1
-#     raise PreventUpdate
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="onReload"),

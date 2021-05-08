@@ -5,7 +5,7 @@ import os
 from urllib.request import urlopen
 
 import mrsimulator as mrsim
-from csdmpy.dependent_variables.download import get_absolute_url_path
+from csdmpy.dependent_variable.download import get_absolute_url_path
 from dash import callback_context as ctx
 from dash.exceptions import PreventUpdate
 
