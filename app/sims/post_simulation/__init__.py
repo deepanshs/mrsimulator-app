@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 from dash.exceptions import PreventUpdate
-from datatime import datetime
 
 from . import baseline as Baseline
 from . import convolution as Convolution

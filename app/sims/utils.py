@@ -48,7 +48,7 @@ def assemble_data(data):
 
     out = {
         "alert": ["", False],
-        "mrsim": [data, no_update],
+        "mrsim": [data, no_update, no_update],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": mrsim_config,
         "processor": [post_sim_overview],
@@ -64,7 +64,7 @@ def on_fail_message(message):
     """
     out = {
         "alert": [message, True],
-        "mrsim": [no_update, no_update],
+        "mrsim": [no_update, no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
