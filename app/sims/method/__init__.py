@@ -278,7 +278,6 @@ def calculate_sigma(n1, fig):
     srt_idx = max(0, int((exp["x0"] - shape["x0"]) / step))  # Leftmost point index
     end_idx = min(len(exp["y"]), int(xrange / step) + srt_idx)  # Rightmost point index
     selected_data = exp["y"][srt_idx:end_idx]
-    print(selected_data)
 
     return np.std(selected_data)
 

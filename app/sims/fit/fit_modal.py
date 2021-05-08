@@ -13,7 +13,7 @@ BUTTONS = {
     # Refresh Button
     "fas fa-sync-alt": (
         "Refreshes the values in fit tables from input values within other tabs of the"
-        "app."
+        " app."
     ),
     # Simulate Button
     "far fa-chart-bar": (
@@ -22,8 +22,8 @@ BUTTONS = {
     # Run Fit Button
     "fas fa-compress-alt": (
         "Fits the parameters of the simulated spectrum to the experiment data using the"
-        "least squares algorithm. Spectrum and values will automatically update after"
-        "the fitting routine and a fit report will appear at the bottom of the page."
+        " least squares algorithm. Spectrum and values will automatically update after"
+        " the fitting routine and a fit report will appear at the bottom of the page."
     ),
 }
 
