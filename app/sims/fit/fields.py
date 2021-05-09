@@ -150,34 +150,23 @@ def delete_param(name, vals):
 
 
 def reset_params_body(*args):
-    # data = ctx.inputs["local-mrsim-data.data"]
-    data = ctx.states["local-mrsim-data.data"]
-
-    if len(data["spin_systems"]) == 0:
-        table = fit_table({})
-        return table, no_update, no_update
-
-    sim, processor, report = parse(data)
-    params_obj = make_LMFIT_params(sim, processor)
-    tables = make_fit_tables(params_obj_to_dict(params_obj))
-    modals = make_modals_div(params_obj_to_dict(params_obj))
-    report, hide = ("", True) if "report" not in data else (data["report"], False)
-    report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
-
-    return tables, modals, report, hide
+    return update_tables(*args, reset=True)
 
 
 def update_params_body(*args):
+    return update_tables(*args)
+
+
+def update_tables(*args, reset=False):
     # data = ctx.inputs["local-mrsim-data.data"]
     data = ctx.states["local-mrsim-data.data"]
 
     if len(data["spin_systems"]) == 0:
-        table = fit_table({})
-        return table, no_update, True
+        return None, no_update, True, True
 
     sim, processor, report = parse(data)
 
-    if "params" in data and data["params"] is not None:
+    if "params" in data and data["params"] is not None and not reset:
         params_obj = Parameters().loads(data["params"])
     else:
         params_obj = make_LMFIT_params(sim, processor)
@@ -269,22 +258,23 @@ def make_fit_tables(params_dict):
     keys = list(params_dict.keys())
 
     if len(keys) == 0:
-        return fit_table({})
+        return
 
     prefix = keys[0][:5]
-    tmp = []
+    tmp, index = [], 0
     for key in keys:
         if key[:5] != prefix:
-            tables.append(fit_table({k: params_dict[k] for k in tmp}))
+            tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
             tmp, prefix = [], key[:5]
+            index += 1
         tmp.append(key)
-    tables.append(fit_table({k: params_dict[k] for k in tmp}))
+    tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
 
     return tables
 
 
 # Truncate decimal places (using css?)
-def fit_table(_dict):
+def fit_table(_dict, index):
     """Constructs html table of parameter inputs fields
 
     Params:
@@ -323,7 +313,11 @@ def fit_table(_dict):
         pack = [vary, name, val, modal_ic, del_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
-    return html.Table(className="fields-table", children=fit_rows)
+    return html.Table(
+        className="fields-table",
+        children=fit_rows,
+        id={"key": "ft-table", "index": index},
+    )
 
 
 def params_obj_to_dict(params_obj):

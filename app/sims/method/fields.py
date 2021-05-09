@@ -32,7 +32,7 @@ def experiment_ui():
 
     # standard deviation
     calc_tooltip = (
-        "Click to calculate the noise standard deviation from the selected reigon of ∂"
+        "Click to calculate the noise standard deviation from the selected region of ∂"
         "the experiment spectrum."
     )
     calc_icon = html.I(className="fas fa-calculator", title=calc_tooltip)
