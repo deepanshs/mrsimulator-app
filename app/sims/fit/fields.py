@@ -169,7 +169,7 @@ def update_tables(*args, reset=False):
     if "params" in data and data["params"] is not None and not reset:
         params_obj = Parameters().loads(data["params"])
     else:
-        params_obj = make_LMFIT_params(sim, processor)
+        params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
 
     tables = make_fit_tables(params_obj_to_dict(params_obj))
     modals = make_modals_div(params_obj_to_dict(params_obj))
@@ -261,16 +261,35 @@ def make_fit_tables(params_dict):
         return
 
     prefix = keys[0][:5]
-    tmp, index = [], 0
+    tmp, search_sys, search_mth, index = [], [], [], 0
+
     for key in keys:
         if key[:5] != prefix:
+            if tmp[0][:3] == "sys":
+                search_sys.append(
+                    html.Button(index, id={"key": "fit-table-sys", "index": index})
+                )
+            else:
+                search_mth.append(
+                    html.Button(index, id={"key": "fit-table-mth", "index": index})
+                )
             tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
             tmp, prefix = [], key[:5]
             index += 1
+
         tmp.append(key)
+
+    if tmp[0][:3] == "sys":
+        search_sys.append(
+            html.Button(index, id={"key": "fit-table-sys", "index": index})
+        )
+    else:
+        search_mth.append(
+            html.Button(index, id={"key": "fit-table-mth", "index": index})
+        )
     tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
 
-    return tables
+    return html.Div([html.Div(search_sys), html.Div(search_mth), html.Div(tables)])
 
 
 # Truncate decimal places (using css?)
@@ -316,7 +335,7 @@ def fit_table(_dict, index):
     return html.Table(
         className="fields-table",
         children=fit_rows,
-        id={"key": "ft-table", "index": index},
+        id={"key": "fit-table", "index": index},
     )
 
 
