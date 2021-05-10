@@ -51,8 +51,7 @@ def settings():
 # toggle active class name for the tabs (home, spin system, method)
 
 app.clientside_callback(
-    f"""
-    function () {{
+    f"""function () {{
         let trig = dash_clientside.callback_context.triggered.map(t => t["prop_id"]);
         let trig_id = trig[0].split('.')[0].split('-')[1];
 
@@ -62,13 +61,10 @@ app.clientside_callback(
             tab.push((trig_id === item) ? 'active' : null);
         }}
         return target.concat(tab);
-    }}
-    """,
-    [
-        *[Output(f"{item}-body", "className") for item in SIDEBAR_TAB_NAME],
-        *[Output(f"view-{item}", "className") for item in SIDEBAR_TAB_NAME],
-    ],
-    [Input(f"view-{item}", "n_clicks") for item in SIDEBAR_TAB_NAME],
+    }}""",
+    *[Output(f"{item}-body", "className") for item in SIDEBAR_TAB_NAME],
+    *[Output(f"view-{item}", "className") for item in SIDEBAR_TAB_NAME],
+    *[Input(f"view-{item}", "n_clicks") for item in SIDEBAR_TAB_NAME],
     prevent_initial_call=True,
 )
 
@@ -138,22 +134,14 @@ def advanced_settings_modal():
     def integration_info():
         """Text field displaying number of crystallite orientations."""
         app.clientside_callback(
-            """
-            function (density, volume) {
+            """function (density, vol) {
                 let ori = (density + 1) * (density + 2)/2;
-                if (volume === 'octant') {
-                    return `Averaging over ${ori*1} orientations.`;
-                }
-                if (volume === 'hemisphere') {
-                    return `Averaging over ${ori*4} orientations.`;
-                }
-            }
-            """,
+                if (vol === 'octant') { return `Averaging over ${ori} orientations.`; }
+                return `Averaging over ${ori*4} orientations.`;
+            }""",
             Output("integration_points_info", "children"),
-            [
-                Input("integration_density", "value"),
-                Input("integration_volume", "value"),
-            ],
+            Input("integration_density", "value"),
+            Input("integration_volume", "value"),
             prevent_initial_call=False,
         )
 
@@ -187,10 +175,11 @@ def advanced_settings_modal():
 
     # callback for toggling modal window visibility
     app.clientside_callback(
-        "function (n1, n2, is_open) { return !is_open; }",
+        """function (n1, n2, is_open) { return !is_open; }""",
         Output("modal_setting", "is_open"),
-        [Input("advance-setting", "n_clicks"), Input("close_setting", "n_clicks")],
-        [State("modal_setting", "is_open")],
+        Input("advance-setting", "n_clicks"),
+        Input("close_setting", "n_clicks"),
+        State("modal_setting", "is_open"),
         prevent_initial_call=True,
     )
 

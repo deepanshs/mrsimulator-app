@@ -49,11 +49,9 @@ button = dbc.Button(
 app.clientside_callback(
     "function(n1, n2, is_open) { return !is_open; }",
     Output("method-modal", "is_open"),
-    [
-        Input("add-method-button", "n_clicks"),
-        Input("close-method-selection", "n_clicks"),
-    ],
-    [State("method-modal", "is_open")],
+    Input("add-method-button", "n_clicks"),
+    Input("close-method-selection", "n_clicks"),
+    State("method-modal", "is_open"),
     prevent_initial_call=True,
 )
 

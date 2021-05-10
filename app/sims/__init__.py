@@ -116,13 +116,11 @@ mrsimulator_app = html.Div(
 
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
-    [
-        Output("alert-message-simulation", "children"),
-        Output("alert-message-simulation", "is_open"),
-        # Output("local-computed-data", "data"),
-        Output("local-simulator-data", "data"),
-    ],
-    [Input("local-mrsim-data", "data")],
+    Output("alert-message-simulation", "children"),
+    Output("alert-message-simulation", "is_open"),
+    # Output("local-computed-data", "data"),
+    Output("local-simulator-data", "data"),
+    Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -170,18 +168,15 @@ def one_time_simulation():
 
 
 @app.callback(
-    [Output("nmr_spectrum", "figure"), Output("local-processed-data", "data")],
-    [
-        # Input("local-computed-data", "modified_timestamp"),
-        Input("local-simulator-data", "data"),
-        Input("normalize_amp", "n_clicks"),
-        Input("select-method", "value"),
-    ],
-    [
-        State("normalize_amp", "active"),
-        # State("local-computed-data", "data"),
-        State("nmr_spectrum", "figure"),
-    ],
+    Output("nmr_spectrum", "figure"),
+    Output("local-processed-data", "data"),
+    # Input("local-computed-data", "modified_timestamp"),
+    Input("local-simulator-data", "data"),
+    Input("normalize_amp", "n_clicks"),
+    Input("select-method", "value"),
+    State("normalize_amp", "active"),
+    # State("local-computed-data", "data"),
+    State("nmr_spectrum", "figure"),
     prevent_initial_call=True,
 )
 def plot(*args):

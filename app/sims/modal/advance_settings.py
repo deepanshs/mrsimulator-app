@@ -13,15 +13,11 @@ from app import app
 
 
 app.clientside_callback(
-    """
-    function (data) {
-        if (data == null) {
-            throw window.dash_clientside.PreventUpdate;
-        }
+    """function (data) {
+        if (data == null) { throw window.dash_clientside.PreventUpdate; }
         return data.auto_update.toString();
-    }
-    """,
+    }""",
     Output("auto-update", "children"),
-    [Input("user-config", "data")],
+    Input("user-config", "data"),
     prevent_initial_call=True,
 )

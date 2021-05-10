@@ -90,14 +90,12 @@ def spin_system_menu():
     # Callbacks for the add, duplicate, and remove spin systems
     _ = [
         app.clientside_callback(
-            f"""
-            function() {{
+            f"""function() {{
                 document.getElementById("{t}-spin-system-button").click();
                 throw window.dash_clientside.PreventUpdate;
-            }}
-            """,
+            }}""",
             Output(f"{t}-spin-system-button", "n_clicks"),
-            [Input(f"{t}_sys", "n_clicks")],
+            Input(f"{t}_sys", "n_clicks"),
             prevent_initial_call=True,
         )
         for t in TARGET
@@ -105,14 +103,12 @@ def spin_system_menu():
 
     # Callbacks for the clear all spin systems
     app.clientside_callback(
-        """
-        function(n) {
+        """function(n) {
             if (n == null) throw window.dash_clientside.PreventUpdate;
             return true;
-        }
-        """,
+        }""",
         Output("confirm-clear-spin-system", "displayed"),
-        [Input("clear-spin-systems", "n_clicks")],
+        Input("clear-spin-systems", "n_clicks"),
         prevent_initial_call=True,
     )
 
@@ -156,14 +152,12 @@ def method_menu():
     # Callbacks for the add, duplicate, and remove methods
     _ = [
         app.clientside_callback(
-            f"""
-            function() {{
+            f"""function() {{
                 document.getElementById("{t}-method-button").click();
                 throw window.dash_clientside.PreventUpdate;
-            }}
-            """,
+            }}""",
             Output(f"{t}-method-button", "n_clicks"),
-            [Input(f"{t}_method", "n_clicks")],
+            Input(f"{t}_method", "n_clicks"),
             prevent_initial_call=True,
         )
         for t in TARGET
@@ -171,14 +165,12 @@ def method_menu():
 
     # Callbacks for the clear all methods
     app.clientside_callback(
-        """
-        function(n) {
+        """function(n) {
             if (n == null) throw window.dash_clientside.PreventUpdate;
             return true;
-        }
-        """,
+        }""",
         Output("confirm-clear-methods", "displayed"),
-        [Input("clear-methods", "n_clicks")],
+        Input("clear-methods", "n_clicks"),
         prevent_initial_call=True,
     )
 

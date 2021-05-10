@@ -330,8 +330,7 @@ def add_measurement_to_a_method():
     success, exp_data, error_message = load_csdm(decoded)
 
     if not success:
-        e = f"Error reading file. {error_message}"
-        return [e, True, no_update, *([no_update] * 9)]
+        return sim_utils.on_fail_message(f"FileLoadError: {error_message}")
 
     index = ctx.states["select-method.value"]
     method = existing_data["methods"][index]
@@ -348,12 +347,13 @@ def add_measurement_to_a_method():
     post_sim_overview = no_update
     if existing_data["signal_processors"][index] in [None, {"operations": []}]:
         vector = exp_data.y[0].components[0].real
+        increment = exp_data.x[0].increment.value
         amp = vector.sum()
         existing_data["signal_processors"][index]["operations"] = [
             {"dim_index": [0], "function": "IFFT"},
             {
                 "dim_index": [0],
-                "FWHM": "200 Hz",
+                "FWHM": f"{3*increment} Hz",
                 "function": "apodization",
                 "type": "Exponential",
             },
@@ -538,6 +538,6 @@ def update_list_of_methods(data):
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="onReload"),
     Output("temp2", "children"),
-    [Input("local-mrsim-data", "data")],
+    Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )

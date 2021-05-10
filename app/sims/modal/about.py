@@ -71,10 +71,10 @@ def about():
     app.clientside_callback(
         """function (value) {
             if (value == null) throw window.dash_clientside.PreventUpdate;
-            return 'true';
+            return true;
         }""",
         Output("modal-about", "is_open"),
-        [Input("modal-about-button", "n_clicks")],
+        Input("modal-about-button", "n_clicks"),
         prevent_initial_call=True,
     )
     return modal
@@ -84,23 +84,18 @@ div = []
 
 
 def get_contents(content):
-    div = []
+    if not isinstance(content, (list, dict)):
+        return [dcc.Markdown(content)]
+
     if isinstance(content, list):
-        lst1 = []
-        for list_item in content:
-            lst1.append(html.Li(list_item))
-        div.append(html.Ul(lst1))
-    elif isinstance(content, dict):
-        sub_div = []
-        for item in content.keys():
-            div_ = []
-            div_.append(html.H6(item))
-            div_.append(html.Div(get_contents(content[item])))
-            sub_div.append(dbc.Col(div_, xs=12, sm=12, md=12, lg=6, xl=6))
-        div.append(dbc.Row(sub_div))
-    else:
-        div.append(dcc.Markdown(content))
-    return div
+        return [html.Ul([html.Li(item) for item in content])]
+
+    return dbc.Row(
+        [
+            dbc.Col([html.H6(item), html.Div(get_contents(content[item]))], md=12, lg=6)
+            for item in content.keys()
+        ]
+    )
 
 
 list_ = []
@@ -116,16 +111,12 @@ for item in about_.keys():
     )
 
     app.clientside_callback(
-        """
-        function (value) {
-            if (value == null) {
-                throw window.dash_clientside.PreventUpdate;
-            }
-            return 'true';
-        }
-        """,
+        """function (value) {
+            if (value == null) { throw window.dash_clientside.PreventUpdate; }
+            return true;
+        }""",
         Output(f"modal-{item}", "is_open"),
-        [Input(f"modal-{item}-button", "n_clicks")],
+        Input(f"modal-{item}-button", "n_clicks"),
         prevent_initial_call=True,
     )
 

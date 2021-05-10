@@ -211,7 +211,6 @@ table thead tr td {
 }
 table thead {
   border-bottom: 1px solid #dfdfdf;
-  background-color: none;
 }
 table thead:not(:first-child):hover {
   background-color: #cee3ff;
