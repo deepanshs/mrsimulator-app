@@ -54,7 +54,7 @@ def fit_header():
         style={"cursor": "pointer"},
     )
     icon = html.I(className="fas fa-bullseye fa-lg")
-    text = html.H4("Fitting Parameters", className="hide-label-sm")
+    text = html.H4("Features", className="hide-label-sm")
     title = html.Div([icon, text, help_button])
     return html.Div([title, buttons()], className="card-header")
 

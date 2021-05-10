@@ -22,6 +22,7 @@ from app.custom_widgets import custom_input_group
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
+TITLE = {"sys": "Spin System", "mth": "Method", "SP": "Method"}
 
 
 def inputs():
@@ -261,19 +262,26 @@ def make_fit_tables(params_dict):
         return
 
     prefix = keys[0][:5]
-    tmp, search_sys, search_mth, index = [], [], [], 0
+    tmp = []
+    search_sys = ["Spin Systems"]
+    search_mth = ["Methods"]
 
+    index_sys, index_mth, index = 0, 0, 0
     for key in keys:
         if key[:5] != prefix:
             if tmp[0][:3] == "sys":
                 search_sys.append(
-                    html.Button(index, id={"key": "fit-table-sys", "index": index})
+                    html.Button(index_sys, id={"key": "fit-table-btn", "index": index})
                 )
+                index_sys += 1
             else:
                 search_mth.append(
-                    html.Button(index, id={"key": "fit-table-mth", "index": index})
+                    html.Button(index_mth, id={"key": "fit-table-btn", "index": index})
                 )
-            tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
+                index_mth += 1
+            lst = tmp[0].split("_")
+            title = f"{TITLE[lst[0]]} {lst[1]}"
+            tables.append(fit_table({k: params_dict[k] for k in tmp}, index, title))
             tmp, prefix = [], key[:5]
             index += 1
 
@@ -281,19 +289,27 @@ def make_fit_tables(params_dict):
 
     if tmp[0][:3] == "sys":
         search_sys.append(
-            html.Button(index, id={"key": "fit-table-sys", "index": index})
+            html.Button(index_sys, id={"key": "fit-table-btn", "index": index})
         )
     else:
         search_mth.append(
-            html.Button(index, id={"key": "fit-table-mth", "index": index})
+            html.Button(index_mth, id={"key": "fit-table-btn", "index": index})
         )
-    tables.append(fit_table({k: params_dict[k] for k in tmp}, index))
+    lst = tmp[0].split("_")
+    title = f"{TITLE[lst[0]]} {lst[1]}"
+    tables.append(
+        fit_table(
+            {k: params_dict[k] for k in tmp},
+            index,
+            title,
+        )
+    )
 
     return html.Div([html.Div(search_sys), html.Div(search_mth), html.Div(tables)])
 
 
 # Truncate decimal places (using css?)
-def fit_table(_dict, index):
+def fit_table(_dict, index, title="Name"):
     """Constructs html table of parameter inputs fields
 
     Params:
@@ -302,7 +318,7 @@ def fit_table(_dict, index):
     Returns:
         html.Table
     """
-    fit_header = ["", "Name", "Value", "More", ""]
+    fit_header = ["", title, "Value", "", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -333,10 +349,23 @@ def fit_table(_dict, index):
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(
-        className="fields-table",
+        className="fields-table active" if index == 0 else "fields-table",
         children=fit_rows,
         id={"key": "fit-table", "index": index},
     )
+
+
+app.clientside_callback(
+    """function (n, className) {
+        let check = className.includes('active');
+        if (check) return className.replace('active', '').trim();
+        if (!check) return `${className} active`;
+    }""",
+    Output({"key": "fit-table", "index": MATCH}, "className"),
+    Input({"key": "fit-table-btn", "index": MATCH}, "n_clicks"),
+    State({"key": "fit-table", "index": MATCH}, "className"),
+    prevent_initial_call=True,
+)
 
 
 def params_obj_to_dict(params_obj):
