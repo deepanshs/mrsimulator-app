@@ -7,39 +7,35 @@
   margin: 1em 0;
 }
 
-#fit-body {
-  overflow-y: auto;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
 .fields-table {
-  margin-bottom: 4%;
+  margin-bottom: 1.5em;
+  display: none;
+}
+.fields-table.active {
+  display: table;
 }
 
-.fields-table thead tr td {
-  padding: 0.4em;
-}
-/* Checkbox and delete */
+/* Checkbox, delete, amd options */
 .fields-table thead th:first-child,
-.fields-table thead th:last-child {
-  width: 7%;
+.fields-table thead th:last-child,
+.fields-table thead th:nth-child(4) {
+  width: 2em;
 }
 /* Name */
 .fields-table thead th:nth-child(2) {
-  width: 55%;
+  width: 44%;
 }
-/* More Button */
-.fields-table thead th:nth-child(4) {
-  width: 10%;
+/* Value */
+.fields-table thead th:nth-child(3) {
+  width: 30%;
 }
 
-table thead tr td div,
-table thead tr td span {
+.fields-table thead tr td div {
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: inherit;
+  white-space: nowrap;
+  font-size: small;
 }
 
 .fields-table input[type="checkbox"] {
@@ -49,6 +45,7 @@ table thead tr td span {
 .fields-table input[type="text"] {
   width: 100%;
   padding: 0.5em;
+  margin: -0.5em;
   border-radius: 0.2em;
   border: 1px solid var(--text-box-underline-color);
 }
@@ -57,7 +54,6 @@ table thead tr td span {
 .fields-table:focus {
   color: black;
   text-decoration: none;
-  /* border-radius: 0.25em; */
   cursor: text;
   background-color: white;
   border: 1px solid #48a3ff;
@@ -69,5 +65,4 @@ table thead tr td span {
   height: calc(var(--content-max-height) - 6em);
   overflow-y: auto;
   scrollbar-width: thin;
-  padding: 0 1em;
 }

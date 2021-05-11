@@ -257,7 +257,10 @@ def sigma_helper(x0, dx, shape_x0, shape_x1, y_values):
     """
     if dx > 0:
         print("positive dx")
-        raise PreventUpdate
+        # swap the limits is dx is positive, and negate dx
+        shape_x1, shape_x0 = shape_x0, shape_x1
+        dx *= 1
+
     # Choose leftmost box bound OR leftmost point if box is out of left bound
     x_left = min(max(shape_x1, shape_x0), x0)
     # Choose rightmost box bound OR rightmost point if box is out of right bound

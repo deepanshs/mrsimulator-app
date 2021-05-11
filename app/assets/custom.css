@@ -239,7 +239,9 @@ span[data-edit-mth]:hover,
 span[data-edit-fit]:hover {
   color: #414141;
 }
-
+div[data-home-table] {
+  margin-bottom: 2em;
+}
 div[data-home-table] div[data-table-header-mth],
 div[data-home-table] div[data-table-header-sys] {
   margin-top: 1.5em;
@@ -258,4 +260,20 @@ div[data-home-table] ul[data-edit-tools] li {
 }
 div[data-home-table] ul[data-edit-tools] li:hover {
   color: black;
+}
+
+@media only screen and (max-width: 810px) {
+  [id$="-body"].left-card {
+    margin: 0;
+    min-width: calc(100vw - 0.25rem);
+    scroll-snap-align: center;
+    padding: 0;
+    height: calc(var(--content-max-height) - 1.35rem);
+  }
+  #spectrum-body.left-card {
+    display: none;
+  }
+  #spectrum-body.left-card.active {
+    display: block;
+  }
 }
