@@ -23,7 +23,7 @@ BUTTONS = {
     "fas fa-compress-alt": (
         "Fits the parameters of the simulated spectrum to the experiment data using the"
         " least squares algorithm. Spectrum and values will automatically update after"
-        " the fitting routine and a fit report will appear at the bottom of the page."
+        " the fitting routine and a report will appear below."
     ),
 }
 

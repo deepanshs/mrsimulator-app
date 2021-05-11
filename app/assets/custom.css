@@ -173,7 +173,7 @@ input[type="search"]:focus {
   color: gray;
   border: none;
   padding: 0.3em 0.5em 0.3em 0.3em;
-  float: right;
+  /* float: right; */
 }
 .icon-button:hover {
   color: black;

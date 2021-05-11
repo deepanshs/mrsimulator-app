@@ -18,7 +18,6 @@ from mrsimulator import parse
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from app import app
-from app.custom_widgets import custom_input_group
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
@@ -112,12 +111,14 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
 
 
 # Opens/closes params modal
-# BUG: On update mrsim-data new modals open
+# BUG: On delete spin system `nonexistant object as Input` error.
+#      can a presistant dummy modal solve this?
+#      or deeper reason for thrown error?
 app.clientside_callback(
-    "function (n1, n2, is_open) { if(n1 == null) { return false; } return !is_open }",
+    "function (n1, n2, is_open) { if(n1 == null) { return false; } return !is_open; }",
     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
-    Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
+    # Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
     State({"kind": "modal", "parrent": MATCH}, "is_open"),
     prevent_initial_call=True,
 )
@@ -150,12 +151,11 @@ def delete_param(name, vals):
 
 
 def reset_params_body(*args):
-    # data = ctx.inputs["local-mrsim-data.data"]
     data = ctx.states["local-mrsim-data.data"]
 
     if len(data["spin_systems"]) == 0:
         table = fit_table({})
-        return table, no_update, no_update
+        return table, no_update, no_update, no_update
 
     sim, processor, report = parse(data)
     params_obj = make_LMFIT_params(sim, processor)
@@ -168,12 +168,11 @@ def reset_params_body(*args):
 
 
 def update_params_body(*args):
-    # data = ctx.inputs["local-mrsim-data.data"]
     data = ctx.states["local-mrsim-data.data"]
 
     if len(data["spin_systems"]) == 0:
         table = fit_table({})
-        return table, no_update, True
+        return table, no_update, no_update, True
 
     sim, processor, report = parse(data)
 
@@ -186,9 +185,6 @@ def update_params_body(*args):
     modals = make_modals_div(params_obj_to_dict(params_obj))
     report, hide = ("", True) if "report" not in data else (data["report"], False)
     report = html.Iframe(sandbox="", srcDoc=report, id="fit-report-iframe")
-
-    # for modal in modals:
-    #     print(modal)
 
     return tables, modals, report, hide
 
@@ -209,45 +205,26 @@ def make_modals_div(params_dict):
         max_id = {"name": f"{key}-max", "kind": "max"}
         expr_id = {"name": f"{key}-expr", "kind": "expr"}
         modal_id = {"kind": "modal", "parrent": key}
-        submit_id = {"kind": "modal-sub-btn", "parrent": key}
-        # min_ = dcc.Input(id=min_id, value=vals["min"], **input_args)
-        # max_ = dcc.Input(id=max_id, value=vals["max"], **input_args)
-        # expr_ = dcc.Input(id=expr_id, value=vals["expr"])
+        # submit_id = {"kind": "modal-sub-btn", "parrent": key}
 
-        min_ = custom_input_group(
-            prepend_label="Minimum",
-            value=vals["min"],
-            id=min_id,
-            debounce=True,
+        min_ = html.Div(
+            ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
         )
-        max_ = custom_input_group(
-            prepend_label="Maximum",
-            value=vals["max"],
-            id=max_id,
-            debounce=True,
+        max_ = html.Div(
+            ["Maximum", dcc.Input(value=vals["max"], id=max_id)], className="input-form"
         )
-        expr = custom_input_group(
-            prepend_label="Expression",
-            input_type="text",
-            value=vals["expr"],
-            id=expr_id,
-            debounce=True,
+        expr = html.Div(
+            ["Expression", dcc.Input(value=vals["expr"], type="text", id=expr_id)],
+            className="input-form",
         )
 
-        head = dbc.ModalHeader(f"Param: {key}")
-        # body = dbc.ModalBody(
-        #     [
-        #         html.P(["Minimum ", min_]),
-        #         html.P(["Maximum ", max_]),
-        #         html.P(["Expression ", expr_]),
-        #     ]
-        # )
+        head = dbc.ModalHeader(html.B(key))
         body = dbc.ModalBody([min_, max_, expr])
-        foot = dbc.ModalFooter(dbc.Button("Submit", id=submit_id))
+        # foot = dbc.ModalFooter(dbc.Button("Submit", id=submit_id))
 
-        return dbc.Modal([head, body, foot], id=modal_id)
+        return dbc.Modal([head, body], id=modal_id)
 
-    # input_args = {"type": "number", "autoComplete": "off"}
+    # Add dummy modal to prevent MATCH error?
     modals = []
     for key, vals in params_dict.items():
         modals += [make_modal(key, vals)]
@@ -311,13 +288,13 @@ def fit_table(_dict):
         modal_ic = html.Span(
             html.I(className="fas fa-sliders-h", title="More Settings"),
             id=mod_btn_id,
-            **{"data-edit-fit": ""},
+            className="icon-button",
         )
 
         del_ic = html.Span(
             html.I(className="fas fa-times", title="Remove Parameter"),
             id=del_id,
-            **{"data-edit-fit": ""},
+            className="icon-button",
         )
 
         pack = [vary, name, val, modal_ic, del_ic]
@@ -358,15 +335,5 @@ CALLBACKS = {
     "run-fitting-button": update_params_and_fit,
     "refresh-button": reset_params_body,
     "trigger-table-update": update_params_body,
-    # "local-mrsim-data": update_params_body,
     "delete": delete_param,
 }
-
-
-# def expand_fit_output(out):
-#     return [
-#         *out["table"],
-#         *out["report"],
-#         *out["params_data"],
-#         *out["trigger"],
-#     ]

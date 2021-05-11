@@ -14,7 +14,6 @@
 }
 
 .fields-table {
-  /* How should margin between be formatted? */
   margin-bottom: 4%;
 }
 
@@ -35,12 +34,12 @@
   width: 10%;
 }
 
-table thead tr td div div {
+table thead tr td div,
+table thead tr td span {
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: inherit;
-  font-size: small;
 }
 
 .fields-table input[type="checkbox"] {

@@ -9,7 +9,6 @@ from .. import sigma_helper
 
 @pytest.fixture
 def example_data():
-    # NOTE: Only the keys-value pairs accessed by the tests are included
     return [
         -2.2,
         -0.8,
