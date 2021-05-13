@@ -184,7 +184,7 @@ def global_environment():
     #     id="set-to-magic-angle",
     #     size="sm",
     # )
-    datalist = html.Datalist([0, 54.7356103172, 90], id="datalist-magic-angle")
+    # datalist = html.Datalist([0, 54.7356103172, 90], id="datalist-magic-angle")
     rotor_angle = custom_input_group(
         prepend_label=html.Div(["Rotor angle (θᵣ)", magic_angle]),
         append_label="deg",
@@ -193,7 +193,7 @@ def global_environment():
         max=90,
         min=0,
         debounce=True,
-        list="datalist-magic-angle",
+        # list="datalist-magic-angle",
     )
 
     app.clientside_callback(
@@ -204,5 +204,5 @@ def global_environment():
 
     return container(
         text="Global Environment Parameters",
-        featured=[flux_density, rotor_frequency, rotor_angle, datalist],
+        featured=[flux_density, rotor_frequency, rotor_angle],
     )
