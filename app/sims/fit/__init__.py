@@ -46,6 +46,13 @@ def buttons():
     return dbc.ButtonGroup([refresh, simulate, fit])
 
 
+def table_select():
+    """Radio buttons for selecting spin system and method tables"""
+    sys_slct = html.Div(["Spin Systems"], id="sys-select-div",className="card-header")
+    mth_slct = html.Div(["Methods"], id="mth-select-div", className="card-header")
+    return html.Div([sys_slct, mth_slct])
+
+
 def fit_header():
     """Header for fitting tab"""
     help_button = html.Div(
@@ -60,7 +67,7 @@ def fit_header():
 
 
 def ui():
-    page = html.Div([fit_header(), fields, fit_info_modal, storage_div])
+    page = html.Div([fit_header(), table_select(), fields, fit_info_modal, storage_div])
     return html.Div(className="left-card", children=page, id="fit-body")
 
 
