@@ -43,7 +43,7 @@
   max-width: 40%;
   height: 2.25em;
   padding: 0 5px 0 0;
-  margin: auto;
+  margin: auto 0 auto auto;
   background-color: transparent;
   border: 1px solid transparent;
   border-bottom: 1px solid var(--text-box-underline-color);
