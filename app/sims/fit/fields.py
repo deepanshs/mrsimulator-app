@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import operator
 from datetime import datetime
 
 import dash_bootstrap_components as dbc
@@ -219,10 +220,19 @@ def group_params(params_dict):
         mth_group: list of method (dict, int, str) tuples
     """
     sys_group, mth_group = [], []
-    keys = list(params_dict.keys())
+    keys = [
+        "_".join(tup)
+        for tup in sorted(
+            [key.split("_") for key in params_dict.keys()], key=operator.itemgetter(1)
+        )
+    ]
+
+    print("Keys List", keys)
 
     if len(keys) == 0:
         return {}
+
+    # BUG: when i in PREFIX_i_... does not appear in order splitting not working always
 
     tmp_sys, tmp_mth = [], []
     index_sys, index_mth = 0, 0
@@ -250,6 +260,7 @@ def group_params(params_dict):
                     )
                 )
                 index_mth += 1
+                print("MTH", tmp_mth)
                 tmp_mth = []
             tmp_mth += [key]
 
@@ -259,11 +270,10 @@ def group_params(params_dict):
     mth_group.append(
         ({k: params_dict[k] for k in tmp_mth}, index_mth + 1, f"Method {index_mth}")
     )
-
+    print("MTH", tmp_mth)
     return sys_group, mth_group
 
 
-# BUG: Methods radio buttons reflect number of spin systems and vice versa
 def select_buttons(length, title):
     """Makes selectons buttons for spin systems/methods"""
     select = [title]  # `title` is 'Spin Systems' or 'Methods'
