@@ -17,6 +17,7 @@ from lmfit import Parameters
 from mrsimulator import parse
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
+from .fit_modal import make_modals
 from app import app
 
 
@@ -106,16 +107,6 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
         return CALLBACKS[trigger_id](name, vals)
 
     return CALLBACKS[trigger_id](vals)
-
-
-# Opens/closes params modal
-app.clientside_callback(
-    "function (n1, is_open) { if(n1 == null) { return false; } return !is_open; }",
-    Output({"kind": "modal", "parrent": MATCH}, "is_open"),
-    Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
-    State({"kind": "modal", "parrent": MATCH}, "is_open"),
-    prevent_initial_call=True,
-)
 
 
 # Sets visibility of selected spin system and method
@@ -215,46 +206,6 @@ def update_tables(*args, reset=False):
     }
 
     return expand_out(out)
-
-
-def make_modals(params_dict):
-    """Constructs hidden html.Div containing params modals
-
-    Params:
-        params_dict: dict representation of Parameters object
-
-    Returns:
-        list of modals
-    """
-
-    def make_modal(key, vals):
-        """Helper method to make each modal"""
-        min_id = {"name": f"{key}-min", "kind": "min"}
-        max_id = {"name": f"{key}-max", "kind": "max"}
-        expr_id = {"name": f"{key}-expr", "kind": "expr"}
-        modal_id = {"kind": "modal", "parrent": key}
-
-        min_ = html.Div(
-            ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
-        )
-        max_ = html.Div(
-            ["Maximum", dcc.Input(value=vals["max"], id=max_id)], className="input-form"
-        )
-        expr = html.Div(
-            ["Expression", dcc.Input(value=vals["expr"], type="text", id=expr_id)],
-            className="input-form",
-        )
-
-        head = dbc.ModalHeader(html.B(key))
-        body = dbc.ModalBody([min_, max_, expr])
-
-        return dbc.Modal([head, body], id=modal_id)
-
-    modals = []
-    for key, vals in params_dict.items():
-        modals += [make_modal(key, vals)]
-
-    return modals
 
 
 def group_params(params_dict):
