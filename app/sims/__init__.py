@@ -19,6 +19,7 @@ from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
 from .fit import fit_body
+from .fit_report import fit_report_body
 from .graph import DEFAULT_FIGURE
 from .graph import plot_1D_trace
 from .graph import plot_2D_trace
@@ -97,7 +98,14 @@ top_nav = html.Div([navbar.navbar_top, simulation_alert, import_alert, graph_ale
 bottom_nav = navbar.navbar_bottom
 
 # main body items
-body_content = [home_body, spin_system_body, method_body, fit_body, spectrum_body]
+body_content = [
+    home_body,
+    spin_system_body,
+    method_body,
+    fit_body,
+    fit_report_body,
+    spectrum_body,
+]
 main_body = html.Div(body_content, className="mobile-scroll")
 
 # temp items

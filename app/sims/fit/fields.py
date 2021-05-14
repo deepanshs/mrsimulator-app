@@ -35,15 +35,10 @@ def modals():
     return html.Div(id="params-modals-div", children=[], hidden=False)
 
 
-def report():
-    """LMFIT report html div"""
-    return html.Div(id="params-report-div", children=[])
-
-
 def ui():
     """Main UI for fitting interface"""
     return html.Div(
-        children=[inputs(), modals(), report()],
+        children=[inputs(), modals()],
         id="input-fields",
         className="fit-scroll",
     )
@@ -86,8 +81,8 @@ def update_fit_data(n1, n2, mr_data, p_data, *vals):
     Output("params-modals-div", "children"),  # List of modals
     Output("sys-select-div", "children"),  # str +  dcc.buttonGroup
     Output("mth-select-div", "children"),  # str + dcc.buttonGroup
-    Output("params-report-div", "children"),  # html string
-    Output("params-report-div", "hidden"),  # bool
+    Output("fit-report-iframe", "srcDoc"),  # html string
+    Output("fit-report-iframe", "hidden"),  # bool
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
     Input("refresh-button", "n_clicks"),
     Input("trigger-table-update", "data"),
