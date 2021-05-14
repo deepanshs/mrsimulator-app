@@ -82,10 +82,10 @@ def update_fit_data(n1, n2, mr_data, p_data, *vals):
 
 
 @app.callback(
-    Output("params-table-div", "children"),  # List of table
+    Output("params-table-div", "children"),  # List of tables
     Output("params-modals-div", "children"),  # List of modals
-    Output("sys-select-div", "children"),  # dcc.buttonGroup
-    Output("mth-select-div", "children"),  # dcc.buttonGroup
+    Output("sys-select-div", "children"),  # str +  dcc.buttonGroup
+    Output("mth-select-div", "children"),  # str + dcc.buttonGroup
     Output("params-report-div", "children"),  # html string
     Output("params-report-div", "hidden"),  # bool
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
@@ -118,41 +118,29 @@ app.clientside_callback(
     "function (n1, is_open) { if(n1 == null) { return false; } return !is_open; }",
     Output({"kind": "modal", "parrent": MATCH}, "is_open"),
     Input({"kind": "modal-btn", "parrent": MATCH}, "n_clicks"),
-    # Input({"kind": "modal-sub-btn", "parrent": MATCH}, "n_clicks"),
     State({"kind": "modal", "parrent": MATCH}, "is_open"),
     prevent_initial_call=True,
 )
 
 
-# # Sets visibility of selected spin system and method
-# app.clientside_callback(
-#     """function (n, className) {
-#         let check = className.includes('active');
-#         if (check) return className.replace('active', '').trim();
-#         if (!check) return `${className} active`;
-#     }""",
-#     Output({"key": "fit-table", "index": MATCH}, "className"),
-#     Input({"key": "fit-table-select-btn", "index": MATCH}, "value"),
-#     State({"key": "fit-table", "index": MATCH}, "className"),
-#     prevent_initial_call=True,
-# )
-
-# , "title": MATCH
-# @app.callback(
-#     Output({"key": "fit-table", "index": ALL}, "className"),
-#     Input({"key": "fit-table-select-btn", "title": ALL}, "value"),
-#     State({"key": "fit-table", "index": ALL}, "className"),
-#     prevent_initial_call=True
-# )
-# def set_table_visibility(set_index, *args):
-#     print("table vis")
-#     arr = [no_update] * len(args)
-#     if "fields-table active" not in args:
-#         return arr
-
-#     active_index = args.index("fields-table active")
-#     arr[active_index] = "fields-table"
-#     arr[set_index] = "fields-table active"
+# Sets visibility of selected spin system and method
+app.clientside_callback(
+    """function (set_index, className_list) {
+        console.log(className_list);
+        if (!className_list.includes("fields-table active")) {
+            className_list[0] = "fields-table active";
+            return className_list;
+        }
+        let active_index = className_list.indexOf("fields-table active");
+        className_list[active_index] = "fields-table";
+        className_list[set_index] = "fields-table active";
+        return className_list;
+    }""",
+    Output({"key": "fit-table", "index": ALL, "title": MATCH}, "className"),
+    Input({"key": "fit-table-select-btn", "title": MATCH}, "value"),
+    State({"key": "fit-table", "index": ALL, "title": MATCH}, "className"),
+    prevent_initial_call=True,
+)
 
 
 # Helper Methods =======================================================================
@@ -175,20 +163,14 @@ def delete_param(name, vals):
     # Add check to make sure name is in params
     del params_obj[name]
 
-
     params_dict = params_obj_to_dict(params_obj)
     sys_params, mth_params = group_params(params_dict)
     out = {
-        "tables": [fit_table(*item) for item in (sys_params + mth_params)],
-        "modals": [make_modals_div(params_dict)],
+        "tables": [[fit_table(*item) for item in (sys_params + mth_params)]],
+        "modals": [make_modals(params_dict)],
         "select": [no_update] * 2,
         "report": [no_update] * 2,
     }
-
-    # tables = make_fit_tables(params_obj_to_dict(params_obj))
-    # modals = make_modals_div(params_obj_to_dict(params_obj))
-
-    # return tables, modals, no_update, no_update
 
     return expand_out(out)
 
@@ -209,8 +191,11 @@ def update_tables(*args, reset=False):
             {
                 "tables": [fit_table({}, 0)],
                 "modals": [no_update],
-                "select": [select_buttons([], "Spin Systems"), select_buttons([], "Methods")],
-                "report": [no_update, True],  # Should report be hidden on fail?
+                "select": [
+                    select_buttons(0, "Spin System"),
+                    select_buttons(0, "Method"),
+                ],
+                "report": [no_update, True],
             }
         )
 
@@ -223,28 +208,21 @@ def update_tables(*args, reset=False):
 
     params_dict = params_obj_to_dict(params_obj)
     sys_params, mth_params = group_params(params_dict)
-    print(len(sys_params + mth_params))
 
-    tables = [fit_table(*item) for item in (sys_params + mth_params)[0]]
-    modals = make_modals_div(params_dict)
-    sys_sel = select_buttons(sys_params, "Spin Systems")
-    mth_sel = select_buttons(mth_params, "Methods")
-
-
-    out = {
-        "tables": tables,
-        "modals": modals,
-        "select": [sys_sel, mth_sel],
-        "report": ["", True]
-        if "report" not in data
-        else [data["report"], False],  # Hidden should be changed
+    out = {  # `tables` and `modals` are unpacked in `expand_out`
+        "tables": [[fit_table(*item) for item in (sys_params + mth_params)]],
+        "modals": [make_modals(params_dict)],
+        "select": [
+            select_buttons(len(sys_params), "Spin System"),
+            select_buttons(len(mth_params), "Method"),
+        ],
+        "report": ["", True] if "report" not in data else [data["report"], False],
     }
 
     return expand_out(out)
-    # return tables, modals, sys_sel, mth_sel, no_update, no_update
 
 
-def make_modals_div(params_dict):
+def make_modals(params_dict):
     """Constructs hidden html.Div containing params modals
 
     Params:
@@ -274,7 +252,6 @@ def make_modals_div(params_dict):
 
         head = dbc.ModalHeader(html.B(key))
         body = dbc.ModalBody([min_, max_, expr])
-        # foot = dbc.ModalFooter("Values automatically update on modal? close")
 
         return dbc.Modal([head, body], id=modal_id)
 
@@ -302,7 +279,7 @@ def group_params(params_dict):
         return {}
 
     tmp_sys, tmp_mth = [], []
-    index_sys, index_mth, index_tot = 0, 0, 0
+    index_sys, index_mth = 0, 0
     for key in keys:
         group, index = key.split("_")[0], int(key.split("_")[1])
         if group in GROUPING["Spin System"]:
@@ -310,12 +287,11 @@ def group_params(params_dict):
                 sys_group.append(
                     (
                         {k: params_dict[k] for k in tmp_sys},
-                        index_tot,
+                        index_sys,
                         f"Spin System {index_sys}",
                     )
                 )
                 index_sys += 1
-                index_tot += 1
                 tmp_sys = []
             tmp_sys += [key]
         elif group in GROUPING["Method"]:
@@ -323,46 +299,45 @@ def group_params(params_dict):
                 mth_group.append(
                     (
                         {k: params_dict[k] for k in tmp_mth},
-                        index_tot,
+                        index_mth,
                         f"Method {index_mth}",
                     )
                 )
                 index_mth += 1
-                index_tot += 1
                 tmp_mth = []
             tmp_mth += [key]
 
     sys_group.append(
-        ({k: params_dict[k] for k in tmp_sys}, index_tot, f"Spin System {index_sys}")
+        ({k: params_dict[k] for k in tmp_sys}, index_sys, f"Spin System {index_sys}")
     )
     mth_group.append(
-        ({k: params_dict[k] for k in tmp_mth}, index_tot + 1, f"Method {index_mth}")
+        ({k: params_dict[k] for k in tmp_mth}, index_mth + 1, f"Method {index_mth}")
     )
 
     return sys_group, mth_group
 
 
-def select_buttons(params_list, title):
+# BUG: Methods radio buttons reflect number of spin systems and vice versa
+def select_buttons(length, title):
     """Makes selectons buttons for spin systems/methods"""
-    select = []  # `title` is 'Spin Systems' or 'Methods'
-    # for i, item in enumerate(params_list):
-    #     select.append(html.Button(i, id={"key": "fit-table-btn", "index": item[1]}))
+    select = [title]  # `title` is 'Spin Systems' or 'Methods'
+
+    if length == 0:
+        return select
 
     btn_group = dcc.RadioItems(
         id={"key": "fit-table-select-btn", "title": title},
         # className="btn-group",
         # labelClassName="",
         # labelCheckedClassName="",
-        labelStyle={"display", "inline-block"},
-        options=[
-            {"label": i, "value": item[1]} for i, item in enumerate(params_list)
-        ],
-        value=params_list[0][1]
+        labelStyle={"display": "inline-block"},
+        options=[{"label": i, "value": i} for i in range(length)],
+        value=0,
     )
 
     select.append(btn_group)
 
-    return btn_group
+    return select
 
 
 # Truncate decimal places (using css?)
@@ -408,9 +383,9 @@ def fit_table(_dict, index, title="Name"):
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(
-        className="fields-table active" if title[-1] == "0" else "fields-table",  # Visibility callback currently flips `active` on table creation
+        className="fields-table active" if title[-1] == "0" else "fields-table",
         children=fit_rows,
-        id={"key": "fit-table", "index": index},
+        id={"key": "fit-table", "index": index, "title": title[:-2]},
     )
 
 
@@ -452,79 +427,9 @@ CALLBACKS = {
 
 def expand_out(out):
     """Helper method for return values of `update_fit_elements`"""
-    print([
-        out["tables"],
-        out["modals"],
-        *out["select"],
-        *out["report"],
-    ])
     return [
-        out["tables"],
-        out["modals"],
+        *out["tables"],
+        *out["modals"],
         *out["select"],
         *out["report"],
     ]
-
-
-# def make_fit_tables(params_dict):
-#     """Makes list of grouped html.Table elements
-
-#     Params:
-#         params_dict: dict reporesentation of whole Parameters object
-
-#     Returns:
-#         tables: list of html.Table
-#     """
-#     tables = []
-#     # Slice params_dict
-#     keys = list(params_dict.keys())
-
-#     if len(keys) == 0:
-#         return
-
-#     prefix = keys[0][:5]
-#     tmp = []
-#     search_sys = ["Spin Systems"]
-#     search_mth = ["Methods"]
-
-#     # Needs cleaned up
-#     index_sys, index_mth, index = 0, 0, 0
-#     for key in keys:
-#         if key[:5] != prefix:
-#             if tmp[0][:3] == "sys":
-#                 search_sys.append(
-#                     html.Button(index_sys, id={"key": "fit-table-btn", "index": index})
-#                 )
-#                 index_sys += 1
-#             else:
-#                 search_mth.append(
-#                     html.Button(index_mth, id={"key": "fit-table-btn", "index": index})
-#                 )
-#                 index_mth += 1
-#             lst = tmp[0].split("_")
-#             title = f"{TITLE[lst[0]]} {lst[1]}"
-#             tables.append(fit_table({k: params_dict[k] for k in tmp}, index, title))
-#             tmp, prefix = [], key[:5]
-#             index += 1
-
-#         tmp.append(key)
-
-#     if tmp[0][:3] == "sys":
-#         search_sys.append(
-#             html.Button(index_sys, id={"key": "fit-table-btn", "index": index})
-#         )
-#     else:
-#         search_mth.append(
-#             html.Button(index_mth, id={"key": "fit-table-btn", "index": index})
-#         )
-#     lst = tmp[0].split("_")
-#     title = f"{TITLE[lst[0]]} {lst[1]}"
-#     tables.append(
-#         fit_table(
-#             {k: params_dict[k] for k in tmp},
-#             index,
-#             title,
-#         )
-#     )
-
-#     return html.Div([html.Div(search_sys), html.Div(search_mth), html.Div(tables)])
