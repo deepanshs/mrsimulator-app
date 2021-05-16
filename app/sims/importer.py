@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-from datetime import datetime
 
 import mrsimulator as mrsim
 import numpy as np
@@ -42,7 +41,7 @@ __email__ = "srivastava.89@osu.edu"
         Output("alert-message-import", "is_open"),
         Output("local-mrsim-data", "data"),
         Output("config", "data"),
-        Output("trigger-table-update", "data"),
+        # Output("trigger-table-update", "data"),
         Output("spin-system-read-only", "children"),
         Output("method-read-only", "children"),
         Output("info-read-only", "children"),
@@ -136,7 +135,7 @@ def prep_valid_data_for_simulation(valid_data):
     """
     out = {
         "alert": ["", False],
-        "mrsim": [valid_data, no_update, no_update],
+        "mrsim": [valid_data, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -204,7 +203,7 @@ def save_info_modal():
     home_overview = home_UI.refresh(existing_data)
     out = {
         "alert": ["", False],
-        "mrsim": [existing_data, no_update, no_update],
+        "mrsim": [existing_data, no_update],
         "children": [no_update, no_update, home_overview],
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],
@@ -221,7 +220,7 @@ def on_method_update():
 
         out = {
             "alert": ["", False],
-            "mrsim": [existing_data, no_update, int(datetime.now().timestamp() * 1000)],
+            "mrsim": [existing_data, no_update],
             "children": [no_update, method_overview, home_overview],
             "mrsim_config": [no_update] * 4,
             "processor": [[]] if len(existing_data["methods"]) == n else [no_update],
@@ -278,7 +277,7 @@ def on_spin_system_change():
 
         out = {
             "alert": ["", False],
-            "mrsim": [existing_data, no_update, int(datetime.now().timestamp() * 1000)],
+            "mrsim": [existing_data, no_update],
             "children": [spin_system_overview, no_update, home_overview],
             "mrsim_config": [no_update] * 4,
             "processor": [no_update],
@@ -366,7 +365,7 @@ def add_measurement_to_a_method():
 
     out = {
         "alert": ["", False],
-        "mrsim": [existing_data, no_update, no_update],
+        "mrsim": [existing_data, no_update],
         "children": [no_update, method_overview, no_update],
         "mrsim_config": [no_update] * 4,
         "processor": [post_sim_overview],
@@ -409,7 +408,7 @@ def simulate_test():
 
     out = {
         "alert": ["", False],
-        "mrsim": [new_mrsim_data, no_update, no_update],
+        "mrsim": [new_mrsim_data, no_update],
         "children": [no_update, no_update, no_update],
         "mrsim_config": [no_update, no_update, no_update, no_update],
         "processor": [no_update],
@@ -488,7 +487,7 @@ def least_squares_fit():
     )
     out = {
         "alert": ["", False],
-        "mrsim": [fit_data, no_update, int(datetime.now().timestamp() * 1000)],
+        "mrsim": [fit_data, no_update],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": [no_update] * 4,
         "processor": [post_sim_overview],

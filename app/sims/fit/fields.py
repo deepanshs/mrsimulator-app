@@ -86,7 +86,7 @@ def update_fit_data(n1, n2, mr_data, p_data, *vals):
     Output("fit-report-iframe", "hidden"),  # bool
     Input({"kind": "delete", "name": ALL}, "n_clicks"),
     Input("refresh-button", "n_clicks"),
-    Input("trigger-table-update", "data"),
+    # Input("trigger-table-update", "data"),
     State("local-mrsim-data", "data"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
@@ -152,7 +152,10 @@ def delete_param(name, vals):
     params_dict = params_obj_to_dict(params_obj)
     sys_params, mth_params = group_params(params_dict)
     out = {
-        "tables": [[fit_table(*item) for item in (sys_params + mth_params)]],
+        "tables": [
+            [fit_table(*item, "Spin System") for item in sys_params] +  # 'line break before binary op' format
+            [fit_table(*item, "Method") for item in mth_params]
+        ],
         "modals": [make_modals(params_dict)],
         "select": [no_update] * 2,
         "report": [no_update] * 2,
@@ -172,15 +175,12 @@ def update_params_body(*args):
 def update_tables(*args, reset=False):
     data = ctx.states["local-mrsim-data.data"]
 
-    if len(data["spin_systems"]) == 0:
+    if len(data["spin_systems"]) == 0 or len(data["methods"]) == 0:
         return expand_out(
             {
-                "tables": [fit_table({}, 0)],
+                "tables": [fit_table({}, 0, "Name")],
                 "modals": [no_update],
-                "select": [
-                    select_buttons(0, "Spin System"),
-                    select_buttons(0, "Method"),
-                ],
+                "select": ["Spin System", "Method"],
                 "report": [no_update, True],
             }
         )
@@ -196,7 +196,10 @@ def update_tables(*args, reset=False):
     sys_params, mth_params = group_params(params_dict)
 
     out = {  # `tables` and `modals` are unpacked in `expand_out`
-        "tables": [[fit_table(*item) for item in (sys_params + mth_params)]],
+        "tables": [
+            [fit_table(*item, "Spin System") for item in sys_params]
+            + [fit_table(*item, "Method") for item in mth_params]
+        ],
         "modals": [make_modals(params_dict)],
         "select": [
             select_buttons(len(sys_params), "Spin System"),
@@ -219,12 +222,7 @@ def group_params(params_dict):
         mth_group: list of method (dict, int, str) tuples
     """
     sys_group, mth_group = [], []
-    keys = [
-        "_".join(tup)
-        for tup in sorted(
-            [key.split("_") for key in params_dict.keys()], key=lambda x: int(x[1])
-        )
-    ]
+    keys = sorted(list(params_dict.keys()), key=lambda x: int(x.split("_")[1]))
 
     if len(keys) == 0:
         return {}
@@ -235,35 +233,19 @@ def group_params(params_dict):
         group, index = key.split("_")[0], int(key.split("_")[1])
         if group in GROUPING["Spin System"]:
             if index_sys != index:
-                sys_group.append(
-                    (
-                        {k: params_dict[k] for k in tmp_sys},
-                        index_sys,
-                        f"Spin System {index_sys}",
-                    )
-                )
+                sys_group.append(({k: params_dict[k] for k in tmp_sys}, index_sys))
                 index_sys += 1
                 tmp_sys = []
             tmp_sys += [key]
         elif group in GROUPING["Method"]:
             if index_mth != index:
-                mth_group.append(
-                    (
-                        {k: params_dict[k] for k in tmp_mth},
-                        index_mth,
-                        f"Method {index_mth}",
-                    )
-                )
+                mth_group.append(({k: params_dict[k] for k in tmp_mth}, index_mth))
                 index_mth += 1
                 tmp_mth = []
             tmp_mth += [key]
 
-    sys_group.append(
-        ({k: params_dict[k] for k in tmp_sys}, index_sys, f"Spin System {index_sys}")
-    )
-    mth_group.append(
-        ({k: params_dict[k] for k in tmp_mth}, index_mth + 1, f"Method {index_mth}")
-    )
+    sys_group.append(({k: params_dict[k] for k in tmp_sys}, index_sys))
+    mth_group.append(({k: params_dict[k] for k in tmp_mth}, index_mth))
     return sys_group, mth_group
 
 
@@ -301,7 +283,7 @@ def fit_table(_dict, index, title="Name"):
     Returns:
         html.Table
     """
-    fit_header = ["", title, "Value", "", ""]
+    fit_header = ["", f"{title} {index}", "Value", "", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -332,9 +314,11 @@ def fit_table(_dict, index, title="Name"):
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(
-        className="fields-table active" if title[-1] == "0" else "fields-table",
+        className="fields-table active"
+        if index == 0
+        else "fields-table",  # index check will change w/ pages
         children=fit_rows,
-        id={"key": "fit-table", "index": index, "title": title[:-2]},
+        id={"key": "fit-table", "index": index, "title": title},
     )
 
 

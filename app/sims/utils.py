@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
 from dash import no_update
 
 from . import home as home_UI
@@ -23,7 +21,7 @@ def expand_output(out):
 def update_processor_ui(processor):
     out = {
         "alert": ["", False],
-        "mrsim": [no_update, no_update, no_update],
+        "mrsim": [no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [processor],
@@ -50,7 +48,7 @@ def assemble_data(data):
 
     out = {
         "alert": ["", False],
-        "mrsim": [data, no_update, int(datetime.now().timestamp() * 1000)],
+        "mrsim": [data, no_update],
         "children": [spin_system_overview, method_overview, home_overview],
         "mrsim_config": mrsim_config,
         "processor": [post_sim_overview],
@@ -66,7 +64,7 @@ def on_fail_message(message):
     """
     out = {
         "alert": [message, True],
-        "mrsim": [no_update, no_update, no_update],
+        "mrsim": [no_update, no_update],
         "children": [no_update] * 3,
         "mrsim_config": [no_update] * 4,
         "processor": [no_update],

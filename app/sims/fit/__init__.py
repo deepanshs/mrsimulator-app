@@ -14,7 +14,7 @@ store = [
     # Timestamps for triggering fitting callbacks
     dcc.Store(id="trigger-sim", storage_type="memory"),
     dcc.Store(id="trigger-fit", storage_type="memory"),
-    dcc.Store(id="trigger-table-update", storage_type="memory"),
+    # dcc.Store(id="trigger-table-update", storage_type="memory"),
 ]
 storage_div = html.Div(id="fitting-store", children=store)
 
@@ -48,7 +48,7 @@ def buttons():
 
 def table_select():
     """Radio buttons for selecting spin system and method tables"""
-    sys_slct = html.Div(["Spin Systems"], id="sys-select-div",className="card-header")
+    sys_slct = html.Div(["Spin Systems"], id="sys-select-div", className="card-header")
     mth_slct = html.Div(["Methods"], id="mth-select-div", className="card-header")
     return html.Div([sys_slct, mth_slct])
 
