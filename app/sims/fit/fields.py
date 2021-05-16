@@ -146,15 +146,17 @@ def delete_param(name, vals):
     params_obj = Parameters().loads(params_data)
 
     name = name.split("-")[1]
-    # Add check to make sure name is in params
+    # TODO: Add check to make sure name is in params
     del params_obj[name]
 
     params_dict = params_obj_to_dict(params_obj)
     sys_params, mth_params = group_params(params_dict)
     out = {
         "tables": [
-            [fit_table(*item, "Spin System") for item in sys_params] +  # 'line break before binary op' format
-            [fit_table(*item, "Method") for item in mth_params]
+            [fit_table(*item, "Spin System") for item in sys_params]
+            + [  # 'line break before binary op' format
+                fit_table(*item, "Method") for item in mth_params
+            ]
         ],
         "modals": [make_modals(params_dict)],
         "select": [no_update] * 2,
@@ -197,8 +199,8 @@ def update_tables(*args, reset=False):
 
     out = {  # `tables` and `modals` are unpacked in `expand_out`
         "tables": [
-            [fit_table(*item, "Spin System") for item in sys_params]
-            + [fit_table(*item, "Method") for item in mth_params]
+            [fit_table(*item, "Spin System") for item in sys_params] + 
+            [fit_table(*item, "Method") for item in mth_params]
         ],
         "modals": [make_modals(params_dict)],
         "select": [
@@ -251,16 +253,16 @@ def group_params(params_dict):
 
 def select_buttons(length, title):
     """Makes selectons buttons for spin systems/methods"""
-    select = [title]  # `title` is 'Spin Systems' or 'Methods'
+    select = [html.H6(title)]  # `title` is 'Spin Systems' or 'Methods'
 
     if length == 0:
         return select
 
-    btn_group = dcc.RadioItems(
+    btn_group = dbc.RadioItems(
         id={"key": "fit-table-select-btn", "title": title},
-        # className="btn-group",
-        # labelClassName="",
-        # labelCheckedClassName="",
+        className="table-select btn-group",
+        labelClassName="btn btn-secondary",
+        labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
         options=[{"label": i, "value": i} for i in range(length)],
         value=0,

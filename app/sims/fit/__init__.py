@@ -48,8 +48,12 @@ def buttons():
 
 def table_select():
     """Radio buttons for selecting spin system and method tables"""
-    sys_slct = html.Div(["Spin Systems"], id="sys-select-div", className="card-header")
-    mth_slct = html.Div(["Methods"], id="mth-select-div", className="card-header")
+    sys_slct = html.Div(
+        html.H6("Spin Systems"), id="sys-select-div", className="card-header"
+    )
+    mth_slct = html.Div(
+        html.H6("Methods"), id="mth-select-div", className="card-header"
+    )
     return html.Div([sys_slct, mth_slct])
 
 

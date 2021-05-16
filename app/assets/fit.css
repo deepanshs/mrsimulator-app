@@ -15,7 +15,7 @@
   display: table;
 }
 
-/* Checkbox, delete, amd options */
+/* Checkbox, delete, and options */
 .fields-table thead th:first-child,
 .fields-table thead th:last-child,
 .fields-table thead th:nth-child(4) {
@@ -58,6 +58,31 @@
   background-color: white;
   border: 1px solid #48a3ff;
   box-shadow: 0 0 2px 1px #48a3ff7c;
+}
+
+.btn-secondary {
+  color: black;
+  background-color: white;
+  border: 1px solid #eaeff5;
+}
+
+.btn-secondary:hover {
+  color: black;
+  background-color: #cee3ff;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active {
+  color: white;
+  background-color: var(--select-blue);
+}
+
+.table-select .custom-control {
+  padding-left: 0.5em;
+}
+
+.table-select .custom-control-input ~ .custom-control-label::before,
+.table-select .custom-radio .custom-control-input ~ .custom-control-label::after {
+  content: none;
 }
 
 .fit-scroll {

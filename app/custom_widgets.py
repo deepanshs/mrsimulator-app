@@ -208,8 +208,6 @@ def container(text, featured, **kwargs):
 
 def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False):
     # collapsable button
-    icon = html.I(className="fas fa-chevron-down", title=message)
-    vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
     # if isinstance(id_, dict):
     #     id_button = {**id_, "collapse": "button"}
     #     id_button_callable = deepcopy(id_button)
@@ -219,11 +217,15 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     #     id_field_callable.update({"index": MATCH})
     # if isinstance(id_, str):
     id_button = f"{id_}-collapse-button"
-    id_button_callable = id_button
+    # id_button_callable = id_button
     id_field = f"{id_}-collapse-fields"
-    id_field_callable = id_field
+    # id_field_callable = id_field
+    id_icon = f"{id_}-collapse-icon"
 
-    chevron_down_btn = html.Label(
+    icon = html.I(className="fas fa-chevron-left", title=message, id=id_icon)
+    vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
+
+    chevron_btn = html.Label(
         icon,
         id=id_button,
         style=vis,
@@ -237,7 +239,7 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     # featured fields
     featured = [html.Div(featured)]
     text = [text] if not isinstance(text, list) else text
-    text.append(chevron_down_btn)
+    text.append(chevron_btn)
 
     # collapsed fields
     if hidden is not None:
@@ -248,11 +250,14 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
         children=html.Div(featured, className="container"),
     )
 
+    # TODO: Chevron cahnge on click, but cannot change icon classname for some reason
+    #   return [!is_open, 'fa-chevron-right'];
     app.clientside_callback(
-        """function (n, open) { return !open; }""",
-        Output(id_field_callable, "is_open"),
-        Input(id_button_callable, "n_clicks"),
-        State(id_field_callable, "is_open"),
+        """function (n, is_open) { return !is_open; }""",
+        Output(id_field, "is_open"),
+        # Output(id_icon, "class"),
+        Input(id_button, "n_clicks"),
+        State(id_field, "is_open"),
         prevent_initial_call=True,
     )
 
