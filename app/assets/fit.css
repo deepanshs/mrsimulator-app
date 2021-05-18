@@ -60,28 +60,37 @@
   box-shadow: 0 0 2px 1px #48a3ff7c;
 }
 
-.btn-secondary {
+.custom-radio .btn-primary {
+  width: 24px;
+  height: auto;
+  border-radius: 12px;
   color: black;
   background-color: white;
-  border: 1px solid #eaeff5;
+  border: 1px solid #dfdfdf;
 }
 
-.btn-secondary:hover {
+.custom-radio .btn-primary:hover {
   color: black;
   background-color: #cee3ff;
 }
 
-.btn-secondary:not(:disabled):not(.disabled).active {
+.custom-radio .btn-primary:not(:disabled):not(.disabled).active {
   color: white;
   background-color: var(--select-blue);
 }
 
 .table-select .custom-control {
-  padding-left: 0.5em;
+  padding: 0 0.15em;
 }
 
+.table-select .custom-control-label {
+  padding: 0;
+}
 .table-select .custom-control-input ~ .custom-control-label::before,
-.table-select .custom-radio .custom-control-input ~ .custom-control-label::after {
+.table-select
+  .custom-radio
+  .custom-control-input
+  ~ .custom-control-label::after {
   content: none;
 }
 
@@ -90,4 +99,17 @@
   height: calc(var(--content-max-height) - 6em);
   overflow-y: auto;
   scrollbar-width: thin;
+}
+
+.feature-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1em;
+}
+.feature-select .btn-link {
+  padding: 3px 8px;
+}
+.feature-select h6 {
+  margin: auto 0;
 }

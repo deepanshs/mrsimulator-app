@@ -48,23 +48,10 @@ def buttons():
 
 def table_select():
     """Radio buttons for selecting spin system and method tables"""
-    sys_page_btns = html.Div(
-        children=[
-            html.Button("Left", id="page-sys-left-btn"),
-            html.Button("Right", id="page-sys-right-btn"),
-        ]
-    )
-    mth_page_btns = html.Div(
-        children=[
-            html.Button("Left", id="page-mth-left-btn"),
-            html.Button("Right", id="page-mth-right-btn"),
-        ]
-    )
-
     sys_slct_btns = dbc.RadioItems(
         id={"key": "table-select-btn", "title": "Spin System"},
         className="table-select btn-group",
-        labelClassName="btn btn-secondary",
+        labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
         options=[{"label": 0, "value": 0}],
@@ -73,19 +60,33 @@ def table_select():
     mth_slct_btns = dbc.RadioItems(
         id={"key": "table-select-btn", "title": "Method"},
         className="table-select btn-group",
-        labelClassName="btn btn-secondary",
+        labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
         options=[{"label": 0, "value": 0}],
         value=0,
     )
+
+    sys_page_btns = html.Div(
+        children=[
+            dbc.Button("<", id="page-sys-left-btn", color="link"),
+            sys_slct_btns,
+            dbc.Button(">", id="page-sys-right-btn", color="link"),
+        ]
+    )
+    mth_page_btns = html.Div(
+        children=[
+            dbc.Button("<", id="page-mth-left-btn", color="link"),
+            mth_slct_btns,
+            dbc.Button(">", id="page-mth-right-btn", color="link"),
+        ]
+    )
+
     # TODO: Implement total pages and page index
     sys_head = html.Div(
-        [html.H6("Spin Systems"), sys_page_btns, sys_slct_btns], className="card-header"
+        [html.H6("Spin Systems"), sys_page_btns], className="feature-select"
     )
-    mth_head = html.Div(
-        [html.H6("Methods"), mth_page_btns, mth_slct_btns], className="card-header"
-    )
+    mth_head = html.Div([html.H6("Methods"), mth_page_btns], className="feature-select")
     return html.Div([sys_head, mth_head])
 
 
