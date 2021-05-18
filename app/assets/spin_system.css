@@ -52,7 +52,6 @@
   color: rgb(53, 53, 53);
   list-style: none;
   cursor: pointer;
-  border-radius: none;
 }
 .scrollable-list li:nth-child(odd) {
   background-color: #ffffff;

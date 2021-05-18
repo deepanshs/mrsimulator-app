@@ -75,7 +75,7 @@ window.dash_clientside.clientside = {
 };
 
 function ctxTriggerID() {
-  return dash_clientside.callback_context.triggered.map((t) => t["prop_id"]);
+  return dash_clientside.callback_context.triggered.map((t) => t.prop_id);
 }
 
 function ctxTriggerStates() {
@@ -108,8 +108,9 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
-
+    animateScroll();
   }
+
   if (direction === "horizontal") {
     start = element.scrollLeft;
     change = to - start;
@@ -124,8 +125,8 @@ function scrollTo(element, to, duration, direction) {
         setTimeout(animateScroll, increment);
       }
     };
+    animateScroll();
   }
-  animateScroll();
 }
 
 // t = current time

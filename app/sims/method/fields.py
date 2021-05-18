@@ -77,7 +77,7 @@ def experiment_ui():
 
 def spectral_dimension_ui(i):
     """Return a list of widgets whose entries are used in evaluating the dimension
-    coordinates along the i^th dimension. The widgets includes number of points,
+    coordinates along the i^th dimension. The widgets includes number of points (count),
     spectral width, and reference offset.
 
     Args:
@@ -142,14 +142,8 @@ def spectral_dimension_ui(i):
 
 
 def global_environment():
-    """
-    Return a list of widgets whose entries are used for evaluating the sample
-    environment along the i^th dimension. The widgets includes isotope,
-    spectrometer frequency, rotor frequency, and rotor angle.
-
-    Args:
-        i: An integer with the dimension index.
-    """
+    """Generate a list of widgets whose entries are the sample global environment
+    parameter. The widgets includes flux density, rotor frequency, and rotor angle."""
 
     flux_density = custom_input_group(
         prepend_label="Magnetic flux density (B₀)",

@@ -61,18 +61,13 @@ def signal_processing_tab_ui():
 
 
 app.clientside_callback(
-    """
-    function(val) {
-        if (val === 'tab-0') {
-            return [{'display': 'none'}, {'display': 'block'}];
-        }
-        if (val === 'tab-1') {
-            return [{'display': 'block'}, {'display': 'none'}];
-        }
-    }
-    """,
-    [Output("signal-processor-div", "style"), Output("apply-method-div", "style")],
-    [Input("method-tabs", "active_tab")],
+    """function(val) {
+        if (val === 'tab-0') { return [{'display': 'none'}, {'display': 'block'}]; }
+        if (val === 'tab-1') { return [{'display': 'block'}, {'display': 'none'}]; }
+    }""",
+    Output("signal-processor-div", "style"),
+    Output("apply-method-div", "style"),
+    Input("method-tabs", "active_tab"),
     prevent_initial_call=True,
 )
 
@@ -88,14 +83,12 @@ def display():
 def scrollable():
     default = display()
     app.clientside_callback(
-        """
-        function(n) {
+        """function(n) {
             document.getElementById("add-method-button").click();
             throw window.dash_clientside.PreventUpdate;
-        }
-        """,
+        }""",
         Output("open-edit_method", "children"),
-        [Input("open-edit_method", "n_clicks")],
+        Input("open-edit_method", "n_clicks"),
         prevent_initial_call=True,
     )
     method_read_only = html.Div(default, id="method-read-only")
@@ -219,17 +212,15 @@ method_body = ui()
 # callback code section =======================================================
 @app.callback(
     Output("add-method-from-template", "data"),
-    [Input("close-method-selection", "n_clicks")],
-    [
-        State("method-type", "value"),
-        State("channel", "value"),
-        # State("modal-rotor_angle", "value"),
-        # State("modal-rotor_frequency", "value"),
-        # State("modal-magnetic_flux_density", "value"),
-        # State("modal-count", "value"),
-        # State("modal-spectral_width", "value"),
-        # State("modal-reference_offset", "value"),
-    ],
+    Input("close-method-selection", "n_clicks"),
+    State("method-type", "value"),
+    State("channel", "value"),
+    # State("modal-rotor_angle", "value"),
+    # State("modal-rotor_frequency", "value"),
+    # State("modal-magnetic_flux_density", "value"),
+    # State("modal-count", "value"),
+    # State("modal-spectral_width", "value"),
+    # State("modal-reference_offset", "value"),
     prevent_initial_call=True,
 )
 def get_method_json(n, value, isotope):
@@ -321,50 +312,42 @@ def calculate_sigma(n1, fig):
 
 
 app.clientside_callback(
-    """
-    function(n) {
+    """function(n) {
         window.method.setIndex(n);
         throw window.dash_clientside.PreventUpdate;
-    }
-    """,
+    }""",
     Output("temp6", "children"),
     Input("select-method", "value"),
     prevent_initial_call=True,
 )
 
 app.clientside_callback(
-    """
-    function(n, value) {
+    """function(n, value) {
         let index = window.method.getIndex();
         if (index == value) throw window.dash_clientside.PreventUpdate;
         return index;
-    }
-    """,
+    }""",
     Output("select-method", "value"),
-    [
-        Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
-        # Input("select-method", "options"),
-    ],
-    [State("select-method", "value")],
+    Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
+    # Input("select-method", "options"),
+    State("select-method", "value"),
     prevent_initial_call=True,
 )
 
 app.clientside_callback(
     ClientsideFunction(namespace="method", function_name="updateMethodJson"),
     Output("new-method", "data"),
-    [
-        Input("apply-method-changes", "n_clicks"),
-        Input("add-method-from-template", "modified_timestamp"),
-        Input("duplicate-method-button", "n_clicks"),
-        Input("remove-method-button", "n_clicks"),
-        # Input("magnetic_flux_density-0", "value"),
-        # Input("rotor_angle-0", "value"),
-        # Input("rotor_frequency-0", "value"),
-        # *[Input(f"count-{i}", "value") for i in range(2)],
-        # *[Input(f"spectral_width-{i}", "value") for i in range(2)],
-        # *[Input(f"reference_offset-{i}", "value") for i in range(2)],
-    ],
-    [State("add-method-from-template", "data")],
+    Input("apply-method-changes", "n_clicks"),
+    Input("add-method-from-template", "modified_timestamp"),
+    Input("duplicate-method-button", "n_clicks"),
+    Input("remove-method-button", "n_clicks"),
+    # Input("magnetic_flux_density-0", "value"),
+    # Input("rotor_angle-0", "value"),
+    # Input("rotor_frequency-0", "value"),
+    # *[Input(f"count-{i}", "value") for i in range(2)],
+    # *[Input(f"spectral_width-{i}", "value") for i in range(2)],
+    # *[Input(f"reference_offset-{i}", "value") for i in range(2)],
+    State("add-method-from-template", "data"),
     prevent_initial_call=True,
 )
 

@@ -72,9 +72,7 @@ function checkObjectEquality(obj1, obj2) {
 
 function activateHomeTableElements(selectors, list) {
   selectors.forEach((tr, i) => {
-    tr.addEventListener("click", () => {
-      list[i - 1].click();
-    });
+    tr.addEventListener("click", () => { list[i - 1].click(); });
   });
 }
 // Add events to pencil icon button displayed in home tab.
@@ -115,7 +113,6 @@ function updateListEventListener(list, fn) {
       event.preventDefault();
 
       let ul = tr.parentElement;
-      console.log(ul);
       scrollTo(
         ul.parentElement,
         tr.offsetTop - 200,

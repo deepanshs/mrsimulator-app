@@ -86,7 +86,7 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
     )
 
     app.clientside_callback(
-        "function (n, active) { return !active; }",
+        """function (n, active) { return !active; }""",
         Output(id, "active"),
         Input(id, "n_clicks"),
         State(id, "active"),
@@ -126,14 +126,12 @@ def custom_slider(label="", return_function=None, **kwargs):
     )
 
     @app.callback(
-        [Output(id_label, "children")],
-        [Input(kwargs["id"], "value")],
+        Output(id_label, "children"),
+        Input(kwargs["id"], "value"),
         prevent_initial_call=True,
     )
     def update_label(value):
-        if return_function is None:
-            return [value]
-        return [return_function(value)]
+        return [value] if return_function is None else [return_function(value)]
 
     return slider
 
