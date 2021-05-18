@@ -23,8 +23,8 @@ BUTTONS = {
     # Run Fit Button
     "fas fa-compress-alt": (
         "Fits the parameters of the simulated spectrum to the experiment data using the"
-        " least squares algorithm. Spectrum and values will automatically update after"
-        " the fitting routine and a report will appear below."
+        " least squares algorithm. Spectrum will automatically update after and"
+        " clicking the refresh button will update the values."
     ),
 }
 
@@ -73,51 +73,50 @@ def info_body():
     )
     btn_title = html.B("Button Functions")
     btn_table = html.Table([get_info_row(k, v) for k, v in BUTTONS.items()])
-    # Table of icons and function
+    # TODO: Table of icons and function
     return dbc.ModalBody([message1, btn_title, btn_table])
 
 
 fit_info_modal = info_modal_ui()
 
 
-def make_modals(params_dict):
-    """Constructs hidden html.Div containing params modals
+def make_modal(key, vals):
+    """Constructs single modal for given param
 
     Params:
-        params_dict: dict representation of Parameters object
+        key: str title of Parameter
+        vals: dict of Parameter values
 
     Returns:
-        list of modals
+        dbc.Modal
     """
+    # param_dict: singular Parameter dict representation
 
-    def make_modal(key, vals):
-        """Helper method to make each modal"""
-        min_id = {"name": f"{key}-min", "kind": "min"}
-        max_id = {"name": f"{key}-max", "kind": "max"}
-        expr_id = {"name": f"{key}-expr", "kind": "expr"}
-        modal_id = {"kind": "modal", "parrent": key}
+    # print(type(param_dict))
+    # print(param_dict)
 
-        min_ = html.Div(
-            ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
-        )
-        max_ = html.Div(
-            ["Maximum", dcc.Input(value=vals["max"], id=max_id)], className="input-form"
-        )
-        expr = html.Div(
-            ["Expression", dcc.Input(value=vals["expr"], type="text", id=expr_id)],
-            className="input-form",
-        )
+    # key, vals = param_dict.items()
+    min_id = {"name": f"{key}-min", "kind": "min"}
+    max_id = {"name": f"{key}-max", "kind": "max"}
+    expr_id = {"name": f"{key}-expr", "kind": "expr"}
+    modal_id = {"kind": "modal", "parrent": key}
 
-        head = dbc.ModalHeader(html.B(key))
-        body = dbc.ModalBody([min_, max_, expr])
+    # TODO: Adjust apperance of modal inputs
+    min_ = html.Div(
+        ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
+    )
+    max_ = html.Div(
+        ["Maximum", dcc.Input(value=vals["max"], id=max_id)], className="input-form"
+    )
+    expr = html.Div(
+        ["Expression", dbc.Textarea(value=vals["expr"], id=expr_id)],
+        className="input-form",
+    )
 
-        return dbc.Modal([head, body], id=modal_id)
+    head = dbc.ModalHeader(html.B(key))
+    body = dbc.ModalBody([min_, max_, expr])
 
-    modals = []
-    for key, vals in params_dict.items():
-        modals += [make_modal(key, vals)]
-
-    return modals
+    return dbc.Modal([head, body], id=modal_id)
 
 
 # Opens/closes params modal

@@ -48,13 +48,45 @@ def buttons():
 
 def table_select():
     """Radio buttons for selecting spin system and method tables"""
-    sys_slct = html.Div(
-        html.H6("Spin Systems"), id="sys-select-div", className="card-header"
+    sys_page_btns = html.Div(
+        children=[
+            html.Button("Left", id="page-sys-left-btn"),
+            html.Button("Right", id="page-sys-right-btn"),
+        ]
     )
-    mth_slct = html.Div(
-        html.H6("Methods"), id="mth-select-div", className="card-header"
+    mth_page_btns = html.Div(
+        children=[
+            html.Button("Left", id="page-mth-left-btn"),
+            html.Button("Right", id="page-mth-right-btn"),
+        ]
     )
-    return html.Div([sys_slct, mth_slct])
+
+    sys_slct_btns = dbc.RadioItems(
+        id={"key": "table-select-btn", "title": "Spin System"},
+        className="table-select btn-group",
+        labelClassName="btn btn-secondary",
+        labelCheckedClassName="active",
+        labelStyle={"display": "inline-block"},
+        options=[{"label": 0, "value": 0}],
+        value=0,
+    )
+    mth_slct_btns = dbc.RadioItems(
+        id={"key": "table-select-btn", "title": "Method"},
+        className="table-select btn-group",
+        labelClassName="btn btn-secondary",
+        labelCheckedClassName="active",
+        labelStyle={"display": "inline-block"},
+        options=[{"label": 0, "value": 0}],
+        value=0,
+    )
+    # TODO: Implement total pages and page index
+    sys_head = html.Div(
+        [html.H6("Spin Systems"), sys_page_btns, sys_slct_btns], className="card-header"
+    )
+    mth_head = html.Div(
+        [html.H6("Methods"), mth_page_btns, mth_slct_btns], className="card-header"
+    )
+    return html.Div([sys_head, mth_head])
 
 
 def fit_header():

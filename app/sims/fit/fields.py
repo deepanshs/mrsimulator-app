@@ -17,23 +17,28 @@ from lmfit import Parameters
 from mrsimulator import parse
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
-from .fit_modal import make_modals
+from .fit_modal import make_modal
 from app import app
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
-TITLE = {"sys": "Spin System", "mth": "Method", "SP": "Method"}
+# TITLE = {"sys": "Spin System", "mth": "Method", "SP": "Method"}
 GROUPING = {"Spin System": ["sys"], "Method": ["mth", "SP"]}
+GROUP_WIDTH = 5  # How many table choices are on each page
 
 
 def inputs():
-    """Parameters input html div"""
-    return html.Div(id="params-table-div", children=[])
+    """Parameters tables html div"""
+    sys_tables = html.Div(id="sys-tables-div", children=[])
+    mth_tables = html.Div(id="mth-tables-div", children=[])
+    return html.Div([sys_tables, mth_tables])
 
 
 def modals():
     """Hidden modals div"""
-    return html.Div(id="params-modals-div", children=[], hidden=False)
+    sys_modals = html.Div(id="sys-modals-div", children=[])
+    mth_modals = html.Div(id="mth-modals-div", children=[])
+    return html.Div([sys_modals, mth_modals])
 
 
 def ui():
@@ -49,15 +54,32 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-# Two callbacks are needed to avoid circular dependency error
 @app.callback(
+    Output("sys-tables-div", "children"),  # List of tables
+    Output("mth-tables-div", "children"),  # List of tables
+    Output("sys-modals-div", "children"),  # List of modals
+    Output("mth-modals-div", "children"),  # List of modals
+    Output({"key": "table-select-btn", "title": "Spin System"}, "value"),  # int
+    Output({"key": "table-select-btn", "title": "Method"}, "value"),  # int
+    Output({"key": "table-select-btn", "title": "Spin System"}, "options"),  # dict list
+    Output({"key": "table-select-btn", "title": "Method"}, "options"),  # dict list
+    Output("fit-report-iframe", "srcDoc"),  # html string
+    Output("fit-report-iframe", "hidden"),  # bool
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
+    Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    Input("page-sys-left-btn", "n_clicks"),
+    Input("page-sys-right-btn", "n_clicks"),
+    Input("page-mth-left-btn", "n_clicks"),
+    Input("page-mth-right-btn", "n_clicks"),
+    Input("refresh-button", "n_clicks"),
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
+    State({"key": "table-select-btn", "title": "Spin System"}, "value"),
+    State({"key": "table-select-btn", "title": "Method"}, "value"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
     State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
@@ -66,37 +88,7 @@ fields = ui()
     State({"kind": "expr", "name": ALL}, "value"),
     prevent_initial_call=True,
 )
-def update_fit_data(n1, n2, mr_data, p_data, *vals):
-    """Main fitting callback dealing with data management"""
-    if not ctx.triggered:
-        raise PreventUpdate
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("fit data", trigger_id)
-
-    return CALLBACKS[trigger_id](vals)
-
-
-@app.callback(
-    Output("params-table-div", "children"),  # List of tables
-    Output("params-modals-div", "children"),  # List of modals
-    Output("sys-select-div", "children"),  # str +  dcc.buttonGroup
-    Output("mth-select-div", "children"),  # str + dcc.buttonGroup
-    Output("fit-report-iframe", "srcDoc"),  # html string
-    Output("fit-report-iframe", "hidden"),  # bool
-    Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    Input("refresh-button", "n_clicks"),
-    # Input("trigger-table-update", "data"),
-    State("local-mrsim-data", "data"),
-    State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
-    State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
-    State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
-    State({"kind": "min", "name": ALL}, "value"),
-    State({"kind": "max", "name": ALL}, "value"),
-    State({"kind": "expr", "name": ALL}, "value"),
-    prevent_initial_call=True,
-)
-def update_fit_elements(n1, n2, trig, mr_data, *vals):
+def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *vals):
     "Main fitting callback dealing with visible elements"
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fit elements", trigger_id)
@@ -110,20 +102,24 @@ def update_fit_elements(n1, n2, trig, mr_data, *vals):
 
 
 # Sets visibility of selected spin system and method
+# NOTE: When `GROUP_WIDTH` is changed, first statement must be adjusted also
 app.clientside_callback(
     """function (set_index, className_list) {
-        console.log(className_list);
+        // Adjust set_index to conform to `GROUP_WIDTH`
+        set_index = set_index % 5;
+        // Set first table active if no active table
         if (!className_list.includes("fields-table active")) {
             className_list[0] = "fields-table active";
             return className_list;
         }
+        // Set current active table to inactive and set_index table to active
         let active_index = className_list.indexOf("fields-table active");
         className_list[active_index] = "fields-table";
         className_list[set_index] = "fields-table active";
         return className_list;
     }""",
     Output({"key": "fit-table", "index": ALL, "title": MATCH}, "className"),
-    Input({"key": "fit-table-select-btn", "title": MATCH}, "value"),
+    Input({"key": "table-select-btn", "title": MATCH}, "value"),
     State({"key": "fit-table", "index": ALL, "title": MATCH}, "className"),
     prevent_initial_call=True,
 )
@@ -132,36 +128,121 @@ app.clientside_callback(
 # Helper Methods =======================================================================
 def update_params_and_simulate(vals):
     """Updates stored Parameters object JSON and triggers a simulation"""
-    return get_new_params_json(vals), int(datetime.now().timestamp() * 1000), no_update
+    params_data = ctx.states["params-data.data"]
+    new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
+
+    return expand_out(
+        {
+            "tables": [no_update] * 2,
+            "modals": [no_update] * 2,
+            "options": [no_update] * 4,
+            "report": [no_update] * 2,
+            "data": [new_data],
+            "triggers": [int(datetime.now().timestamp() * 1000), no_update],
+        }
+    )
 
 
 def update_params_and_fit(vals):
     """Updates stored Parameters object JSON and triggers fitting"""
-    return get_new_params_json(vals), no_update, int(datetime.now().timestamp() * 1000)
+    params_data = ctx.states["params-data.data"]
+    new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
+
+    return expand_out(
+        {
+            "tables": [no_update] * 2,
+            "modals": [no_update] * 2,
+            "options": [no_update] * 4,
+            "report": [no_update] * 2,
+            "data": [new_data],
+            "triggers": [no_update, int(datetime.now().timestamp() * 1000)],
+        }
+    )
 
 
 def delete_param(name, vals):
     """Deletes specified param (row) from interface"""
-    params_data = get_new_params_json(vals)
-    params_obj = Parameters().loads(params_data)
+    params_data = ctx.states["params-data.data"]
+    sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
+    mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
 
+    params_obj = update_params_obj(params_data=params_data, vals=vals)
     name = name.split("-")[1]
-    # TODO: Add check to make sure name is in params
     del params_obj[name]
+    new_data = params_obj.dumps()
 
-    params_dict = params_obj_to_dict(params_obj)
-    sys_params, mth_params = group_params(params_dict)
+    sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
+    sys_tables, *_ = make_new_page_elements(
+        params=sys_params, index=sys_index, title="Spin System"
+    )
+    mth_tables, *_ = make_new_page_elements(
+        params=mth_params, index=mth_index, title="Method"
+    )
     out = {
-        "tables": [
-            [fit_table(*item, "Spin System") for item in sys_params]
-            + [  # 'line break before binary op' format
-                fit_table(*item, "Method") for item in mth_params
-            ]
-        ],
-        "modals": [make_modals(params_dict)],
-        "select": [no_update] * 2,
+        "tables": [sys_tables, mth_tables],
+        "modals": [no_update] * 2,
+        "options": [no_update] * 4,
         "report": [no_update] * 2,
+        "data": [new_data],
+        "triggers": [no_update] * 2,
     }
+
+    return expand_out(out)
+
+
+def page_sys_tables_left(vals):
+    return page_tables(name="Spin Systems", _dir="left", vals=vals)
+
+
+def page_sys_tables_right(vals):
+    return page_tables(name="Spin Systems", _dir="right", vals=vals)
+
+
+def page_mth_tables_left(vals):
+    return page_tables(name="Methods", _dir="left", vals=vals)
+
+
+def page_mth_tables_right(vals):
+    return page_tables(name="Methods", _dir="right", vals=vals)
+
+
+def page_tables(name="", _dir="", vals=[]):
+    """Updates current table page params and pages to the next table group"""
+    if name not in ["Spin Systems", "Methods"] or _dir not in ["left", "right"]:
+        raise PreventUpdate
+
+    params_data = ctx.states["params-data.data"]
+    sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
+    mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
+
+    params_obj = update_params_obj(params_data=params_data, vals=vals)
+    new_data = params_obj.dumps()
+    sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
+
+    if name == "Spin Systems":
+        sys_tables, sys_modals, sys_value, sys_options = make_new_page_elements(
+            params=sys_params, index=sys_index, title="Spin System", _dir=_dir
+        )
+        out = {
+            "tables": [sys_tables, no_update],
+            "modals": [sys_modals, no_update],
+            "options": [sys_value, no_update, sys_options, no_update],
+            "report": [no_update] * 2,
+            "data": [new_data],
+            "triggers": [no_update] * 2,
+        }
+    elif name == "Methods":
+        mth_tables, mth_modals, mth_values, mth_options = make_new_page_elements(
+            params=mth_params, index=mth_index, title="Method", _dir=_dir
+        )
+        out = {
+            "tables": [no_update, mth_tables],
+            "modals": [no_update, mth_modals],
+            "options": [no_update, mth_values, no_update, mth_options],
+            "report": [no_update] * 2,
+            "data": [new_data],
+            "triggers": [no_update] * 2,
+        }
 
     return expand_out(out)
 
@@ -176,14 +257,18 @@ def update_params_body(*args):
 
 def update_tables(*args, reset=False):
     data = ctx.states["local-mrsim-data.data"]
+    sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
+    mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
 
     if len(data["spin_systems"]) == 0 or len(data["methods"]) == 0:
         return expand_out(
             {
-                "tables": [fit_table({}, 0, "Name")],
-                "modals": [no_update],
-                "select": ["Spin System", "Method"],
-                "report": [no_update, True],
+                "tables": [fit_table({}, 0, "Name"), []],
+                "modals": [no_update, no_update],
+                "options": [0, 0, {"label": 0, "value": 0}, {"label": 0, "value": 0}],
+                "report": [no_update] * 2,
+                "data": [no_update],
+                "triggers": [no_update] * 2,
             }
         )
 
@@ -194,20 +279,28 @@ def update_tables(*args, reset=False):
     else:
         params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
 
-    params_dict = params_obj_to_dict(params_obj)
-    sys_params, mth_params = group_params(params_dict)
+    sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
+
+    # Check if selected indexes are out of bounds
+    if sys_index > len(sys_params):
+        sys_index = 0
+    if mth_index > len(mth_params):
+        mth_index = 0
+
+    sys_tables, sys_modals, sys_value, sys_options = make_new_page_elements(
+        params=sys_params, index=sys_index, title="Spin System"
+    )
+    mth_tables, mth_modals, mth_value, mth_options = make_new_page_elements(
+        params=mth_params, index=mth_index, title="Method"
+    )
 
     out = {  # `tables` and `modals` are unpacked in `expand_out`
-        "tables": [
-            [fit_table(*item, "Spin System") for item in sys_params] + 
-            [fit_table(*item, "Method") for item in mth_params]
-        ],
-        "modals": [make_modals(params_dict)],
-        "select": [
-            select_buttons(len(sys_params), "Spin System"),
-            select_buttons(len(mth_params), "Method"),
-        ],
+        "tables": [sys_tables, mth_tables],
+        "modals": [sys_modals, mth_modals],
+        "options": [sys_value, mth_value, sys_options, mth_options],
         "report": ["", True] if "report" not in data else [data["report"], False],
+        "data": [params_obj.dumps()],
+        "triggers": [no_update] * 2,
     }
 
     return expand_out(out)
@@ -249,28 +342,6 @@ def group_params(params_dict):
     sys_group.append(({k: params_dict[k] for k in tmp_sys}, index_sys))
     mth_group.append(({k: params_dict[k] for k in tmp_mth}, index_mth))
     return sys_group, mth_group
-
-
-def select_buttons(length, title):
-    """Makes selectons buttons for spin systems/methods"""
-    select = [html.H6(title)]  # `title` is 'Spin Systems' or 'Methods'
-
-    if length == 0:
-        return select
-
-    btn_group = dbc.RadioItems(
-        id={"key": "fit-table-select-btn", "title": title},
-        className="table-select btn-group",
-        labelClassName="btn btn-secondary",
-        labelCheckedClassName="active",
-        labelStyle={"display": "inline-block"},
-        options=[{"label": i, "value": i} for i in range(length)],
-        value=0,
-    )
-
-    select.append(btn_group)
-
-    return select
 
 
 # Truncate decimal places (using css?)
@@ -340,21 +411,76 @@ def params_obj_to_dict(params_obj):
     }
 
 
-def get_new_params_json(vals):
-    """Returns new Parameters JSON dump from input values"""
+def make_new_page_elements(params, index, title, _dir=None):
+    """Helper for making new tables, modals, and options
+
+    Params:
+        params: dict representation of single Parameter object
+        index: index of the parameter
+        title: title added to table header
+        _dir: weather to page left or right
+
+    Returns:
+        new_tables: list of html.Table
+        new_modals: list of dbc.Modal
+        new_value: int of current table index
+        new_options: dict of options for table select buttons
+    """
+    num_tables = len(params)
+    page_index = index // GROUP_WIDTH
+    new_value = index
+
+    # Move page index left or right (+1 or -1)
+    if _dir == "left":
+        page_index = max(page_index - 1, 0)
+        new_value = page_index * GROUP_WIDTH
+    elif _dir == "right":
+        page_index = min(page_index + 1, num_tables // GROUP_WIDTH)
+        new_value = page_index * GROUP_WIDTH
+
+    opt_min = page_index * GROUP_WIDTH
+    opt_max = min((page_index + 1) * GROUP_WIDTH, num_tables)
+
+    new_params = [
+        tup for tup in params if page_index <= tup[1] // GROUP_WIDTH < page_index + 1
+    ]
+
+    # Make new tables, modals and options
+    new_tables = [fit_table(*item, title) for item in new_params]
+    new_modals = [make_modal(k, v) for param in new_params for k, v in param[0].items()]
+    new_options = [{"label": i, "value": i} for i in range(opt_min, opt_max)]
+
+    return new_tables, new_modals, new_value, new_options
+
+
+def update_params_obj(params_data, vals):
+    """Update Parameters object from rendered tables
+
+    Params:
+        params_data: JSON string
+        vals: currently rendered fields
+
+    Returns:
+        Parameters object
+    """
+    params_obj = Parameters().loads(params_data)
     zip_vals = list(zip(*vals))
-    new_obj = Parameters()
 
     for row in zip_vals:
-        new_obj.add(*row)
+        del params_obj[row[0]]  # Delete Paremeter by name
+        params_obj.add(*row)
 
-    return new_obj.dumps()
+    return params_obj
 
 
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
     "refresh-button": reset_params_body,
+    "page-sys-left-btn": page_sys_tables_left,
+    "page-sys-right-btn": page_sys_tables_right,
+    "page-mth-left-btn": page_mth_tables_left,
+    "page-mth-right-btn": page_mth_tables_right,
     "trigger-table-update": update_params_body,
     "delete": delete_param,
 }
@@ -365,6 +491,8 @@ def expand_out(out):
     return [
         *out["tables"],
         *out["modals"],
-        *out["select"],
+        *out["options"],
         *out["report"],
+        *out["data"],
+        *out["triggers"],
     ]
