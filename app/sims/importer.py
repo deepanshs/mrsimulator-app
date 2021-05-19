@@ -523,7 +523,7 @@ CALLBACKS = {
 # convert client-side function
 @app.callback(
     Output("select-method", "options"),
-    [Input("local-mrsim-data", "data")],
+    Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )
 def update_list_of_methods(data):
