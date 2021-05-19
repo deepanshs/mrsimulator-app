@@ -82,12 +82,15 @@ def feature_select():
         ]
     )
 
+    hidden_div = html.Div(id="temp-hidden-div-feature")
     # TODO: Implement total pages and page index
     sys_head = html.Div(
         [html.H6("Spin Systems"), sys_page_btns], className="feature-select"
     )
     mth_head = html.Div([html.H6("Methods"), mth_page_btns], className="feature-select")
-    return html.Div([sys_head, mth_head], id="feature-select-div", hidden=True)
+    return html.Div(
+        [sys_head, mth_head, hidden_div], id="feature-select-div", hidden=True
+    )
 
 
 def fit_header():

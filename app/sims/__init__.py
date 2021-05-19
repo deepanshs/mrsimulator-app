@@ -181,7 +181,6 @@ def one_time_simulation():
     # Input("local-computed-data", "modified_timestamp"),
     Input("local-simulator-data", "data"),
     Input("normalize_amp", "n_clicks"),
-    Input({"key": "table-select-btn", "title": "Method"}, "value"),
     Input("select-method", "value"),
     State("normalize_amp", "active"),
     # State("local-computed-data", "data"),
@@ -203,9 +202,6 @@ def plot(*args):
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
-
-    if trigger_id == '{"key":"table-select-btn","title":"Method"}':
-        method_index = ctx.inputs['{"key":"table-select-btn","title":"Method"}.value']
 
     if method_index is None:
         raise PreventUpdate

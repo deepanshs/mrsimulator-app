@@ -29,7 +29,9 @@ GROUP_WIDTH = 5  # How many table choices are on each page
 
 def inputs():
     """Parameters tables html div"""
-    sys_tables = html.Div(id="sys-tables-div", children="Presh refresh to load tables")
+    sys_tables = html.Div(
+        id="sys-tables-div", children="Press the refresh button to load the tables"
+    )
     mth_tables = html.Div(id="mth-tables-div", children=[])
     return html.Div([sys_tables, mth_tables])
 
@@ -125,6 +127,19 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
+
+app.clientside_callback(
+    """function (value) {
+        let list = document.querySelectorAll("[data-table-mth] thead");
+        let index = window.method.getIndex();
+        if (index == value) throw window.dash_clientside.PreventUpdate;
+        list[value+1].click();
+        return null;
+    }""",
+    Output("temp-hidden-div-feature", "children"),
+    Input({"key": "table-select-btn", "title": "Method"}, "value"),
+    prevent_initial_call=True,
+)
 
 # Reveals feature select UI when refresh button is pressed
 # NOTE: Will reveal selection UI even if no loaded data
