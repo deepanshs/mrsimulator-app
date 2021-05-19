@@ -5,7 +5,7 @@ plotly==4.14.3
 dash==1.20.0
 dash_bootstrap_components==0.12.0
 gunicorn==20.1.0
-mrsimulator>=0.6.0rc4
+mrsimulator>=0.6.0rc5
 redis==3.5.3
 celery[redis]==5.0.5
 mrinversion>=0.1
