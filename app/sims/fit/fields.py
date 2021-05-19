@@ -66,8 +66,8 @@ fields = ui()
     Output({"key": "table-select-btn", "title": "Method"}, "value"),  # int
     Output({"key": "table-select-btn", "title": "Spin System"}, "options"),  # dict list
     Output({"key": "table-select-btn", "title": "Method"}, "options"),  # dict list
-    Output("fit-report-iframe", "srcDoc"),  # html string
-    Output("fit-report-iframe", "hidden"),  # bool
+    # Output("fit-report-iframe", "srcDoc"),  # html string
+    # Output("fit-report-iframe", "hidden"),  # bool
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
@@ -169,7 +169,7 @@ def update_params_and_simulate(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [int(datetime.now().timestamp() * 1000), no_update],
         }
@@ -191,7 +191,7 @@ def update_params_and_fit(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update, int(datetime.now().timestamp() * 1000)],
         }
@@ -223,7 +223,7 @@ def delete_param(name, vals):
         "tables": [sys_tables, mth_tables],
         "modals": [no_update] * 2,
         "options": [no_update] * 4,
-        "report": [no_update] * 2,
+        # "report": [no_update] * 2,
         "data": [new_data],
         "triggers": [no_update] * 2,
     }
@@ -271,7 +271,7 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [sys_tables, no_update],
             "modals": [sys_modals, no_update],
             "options": [sys_value, no_update, sys_options, no_update],
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -283,7 +283,7 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [no_update, mth_tables],
             "modals": [no_update, mth_modals],
             "options": [no_update, mth_values, no_update, mth_options],
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -333,7 +333,7 @@ def update_tables(*args, reset=False):
         "tables": [sys_tables, mth_tables],
         "modals": [sys_modals, mth_modals],
         "options": [sys_value, mth_value, sys_options, mth_options],
-        "report": ["", True] if "report" not in data else [data["report"], False],
+        # "report": ["", True] if "report" not in data else [data["report"], False],
         "data": [params_obj.dumps()],
         "triggers": [no_update] * 2,
     }
@@ -539,7 +539,7 @@ def expand_out(out):
         *out["tables"],
         *out["modals"],
         *out["options"],
-        *out["report"],
+        # *out["report"],
         *out["data"],
         *out["triggers"],
     ]
