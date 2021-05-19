@@ -3,4 +3,5 @@
   padding: 1em;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
 }

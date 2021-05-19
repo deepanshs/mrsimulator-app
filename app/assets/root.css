@@ -124,24 +124,6 @@ section {
   :root {
     --content-max-height: calc(100vh - 6.7em);
   }
-
-  [id$="-body"].left-card {
-    margin: 0;
-    min-width: calc(100vw - 0.25rem);
-    scroll-snap-align: center;
-    padding: 0;
-    height: calc(var(--content-max-height) - 1.35rem);
-  }
-  .slide {
-    padding: 0;
-  }
-
-  #spectrum-body.left-card {
-    display: none;
-  }
-  #spectrum-body.left-card.active {
-    display: block;
-  }
   .mobile-scroll {
     display: flex;
     overflow-x: auto;

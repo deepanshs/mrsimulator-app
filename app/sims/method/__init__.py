@@ -4,6 +4,7 @@ from datetime import datetime
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
@@ -233,6 +234,81 @@ def get_method_json(n, value, isotope):
         ).json(),
         "time": int(datetime.now().timestamp() * 1000),
     }
+
+
+def sigma_helper(x0, dx, shape_x0, shape_x1, y_values):
+    """Calculates standard deviation from given graph parameters
+
+    Params:
+        x0: leftmost x value of scatter plot
+        dx: step between points on plot
+        shape_x0: x0 (first) point on shape
+        shape_x1: x1 (second) point on shape
+        y_values: ordered list of y values on scatter plot
+    """
+    if dx > 0:
+        print("positive dx")
+        # swap the limits if dx is positive, and negate dx
+        shape_x1, shape_x0 = shape_x0, shape_x1
+        dx *= -1
+
+    # Choose leftmost box bound OR leftmost point if box is out of left bound
+    x_left = min(max(shape_x1, shape_x0), x0)
+    # Choose rightmost box bound OR rightmost point if box is out of right bound
+    x_right = max(min(shape_x1, shape_x0), x0 + (len(y_values) * dx))
+    x_range = x_right - x_left
+    start_index = max(0, round((x_left - x0) / dx))
+    end_index = min(len(y_values), round(x_range / dx) + start_index)
+    selected_values = y_values[start_index:end_index]
+
+    if selected_values == [] or start_index > end_index:
+        print("no points in bounds")
+        # Display error message "no points selected"
+        raise PreventUpdate
+
+    return np.std(selected_values)
+
+
+@app.callback(
+    Output("measurement-sigma", "value"),
+    Input("calc-sigma-button", "n_clicks"),
+    State("nmr_spectrum", "figure"),  # Graph selection and values
+    prevent_initial_call=True,
+)
+def calculate_sigma(n1, fig):
+    """Calculates standard deviation of noise on selected part of graph"""
+    print("sigma btn")
+    # print(fig)
+
+    if "shapes" not in fig["layout"]:
+        print("no shapes in layout")
+        # Display error message "no area selected?"
+        raise PreventUpdate
+
+    if len(fig["layout"]["shapes"]) > 1:
+        print("shapes array too long")
+        # Display error message "too many selections?"
+        raise PreventUpdate
+
+    shape = fig["layout"]["shapes"][0]
+    if shape["type"] != "rect" and shape["type"] != "circle":
+        print("wrong type of shape")
+        # Display error message "please draw a rect or circle?"
+        raise PreventUpdate
+
+    exp = next((item for item in fig["data"] if item["name"] == "experiment"), None)
+    if exp is None:
+        print("experiment not found in figure")
+        # Display error message "experiment not found in figure?"
+        raise PreventUpdate
+
+    return sigma_helper(
+        x0=exp["x0"],
+        dx=exp["dx"],
+        shape_x0=shape["x0"],
+        shape_x1=shape["x1"],
+        y_values=exp["y"],
+    )
 
 
 app.clientside_callback(

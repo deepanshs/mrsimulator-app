@@ -41,6 +41,7 @@ __email__ = "srivastava.89@osu.edu"
         Output("alert-message-import", "is_open"),
         Output("local-mrsim-data", "data"),
         Output("config", "data"),
+        # Output("trigger-table-update", "data"),
         Output("spin-system-read-only", "children"),
         Output("method-read-only", "children"),
         Output("info-read-only", "children"),
@@ -401,12 +402,15 @@ def simulate_test():
 
     sf.update_mrsim_obj_from_params(params, sim, processor)
     new_mrsim_data = mrsim.dict(sim, processor, saved_params)
+    new_mrsim_data["params"] = params.dumps()
+    # Use this line? Or something else
+    # new_mrsim_data = mrsim.dict(sim, processor, params)
 
     out = {
         "alert": ["", False],
         "mrsim": [new_mrsim_data, no_update],
         "children": [no_update, no_update, no_update],
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update, no_update, no_update, no_update],
         "processor": [no_update],
     }
     return sim_utils.expand_output(out)
@@ -442,6 +446,7 @@ def least_squares_fit():
         sys.transition_pathways = sim.methods[0].get_transition_pathways(sys)
 
     # noise standard deviation
+    # NOTE: Should this be updated with sigma from methods tab
     sigma = []
     for mth in sim.methods:
         csdm_application = mth.experiment.dependent_variables[0].application
@@ -470,10 +475,8 @@ def least_squares_fit():
             mth.simulation = sf.add_csdm_dvs(mth.simulation)
 
     fit_data = mrsim.dict(sim, processor, result.params)
-    fit_data["report"] = fitreport_html_table(result)
 
-    print("IMPORTER")
-    print(result.params.dumps())
+    fit_data["report"] = fitreport_html_table(result)
 
     spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
     method_overview = method_UI.refresh(fit_data["methods"])
@@ -520,7 +523,7 @@ CALLBACKS = {
 # convert client-side function
 @app.callback(
     Output("select-method", "options"),
-    [Input("local-mrsim-data", "data")],
+    Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )
 def update_list_of_methods(data):

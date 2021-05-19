@@ -109,10 +109,16 @@ var _setFields = function (index) {
     if (application == null) { application = {}; }
     if (application['com.github.DeepanshS.mrsimulator'] == null) {
       application['com.github.DeepanshS.mrsimulator'] = {
-        'sigma': 1.0
+        'sigma': 1
       };
     }
     let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+
+    // Temoporary bypass for already calculated sigma
+    if (document.getElementById("measurement-sigma").value != 1) {
+      sigma = document.getElementById("measurement-sigma").value;
+    }
+
     // array.push(sigma);
     setValue("measurement-sigma", sigma);
   }

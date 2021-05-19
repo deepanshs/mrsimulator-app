@@ -19,6 +19,7 @@ from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
 from .fit import fit_body
+from .fit_report import fit_report_body
 from .graph import DEFAULT_FIGURE
 from .graph import plot_1D_trace
 from .graph import plot_2D_trace
@@ -97,7 +98,14 @@ top_nav = html.Div([navbar.navbar_top, simulation_alert, import_alert, graph_ale
 bottom_nav = navbar.navbar_bottom
 
 # main body items
-body_content = [home_body, spin_system_body, method_body, fit_body, spectrum_body]
+body_content = [
+    home_body,
+    spin_system_body,
+    method_body,
+    fit_body,
+    fit_report_body,
+    spectrum_body,
+]
 main_body = html.Div(body_content, className="mobile-scroll")
 
 # temp items
@@ -182,6 +190,9 @@ def one_time_simulation():
 def plot(*args):
     """Generate and return a one-dimensional plot instance."""
     # time_of_computation = ctx.inputs["local-computed-data.modified_timestamp"]
+    trigger = ctx.triggered[0]["prop_id"]
+    trigger_id = trigger.split(".")[0]
+
     sim_data = ctx.inputs["local-simulator-data.data"]
 
     if sim_data is None:
@@ -191,6 +202,7 @@ def plot(*args):
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
+
     if method_index is None:
         raise PreventUpdate
 
@@ -211,8 +223,6 @@ def plot(*args):
     # if not ctx.triggered:
     #     raise PreventUpdate
 
-    trigger = ctx.triggered[0]["prop_id"]
-
     if trigger == "normalize_amp.n_clicks":
         normalized = not normalized
 
@@ -220,7 +230,6 @@ def plot(*args):
     if "decompose_spectrum" in sim_data["config"]:
         decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
 
-    trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
     dim_axes = None

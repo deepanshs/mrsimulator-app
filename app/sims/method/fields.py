@@ -31,9 +31,15 @@ def experiment_ui():
     # upload_ui = dbc.InputGroup([label, upload], className="input-form")
 
     # standard deviation
+    calc_tooltip = (
+        "Click to calculate the noise standard deviation from the selected region of ∂"
+        "the experiment spectrum."
+    )
+    calc_icon = html.I(className="fas fa-calculator", title=calc_tooltip)
+    calc_btn = html.Button(calc_icon, id="calc-sigma-button", className="icon-button")
     sigma = custom_input_group(
-        prepend_label="Noise standard deviation (σ)",
-        # append_label=html.Button("N"),
+        prepend_label="Noise standard deviation (σ)",  # Text overwraps the input field
+        append_label=calc_btn,
         value=1.0,
         min=1e-6,
         id="measurement-sigma",
@@ -172,7 +178,7 @@ def global_environment():
     #     id="set-to-magic-angle",
     #     size="sm",
     # )
-    datalist = html.Datalist([0, 54.7356103172, 90], id="datalist-magic-angle")
+    # datalist = html.Datalist([0, 54.7356103172, 90], id="datalist-magic-angle")
     rotor_angle = custom_input_group(
         prepend_label=html.Div(["Rotor angle (θᵣ)", magic_angle]),
         append_label="deg",
@@ -181,7 +187,7 @@ def global_environment():
         max=90,
         min=0,
         debounce=True,
-        list="datalist-magic-angle",
+        # list="datalist-magic-angle",
     )
 
     app.clientside_callback(
@@ -192,5 +198,5 @@ def global_environment():
 
     return container(
         text="Global Environment Parameters",
-        featured=[flux_density, rotor_frequency, rotor_angle, datalist],
+        featured=[flux_density, rotor_frequency, rotor_angle],
     )

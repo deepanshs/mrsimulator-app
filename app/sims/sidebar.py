@@ -9,7 +9,7 @@ from dash.dependencies import State
 from app import app
 
 
-SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "fit", "spectrum"]
+SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "fit", "fit_report", "spectrum"]
 
 
 def home():
@@ -34,6 +34,12 @@ def fit():
     """Fit tab."""
     icon = html.I(className="fas fa-bullseye fa-lg", title="Fit")
     return html.Li(html.Span(icon), id="view-fit")
+
+
+def fit_report():
+    """Fitting report tab."""
+    icon = html.I(className="fas fa-stream", title="Fit Report")
+    return html.Li(html.Span(icon), id="view-fit_report")
 
 
 def spectrum():
@@ -91,8 +97,11 @@ def sidebar_tabs():
     1. Home
     2. Spin system
     3. Method
+    4. Fit
+    5. Fit report
+    6. Spectrum
     """
-    content = [home(), method(), spin_system(), fit(), spectrum()]
+    content = [home(), method(), spin_system(), fit(), fit_report(), spectrum()]
     return html.Ul(content, className="sidebar")
 
 

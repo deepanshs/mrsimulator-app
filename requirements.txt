@@ -9,3 +9,12 @@ mrsimulator>=0.6.0rc4
 redis==3.5.3
 celery[redis]==5.0.5
 mrinversion>=0.1
+
+# development packages
+pytest-runner>=5.0
+pytest>=5.3
+black
+pre-commit>=1.16.1
+coverage>=4.5.3
+pytest-cov
+codecov
