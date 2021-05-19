@@ -181,6 +181,7 @@ def one_time_simulation():
     # Input("local-computed-data", "modified_timestamp"),
     Input("local-simulator-data", "data"),
     Input("normalize_amp", "n_clicks"),
+    Input({"key": "table-select-btn", "title": "Method"}, "value"),
     Input("select-method", "value"),
     State("normalize_amp", "active"),
     # State("local-computed-data", "data"),
@@ -190,6 +191,9 @@ def one_time_simulation():
 def plot(*args):
     """Generate and return a one-dimensional plot instance."""
     # time_of_computation = ctx.inputs["local-computed-data.modified_timestamp"]
+    trigger = ctx.triggered[0]["prop_id"]
+    trigger_id = trigger.split(".")[0]
+
     sim_data = ctx.inputs["local-simulator-data.data"]
 
     if sim_data is None:
@@ -199,6 +203,10 @@ def plot(*args):
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
+
+    if trigger_id == '{"key":"table-select-btn","title":"Method"}':
+        method_index = ctx.inputs['{"key":"table-select-btn","title":"Method"}.value']
+
     if method_index is None:
         raise PreventUpdate
 
@@ -219,8 +227,6 @@ def plot(*args):
     # if not ctx.triggered:
     #     raise PreventUpdate
 
-    trigger = ctx.triggered[0]["prop_id"]
-
     if trigger == "normalize_amp.n_clicks":
         normalized = not normalized
 
@@ -228,7 +234,6 @@ def plot(*args):
     if "decompose_spectrum" in sim_data["config"]:
         decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
 
-    trigger_id = trigger.split(".")[0]
     print("plot trigger, trigger id", trigger, trigger_id)
 
     dim_axes = None

@@ -54,6 +54,7 @@ fields = ui()
 
 
 # Callbacks ============================================================================
+# TODO: Have tables update after fitting routine
 @app.callback(
     Output("sys-tables-div", "children"),  # List of tables
     Output("mth-tables-div", "children"),  # List of tables
@@ -448,11 +449,15 @@ def make_new_page_elements(params, index, title, _dir=None):
     # Move page index left or right (+1 or -1)
     if _dir == "left":
         page_index = max(page_index - 1, 0)
+        # Do not update if `page_index` has not changed (for efficency)
+        if page_index == index // GROUP_WIDTH:
+            raise PreventUpdate
+        new_value = page_index * GROUP_WIDTH
     elif _dir == "right":
         page_index = min(page_index + 1, (num_tables - 1) // GROUP_WIDTH)
-
-    # Check if `page_index` has changed
-    if page_index != index // GROUP_WIDTH:
+        # Do not update if `page_index` has not changed (for efficency)
+        if page_index == index // GROUP_WIDTH:
+            raise PreventUpdate
         new_value = page_index * GROUP_WIDTH
 
     opt_min = page_index * GROUP_WIDTH
