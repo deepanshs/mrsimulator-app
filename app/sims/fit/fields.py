@@ -129,9 +129,11 @@ app.clientside_callback(
 # Reveals feature select UI when refresh button is pressed
 # NOTE: Will reveal selection UI even if no loaded data
 app.clientside_callback(
-    """function (n1) { return false; }""",
+    """function (n1, n2, n3) { return false; }""",
     Output("feature-select-div", "hidden"),
     Input("refresh-button", "n_clicks"),
+    Input("simulate-button", "n_clicks"),
+    Input("run-fitting-button", "n_clicks"),
     prevent_initial_call=True,
 )
 
@@ -139,12 +141,12 @@ app.clientside_callback(
 # Helper Methods =======================================================================
 def update_params_and_simulate(vals):
     """Updates stored Parameters object JSON and triggers a simulation"""
-    params_data = ctx.states["params-data.data"]
-    mrsim_data = ctx.states["local-mrsim-data.data"]
-
-    if len(mrsim_data["spin_systems"]) == 0 or len(mrsim_data["methods"]) == 0:
+    if file_is_empty():
         raise PreventUpdate
 
+    params_data = ctx.states["params-data.data"]
+    if params_data is None:
+        return update_tables()
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
     return expand_out(
@@ -165,6 +167,8 @@ def update_params_and_fit(vals):
         raise PreventUpdate
 
     params_data = ctx.states["params-data.data"]
+    if params_data is None:
+        return update_tables()
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
     return expand_out(
