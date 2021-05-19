@@ -46,7 +46,7 @@ def buttons():
     return dbc.ButtonGroup([refresh, simulate, fit])
 
 
-def table_select():
+def feature_select():
     """Radio buttons for selecting spin system and method tables"""
     sys_slct_btns = dbc.RadioItems(
         id={"key": "table-select-btn", "title": "Spin System"},
@@ -54,8 +54,8 @@ def table_select():
         labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
-        options=[{"label": 0, "value": 0}],
-        value=0,
+        # options=[{"label": 0, "value": 0}],
+        # value=0,
     )
     mth_slct_btns = dbc.RadioItems(
         id={"key": "table-select-btn", "title": "Method"},
@@ -63,8 +63,8 @@ def table_select():
         labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
-        options=[{"label": 0, "value": 0}],
-        value=0,
+        # options=[{"label": 0, "value": 0}],
+        # value=0,
     )
 
     sys_page_btns = html.Div(
@@ -87,7 +87,7 @@ def table_select():
         [html.H6("Spin Systems"), sys_page_btns], className="feature-select"
     )
     mth_head = html.Div([html.H6("Methods"), mth_page_btns], className="feature-select")
-    return html.Div([sys_head, mth_head])
+    return html.Div([sys_head, mth_head], id="feature-select-div", hidden=True)
 
 
 def fit_header():
@@ -104,7 +104,9 @@ def fit_header():
 
 
 def ui():
-    page = html.Div([fit_header(), table_select(), fields, fit_info_modal, storage_div])
+    page = html.Div(
+        [fit_header(), feature_select(), fields, fit_info_modal, storage_div]
+    )
     return html.Div(className="left-card", children=page, id="fit-body")
 
 

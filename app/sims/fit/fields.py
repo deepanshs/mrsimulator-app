@@ -29,7 +29,7 @@ GROUP_WIDTH = 5  # How many table choices are on each page
 
 def inputs():
     """Parameters tables html div"""
-    sys_tables = html.Div(id="sys-tables-div", children=[])
+    sys_tables = html.Div(id="sys-tables-div", children="Presh refresh to load tables")
     mth_tables = html.Div(id="mth-tables-div", children=[])
     return html.Div([sys_tables, mth_tables])
 
@@ -125,10 +125,25 @@ app.clientside_callback(
 )
 
 
+# Reveals feature select UI when refresh button is pressed
+# NOTE: Will reveal selection UI even if no loaded data
+app.clientside_callback(
+    """function (n1) { return false; }""",
+    Output("feature-select-div", "hidden"),
+    Input("refresh-button", "n_clicks"),
+    prevent_initial_call=True,
+)
+
+
 # Helper Methods =======================================================================
 def update_params_and_simulate(vals):
     """Updates stored Parameters object JSON and triggers a simulation"""
     params_data = ctx.states["params-data.data"]
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+
+    if len(mrsim_data["spin_systems"]) == 0 or len(mrsim_data["methods"]) == 0:
+        raise PreventUpdate
+
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
     return expand_out(
@@ -145,6 +160,9 @@ def update_params_and_simulate(vals):
 
 def update_params_and_fit(vals):
     """Updates stored Parameters object JSON and triggers fitting"""
+    if file_is_empty():
+        raise PreventUpdate
+
     params_data = ctx.states["params-data.data"]
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
@@ -162,6 +180,9 @@ def update_params_and_fit(vals):
 
 def delete_param(name, vals):
     """Deletes specified param (row) from interface"""
+    if file_is_empty():
+        raise PreventUpdate
+
     params_data = ctx.states["params-data.data"]
     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
@@ -209,6 +230,9 @@ def page_mth_tables_right(vals):
 def page_tables(name="", _dir="", vals=[]):
     """Updates current table page params and pages to the next table group"""
     if name not in ["Spin Systems", "Methods"] or _dir not in ["left", "right"]:
+        raise PreventUpdate
+
+    if file_is_empty():
         raise PreventUpdate
 
     params_data = ctx.states["params-data.data"]
@@ -260,17 +284,8 @@ def update_tables(*args, reset=False):
     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
 
-    if len(data["spin_systems"]) == 0 or len(data["methods"]) == 0:
-        return expand_out(
-            {
-                "tables": [fit_table({}, 0, "Name"), []],
-                "modals": [no_update, no_update],
-                "options": [0, 0, {"label": 0, "value": 0}, {"label": 0, "value": 0}],
-                "report": [no_update] * 2,
-                "data": [no_update],
-                "triggers": [no_update] * 2,
-            }
-        )
+    if file_is_empty():
+        raise PreventUpdate
 
     sim, processor, report = parse(data)
 
@@ -282,9 +297,9 @@ def update_tables(*args, reset=False):
     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
 
     # Check if selected indexes are out of bounds
-    if sys_index > len(sys_params):
+    if sys_index is None or sys_index > len(sys_params):
         sys_index = 0
-    if mth_index > len(mth_params):
+    if mth_index is None or mth_index > len(mth_params):
         mth_index = 0
 
     sys_tables, sys_modals, sys_value, sys_options = make_new_page_elements(
@@ -433,9 +448,11 @@ def make_new_page_elements(params, index, title, _dir=None):
     # Move page index left or right (+1 or -1)
     if _dir == "left":
         page_index = max(page_index - 1, 0)
-        new_value = page_index * GROUP_WIDTH
     elif _dir == "right":
-        page_index = min(page_index + 1, num_tables // GROUP_WIDTH)
+        page_index = min(page_index + 1, (num_tables - 1) // GROUP_WIDTH)
+
+    # Check if `page_index` has changed
+    if page_index != index // GROUP_WIDTH:
         new_value = page_index * GROUP_WIDTH
 
     opt_min = page_index * GROUP_WIDTH
@@ -471,6 +488,12 @@ def update_params_obj(params_data, vals):
         params_obj.add(*row)
 
     return params_obj
+
+
+def file_is_empty():
+    """Returns True if loaded file is empty, false otherwise"""
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    return len(mrsim_data["spin_systems"]) == 0 or len(mrsim_data["methods"]) == 0
 
 
 CALLBACKS = {
