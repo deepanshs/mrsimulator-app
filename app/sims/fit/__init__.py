@@ -15,6 +15,8 @@ store = [
     dcc.Store(id="trigger-sim", storage_type="memory"),
     dcc.Store(id="trigger-fit", storage_type="memory"),
     # dcc.Store(id="trigger-table-update", storage_type="memory"),
+    # Bool for updating tables after fit
+    dcc.Store(id="anticipate-table-update", storage_type="memory"),
 ]
 storage_div = html.Div(id="fitting-store", children=store)
 
@@ -84,7 +86,10 @@ def feature_select():
         ]
     )
 
-    hidden_div = html.Div(id="temp-hidden-div-feature")
+    # Hidden div for javascript callbacks
+    hidden_div = html.Div(
+        [html.Div(id="feature-select-hidden"), html.Button(id="fit-refresh-hidden")]
+    )
     # TODO: Implement total pages and page index
     sys_head = html.Div(
         [html.H6("Spin Systems"), sys_page_btns], className="feature-select"
