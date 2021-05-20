@@ -141,14 +141,13 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-# Reveals feature select UI when refresh button is pressed
-# NOTE: Will reveal selection UI even if no loaded data
+# Reveals fit slection UI and activates sim/fit buttons when refresh button is pressed
 app.clientside_callback(
-    """function (n1, n2, n3) { return false; }""",
+    """function (n1) { return [false, false, false]; }""",
     Output("feature-select-div", "hidden"),
+    Output("simulate-button", "disabled"),
+    Output("run-fitting-button", "disabled"),
     Input("refresh-button", "n_clicks"),
-    Input("simulate-button", "n_clicks"),
-    Input("run-fitting-button", "n_clicks"),
     prevent_initial_call=True,
 )
 

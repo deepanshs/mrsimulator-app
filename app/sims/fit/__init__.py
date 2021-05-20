@@ -27,21 +27,23 @@ def buttons():
         # text="Reset",
         icon_classname="fas fa-sync-alt",
         tooltip="Refresh parameter values.",
-        **kwargs
+        **kwargs,
     )
     simulate = custom_button(
         id="simulate-button",
         # text="Simulate",
         icon_classname="far fa-chart-bar",
         tooltip="Simulate a spectrum using the current values.",
-        **kwargs
+        **kwargs,
+        disabled=True,
     )
     fit = custom_button(
         id="run-fitting-button",
         # text="Fit",
         icon_classname="fas fa-compress-alt",
         tooltip="Run least-squares minimization.",
-        **kwargs
+        **kwargs,
+        disabled=True,
     )
     return dbc.ButtonGroup([refresh, simulate, fit])
 
