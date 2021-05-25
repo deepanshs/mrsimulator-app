@@ -14,7 +14,7 @@ def header():
 
 def report():
     """LMFIT report html div"""
-    return html.Iframe(id="fit-report-iframe", sandbox="", hidden=True)
+    return html.Iframe(id="fit-report-iframe", hidden=True)
 
 
 def ui():
