@@ -88,7 +88,8 @@ def feature_select():
 
     # Hidden div for javascript callbacks
     hidden_div = html.Div(
-        [html.Div(id="feature-select-hidden"), html.Button(id="fit-refresh-hidden")]
+        [html.Div(id="feature-select-hidden"), html.Button(id="fit-refresh-hidden")],
+        hidden=True,
     )
     # TODO: Implement total pages and page index
     sys_head = html.Div(
