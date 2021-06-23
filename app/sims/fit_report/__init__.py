@@ -9,12 +9,15 @@ from app import app
 
 def header():
     """Report title"""
-    return html.H4("Fitting Report", className="card-header")
+    return html.Div(html.H4("Fitting Report"), className="card-header")
 
 
 def report():
     """LMFIT report html div"""
-    return html.Iframe(id="fit-report-iframe", hidden=True)
+    return html.Div(
+        html.Iframe(id="fit-report-iframe", hidden=True), 
+        className="flex-div"
+        )
 
 
 def ui():
