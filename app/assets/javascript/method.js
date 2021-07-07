@@ -114,11 +114,6 @@ var _setFields = function (index) {
     }
     let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
 
-    // Temoporary bypass for already calculated sigma
-    if (document.getElementById("measurement-sigma").value != 1) {
-      sigma = document.getElementById("measurement-sigma").value;
-    }
-
     // array.push(sigma);
     setValue("measurement-sigma", sigma);
   }
