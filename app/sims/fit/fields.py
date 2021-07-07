@@ -71,7 +71,7 @@ fields = ui()
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
-    Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    # Input({"kind": "delete", "name": ALL}, "n_clicks"),
     Input("page-sys-left-btn", "n_clicks"),
     Input("page-sys-right-btn", "n_clicks"),
     Input("page-mth-left-btn", "n_clicks"),
@@ -94,7 +94,7 @@ fields = ui()
 )
 # NOTE: Inputs/States must appear as individual args since `vals` must be list of
 #       last 6 States
-def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, n9, mrd, pd, sysi, mthi, *vals):
+def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *vals):
     "Main fitting callback dealing with visible elements"
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fit elements", trigger_id)
@@ -228,37 +228,37 @@ def update_params_and_fit(vals):
     )
 
 
-def delete_param(name, vals):
-    """Deletes specified param (row) from interface"""
-    if file_is_empty():
-        raise PreventUpdate
+# def delete_param(name, vals):
+#     """Deletes specified param (row) from interface"""
+#     if file_is_empty():
+#         raise PreventUpdate
 
-    params_data = ctx.states["params-data.data"]
-    sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
-    mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
+#     params_data = ctx.states["params-data.data"]
+#     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
+#     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
 
-    params_obj = update_params_obj(params_data=params_data, vals=vals)
-    name = name.split("-")[1]
-    del params_obj[name]
-    new_data = params_obj.dumps()
+#     params_obj = update_params_obj(params_data=params_data, vals=vals)
+#     name = name.split("-")[1]
+#     del params_obj[name]
+#     new_data = params_obj.dumps()
 
-    sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
-    sys_tables, *_ = make_new_page_elements(
-        params=sys_params, index=sys_index, title="Spin System"
-    )
-    mth_tables, *_ = make_new_page_elements(
-        params=mth_params, index=mth_index, title="Method"
-    )
-    out = {
-        "tables": [sys_tables, mth_tables],
-        "modals": [no_update] * 2,
-        "options": [no_update] * 4,
-        # "report": [no_update] * 2,
-        "data": [new_data],
-        "triggers": [no_update] * 2,
-    }
+#     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
+#     sys_tables, *_ = make_new_page_elements(
+#         params=sys_params, index=sys_index, title="Spin System"
+#     )
+#     mth_tables, *_ = make_new_page_elements(
+#         params=mth_params, index=mth_index, title="Method"
+#     )
+#     out = {
+#         "tables": [sys_tables, mth_tables],
+#         "modals": [no_update] * 2,
+#         "options": [no_update] * 4,
+#         # "report": [no_update] * 2,
+#         "data": [new_data],
+#         "triggers": [no_update] * 2,
+#     }
 
-    return expand_out(out)
+#     return expand_out(out)
 
 
 def page_sys_tables_left(vals):
@@ -420,7 +420,8 @@ def fit_table(_dict, index, title="Name"):
     Returns:
         html.Table
     """
-    fit_header = ["", f"{title} {index}", "Value", "", ""]
+    # fit_header = ["", f"{title} {index}", "Value", "", ""]
+    fit_header = ["", f"{title} {index}", "Value", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -429,7 +430,7 @@ def fit_table(_dict, index, title="Name"):
         name_id = {"name": f"{key}-label", "kind": "name"}
         val_id = {"name": f"{key}-value", "kind": "value"}
         mod_btn_id = {"kind": "modal-btn", "parrent": key}
-        del_id = {"name": f"delete-{key}-row", "kind": "delete"}
+        # del_id = {"name": f"delete-{key}-row", "kind": "delete"}
 
         name = html.Div(id=name_id, children=key)
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
@@ -441,13 +442,13 @@ def fit_table(_dict, index, title="Name"):
             className="icon-button",
         )
 
-        del_ic = html.Span(
-            html.I(className="fas fa-times", title="Remove Parameter"),
-            id=del_id,
-            className="icon-button",
-        )
+        # del_ic = html.Span(
+        #     html.I(className="fas fa-times", title="Remove Parameter"),
+        #     id=del_id,
+        #     className="icon-button",
+        # )
 
-        pack = [vary, name, val, modal_ic, del_ic]
+        pack = [vary, name, val, modal_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(
@@ -554,7 +555,7 @@ CALLBACKS = {
     "run-fitting-button": update_params_and_fit,
     "refresh-button": reset_params_body,
     "fit-refresh-hidden": update_params_body,
-    "delete": delete_param,
+    # "delete": delete_param,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
