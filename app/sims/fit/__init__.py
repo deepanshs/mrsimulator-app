@@ -15,6 +15,8 @@ store = [
     dcc.Store(id="trigger-sim", storage_type="memory"),
     dcc.Store(id="trigger-fit", storage_type="memory"),
     # dcc.Store(id="trigger-table-update", storage_type="memory"),
+    # Bool for updating tables after fit
+    dcc.Store(id="anticipate-table-update", storage_type="memory"),
 ]
 storage_div = html.Div(id="fitting-store", children=store)
 
@@ -27,21 +29,23 @@ def buttons():
         # text="Reset",
         icon_classname="fas fa-sync-alt",
         tooltip="Refresh parameter values.",
-        **kwargs
+        **kwargs,
     )
     simulate = custom_button(
         id="simulate-button",
         # text="Simulate",
         icon_classname="far fa-chart-bar",
         tooltip="Simulate a spectrum using the current values.",
-        **kwargs
+        **kwargs,
+        disabled=True,
     )
     fit = custom_button(
         id="run-fitting-button",
         # text="Fit",
         icon_classname="fas fa-compress-alt",
         tooltip="Run least-squares minimization.",
-        **kwargs
+        **kwargs,
+        disabled=True,
     )
     return dbc.ButtonGroup([refresh, simulate, fit])
 
@@ -82,7 +86,11 @@ def feature_select():
         ]
     )
 
-    hidden_div = html.Div(id="temp-hidden-div-feature")
+    # Hidden div for javascript callbacks
+    hidden_div = html.Div(
+        [html.Div(id="feature-select-hidden"), html.Button(id="fit-refresh-hidden")],
+        hidden=True,
+    )
     # TODO: Implement total pages and page index
     sys_head = html.Div(
         [html.H6("Spin Systems"), sys_page_btns], className="feature-select"

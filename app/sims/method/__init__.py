@@ -261,7 +261,7 @@ def sigma_helper(x0, dx, shape_x0, shape_x1, y_values):
     end_index = min(len(y_values), round(x_range / dx) + start_index)
     selected_values = y_values[start_index:end_index]
 
-    if selected_values == [] or start_index > end_index:
+    if selected_values == []:
         print("no points in bounds")
         # Display error message "no points selected"
         raise PreventUpdate

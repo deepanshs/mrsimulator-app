@@ -448,7 +448,7 @@ def least_squares_fit():
         sys.transition_pathways = sim.methods[0].get_transition_pathways(sys)
 
     # noise standard deviation
-    # NOTE: Should this be updated with sigma from methods tab
+    # TODO: Should this be updated with sigma from methods tab
     sigma = []
     for mth in sim.methods:
         csdm_application = mth.experiment.dependent_variables[0].application

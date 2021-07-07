@@ -66,8 +66,8 @@ fields = ui()
     Output({"key": "table-select-btn", "title": "Method"}, "value"),  # int
     Output({"key": "table-select-btn", "title": "Spin System"}, "options"),  # dict list
     Output({"key": "table-select-btn", "title": "Method"}, "options"),  # dict list
-    Output("fit-report-iframe", "srcDoc"),  # html string
-    Output("fit-report-iframe", "hidden"),  # bool
+    # Output("fit-report-iframe", "srcDoc"),  # html string
+    # Output("fit-report-iframe", "hidden"),  # bool
     Output("params-data", "data"),
     Output("trigger-sim", "data"),
     Output("trigger-fit", "data"),
@@ -79,6 +79,7 @@ fields = ui()
     Input("refresh-button", "n_clicks"),
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
+    Input("fit-refresh-hidden", "n_clicks"),
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
     State({"key": "table-select-btn", "title": "Spin System"}, "value"),
@@ -91,7 +92,9 @@ fields = ui()
     State({"kind": "expr", "name": ALL}, "value"),
     prevent_initial_call=True,
 )
-def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *vals):
+# NOTE: Inputs/States must appear as individual args since `vals` must be list of
+#       last 6 States
+def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, n9, mrd, pd, sysi, mthi, *vals):
     "Main fitting callback dealing with visible elements"
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fit elements", trigger_id)
@@ -102,6 +105,34 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *va
         return CALLBACKS[trigger_id](name, vals)
 
     return CALLBACKS[trigger_id](vals)
+
+
+# Causes a table update after fitting routine by incrementing `refresh-button.n_clicks`
+# NOTE: Very hackey and can probably be done in a cleaner manner
+#       1) When `trigger-fit` updates from btn press anticipate next `local-mrsim-data`
+#           update will be from fitting routine (set `anticipate-table-update` to True)
+#       2) When `local-mrsim-data` updates AND `anticipate-table-update` is True
+#           click `fit-refresh-hidden` button to update tables.
+#           Also set `anticipate-table-update` to False
+app.clientside_callback(
+    """function (fit_ts, mr_ts, n_clicks, anticipate) {
+        if (fit_ts > mr_ts) {
+            return true;
+        }
+        if (fit_ts < mr_ts && anticipate) {
+            document.getElementById("fit-refresh-hidden").click();
+            return false;
+        }
+        return false;
+    }
+    """,
+    Output("anticipate-table-update", "data"),  # bool
+    Input("trigger-fit", "modified_timestamp"),
+    Input("local-mrsim-data", "modified_timestamp"),
+    State("refresh-button", "n_clicks"),
+    State("anticipate-table-update", "data"),
+    prevent_initial_call=True,
+)
 
 
 # Sets visibility of selected spin system and method
@@ -136,16 +167,17 @@ app.clientside_callback(
         list[value+1].click();
         return null;
     }""",
-    Output("temp-hidden-div-feature", "children"),
+    Output("feature-select-hidden", "children"),
     Input({"key": "table-select-btn", "title": "Method"}, "value"),
     prevent_initial_call=True,
 )
 
-# Reveals feature select UI when refresh button is pressed
-# NOTE: Will reveal selection UI even if no loaded data
+# Reveals fit slection UI and activates sim/fit buttons when refresh button is pressed
 app.clientside_callback(
-    """function (n1) { return false; }""",
+    """function (n1) { return [false, false, false]; }""",
     Output("feature-select-div", "hidden"),
+    Output("simulate-button", "disabled"),
+    Output("run-fitting-button", "disabled"),
     Input("refresh-button", "n_clicks"),
     prevent_initial_call=True,
 )
@@ -154,12 +186,12 @@ app.clientside_callback(
 # Helper Methods =======================================================================
 def update_params_and_simulate(vals):
     """Updates stored Parameters object JSON and triggers a simulation"""
-    params_data = ctx.states["params-data.data"]
-    mrsim_data = ctx.states["local-mrsim-data.data"]
-
-    if len(mrsim_data["spin_systems"]) == 0 or len(mrsim_data["methods"]) == 0:
+    if file_is_empty():
         raise PreventUpdate
 
+    params_data = ctx.states["params-data.data"]
+    if params_data is None:
+        return update_tables()
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
     return expand_out(
@@ -167,7 +199,7 @@ def update_params_and_simulate(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [int(datetime.now().timestamp() * 1000), no_update],
         }
@@ -180,6 +212,8 @@ def update_params_and_fit(vals):
         raise PreventUpdate
 
     params_data = ctx.states["params-data.data"]
+    if params_data is None:
+        return update_tables()
     new_data = update_params_obj(params_data=params_data, vals=vals).dumps()
 
     return expand_out(
@@ -187,7 +221,7 @@ def update_params_and_fit(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update, int(datetime.now().timestamp() * 1000)],
         }
@@ -219,7 +253,7 @@ def delete_param(name, vals):
         "tables": [sys_tables, mth_tables],
         "modals": [no_update] * 2,
         "options": [no_update] * 4,
-        "report": [no_update] * 2,
+        # "report": [no_update] * 2,
         "data": [new_data],
         "triggers": [no_update] * 2,
     }
@@ -267,7 +301,7 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [sys_tables, no_update],
             "modals": [sys_modals, no_update],
             "options": [sys_value, no_update, sys_options, no_update],
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -279,7 +313,7 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [no_update, mth_tables],
             "modals": [no_update, mth_modals],
             "options": [no_update, mth_values, no_update, mth_options],
-            "report": [no_update] * 2,
+            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -303,11 +337,10 @@ def update_tables(*args, reset=False):
     if file_is_empty():
         raise PreventUpdate
 
-    sim, processor, report = parse(data)
-
     if "params" in data and data["params"] is not None and not reset:
         params_obj = Parameters().loads(data["params"])
     else:
+        sim, processor, _ = parse(data)
         params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
 
     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
@@ -329,7 +362,7 @@ def update_tables(*args, reset=False):
         "tables": [sys_tables, mth_tables],
         "modals": [sys_modals, mth_modals],
         "options": [sys_value, mth_value, sys_options, mth_options],
-        "report": ["", True] if "report" not in data else [data["report"], False],
+        # "report": ["", True] if "report" not in data else [data["report"], False],
         "data": [params_obj.dumps()],
         "triggers": [no_update] * 2,
     }
@@ -520,12 +553,12 @@ CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
     "refresh-button": reset_params_body,
+    "fit-refresh-hidden": update_params_body,
+    "delete": delete_param,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
     "page-mth-right-btn": page_mth_tables_right,
-    "trigger-table-update": update_params_body,
-    "delete": delete_param,
 }
 
 
@@ -535,7 +568,7 @@ def expand_out(out):
         *out["tables"],
         *out["modals"],
         *out["options"],
-        *out["report"],
+        # *out["report"],
         *out["data"],
         *out["triggers"],
     ]
