@@ -26,11 +26,17 @@ CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
 GROUPING = {"Spin System": ["sys"], "Method": ["mth", "SP"]}
 GROUP_WIDTH = 5  # How many table choices are on each page
 
+num = 4
+
 
 def inputs():
     """Parameters tables html div"""
     sys_tables = html.Div(
-        id="sys-tables-div", children="Press the refresh button to load the tables"
+        id="sys-tables-div",
+        children=(
+            "At least one Spin System and at least one Method are required to populate"
+            "feature tables"
+        )
     )
     mth_tables = html.Div(id="mth-tables-div", children=[])
     return html.Div([sys_tables, mth_tables])
@@ -66,20 +72,21 @@ fields = ui()
     Output({"key": "table-select-btn", "title": "Method"}, "value"),  # int
     Output({"key": "table-select-btn", "title": "Spin System"}, "options"),  # dict list
     Output({"key": "table-select-btn", "title": "Method"}, "options"),  # dict list
+    Output("params-data", "data"),  # JSON string
+    Output("trigger-sim", "data"),  # flag (timestamp)
+    Output("trigger-fit", "data"),  # flag (timestamp)
     # Output("fit-report-iframe", "srcDoc"),  # html string
     # Output("fit-report-iframe", "hidden"),  # bool
-    Output("params-data", "data"),
-    Output("trigger-sim", "data"),
-    Output("trigger-fit", "data"),
     # Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    # Input("refresh-button", "n_clicks"),
+    Input("fit-refresh-hidden", "n_clicks"),
     Input("page-sys-left-btn", "n_clicks"),
     Input("page-sys-right-btn", "n_clicks"),
     Input("page-mth-left-btn", "n_clicks"),
     Input("page-mth-right-btn", "n_clicks"),
-    Input("refresh-button", "n_clicks"),
+    Input("view-fit", "n_clicks"),
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
-    Input("fit-refresh-hidden", "n_clicks"),
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
     State({"key": "table-select-btn", "title": "Spin System"}, "value"),
@@ -87,8 +94,8 @@ fields = ui()
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
     State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
-    State({"kind": "min", "name": ALL}, "value"),
-    State({"kind": "max", "name": ALL}, "value"),
+    State({"kind": "min", "name": ALL}, "value"),  # TODO: cast as float
+    State({"kind": "max", "name": ALL}, "value"),  # TODO: cast as float
     State({"kind": "expr", "name": ALL}, "value"),
     prevent_initial_call=True,
 )
@@ -107,20 +114,33 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *va
     return CALLBACKS[trigger_id](vals)
 
 
-# Causes a table update after fitting routine by incrementing `refresh-button.n_clicks`
+# Causes table update after fit routine by clicking `fit-refresh-hidden`
 # NOTE: Very hackey and can probably be done in a cleaner manner
+#       Inclusion of a required delay does not make sense from a programming pov
 #       1) When `trigger-fit` updates from btn press anticipate next `local-mrsim-data`
 #           update will be from fitting routine (set `anticipate-table-update` to True)
 #       2) When `local-mrsim-data` updates AND `anticipate-table-update` is True
-#           click `fit-refresh-hidden` button to update tables.
+#           click `fit-refresh-hidden` button to fire tabe update callback.
 #           Also set `anticipate-table-update` to False
 app.clientside_callback(
-    """function (fit_ts, mr_ts, n_clicks, anticipate) {
+    """
+    function (fit_ts, mr_ts, anticipate, n1) {
         if (fit_ts > mr_ts) {
             return true;
         }
         if (fit_ts < mr_ts && anticipate) {
-            document.getElementById("fit-refresh-hidden").click();
+            console.log("update table triggered");
+            // Sufficently long delay needs to happen before a button is clicked for
+            // some reason. I have no idea why but anything under ~500ms is iffy
+            if (n1 == 0) {
+                setTimeout( function () { 
+                    document.getElementById("fit-refresh-hidden").click();
+                }, 2000);
+            } else {
+                setTimeout( function () { 
+                    document.getElementById("view-fit").click();
+                }, 2000);
+            }
             return false;
         }
         return false;
@@ -129,8 +149,8 @@ app.clientside_callback(
     Output("anticipate-table-update", "data"),  # bool
     Input("trigger-fit", "modified_timestamp"),
     Input("local-mrsim-data", "modified_timestamp"),
-    State("refresh-button", "n_clicks"),
     State("anticipate-table-update", "data"),
+    State("fit-refresh-hidden", "n_clicks"),
     prevent_initial_call=True,
 )
 
@@ -321,15 +341,15 @@ def page_tables(name="", _dir="", vals=[]):
     return expand_out(out)
 
 
-def reset_params_body(*args):
-    return update_tables(*args, reset=True)
+def sync_params_with_data(*args):
+    return update_tables(*args, after_fit=False)
 
 
-def update_params_body(*args):
-    return update_tables(*args)
+def update_params_after_fit(*args):
+    return update_tables(*args, after_fit=True)
 
 
-def update_tables(*args, reset=False):
+def update_tables(*args, after_fit):
     data = ctx.states["local-mrsim-data.data"]
     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
@@ -337,12 +357,13 @@ def update_tables(*args, reset=False):
     if file_is_empty():
         raise PreventUpdate
 
-    if "params" in data and data["params"] is not None and not reset:
+    if after_fit and "params" in data and data["params"] is not None:
+        # Create params object from stored params JSON in `local-mrsim-data` (after fit)
         params_obj = Parameters().loads(data["params"])
     else:
+        # Create params object from mrsimulator objects (update on )
         sim, processor, _ = parse(data)
         params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
-
     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
 
     # Check if selected indexes are out of bounds
@@ -408,7 +429,6 @@ def group_params(params_dict):
     return sys_group, mth_group
 
 
-# Truncate decimal places (using css?)
 def fit_table(_dict, index, title="Name"):
     """Constructs html table of parameter inputs fields
 
@@ -553,8 +573,9 @@ def file_is_empty():
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "refresh-button": reset_params_body,
-    "fit-refresh-hidden": update_params_body,
+    "view-fit": sync_params_with_data,
+    "fit-refresh-hidden": update_params_after_fit,
+    # "refresh-button": reset_params_body,
     # "delete": delete_param,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,

@@ -101,7 +101,7 @@ def make_modal(key, vals):
     expr_id = {"name": f"{key}-expr", "kind": "expr"}
     modal_id = {"kind": "modal", "parrent": key}
 
-    # TODO: Adjust apperance of modal inputs
+    # TODO: Adjust apperance of modal inputs using css
     min_ = html.Div(
         ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
     )

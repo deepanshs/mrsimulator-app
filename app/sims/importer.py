@@ -386,7 +386,7 @@ def remove_measurement_from_a_method():
     return prep_valid_data_for_simulation(existing_data)
 
 
-def simulate_test():
+def simulate_spectrum():
     print("The Simulate Spectrum button has been clicked")
     mrsim_data = ctx.states["local-mrsim-data.data"]
     params_data = ctx.states["params-data.data"]
@@ -446,7 +446,6 @@ def least_squares_fit():
         sys.transition_pathways = sim.methods[0].get_transition_pathways(sys)
 
     # noise standard deviation
-    # TODO: Should this be updated with sigma from methods tab
     sigma = []
     for mth in sim.methods:
         csdm_application = mth.experiment.dependent_variables[0].application
@@ -455,7 +454,7 @@ def least_squares_fit():
             if "com.github.DeepanshS.mrsimulator" not in csdm_application
             else csdm_application["com.github.DeepanshS.mrsimulator"]["sigma"]
         )
-    print("sigma", sigma)
+    # print("sigma", sigma)
 
     decompose = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
@@ -515,7 +514,7 @@ CALLBACKS = {
     "add-post_sim-convolution": post_sim_UI.CALLBACKS["convolution"],
     "remove-post_sim-functions": post_sim_UI.on_remove_post_sim_function,
     "select-method": post_sim_UI.on_method_select,
-    "trigger-sim": simulate_test,
+    "trigger-sim": simulate_spectrum,
     "trigger-fit": least_squares_fit,
 }
 
