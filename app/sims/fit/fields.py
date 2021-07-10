@@ -132,15 +132,9 @@ app.clientside_callback(
             console.log("update table triggered");
             // Sufficently long delay needs to happen before a button is clicked for
             // some reason. I have no idea why but anything under ~500ms is iffy
-            if (n1 == 0) {
-                setTimeout( function () { 
-                    document.getElementById("fit-refresh-hidden").click();
-                }, 2000);
-            } else {
-                setTimeout( function () { 
-                    document.getElementById("view-fit").click();
-                }, 2000);
-            }
+            setTimeout( function () { 
+                document.getElementById("fit-refresh-hidden").click();
+            }, 2000);
             return false;
         }
         return false;
@@ -248,37 +242,6 @@ def update_params_and_fit(vals):
     )
 
 
-# def delete_param(name, vals):
-#     """Deletes specified param (row) from interface"""
-#     if file_is_empty():
-#         raise PreventUpdate
-
-#     params_data = ctx.states["params-data.data"]
-#     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
-#     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
-
-#     params_obj = update_params_obj(params_data=params_data, vals=vals)
-#     name = name.split("-")[1]
-#     del params_obj[name]
-#     new_data = params_obj.dumps()
-
-#     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
-#     sys_tables, *_ = make_new_page_elements(
-#         params=sys_params, index=sys_index, title="Spin System"
-#     )
-#     mth_tables, *_ = make_new_page_elements(
-#         params=mth_params, index=mth_index, title="Method"
-#     )
-#     out = {
-#         "tables": [sys_tables, mth_tables],
-#         "modals": [no_update] * 2,
-#         "options": [no_update] * 4,
-#         # "report": [no_update] * 2,
-#         "data": [new_data],
-#         "triggers": [no_update] * 2,
-#     }
-
-#     return expand_out(out)
 
 
 def page_sys_tables_left(vals):
@@ -357,7 +320,7 @@ def update_tables(*args, after_fit):
     if file_is_empty():
         raise PreventUpdate
 
-    if after_fit and "params" in data and data["params"] is not None:
+    if after_fit:
         # Create params object from stored params JSON in `local-mrsim-data` (after fit)
         params_obj = Parameters().loads(data["params"])
     else:
@@ -594,3 +557,35 @@ def expand_out(out):
         *out["data"],
         *out["triggers"],
     ]
+
+# def delete_param(name, vals):
+#     """Deletes specified param (row) from interface"""
+#     if file_is_empty():
+#         raise PreventUpdate
+
+#     params_data = ctx.states["params-data.data"]
+#     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
+#     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
+
+#     params_obj = update_params_obj(params_data=params_data, vals=vals)
+#     name = name.split("-")[1]
+#     del params_obj[name]
+#     new_data = params_obj.dumps()
+
+#     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
+#     sys_tables, *_ = make_new_page_elements(
+#         params=sys_params, index=sys_index, title="Spin System"
+#     )
+#     mth_tables, *_ = make_new_page_elements(
+#         params=mth_params, index=mth_index, title="Method"
+#     )
+#     out = {
+#         "tables": [sys_tables, mth_tables],
+#         "modals": [no_update] * 2,
+#         "options": [no_update] * 4,
+#         # "report": [no_update] * 2,
+#         "data": [new_data],
+#         "triggers": [no_update] * 2,
+#     }
+
+#     return expand_out(out)

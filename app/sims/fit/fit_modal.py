@@ -96,6 +96,7 @@ def make_modal(key, vals):
     # print(param_dict)
 
     # key, vals = param_dict.items()
+    input_args = {"type": "number", "autoComplete": "off"}
     min_id = {"name": f"{key}-min", "kind": "min"}
     max_id = {"name": f"{key}-max", "kind": "max"}
     expr_id = {"name": f"{key}-expr", "kind": "expr"}
@@ -103,10 +104,12 @@ def make_modal(key, vals):
 
     # TODO: Adjust apperance of modal inputs using css
     min_ = html.Div(
-        ["Minimum", dcc.Input(value=vals["min"], id=min_id)], className="input-form"
+        ["Minimum", dcc.Input(value=vals["min"], id=min_id, **input_args)], 
+        className="input-form",
     )
     max_ = html.Div(
-        ["Maximum", dcc.Input(value=vals["max"], id=max_id)], className="input-form"
+        ["Maximum", dcc.Input(value=vals["max"], id=max_id, **input_args)], 
+        className="input-form",
     )
     expr = html.Div(
         ["Expression", dbc.Textarea(value=vals["expr"], id=expr_id)],
