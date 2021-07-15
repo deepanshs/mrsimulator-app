@@ -33,7 +33,7 @@ def inputs():
         children=(
             "At least one Spin System and at least one Method are required to populate"
             "feature tables"
-        )
+        ),
     )
     mth_tables = html.Div(id="mth-tables-div", children=[])
     return html.Div([sys_tables, mth_tables])
@@ -72,7 +72,6 @@ fields = ui()
     Output("params-data", "data"),  # JSON string
     Output("trigger-sim", "data"),  # flag (timestamp)
     Output("trigger-fit", "data"),  # flag (timestamp)
-    Input("fit-refresh-hidden", "n_clicks"),
     Input("page-sys-left-btn", "n_clicks"),
     Input("page-sys-right-btn", "n_clicks"),
     Input("page-mth-left-btn", "n_clicks"),
@@ -82,19 +81,20 @@ fields = ui()
     Input("run-fitting-button", "n_clicks"),
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
+    State("update-vals", "data"),  # bool
     State({"key": "table-select-btn", "title": "Spin System"}, "value"),
     State({"key": "table-select-btn", "title": "Method"}, "value"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
     State({"kind": "value", "name": ALL}, "value"),  # to be made in the order which
     State({"kind": "vary", "name": ALL}, "checked"),  # they appear on the page.
-    State({"kind": "min", "name": ALL}, "value"),  # TODO: cast as float
-    State({"kind": "max", "name": ALL}, "value"),  # TODO: cast as float
+    State({"kind": "min", "name": ALL}, "value"),
+    State({"kind": "max", "name": ALL}, "value"),
     State({"kind": "expr", "name": ALL}, "value"),
     prevent_initial_call=True,
 )
 # NOTE: Inputs/States must appear as individual args since `vals` must be list of
 #       last 6 States
-def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *vals):
+def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, mrd, pd, uv, si, mi, *vals):
     "Main fitting callback dealing with visible elements"
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fit elements", trigger_id)
@@ -108,21 +108,28 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *va
 
 
 # NOTE: Requires local processed data to only be updated after fit (or data upload)
-# If issues occur check return statments in plot() app/sims/fit/__init__.py 
+# TODO: Need to re-add anticipate
+# If issues occur check return statments in plot() app/sims/fit/__init__.py
 app.clientside_callback(
     """
-    function (fit_ts, processed_ts) {
-        if (fit_ts < processed_ts) {
-            // Callback has been triggered by 'local-processed-data' and feature tables 
-            // should be updated through clicking 'fit-refresh-hidden'
-            document.getElementById("fit-refresh-hidden").click();
+    function (fit_ts, processed_ts, anticipate) {
+        if (fit_ts > processed_ts) {
+            // Run fit button has been pressed. Next data update is from fit routine
+            return true;
         }
-        return null;
+        if (anticipate && fit_ts < processed_ts) {
+            // Callback has been triggered by 'local-processed-data' and feature tables
+            // should be updated through clicking 'view-fit'
+            document.getElementById("view-fit").click();
+            return false;
+        }
+        return false;
     }
     """,
-    Output("temp3", "children"),  # dummy
+    Output("anticipate-table-update", "data"),  # bool (flag)
     Input("trigger-fit", "modified_timestamp"),  # int (timestamp)
     Input("local-processed-data", "modified_timestamp"),  # int (timestamp)
+    State("anticipate-table-update", "data"),
     prevent_initial_call=True,
 )
 
@@ -159,18 +166,27 @@ app.clientside_callback(
         list[value+1].click();
         return null;
     }""",
-    Output("feature-select-hidden", "children"),
+    Output("temp4", "children"),  # dummy
     Input({"key": "table-select-btn", "title": "Method"}, "value"),
     prevent_initial_call=True,
 )
 
-# Reveals fit slection UI and activates sim/fit buttons when refresh button is pressed
+
+# Checks weather set flag to update parameter values
 app.clientside_callback(
-    """function (n1) { return [false, false, false]; }""",
-    Output("feature-select-div", "hidden"),
-    Output("simulate-button", "disabled"),
-    Output("run-fitting-button", "disabled"),
-    Input("refresh-button", "n_clicks"),
+    """
+    function (app_mth_ts, app_sys_ts, params_data, view_fit_ts) {
+        if (app_sys_ts > view_fit_ts || app_mth_ts > view_fit_ts) {
+            return true;
+        }
+        return false;
+    }
+    """,
+    Output("update-vals", "data"),
+    Input("apply-method-changes", "n_clicks_timestamp"),
+    Input("apply-spin-system-changes", "n_clicks_timestamp"),
+    Input("params-data", "data"),
+    State("view-fit", "n_clicks_timestamp"),
     prevent_initial_call=True,
 )
 
@@ -276,29 +292,31 @@ def page_tables(name="", _dir="", vals=[]):
     return expand_out(out)
 
 
-def sync_params_with_data(*args):
-    return update_tables(*args, after_fit=False)
-
-
-def update_params_after_fit(*args):
-    return update_tables(*args, after_fit=True)
-
-
-def update_tables(*args, after_fit):
-    data = ctx.states["local-mrsim-data.data"]
+def update_tables(*args):
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    params_data = ctx.states["params-data.data"]
     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
+    update_vals = ctx.states["update-vals.data"]
 
     if file_is_empty():
         raise PreventUpdate
 
-    if after_fit:
-        # Create params object from stored params JSON in `local-mrsim-data` (after fit)
-        params_obj = Parameters().loads(data["params"])
-    else:
-        # Create params object from mrsimulator objects (update on )
-        sim, processor, _ = parse(data)
+    # Choose where to load parameters from, or make new parameters
+    sim, processor, params_obj = parse(mrsim_data)
+    if params_obj is None:
         params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+
+    # Update values of Parameters from other input fields
+    if update_vals:
+        temp = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+        for key, val in temp.valuesdict().items():
+            params_obj[key].set(value=val)
+
+    # Check if computed params data is same a stored data (preformance)
+    if params_obj.dumps() == params_data:
+        raise PreventUpdate
+
     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
 
     # Check if selected indexes are out of bounds
@@ -499,8 +517,7 @@ def file_is_empty():
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "view-fit": sync_params_with_data,
-    "fit-refresh-hidden": update_params_after_fit,
+    "view-fit": update_tables,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
