@@ -22,11 +22,8 @@ from app import app
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
-# TITLE = {"sys": "Spin System", "mth": "Method", "SP": "Method"}
 GROUPING = {"Spin System": ["sys"], "Method": ["mth", "SP"]}
 GROUP_WIDTH = 5  # How many table choices are on each page
-
-num = 4
 
 
 def inputs():
@@ -62,7 +59,7 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-# TODO: Have tables update after fitting routine
+# TODO: Fix modal reset bug on view-fit click
 @app.callback(
     Output("sys-tables-div", "children"),  # List of tables
     Output("mth-tables-div", "children"),  # List of tables
@@ -75,10 +72,6 @@ fields = ui()
     Output("params-data", "data"),  # JSON string
     Output("trigger-sim", "data"),  # flag (timestamp)
     Output("trigger-fit", "data"),  # flag (timestamp)
-    # Output("fit-report-iframe", "srcDoc"),  # html string
-    # Output("fit-report-iframe", "hidden"),  # bool
-    # Input({"kind": "delete", "name": ALL}, "n_clicks"),
-    # Input("refresh-button", "n_clicks"),
     Input("fit-refresh-hidden", "n_clicks"),
     Input("page-sys-left-btn", "n_clicks"),
     Input("page-sys-right-btn", "n_clicks"),
@@ -114,37 +107,22 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, mrd, pd, sysi, mthi, *va
     return CALLBACKS[trigger_id](vals)
 
 
-# Causes table update after fit routine by clicking `fit-refresh-hidden`
-# NOTE: Very hackey and can probably be done in a cleaner manner
-#       Inclusion of a required delay does not make sense from a programming pov
-#       1) When `trigger-fit` updates from btn press anticipate next `local-mrsim-data`
-#           update will be from fitting routine (set `anticipate-table-update` to True)
-#       2) When `local-mrsim-data` updates AND `anticipate-table-update` is True
-#           click `fit-refresh-hidden` button to fire tabe update callback.
-#           Also set `anticipate-table-update` to False
+# NOTE: Requires local processed data to only be updated after fit (or data upload)
+# If issues occur check return statments in plot() app/sims/fit/__init__.py 
 app.clientside_callback(
     """
-    function (fit_ts, mr_ts, anticipate, n1) {
-        if (fit_ts > mr_ts) {
-            return true;
+    function (fit_ts, processed_ts) {
+        if (fit_ts < processed_ts) {
+            // Callback has been triggered by 'local-processed-data' and feature tables 
+            // should be updated through clicking 'fit-refresh-hidden'
+            document.getElementById("fit-refresh-hidden").click();
         }
-        if (fit_ts < mr_ts && anticipate) {
-            console.log("update table triggered");
-            // Sufficently long delay needs to happen before a button is clicked for
-            // some reason. I have no idea why but anything under ~500ms is iffy
-            setTimeout( function () { 
-                document.getElementById("fit-refresh-hidden").click();
-            }, 2000);
-            return false;
-        }
-        return false;
+        return null;
     }
     """,
-    Output("anticipate-table-update", "data"),  # bool
-    Input("trigger-fit", "modified_timestamp"),
-    Input("local-mrsim-data", "modified_timestamp"),
-    State("anticipate-table-update", "data"),
-    State("fit-refresh-hidden", "n_clicks"),
+    Output("temp3", "children"),  # dummy
+    Input("trigger-fit", "modified_timestamp"),  # int (timestamp)
+    Input("local-processed-data", "modified_timestamp"),  # int (timestamp)
     prevent_initial_call=True,
 )
 
@@ -213,7 +191,6 @@ def update_params_and_simulate(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [int(datetime.now().timestamp() * 1000), no_update],
         }
@@ -235,13 +212,10 @@ def update_params_and_fit(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update, int(datetime.now().timestamp() * 1000)],
         }
     )
-
-
 
 
 def page_sys_tables_left(vals):
@@ -284,7 +258,6 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [sys_tables, no_update],
             "modals": [sys_modals, no_update],
             "options": [sys_value, no_update, sys_options, no_update],
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -296,7 +269,6 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [no_update, mth_tables],
             "modals": [no_update, mth_modals],
             "options": [no_update, mth_values, no_update, mth_options],
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -346,7 +318,6 @@ def update_tables(*args, after_fit):
         "tables": [sys_tables, mth_tables],
         "modals": [sys_modals, mth_modals],
         "options": [sys_value, mth_value, sys_options, mth_options],
-        # "report": ["", True] if "report" not in data else [data["report"], False],
         "data": [params_obj.dumps()],
         "triggers": [no_update] * 2,
     }
@@ -403,7 +374,6 @@ def fit_table(_dict, index, title="Name"):
     Returns:
         html.Table
     """
-    # fit_header = ["", f"{title} {index}", "Value", "", ""]
     fit_header = ["", f"{title} {index}", "Value", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
@@ -413,7 +383,6 @@ def fit_table(_dict, index, title="Name"):
         name_id = {"name": f"{key}-label", "kind": "name"}
         val_id = {"name": f"{key}-value", "kind": "value"}
         mod_btn_id = {"kind": "modal-btn", "parrent": key}
-        # del_id = {"name": f"delete-{key}-row", "kind": "delete"}
 
         name = html.Div(id=name_id, children=key)
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
@@ -424,12 +393,6 @@ def fit_table(_dict, index, title="Name"):
             id=mod_btn_id,
             className="icon-button",
         )
-
-        # del_ic = html.Span(
-        #     html.I(className="fas fa-times", title="Remove Parameter"),
-        #     id=del_id,
-        #     className="icon-button",
-        # )
 
         pack = [vary, name, val, modal_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
@@ -538,8 +501,6 @@ CALLBACKS = {
     "run-fitting-button": update_params_and_fit,
     "view-fit": sync_params_with_data,
     "fit-refresh-hidden": update_params_after_fit,
-    # "refresh-button": reset_params_body,
-    # "delete": delete_param,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
@@ -553,39 +514,6 @@ def expand_out(out):
         *out["tables"],
         *out["modals"],
         *out["options"],
-        # *out["report"],
         *out["data"],
         *out["triggers"],
     ]
-
-# def delete_param(name, vals):
-#     """Deletes specified param (row) from interface"""
-#     if file_is_empty():
-#         raise PreventUpdate
-
-#     params_data = ctx.states["params-data.data"]
-#     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
-#     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
-
-#     params_obj = update_params_obj(params_data=params_data, vals=vals)
-#     name = name.split("-")[1]
-#     del params_obj[name]
-#     new_data = params_obj.dumps()
-
-#     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
-#     sys_tables, *_ = make_new_page_elements(
-#         params=sys_params, index=sys_index, title="Spin System"
-#     )
-#     mth_tables, *_ = make_new_page_elements(
-#         params=mth_params, index=mth_index, title="Method"
-#     )
-#     out = {
-#         "tables": [sys_tables, mth_tables],
-#         "modals": [no_update] * 2,
-#         "options": [no_update] * 4,
-#         # "report": [no_update] * 2,
-#         "data": [new_data],
-#         "triggers": [no_update] * 2,
-#     }
-
-#     return expand_out(out)
