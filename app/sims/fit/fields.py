@@ -22,7 +22,6 @@ from app import app
 
 
 CSS_STR = "*{font-family:'Helvetica',sans-serif;}td{padding: 0 8px}"
-# TITLE = {"sys": "Spin System", "mth": "Method", "SP": "Method"}
 GROUPING = {"Spin System": ["sys"], "Method": ["mth", "SP"]}
 GROUP_WIDTH = 5  # How many table choices are on each page
 
@@ -30,7 +29,11 @@ GROUP_WIDTH = 5  # How many table choices are on each page
 def inputs():
     """Parameters tables html div"""
     sys_tables = html.Div(
-        id="sys-tables-div", children="Press the refresh button to load the tables"
+        id="sys-tables-div",
+        children=(
+            "At least one Spin System and at least one Method are required to populate"
+            "feature tables"
+        ),
     )
     mth_tables = html.Div(id="mth-tables-div", children=[])
     return html.Div([sys_tables, mth_tables])
@@ -56,7 +59,7 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-# TODO: Have tables update after fitting routine
+# TODO: Fix modal reset bug on view-fit click
 @app.callback(
     Output("sys-tables-div", "children"),  # List of tables
     Output("mth-tables-div", "children"),  # List of tables
@@ -66,22 +69,19 @@ fields = ui()
     Output({"key": "table-select-btn", "title": "Method"}, "value"),  # int
     Output({"key": "table-select-btn", "title": "Spin System"}, "options"),  # dict list
     Output({"key": "table-select-btn", "title": "Method"}, "options"),  # dict list
-    # Output("fit-report-iframe", "srcDoc"),  # html string
-    # Output("fit-report-iframe", "hidden"),  # bool
-    Output("params-data", "data"),
-    Output("trigger-sim", "data"),
-    Output("trigger-fit", "data"),
-    Input({"kind": "delete", "name": ALL}, "n_clicks"),
+    Output("params-data", "data"),  # JSON string
+    Output("trigger-sim", "data"),  # flag (timestamp)
+    Output("trigger-fit", "data"),  # flag (timestamp)
     Input("page-sys-left-btn", "n_clicks"),
     Input("page-sys-right-btn", "n_clicks"),
     Input("page-mth-left-btn", "n_clicks"),
     Input("page-mth-right-btn", "n_clicks"),
-    Input("refresh-button", "n_clicks"),
+    Input("view-fit", "n_clicks"),
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
-    Input("fit-refresh-hidden", "n_clicks"),
     State("local-mrsim-data", "data"),
     State("params-data", "data"),
+    State("update-vals", "data"),  # bool
     State({"key": "table-select-btn", "title": "Spin System"}, "value"),
     State({"key": "table-select-btn", "title": "Method"}, "value"),
     State({"kind": "name", "name": ALL}, "children"),  # Requires states to be generated
@@ -94,7 +94,7 @@ fields = ui()
 )
 # NOTE: Inputs/States must appear as individual args since `vals` must be list of
 #       last 6 States
-def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, n9, mrd, pd, sysi, mthi, *vals):
+def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, mrd, pd, uv, si, mi, *vals):
     "Main fitting callback dealing with visible elements"
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     print("fit elements", trigger_id)
@@ -107,29 +107,28 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, n8, n9, mrd, pd, sysi, mthi,
     return CALLBACKS[trigger_id](vals)
 
 
-# Causes a table update after fitting routine by incrementing `refresh-button.n_clicks`
-# NOTE: Very hackey and can probably be done in a cleaner manner
-#       1) When `trigger-fit` updates from btn press anticipate next `local-mrsim-data`
-#           update will be from fitting routine (set `anticipate-table-update` to True)
-#       2) When `local-mrsim-data` updates AND `anticipate-table-update` is True
-#           click `fit-refresh-hidden` button to update tables.
-#           Also set `anticipate-table-update` to False
+# NOTE: Requires local processed data to only be updated after fit (or data upload)
+# TODO: Need to re-add anticipate
+# If issues occur check return statments in plot() app/sims/fit/__init__.py
 app.clientside_callback(
-    """function (fit_ts, mr_ts, n_clicks, anticipate) {
-        if (fit_ts > mr_ts) {
+    """
+    function (fit_ts, processed_ts, anticipate) {
+        if (fit_ts > processed_ts) {
+            // Run fit button has been pressed. Next data update is from fit routine
             return true;
         }
-        if (fit_ts < mr_ts && anticipate) {
-            document.getElementById("fit-refresh-hidden").click();
+        if (anticipate && fit_ts < processed_ts) {
+            // Callback has been triggered by 'local-processed-data' and feature tables
+            // should be updated through clicking 'view-fit'
+            document.getElementById("view-fit").click();
             return false;
         }
         return false;
     }
     """,
-    Output("anticipate-table-update", "data"),  # bool
-    Input("trigger-fit", "modified_timestamp"),
-    Input("local-mrsim-data", "modified_timestamp"),
-    State("refresh-button", "n_clicks"),
+    Output("anticipate-table-update", "data"),  # bool (flag)
+    Input("trigger-fit", "modified_timestamp"),  # int (timestamp)
+    Input("local-processed-data", "modified_timestamp"),  # int (timestamp)
     State("anticipate-table-update", "data"),
     prevent_initial_call=True,
 )
@@ -167,18 +166,27 @@ app.clientside_callback(
         list[value+1].click();
         return null;
     }""",
-    Output("feature-select-hidden", "children"),
+    Output("temp4", "children"),  # dummy
     Input({"key": "table-select-btn", "title": "Method"}, "value"),
     prevent_initial_call=True,
 )
 
-# Reveals fit slection UI and activates sim/fit buttons when refresh button is pressed
+
+# Checks weather set flag to update parameter values
 app.clientside_callback(
-    """function (n1) { return [false, false, false]; }""",
-    Output("feature-select-div", "hidden"),
-    Output("simulate-button", "disabled"),
-    Output("run-fitting-button", "disabled"),
-    Input("refresh-button", "n_clicks"),
+    """
+    function (app_mth_ts, app_sys_ts, params_data, view_fit_ts) {
+        if (app_sys_ts > view_fit_ts || app_mth_ts > view_fit_ts) {
+            return true;
+        }
+        return false;
+    }
+    """,
+    Output("update-vals", "data"),
+    Input("apply-method-changes", "n_clicks_timestamp"),
+    Input("apply-spin-system-changes", "n_clicks_timestamp"),
+    Input("params-data", "data"),
+    State("view-fit", "n_clicks_timestamp"),
     prevent_initial_call=True,
 )
 
@@ -199,7 +207,6 @@ def update_params_and_simulate(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [int(datetime.now().timestamp() * 1000), no_update],
         }
@@ -221,44 +228,10 @@ def update_params_and_fit(vals):
             "tables": [no_update] * 2,
             "modals": [no_update] * 2,
             "options": [no_update] * 4,
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update, int(datetime.now().timestamp() * 1000)],
         }
     )
-
-
-def delete_param(name, vals):
-    """Deletes specified param (row) from interface"""
-    if file_is_empty():
-        raise PreventUpdate
-
-    params_data = ctx.states["params-data.data"]
-    sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
-    mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
-
-    params_obj = update_params_obj(params_data=params_data, vals=vals)
-    name = name.split("-")[1]
-    del params_obj[name]
-    new_data = params_obj.dumps()
-
-    sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
-    sys_tables, *_ = make_new_page_elements(
-        params=sys_params, index=sys_index, title="Spin System"
-    )
-    mth_tables, *_ = make_new_page_elements(
-        params=mth_params, index=mth_index, title="Method"
-    )
-    out = {
-        "tables": [sys_tables, mth_tables],
-        "modals": [no_update] * 2,
-        "options": [no_update] * 4,
-        # "report": [no_update] * 2,
-        "data": [new_data],
-        "triggers": [no_update] * 2,
-    }
-
-    return expand_out(out)
 
 
 def page_sys_tables_left(vals):
@@ -301,7 +274,6 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [sys_tables, no_update],
             "modals": [sys_modals, no_update],
             "options": [sys_value, no_update, sys_options, no_update],
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -313,7 +285,6 @@ def page_tables(name="", _dir="", vals=[]):
             "tables": [no_update, mth_tables],
             "modals": [no_update, mth_modals],
             "options": [no_update, mth_values, no_update, mth_options],
-            # "report": [no_update] * 2,
             "data": [new_data],
             "triggers": [no_update] * 2,
         }
@@ -321,27 +292,30 @@ def page_tables(name="", _dir="", vals=[]):
     return expand_out(out)
 
 
-def reset_params_body(*args):
-    return update_tables(*args, reset=True)
-
-
-def update_params_body(*args):
-    return update_tables(*args)
-
-
-def update_tables(*args, reset=False):
-    data = ctx.states["local-mrsim-data.data"]
+def update_tables(*args):
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    params_data = ctx.states["params-data.data"]
     sys_index = ctx.states['{"key":"table-select-btn","title":"Spin System"}.value']
     mth_index = ctx.states['{"key":"table-select-btn","title":"Method"}.value']
+    update_vals = ctx.states["update-vals.data"]
 
     if file_is_empty():
         raise PreventUpdate
 
-    if "params" in data and data["params"] is not None and not reset:
-        params_obj = Parameters().loads(data["params"])
-    else:
-        sim, processor, _ = parse(data)
+    # Choose where to load parameters from, or make new parameters
+    sim, processor, params_obj = parse(mrsim_data)
+    if params_obj is None:
         params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+
+    # Update values of Parameters from other input fields
+    if update_vals:
+        temp = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+        for key, val in temp.valuesdict().items():
+            params_obj[key].set(value=val)
+
+    # Check if computed params data is same a stored data (preformance)
+    if params_obj.dumps() == params_data:
+        raise PreventUpdate
 
     sys_params, mth_params = group_params(params_obj_to_dict(params_obj))
 
@@ -362,7 +336,6 @@ def update_tables(*args, reset=False):
         "tables": [sys_tables, mth_tables],
         "modals": [sys_modals, mth_modals],
         "options": [sys_value, mth_value, sys_options, mth_options],
-        # "report": ["", True] if "report" not in data else [data["report"], False],
         "data": [params_obj.dumps()],
         "triggers": [no_update] * 2,
     }
@@ -408,7 +381,6 @@ def group_params(params_dict):
     return sys_group, mth_group
 
 
-# Truncate decimal places (using css?)
 def fit_table(_dict, index, title="Name"):
     """Constructs html table of parameter inputs fields
 
@@ -420,7 +392,7 @@ def fit_table(_dict, index, title="Name"):
     Returns:
         html.Table
     """
-    fit_header = ["", f"{title} {index}", "Value", "", ""]
+    fit_header = ["", f"{title} {index}", "Value", ""]
     fit_rows = [html.Thead(html.Tr([html.Th(html.B(item)) for item in fit_header]))]
 
     input_args = {"type": "number", "autoComplete": "off"}
@@ -429,7 +401,6 @@ def fit_table(_dict, index, title="Name"):
         name_id = {"name": f"{key}-label", "kind": "name"}
         val_id = {"name": f"{key}-value", "kind": "value"}
         mod_btn_id = {"kind": "modal-btn", "parrent": key}
-        del_id = {"name": f"delete-{key}-row", "kind": "delete"}
 
         name = html.Div(id=name_id, children=key)
         vary = dbc.Checkbox(id=vary_id, checked=vals["vary"])
@@ -441,13 +412,7 @@ def fit_table(_dict, index, title="Name"):
             className="icon-button",
         )
 
-        del_ic = html.Span(
-            html.I(className="fas fa-times", title="Remove Parameter"),
-            id=del_id,
-            className="icon-button",
-        )
-
-        pack = [vary, name, val, modal_ic, del_ic]
+        pack = [vary, name, val, modal_ic]
         fit_rows += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return html.Table(
@@ -552,9 +517,7 @@ def file_is_empty():
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "refresh-button": reset_params_body,
-    "fit-refresh-hidden": update_params_body,
-    "delete": delete_param,
+    "view-fit": update_tables,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
@@ -568,7 +531,6 @@ def expand_out(out):
         *out["tables"],
         *out["modals"],
         *out["options"],
-        # *out["report"],
         *out["data"],
         *out["triggers"],
     ]

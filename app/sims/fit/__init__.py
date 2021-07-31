@@ -14,9 +14,10 @@ store = [
     # Timestamps for triggering fitting callbacks
     dcc.Store(id="trigger-sim", storage_type="memory"),
     dcc.Store(id="trigger-fit", storage_type="memory"),
-    # dcc.Store(id="trigger-table-update", storage_type="memory"),
-    # Bool for updating tables after fit
-    dcc.Store(id="anticipate-table-update", storage_type="memory"),
+    # Bool for choosing to update tables to new values
+    dcc.Store(id="update-vals", storage_type="memory"),
+    # Bool for triggering table update only after fit
+    dcc.Store(id="anticipate-table-update", storage_type="memory", data=False),
 ]
 storage_div = html.Div(id="fitting-store", children=store)
 
@@ -24,30 +25,19 @@ storage_div = html.Div(id="fitting-store", children=store)
 def buttons():
     """Static user interface buttons"""
     kwargs = {"outline": True, "color": "dark", "size": "md"}
-    refresh = custom_button(
-        id="refresh-button",
-        # text="Reset",
-        icon_classname="fas fa-sync-alt",
-        tooltip="Refresh parameter values.",
-        **kwargs,
-    )
     simulate = custom_button(
         id="simulate-button",
-        # text="Simulate",
         icon_classname="far fa-chart-bar",
         tooltip="Simulate a spectrum using the current values.",
         **kwargs,
-        disabled=True,
     )
     fit = custom_button(
         id="run-fitting-button",
-        # text="Fit",
         icon_classname="fas fa-compress-alt",
         tooltip="Run least-squares minimization.",
         **kwargs,
-        disabled=True,
     )
-    return dbc.ButtonGroup([refresh, simulate, fit])
+    return dbc.ButtonGroup([simulate, fit])
 
 
 def feature_select():
@@ -86,19 +76,12 @@ def feature_select():
         ]
     )
 
-    # Hidden div for javascript callbacks
-    hidden_div = html.Div(
-        [html.Div(id="feature-select-hidden"), html.Button(id="fit-refresh-hidden")],
-        hidden=True,
-    )
     # TODO: Implement total pages and page index
     sys_head = html.Div(
         [html.H6("Spin Systems"), sys_page_btns], className="feature-select"
     )
     mth_head = html.Div([html.H6("Methods"), mth_page_btns], className="feature-select")
-    return html.Div(
-        [sys_head, mth_head, hidden_div], id="feature-select-div", hidden=True
-    )
+    return html.Div([sys_head, mth_head], id="feature-select-div")
 
 
 def fit_header():
