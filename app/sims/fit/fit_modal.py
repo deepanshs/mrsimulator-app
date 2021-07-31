@@ -104,16 +104,17 @@ def make_modal(key, vals):
 
     # TODO: Adjust apperance of modal inputs using css
     min_ = html.Div(
-        ["Minimum", dcc.Input(value=vals["min"], id=min_id, **input_args)], 
-        className="input-form",
+        ["Minimum", dcc.Input(value=vals["min"], id=min_id, **input_args)],
+        className="input-form fit-modal",
     )
     max_ = html.Div(
-        ["Maximum", dcc.Input(value=vals["max"], id=max_id, **input_args)], 
-        className="input-form",
+        ["Maximum", dcc.Input(value=vals["max"], id=max_id, **input_args)],
+        className="input-form fit-modal",
     )
     expr = html.Div(
-        ["Expression", dbc.Textarea(value=vals["expr"], id=expr_id)],
-        className="input-form",
+        ["Expression", dbc.Textarea(
+            value=vals["expr"], id=expr_id, className="fit-expr-text")],
+        className="input-form fit-modal fit-expr",
     )
 
     head = dbc.ModalHeader(html.B(key))

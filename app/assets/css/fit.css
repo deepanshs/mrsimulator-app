@@ -17,19 +17,21 @@
   display: table;
 }
 
-/* Checkbox, delete, and options */
-.fields-table thead th:first-child,
-.fields-table thead th:last-child,
-.fields-table thead th:nth-child(4) {
-  width: 2em;
+/* Checkbox */
+.fields-table thead th:first-child {
+  width: 2.2em;
+}
+/* Options modal button */
+.fields-table thead th:last-child {
+  width: 2.7em;
 }
 /* Name */
 .fields-table thead th:nth-child(2) {
-  width: 44%;
+  width: 60%;
 }
 /* Value */
 .fields-table thead th:nth-child(3) {
-  width: 30%;
+  width: 40%;
 }
 
 .fields-table thead tr td div {
@@ -114,4 +116,14 @@
 }
 .feature-select h6 {
   margin: auto 0;
+}
+
+div.fit-modal {
+  padding-bottom: 0.5em;
+}
+.fit-expr-text {
+  width: 60%;
+}
+.fit-expr {
+  justify-content: space-between;
 }
