@@ -1,0 +1,196 @@
+:root {
+  --element-bg-color: white;
+  --content-max-height: calc(100vh - 5.98em);
+  --content-min-height: calc(55.5rem - 17.9rem);
+  --opt-width: 50vw;
+  --opt-side-scroll-width: 125pt;
+  --opt-side-scroll-min-width: 3rem;
+  --select-blue: rgb(8, 124, 240);
+  /* overflow: hidden; */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  font-family: "Helvetica", sans-serif;
+  line-height: 1.25;
+}
+
+body {
+  justify-content: space-around;
+  flex-direction: column;
+  color: #1b1b1b;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+h4 {
+  margin: 0.35em 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: auto;
+}
+
+section {
+  height: 100%;
+}
+
+.mrsim-page {
+  display: flex;
+}
+
+.mrsim-page .sidebar-master {
+  background-color: white;
+  box-shadow: 5px 0 5px 5px #16161634;
+}
+
+.mrsim-page .sidebar {
+  display: flex;
+  flex-direction: column;
+  /* width: 52px; */
+  /* transition: all 0.15s ease-in-out; */
+}
+
+/* .mrsim-page .sidebar:hover {
+  width: 150px;
+  transition: all 0.15s ease-in-out;
+} */
+.mrsim-page .sidebar.button:hover {
+  background-color: #e7e7e7;
+  border-radius: 2em;
+}
+
+.mrsim-page .app-1 {
+  border-left: 1px solid silver;
+  width: 100%;
+  overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-scroll {
+  display: flex;
+  border: none;
+  background-color: #ecf0f5a9;
+  align-items: center;
+}
+
+.view-tools {
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  padding: 1em 0;
+}
+.view-tools li {
+  cursor: pointer;
+  list-style: none;
+  padding: 1em;
+  border-radius: 0;
+  border: none;
+  background: none;
+  color: gray;
+  border-left: 3px solid transparent;
+}
+.view-tools li.active {
+  color: var(--select-blue);
+  border-left: 3px solid var(--select-blue);
+  background-color: #e9f2ff;
+}
+.view-tools li:hover {
+  background-color: #eeeeee;
+}
+
+.alert-danger {
+  margin: 0;
+}
+@media only screen and (max-width: 810px) {
+  :root {
+    --content-max-height: calc(100vh - 6.7em);
+  }
+  .mobile-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: auto;
+    padding: 0;
+    scrollbar-width: thin;
+  }
+
+  .mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mrsim-page {
+    display: block;
+  }
+
+  .view-tools {
+    flex-direction: row;
+    padding: 0;
+  }
+  .view-tools li {
+    border-left: 3px solid transparent;
+  }
+  .view-tools li.hide {
+    display: none;
+  }
+  .view-tools li.active {
+    border-left: 3px solid transparent;
+    border-bottom: 3px solid var(--select-blue);
+  }
+
+  .mrsim-page .sidebar-master {
+    box-shadow: none;
+    border-bottom: 1px solid silver;
+  }
+
+  .mrsim-page .sidebar {
+    margin: 0;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .view-tools.sidebar {
+    padding: 0;
+    margin: 0;
+  }
+
+  .navbar {
+    padding-left: 0;
+  }
+
+  .navbar img {
+    display: none;
+  }
+
+  .nav-composite {
+    left: 0;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .bottom-navbar {
+    display: none;
+  }
+
+  #info-read-only {
+    padding-bottom: 2em;
+  }
+}

@@ -5,12 +5,11 @@ import dash_html_components as html
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
-from dash.exceptions import PreventUpdate
 
-from .app import app
+from . import app
 
 __author__ = "Deepansh J. Srivastava"
-__email__ = ["deepansh2012@gmail.com"]
+__email__ = "srivastava.89@osu.edu"
 
 
 tooltip_format = {"placement": "bottom", "delay": {"show": 250, "hide": 10}}
@@ -24,13 +23,10 @@ def label_with_help_button(label="", help_text="", id=None):
         help_text: A string message displayed as help message.
         id: The id for the label.
     """
-    return html.Div(
-        [
-            dbc.Label(label, className="formtext pr-1"),
-            custom_hover_help(message=help_text, id=f"upload-{id}-url-help"),
-        ],
-        className="d-flex justify-content-start align-items-center",
-    )
+    label = dbc.Label(label, className="formtext pr-1")
+    help_ = custom_hover_help(message=help_text, id=f"upload-{id}-url-help")
+    className = "d-flex justify-content-start align-items-center"
+    return html.Div([label, help_], className=className)
 
 
 def custom_hover_help(message="", id=None):
@@ -40,18 +36,9 @@ def custom_hover_help(message="", id=None):
         message: A string message displayed as help message.
         id: The id for the label.
     """
-    button = html.Div(
-        [
-            html.I(
-                className="fas fa-question-circle",
-                style={"color": "white", "cursor": "pointer"},
-            ),
-            dbc.Tooltip(message, target=id, **tooltip_format),
-        ],
-        id=id,
-        className="align-self-start",
-    )
-    return button
+    style = {"color": "white", "cursor": "pointer"}
+    icon = html.I(className="fas fa-question-circle", style=style, title=message)
+    return html.Div(icon, id=id, className="align-self-start")
 
 
 def custom_button(
@@ -76,23 +63,11 @@ def custom_button(
 
     label = html.Span([text, children], className="hide-label-sm pl-1")
     if icon_classname != "":
-        label = html.Span(
-            [html.I(className=icon_classname), label],
-            className="d-flex align-items-center",
-        )
-    if tooltip is not None:
-        if module == "dbc":
-            return dbc.Button(
-                [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)],
-                id=id,
-                **kwargs,
-            )
-        return html.Button(
-            [label, dbc.Tooltip(tooltip, target=id, **tooltip_format)], id=id, **kwargs
-        )
-    if module == "dbc":
-        return dbc.Button(label, id=id, **kwargs)
-    return html.Button(label, id=id, **kwargs)
+        icon = html.I(className=icon_classname, title=tooltip)
+        label = html.Span([icon, label], className="d-flex align-items-center")
+
+    obj = dbc.Button if module == "dbc" else html.Button
+    return obj(label, id=id, **kwargs)
 
 
 def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
@@ -110,17 +85,13 @@ def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
         text=text, icon_classname=icon_classname, id=id, tooltip=tooltip, **kwargs
     )
 
-    @app.callback(
+    app.clientside_callback(
+        """function (n, active) { return !active; }""",
         Output(id, "active"),
-        [Input(id, "n_clicks")],
-        [State(id, "active")],
+        Input(id, "n_clicks"),
+        State(id, "active"),
         prevent_initial_call=True,
     )
-    def toggle_boolean_button(n, status):
-        """Toggle decompose button."""
-        if n is None:
-            raise PreventUpdate
-        return not status
 
     return button
 
@@ -155,14 +126,12 @@ def custom_slider(label="", return_function=None, **kwargs):
     )
 
     @app.callback(
-        [Output(id_label, "children")],
-        [Input(kwargs["id"], "value")],
+        Output(id_label, "children"),
+        Input(kwargs["id"], "value"),
         prevent_initial_call=True,
     )
     def update_label(value):
-        if return_function is None:
-            return [value]
-        return [return_function(value)]
+        return [value] if return_function is None else [return_function(value)]
 
     return slider
 
@@ -181,19 +150,11 @@ def custom_input_group(
     """
     append_label = append_label if append_label is not None else ""
 
-    id_ = kwargs["id"]
-    return html.Div(
-        [
-            html.Label(
-                className="label-left", id=f"{id_}-left-label", children=prepend_label
-            ),
-            dcc.Input(type=input_type, autoComplete="off", **kwargs),
-            html.Label(
-                className="label-right", id=f"{id_}-right-label", children=append_label
-            ),
-        ],
-        className="input-form-2",
-    )
+    append_ui = html.Label(className="label-right", children=append_label)
+    prepend_ui = html.Label(className="label-left", children=prepend_label)
+    input_ui = dcc.Input(type=input_type, autoComplete="off", **kwargs)
+
+    return html.Div([prepend_ui, input_ui, append_ui], className="input-form")
 
 
 def custom_collapsible(
@@ -215,14 +176,13 @@ def custom_collapsible(
     if is_open:
         collapse_classname += " show"
 
+    class_name = "d-flex justify-content-between align-items-center"
+    chevron_icon = html.I(className="icon-action fas fa-chevron-down", title=tooltip)
+    btn_text = html.Div([text, chevron_icon], className=class_name)
+
     layout = [
         html.Button(
-            html.Div(
-                [text, html.I(className="icon-action fas fa-chevron-down")],
-                className="d-flex justify-content-between align-items-center",
-            ),
-            # tooltip=tooltip,
-            # icon=icon,
+            btn_text,
             style={"color": "black"},
             **{
                 "data-toggle": "collapse",
@@ -237,3 +197,69 @@ def custom_collapsible(
     ]
 
     return html.Div(layout)
+
+
+def container(text, featured, **kwargs):
+    children = html.Div(featured, className="container")
+    return custom_card(text=html.Div(text), children=children, **kwargs)
+
+
+def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False):
+    # collapsable button
+    # if isinstance(id_, dict):
+    #     id_button = {**id_, "collapse": "button"}
+    #     id_button_callable = deepcopy(id_button)
+    #     id_button_callable.update({"index": MATCH})
+    #     id_field = {**id_, "collapse": "fields"}
+    #     id_field_callable = deepcopy(id_field)
+    #     id_field_callable.update({"index": MATCH})
+    # if isinstance(id_, str):
+    id_button = f"{id_}-collapse-button"
+    # id_button_callable = id_button
+    id_field = f"{id_}-collapse-fields"
+    # id_field_callable = id_field
+    id_icon = f"{id_}-collapse-icon"
+
+    icon = html.I(className="fas fa-chevron-left", title=message, id=id_icon)
+    vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
+
+    chevron_btn = html.Label(
+        icon,
+        id=id_button,
+        style=vis,
+        # **{
+        #     "data-toggle": "collapse",
+        #     "data-target": f"#{id_}-collapse-fields",
+        #     "aria-expanded": "true",
+        # },
+    )
+
+    # featured fields
+    featured = [html.Div(featured)]
+    text = [text] if not isinstance(text, list) else text
+    text.append(chevron_btn)
+
+    # collapsed fields
+    if hidden is not None:
+        featured += [dbc.Collapse(hidden, id=id_field, is_open=False)]
+
+    content = custom_card(
+        text=html.Div(text),
+        children=html.Div(featured, className="container"),
+    )
+
+    # TODO: Chevron cahnge on click, but cannot change icon classname for some reason
+    #   return [!is_open, 'fa-chevron-right'];
+    app.clientside_callback(
+        """function (n, is_open) { return !is_open; }""",
+        Output(id_field, "is_open"),
+        # Output(id_icon, "class"),
+        Input(id_button, "n_clicks"),
+        State(id_field, "is_open"),
+        prevent_initial_call=True,
+    )
+
+    if not outer:
+        return content
+
+    return dbc.Collapse(content, id=f"{id_}-feature-collapse", is_open=True)

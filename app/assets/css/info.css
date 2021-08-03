@@ -1,0 +1,7 @@
+#info-read-only {
+  height: var(--content-max-height);
+  padding: 1em;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}

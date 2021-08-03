@@ -1,0 +1,196 @@
+/* Slider offset for spin-system split screen */
+.slide-offset .slider1 {
+  width: 100%;
+}
+.slide-offset .slider2 {
+  display: none;
+}
+.slide,
+.slide-offset {
+  display: flex;
+}
+.slide::-webkit-scrollbar {
+  display: none;
+}
+.slide .slider1 {
+  width: 30%;
+  border-right: 1px solid silver;
+  transition: all 0.1s ease;
+  margin-left: -1px;
+}
+.slide .slider2 {
+  width: 70%;
+}
+.slide .slider1,
+.slide .slider2 {
+  min-height: calc(var(--content-min-height) - 5em);
+  height: calc(var(--content-max-height) - 5em);
+  scrollbar-width: thin;
+  overflow-y: auto;
+}
+
+.tab-scroll {
+  min-height: calc(var(--content-min-height) - 18.3em);
+  height: calc(var(--content-max-height) - 18.3em);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.tab-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+[id$="-editor-content"] > div:first-child {
+  background-color: white;
+  border-top-right-radius: 1em;
+}
+
+.scrollable-list ul {
+  height: 100%;
+  width: 100%;
+  line-height: 1.2;
+  font-weight: 300;
+  color: rgb(53, 53, 53);
+  list-style: none;
+  cursor: pointer;
+}
+.scrollable-list li:nth-child(odd) {
+  background-color: #ffffff;
+}
+.scrollable-list li:nth-child(even) {
+  background-color: #f7f7f7;
+}
+.scrollable-list li {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0;
+  border-left: 2px solid silver;
+  scrollbar-width: none;
+}
+.scrollable-list li::-webkit-scrollbar {
+  display: none;
+}
+.scrollable-list li h6 {
+  display: none;
+}
+.scrollable-list li > div {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+}
+
+.scrollable-list li a {
+  scroll-snap-align: start;
+  padding: 1rem;
+  width: 100%;
+}
+.scrollable-list a b {
+  height: 15em;
+}
+.scrollable-list a div {
+  width: 100%;
+  height: 1.3em;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scrollable-list li.active {
+  background-color: #e1f0ff;
+  color: black;
+  font-weight: 400;
+  border-top: 1px solid var(--select-blue);
+  border-bottom: 1px solid var(--select-blue);
+  z-index: 0;
+}
+.sub-spin-system-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: transparent;
+  margin-top: 1rem;
+}
+.spin-system-tensor-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+.spin-system-tensor-title p {
+  margin-top: auto;
+  margin-bottom: auto;
+  color: black;
+  text-transform: capitalize;
+  padding-left: 1rem;
+}
+.spin-system-tensor-title button {
+  margin-right: 1px;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* display when spin-system is empty */
+.blank-display {
+  height: 100%;
+  padding: 2rem;
+}
+.blank-display h5,
+.blank-display span {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+.blank-display h5 {
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(134, 55, 10);
+  text-align: center;
+}
+.blank-display span:hover {
+  transform: scale(1.1);
+  color: rgb(136, 9, 30);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.ui_title {
+  display: flex;
+  align-items: center;
+  padding: 0 1em;
+}
+.ui_title label {
+  padding: 0.75em 0 1.5em;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  font-weight: 600;
+  margin: auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.input-text-description {
+  color: rgb(77, 77, 77);
+}
+
+/* media for spin-systems and methods*/
+@media only screen and (max-width: 575px),
+  (min-width: 810px) and (max-width: 1100px) {
+  .scrollable-list li div {
+    display: none;
+  }
+  .scrollable-list li h6 {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    padding: 0.75rem;
+  }
+  .slide .slider1 {
+    width: var(--opt-side-scroll-min-width);
+  }
+  .slide .slider2 {
+    width: calc(100% - var(--opt-side-scroll-min-width));
+  }
+}

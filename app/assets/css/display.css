@@ -1,0 +1,112 @@
+/* input groups */
+:root {
+  --text-color: #4b4b4b;
+  --text-box-underline-color: #d1d1d1;
+}
+.input-form {
+  width: 100%;
+  padding: 0 0.2em;
+  display: flex;
+}
+
+.input-form .label-left,
+.input-form .input-group-prepend {
+  margin: auto 0;
+  padding-right: 0.5rem;
+  white-space: nowrap;
+  width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-color);
+  font-size: 1em;
+}
+.input-form .input-group-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-color);
+  font-size: 1em;
+}
+.input-form .label-right {
+  margin: 0;
+  padding-top: 0.4em;
+  min-width: 2.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--text-box-underline-color);
+  color: var(--text-color);
+  font-size: 1em;
+}
+
+.input-form input {
+  text-align: right;
+  min-width: 25%;
+  max-width: 40%;
+  height: 2.25em;
+  padding: 0 5px 0 0;
+  margin: auto 0 auto auto;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom: 1px solid var(--text-box-underline-color);
+}
+
+.input-form input:valid {
+  color: rgb(0, 0, 0);
+}
+
+.input-form input:invalid {
+  color: #ec1a36ea;
+  text-decoration: line-through;
+  outline: none;
+}
+
+.input-form input:focus,
+.input-text:focus {
+  color: black;
+  text-decoration: none;
+  border-radius: 0.25em;
+  cursor: text;
+  background-color: white;
+  border: 1px solid #48a3ff;
+  box-shadow: 0 0 2px 1px #48a3ff7c;
+}
+
+.input-form .dash-dropdown,
+.input-form select {
+  width: 50%;
+  max-width: 50%;
+  min-width: 25%;
+}
+.input-form select {
+  text-align: right;
+}
+
+textarea {
+  height: 100%;
+  width: 100%;
+}
+
+.input-group-prepend {
+  width: 9rem;
+  display: flex;
+  justify-content: left;
+  flex-direction: column;
+}
+
+.input-group {
+  margin: 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.input-group-text {
+  background: transparent;
+  padding-left: 0;
+  border: none;
+  color: var(--text-color);
+  font-size: 1em;
+}
+
+.input-group select:active,
+.input-group select:focus {
+  box-shadow: none;
+}

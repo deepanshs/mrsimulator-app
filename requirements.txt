@@ -1,8 +1,21 @@
 
-flask>=1.1.1
-uuid>=1.30
-plotly>=4.5.4
-dash>=1.12.0
-dash_bootstrap_components>=0.9.1
-gunicorn>=20.0.4
-mrsimulator>=0.3.0
+flask==1.1.2
+uuid==1.30
+plotly==4.14.3
+dash==1.20.0
+dash_bootstrap_components==0.12.0
+gunicorn==20.1.0
+mrsimulator>=0.6.0rc5
+redis==3.5.3
+celery[redis]==5.0.5
+mrinversion>=0.1
+matplotlib>=3.4
+
+# development packages
+pytest-runner>=5.0
+pytest>=5.3
+black
+pre-commit>=1.16.1
+coverage>=4.5.3
+pytest-cov
+codecov

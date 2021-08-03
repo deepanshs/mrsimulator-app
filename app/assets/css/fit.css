@@ -1,0 +1,129 @@
+#fit-report-iframe {
+  width: 100%;
+  height: calc(var(--content-max-height) - 6.45rem);
+  display: flex;
+  align-items: stretch;
+  border: 1px solid silver;
+  border-radius: 0.5em;
+  background-color: white;
+  margin: 0.5em 0;
+}
+
+.fields-table {
+  margin-bottom: 1.5em;
+  display: none;
+}
+.fields-table.active {
+  display: table;
+}
+
+/* Checkbox */
+.fields-table thead th:first-child {
+  width: 2.2em;
+}
+/* Options modal button */
+.fields-table thead th:last-child {
+  width: 2.7em;
+}
+/* Name */
+.fields-table thead th:nth-child(2) {
+  width: 60%;
+}
+/* Value */
+.fields-table thead th:nth-child(3) {
+  width: 40%;
+}
+
+.fields-table thead tr td div {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: small;
+}
+
+.fields-table input[type="checkbox"] {
+  align-items: center;
+}
+.fields-table input[type="number"],
+.fields-table input[type="text"] {
+  width: 100%;
+  padding: 0.5em;
+  margin: -0.5em;
+  border-radius: 0.2em;
+  border: 1px solid var(--text-box-underline-color);
+}
+
+.fields-table input:focus,
+.fields-table:focus {
+  color: black;
+  text-decoration: none;
+  cursor: text;
+  background-color: white;
+  border: 1px solid #48a3ff;
+  box-shadow: 0 0 2px 1px #48a3ff7c;
+}
+
+.custom-radio .btn-primary {
+  width: 24px;
+  height: auto;
+  border-radius: 12px;
+  color: black;
+  background-color: white;
+  border: 1px solid #dfdfdf;
+}
+
+.custom-radio .btn-primary:hover {
+  color: black;
+  background-color: #cee3ff;
+}
+
+.custom-radio .btn-primary:not(:disabled):not(.disabled).active {
+  color: white;
+  background-color: var(--select-blue);
+}
+
+.table-select .custom-control {
+  padding: 0 0.15em;
+}
+
+.table-select .custom-control-label {
+  padding: 0;
+}
+.table-select .custom-control-input ~ .custom-control-label::before,
+.table-select
+  .custom-radio
+  .custom-control-input
+  ~ .custom-control-label::after {
+  content: none;
+}
+
+.fit-scroll {
+  min-height: calc(var(--content-min-height) - 6em);
+  height: calc(var(--content-max-height) - 6em);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.feature-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1em;
+}
+.feature-select .btn-link {
+  padding: 3px 8px;
+}
+.feature-select h6 {
+  margin: auto 0;
+}
+
+div.fit-modal {
+  padding-bottom: 0.5em;
+}
+.fit-expr-text {
+  width: 60%;
+}
+.fit-expr {
+  justify-content: space-between;
+}

@@ -24,6 +24,7 @@ cython_debug/**
 *.egg
 *.mrsys
 *.map
+*.rdb
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -67,6 +68,7 @@ docs/_build/
 
 # PyBuilder
 target/
+node_modules/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -110,3 +112,4 @@ test_dash.py
 *.storyboard
 launch.png
 test.*
+package-lock.json

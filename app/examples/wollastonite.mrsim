@@ -1,0 +1,127 @@
+{
+	"name": "Wollastonite, (Ca₃Si₃O₉)",
+	"description": "A high-temperature calcium-silicate. Reference: Si29 tensor parameters, Hansen et al. DOI: 10.1021/ic020647f",
+	"spin_systems": [{
+			"name": "Q2 (3)",
+			"sites": [{
+				"isotope": "29Si",
+				"isotropic_chemical_shift": "-87.8 ppm",
+				"shielding_symmetric": {
+					"zeta": "69.4 ppm",
+					"eta": 0.6
+				}
+			}],
+			"abundance": "100.0 %"
+		},
+		{
+			"name": "Q2 (1)",
+			"sites": [{
+				"isotope": "29Si",
+				"isotropic_chemical_shift": "-89.0 ppm",
+				"shielding_symmetric": {
+					"zeta": "59.8 ppm",
+					"eta": 0.62
+				}
+			}],
+			"abundance": "100.0 %"
+		},
+		{
+			"name": "Q2 (2)",
+			"sites": [{
+				"isotope": "29Si",
+				"isotropic_chemical_shift": "-89.5 ppm",
+				"shielding_symmetric": {
+					"zeta": "52.1 ppm",
+					"eta": 0.68
+				}
+			}],
+			"abundance": "100.0 %"
+		}
+	],
+	"methods": [{
+			"name": "BlochDecaySpectrum",
+			"description": "Simulate a 1D Bloch decay spectrum.",
+			"spectral_dimensions": [{
+				"count": 1024,
+				"spectral_width": "25000.0 Hz",
+				"reference_offset": "-10500.0 Hz",
+				"origin_offset": "119363535.89999999 Hz",
+				"events": [{
+					"fraction": 1,
+					"magnetic_flux_density": "14.1 T",
+					"rotor_frequency": "6000.0 Hz",
+					"rotor_angle": "0.9553164380546711 rad",
+					"transition_query": {
+						"P": {
+							"channel-1": [
+								[-1]
+							]
+						}
+					},
+					"user_variables": [
+						"magnetic_flux_density",
+						"rotor_frequency",
+						"rotor_angle"
+					]
+				}]
+			}],
+			"channels": [
+				"29Si"
+			]
+		},
+		{
+			"name": "BlochDecaySpectrum",
+			"description": "Simulate a 1D Bloch decay spectrum.",
+			"spectral_dimensions": [{
+				"count": 1024,
+				"spectral_width": "25000.0 Hz",
+				"reference_offset": "-10500.0 Hz",
+				"origin_offset": "119363535.89999999 Hz",
+				"events": [{
+					"fraction": 1,
+					"magnetic_flux_density": "14.1 T",
+					"rotor_frequency": "1500.0 Hz",
+					"rotor_angle": "0.9553164380546711 rad",
+					"transition_query": {
+						"P": {
+							"channel-1": [
+								[-1]
+							]
+						}
+					},
+					"user_variables": [
+						"magnetic_flux_density",
+						"rotor_frequency",
+						"rotor_angle"
+					]
+				}]
+			}],
+			"channels": [
+				"29Si"
+			]
+		}
+	],
+	"config": {
+		"number_of_sidebands": 64,
+		"integration_volume": "octant",
+		"integration_density": 70,
+		"decompose_spectrum": "none"
+	},
+	"signal_processors": [{
+		"operations": [{
+				"dim_index": [0],
+				"function": "IFFT"
+			},
+			{
+				"FWHM": "50.0 Hz",
+				"dim_index": [0],
+				"function": "apodization",
+				"type": "Exponential"
+			},
+			{
+				"dim_index": [0],
+				"function": "FFT"
+			}
+		]
+	}]
+}
