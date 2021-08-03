@@ -1,80 +1,94 @@
 [{
     "label": "Rankinite",
     "value": "./examples/rankinite.mrsim",
+    "img": "/assets/images/examples/rankinite.png",
     "description": "29Si MAS"
   },
   {
     "label": "\u03B1-Ca₂(SiO₃OH)OH",
     "value": "./examples/alpha Ca2(SiO3OH)OH.mrsim",
+    "img": "/assets/images/examples/alpha Ca2(SiO3OH)OH.png",
     "description": "29Si MAS"
   },
   {
     "label": "\u03B2-Ca₂SiO₄",
     "value": "./examples/beta Ca2SiO4.mrsim",
+    "img": "/assets/images/examples/beta Ca2SiO4.png",
     "description": "29Si MAS"
   },
   {
     "label": "Ca₃SiO₄Cl₂",
     "value": "./examples/Ca3SiO4Cl2.mrsim",
+    "img": "/assets/images/examples/Ca3SiO4Cl2.png",
     "description": "29Si MAS"
   },
   {
     "label": "Cuspidine",
     "value": "./examples/cuspidine_fit.mrsim",
+    "img": "/assets/images/examples/cuspidine_fit.png",
     "description": "29Si MAS"
   },
   {
-    "label": "\u03B3-Ca2SiO4",
-    "value": "./examples/gamma Ca₂SiO₄.mrsim",
+    "label": "\u03B3-Ca₂SiO₄",
+    "value": "./examples/gamma Ca2SiO4.mrsim",
+    "img": "/assets/images/examples/gamma Ca2SiO4.png",
     "description": "29Si MAS"
   },
   {
     "label": "Hillebrandite",
     "value": "./examples/hillebrandite.mrsim",
+    "img": "/assets/images/examples/hillebrandite.png",
     "description": "29Si MAS"
   },
   {
     "label": "Kyanite",
     "value": "./examples/kyanite.mrsim",
+    "img": "/assets/images/examples/kyanite.png",
     "description": "29Si MAS"
   },
   {
     "label": "Pseudowollastonite",
     "value": "./examples/pseudowollastonite.mrsim",
+    "img": "/assets/images/examples/pseudowollastonite.png",
     "description": "29Si MAS"
   },
   {
     "label": "Scawtite",
     "value": "./examples/scawtite.mrsim",
+    "img": "/assets/images/examples/scawtite.png",
     "description": "29Si MAS"
   },
   {
     "label": "Wollastonite, (Ca₃Si₃O₉)",
     "value": "./examples/wollastonite_fit.mrsim",
-    "img": "/assets/images/wollastonite.png",
+    "img": "/assets/images/examples/wollastonite_fit.png",
     "description": "29Si MAS"
   },
   {
     "label": "Xonotlite",
     "value": "./examples/xonotlite_fit.mrsim",
+    "img": "/assets/images/examples/xonotlite_fit.png",
     "description": "29Si MAS"
   },
   {
     "label": "Coesite",
     "value": "./examples/O17/coesite.mrsim",
-    "img": "/assets/images/coesite.png",
+    "img": "/assets/images/examples/coesite.png",
     "description": "17O MAS"
   },
   {
     "label": "Cristobalite",
-    "value": "./examples/O17/cristobalite.mrsim"
+    "value": "./examples/O17/cristobalite.mrsim",
+    "description": ""
   },
   {
     "label": "\u03B1-quartz",
-    "value": "./examples/O17/α-quartz.mrsim"
+    "value": "./examples/O17/α-quartz.mrsim",
+    "description": ""
   },
   {
     "label": "Itraconazole",
-    "value": "https://raw.githubusercontent.com/DeepanshS/mrsimulator-tutorial/master/resources/itraconazole_13C.mrsys"
+    "value": "https://raw.githubusercontent.com/DeepanshS/mrsimulator-tutorial/master/resources/itraconazole_13C.mrsys",
+    "description": ""
   }
 ]

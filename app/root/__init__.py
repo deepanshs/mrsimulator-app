@@ -27,7 +27,7 @@ mrinversion_examples = [
 
 
 def card(item, app_name):
-    img_src = "/assets/fit.png" if "img" not in item else item["img"]
+    img_src = "/assets/images/fit.png" if "img" not in item else item["img"]
     img = dbc.CardImg(src=img_src, top=True)
     title = html.H4(item["label"])
     des = "This is description" if "description" not in item else item["description"]
@@ -123,7 +123,7 @@ def mrinversion_ui():
 
 
 mrsim_btn = html.Button(
-    html.Img(src="assets/fit.png"),
+    html.Img(src="assets/images/fit.png"),
     id="mrsim-app-selection-button",
     # color="light",
     # active=True,
