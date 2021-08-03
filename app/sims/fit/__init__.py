@@ -101,7 +101,7 @@ def ui():
     page = html.Div(
         [fit_header(), feature_select(), fields, fit_info_modal, storage_div]
     )
-    return html.Div(className="left-card", children=page, id="fit-body")
+    return html.Div(className="left-card", children=page, id="features-body")
 
 
 fit_body = ui()

@@ -59,7 +59,6 @@ fields = ui()
 
 
 # Callbacks ============================================================================
-# TODO: Fix modal reset bug on view-fit click
 @app.callback(
     Output("sys-tables-div", "children"),  # List of tables
     Output("mth-tables-div", "children"),  # List of tables
@@ -76,7 +75,7 @@ fields = ui()
     Input("page-sys-right-btn", "n_clicks"),
     Input("page-mth-left-btn", "n_clicks"),
     Input("page-mth-right-btn", "n_clicks"),
-    Input("view-fit", "n_clicks"),
+    Input("view-features", "n_clicks"),
     Input("simulate-button", "n_clicks"),
     Input("run-fitting-button", "n_clicks"),
     State("local-mrsim-data", "data"),
@@ -119,8 +118,8 @@ app.clientside_callback(
         }
         if (anticipate && fit_ts < processed_ts) {
             // Callback has been triggered by 'local-processed-data' and feature tables
-            // should be updated through clicking 'view-fit'
-            document.getElementById("view-fit").click();
+            // should be updated through clicking 'view-features'
+            document.getElementById("view-features").click();
             return false;
         }
         return false;
@@ -186,7 +185,7 @@ app.clientside_callback(
     Input("apply-method-changes", "n_clicks_timestamp"),
     Input("apply-spin-system-changes", "n_clicks_timestamp"),
     Input("params-data", "data"),
-    State("view-fit", "n_clicks_timestamp"),
+    State("view-features", "n_clicks_timestamp"),
     prevent_initial_call=True,
 )
 
@@ -517,7 +516,7 @@ def file_is_empty():
 CALLBACKS = {
     "simulate-button": update_params_and_simulate,
     "run-fitting-button": update_params_and_fit,
-    "view-fit": update_tables,
+    "view-features": update_tables,
     "page-sys-left-btn": page_sys_tables_left,
     "page-sys-right-btn": page_sys_tables_right,
     "page-mth-left-btn": page_mth_tables_left,
