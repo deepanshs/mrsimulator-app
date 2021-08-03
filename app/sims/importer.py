@@ -354,12 +354,12 @@ def add_measurement_to_a_method():
             {"dim_index": [0], "function": "IFFT"},
             {
                 "dim_index": [0],
-                "FWHM": f"{3*increment} Hz",
+                "FWHM": f"{abs(3*increment)} Hz",
                 "function": "apodization",
                 "type": "Exponential",
             },
             {"dim_index": [0], "function": "FFT"},
-            {"factor": amp / 30, "function": "Scale"},
+            {"factor": abs(amp) / 30, "function": "Scale"},
         ]
         post_sim_overview = post_sim_UI.refresh(existing_data)
 
@@ -387,6 +387,9 @@ def remove_measurement_from_a_method():
 
 
 def simulate_spectrum():
+    """Create a new mrsimulator file from params. The new file then undergoes a
+    fresh simulation"""
+
     print("The Simulate Spectrum button has been clicked")
     mrsim_data = ctx.states["local-mrsim-data.data"]
     params_data = ctx.states["params-data.data"]

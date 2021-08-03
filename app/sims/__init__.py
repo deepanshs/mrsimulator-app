@@ -48,6 +48,8 @@ store = [
     dcc.Store(id="local-mrsim-data", storage_type="session", data=DEFAULT_MRSIM_DATA),
     # memory for storing local simulator data.
     dcc.Store(id="local-simulator-data", storage_type="memory"),
+    # store graph view data.
+    dcc.Store(id="graph-view-layout", storage_type="memory", data=[]),
     # memory for storing the experimental data
     # dcc.Store(id="local-exp-external-data", storage_type="memory"),
     # memory for storing the local computed data.
@@ -128,7 +130,9 @@ mrsimulator_app = html.Div(
     Output("alert-message-simulation", "is_open"),
     # Output("local-computed-data", "data"),
     Output("local-simulator-data", "data"),
+    Output("graph-view-layout", "data"),
     Input("local-mrsim-data", "data"),
+    State("graph-view-layout", "data"),
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -172,7 +176,21 @@ def one_time_simulation():
     serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
 
-    return ["", False, serialize]
+    layout = ctx.states["graph-view-layout.data"]
+    # for _ in range(len(sim.methods)-len(layout)):
+    #     layout.append(None)
+
+    # for i, mth in enumerate(sim.methods):
+    #     if layout[i] is None:
+    #         if len(mth.simulation.x) == 1:
+    #             x = mth.simulation.x[0].coordinates.value
+    #             y = mth.simulation.y[0].components[0].real
+    #             layout[i] = {
+    #                 'xaxis': {"range": [x.max(), x.min()]},
+    #                 'yaxis': {"range": [y.min(), y.max()]}
+    #             }
+
+    return ["", False, serialize, layout]
 
 
 @app.callback(
@@ -185,6 +203,7 @@ def one_time_simulation():
     State("normalize_amp", "active"),
     # State("local-computed-data", "data"),
     State("nmr_spectrum", "figure"),
+    State("graph-view-layout", "data"),
     prevent_initial_call=True,
 )
 def plot(*args):
@@ -269,6 +288,9 @@ def plot(*args):
         )
 
     layout = figure["layout"]
+    # layout_graph = ctx.states['graph-view-layout.data'][method_index]
+    # layout.update(layout_graph)
+
     layout["xaxis"]["autorange"] = "reversed"
     layout["yaxis"]["autorange"] = True
 
