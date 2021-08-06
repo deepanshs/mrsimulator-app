@@ -30,6 +30,12 @@ def load_local_file(contents):
     content_string = contents.split(",")[1]
     decoded = base64.b64decode(content_string)
     contents = json.loads(str(decoded, encoding="UTF-8"))
+    
+    methods = contents["methods"]
+    for method in methods:
+        # print(method["experiment"]["csdm"]["dependent_variable"][0].keys())
+        print(method["experiment"]["csdm"]["dependent_variables"][0].keys())
+
     return parse_file_contents(contents, isinstance(contents, list))
 
 
