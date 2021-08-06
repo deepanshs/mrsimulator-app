@@ -105,14 +105,16 @@ var _setFields = function (index) {
 
   // noise standard deviation
   if (method.experiment != null) {
-    let application = method.experiment.csdm.dependent_variables[0].application;
-    if (application == null) { application = {}; }
-    if (application['com.github.DeepanshS.mrsimulator'] == null) {
-      application['com.github.DeepanshS.mrsimulator'] = {
+    let exp_data = method.experiment.csdm.dependent_variables[0];
+    if (exp_data.application == null) { 
+      exp_data.application = {};
+    }
+    if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
+      exp_data.application['com.github.DeepanshS.mrsimulator'] = {
         'sigma': 1
       };
     }
-    let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+    let sigma = exp_data.application['com.github.DeepanshS.mrsimulator'].sigma;
 
     // array.push(sigma);
     setValue("measurement-sigma", sigma);
@@ -242,12 +244,14 @@ window.method = {
     // noise standard deviation
     if (method.experiment != null) {
       temp = getValue('measurement-sigma');
-      let application = method.experiment.csdm.dependent_variables[0].application;
-      if (application == null) { application = {}; }
-      if (application['com.github.DeepanshS.mrsimulator'] == null) {
-        application['com.github.DeepanshS.mrsimulator'] = {};
+      let exp_data = method.experiment.csdm.dependent_variables[0];
+      if (exp_data.application == null) { 
+        exp_data.application = {};
       }
-      application['com.github.DeepanshS.mrsimulator'].sigma = temp;
+      if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
+        exp_data.application['com.github.DeepanshS.mrsimulator'] = {};
+      }
+      exp_data.application['com.github.DeepanshS.mrsimulator'].sigma = temp;
     }
 
     temp = getValue('magnetic_flux_density');
