@@ -147,6 +147,7 @@ def simulation(*args):
 
 def one_time_simulation():
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
+    n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
 
     if mrsim_data is None:
         raise PreventUpdate
@@ -167,6 +168,14 @@ def one_time_simulation():
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
         processor = SignalProcessor.parse_dict_with_units(proc)
+
+        # Adjust baseline offset for multi-spin_system spectra
+        # Otherwise given baseline offset will be multiplied by number of spin_systems
+        # (future) need to adjust polynomial as well when implemented
+        for op in processor.operations:
+            if op.__class__.__name__ == "ConstantOffset":
+                op.offset = op.offset / n_sys
+                
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
     if decompose == "none":
