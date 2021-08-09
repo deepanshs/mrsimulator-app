@@ -102,7 +102,7 @@ def make_modal(key, vals):
     expr_id = {"name": f"{key}-expr", "kind": "expr"}
     modal_id = {"kind": "modal", "parrent": key}
 
-    # TODO: Adjust apperance of modal inputs using css
+    # TODO: Adjust appearance of modal inputs using css
     min_ = html.Div(
         ["Minimum", dcc.Input(value=vals["min"], id=min_id, **input_args)],
         className="input-form fit-modal",
@@ -112,8 +112,10 @@ def make_modal(key, vals):
         className="input-form fit-modal",
     )
     expr = html.Div(
-        ["Expression", dbc.Textarea(
-            value=vals["expr"], id=expr_id, className="fit-expr-text")],
+        [
+            "Expression",
+            dbc.Textarea(value=vals["expr"], id=expr_id, className="fit-expr-text"),
+        ],
         className="input-form fit-modal fit-expr",
     )
 
