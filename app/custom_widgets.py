@@ -220,7 +220,7 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     # id_field_callable = id_field
     id_icon = f"{id_}-collapse-icon"
 
-    icon = html.I(className="fas fa-chevron-left", title=message, id=id_icon)
+    icon = html.I(className="fas fa-chevron-down", title=message, id=id_icon)
     vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
 
     chevron_btn = html.Label(
