@@ -18,9 +18,10 @@ server = app.server
 
 
 @app.callback(
-    [Output("page-content", "children"), Output("url-search", "href")],
-    [Input("url", "pathname")],
-    [State("url", "search")],
+    Output("page-content", "children"),
+    Output("url-search", "href"),
+    Input("url", "pathname"),
+    State("url", "search"),
 )
 def display_page(pathname, search):
     print("pathname", pathname, search)
