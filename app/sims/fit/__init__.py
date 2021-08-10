@@ -29,12 +29,14 @@ def buttons():
         id="simulate-button",
         icon_classname="far fa-chart-bar",
         tooltip="Simulate a spectrum using the current values.",
+        text="Sim",
         **kwargs,
     )
     fit = custom_button(
         id="run-fitting-button",
         icon_classname="fas fa-compress-alt",
         tooltip="Run least-squares minimization.",
+        text="Fit",
         **kwargs,
     )
     return dbc.ButtonGroup([simulate, fit])

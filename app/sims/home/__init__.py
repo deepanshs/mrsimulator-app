@@ -142,8 +142,8 @@ def system_overview_data(mrsim: dict):
     for i, spin_system in enumerate(mrsim["spin_systems"]):
         name = "" if "name" not in spin_system else spin_system["name"]
         abd = (
-            ""
-            if spin_system["abundance"] is None
+            "100"
+            if "abundance" not in spin_system
             else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
         )
         n_site = len(spin_system["sites"])

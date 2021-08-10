@@ -163,8 +163,8 @@ def generate_sidepanel(spin_system, index):
 
     # spin system abundance
     abundance = (
-        ""
-        if spin_system["abundance"] is None
+        "100"
+        if "abundance" not in spin_system
         else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
     )
     abundance = html.Div(f"Abundance: {abundance} %", className="")
