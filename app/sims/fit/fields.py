@@ -58,6 +58,9 @@ def ui():
 fields = ui()
 
 
+# JavaScript Callbacks =================================================================
+
+
 # Callbacks ============================================================================
 @app.callback(
     Output("sys-tables-div", "children"),  # List of tables
