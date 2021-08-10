@@ -146,15 +146,11 @@ root_app = html.Div(
 
 
 @app.callback(
-    [
-        Output("empty-main-div", "children"),
-        # Output("mrsim-app-selection-button", "active"),
-        # Output("mrinv-app-selection-button", "active"),
-    ],
-    [
-        Input("mrsim-app-selection-button", "n_clicks"),
-        Input("mrinv-app-selection-button", "n_clicks"),
-    ],
+    Output("empty-main-div", "children"),
+    # Output("mrsim-app-selection-button", "active"),
+    # Output("mrinv-app-selection-button", "active"),
+    Input("mrsim-app-selection-button", "n_clicks"),
+    Input("mrinv-app-selection-button", "n_clicks"),
     prevent_initial_call=True,
 )
 def update_main_page(*args):

@@ -15,9 +15,8 @@ def header():
 def report():
     """LMFIT report html div"""
     return html.Div(
-        html.Iframe(id="fit-report-iframe", hidden=True), 
-        className="flex-div"
-        )
+        html.Iframe(id="fit-report-iframe", hidden=True), className="flex-div"
+    )
 
 
 def ui():

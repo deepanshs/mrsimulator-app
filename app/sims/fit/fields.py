@@ -110,11 +110,14 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, mrd, pd, uv, si, mi, *vals):
 
 
 # NOTE: Requires local processed data to only be updated after fit (or data upload)
-# TODO: Need to re-add anticipate
 # If issues occur check return statments in plot() app/sims/fit/__init__.py
 app.clientside_callback(
     """
-    function (fit_ts, processed_ts, anticipate) {
+    function (fit_ts, processed_ts, alert_open, anticipate) {
+        if (alert_open) {
+            // Error has been thrown at some point. Do not update on next cycle
+            return false;
+        }
         if (fit_ts > processed_ts) {
             // Run fit button has been pressed. Next data update is from fit routine
             return true;
@@ -131,6 +134,7 @@ app.clientside_callback(
     Output("anticipate-table-update", "data"),  # bool (flag)
     Input("trigger-fit", "modified_timestamp"),  # int (timestamp)
     Input("local-processed-data", "modified_timestamp"),  # int (timestamp)
+    Input("alert-message-import", "is_open"),
     State("anticipate-table-update", "data"),
     prevent_initial_call=True,
 )
