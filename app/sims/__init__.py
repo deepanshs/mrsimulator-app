@@ -172,10 +172,12 @@ def one_time_simulation():
         # Adjust baseline offset for multi-spin_system spectra
         # Otherwise given baseline offset will be multiplied by number of spin_systems
         # (future) need to adjust polynomial as well when implemented
-        for op in processor.operations:
-            if op.__class__.__name__ == "ConstantOffset":
-                op.offset = op.offset / n_sys
-
+        # THIS NEEDS TO BE REMOVED AFTER mrsimulator LIBRARY IS UPDATED
+        if decompose == "none":
+            for op in processor.operations:
+                if op.__class__.__name__ == "ConstantOffset":
+                    op.offset = op.offset / n_sys
+                
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
     if decompose == "none":

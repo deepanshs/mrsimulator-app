@@ -42,7 +42,9 @@ def refresh(data):
     n_dim, n_dv = len(mth[method_index]["spectral_dimensions"]), len(sys)
     print("py_dict", post[method_index])
 
-    obj, i = [], 0
+    obj = [] 
+    i = 0
+    # Iterate through post-simulation operations
     for item in post[method_index]["operations"]:
         if item["function"] not in ["FFT", "IFFT"]:
             obj.append(
