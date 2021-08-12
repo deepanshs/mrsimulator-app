@@ -108,7 +108,7 @@ def update_fit_elements(n1, n2, n3, n4, n5, n6, n7, mrd, pd, uv, si, mi, *vals):
 
 
 # NOTE: Requires local processed data to only be updated after fit (or data upload)
-# If issues occur check return statments in plot() app/sims/fit/__init__.py
+# If issues occur check return statements in plot() app/sims/fit/__init__.py
 app.clientside_callback(
     """
     function (fit_ts, processed_ts, alert_open, anticipate) {
@@ -317,7 +317,7 @@ def update_tables(*args):
         for key, val in temp.valuesdict().items():
             params_obj[key].set(value=val)
 
-    # Check if computed params data is same a stored data (preformance)
+    # Check if computed params data is same a stored data (performance)
     if params_obj.dumps() == params_data:
         raise PreventUpdate
 
@@ -466,13 +466,13 @@ def make_new_page_elements(params, index, title, _dir=None):
     # Move page index left or right (+1 or -1)
     if _dir == "left":
         page_index = max(page_index - 1, 0)
-        # Do not update if `page_index` has not changed (for efficency)
+        # Do not update if `page_index` has not changed (for efficiency)
         if page_index == index // GROUP_WIDTH:
             raise PreventUpdate
         new_value = page_index * GROUP_WIDTH
     elif _dir == "right":
         page_index = min(page_index + 1, (num_tables - 1) // GROUP_WIDTH)
-        # Do not update if `page_index` has not changed (for efficency)
+        # Do not update if `page_index` has not changed (for efficiency)
         if page_index == index // GROUP_WIDTH:
             raise PreventUpdate
         new_value = page_index * GROUP_WIDTH

@@ -106,7 +106,7 @@ var _setFields = function (index) {
   // noise standard deviation
   if (method.experiment != null) {
     let exp_data = method.experiment.csdm.dependent_variables[0];
-    if (exp_data.application == null) { 
+    if (exp_data.application == null) {
       exp_data.application = {};
     }
     if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
@@ -245,7 +245,7 @@ window.method = {
     if (method.experiment != null) {
       temp = getValue('measurement-sigma');
       let exp_data = method.experiment.csdm.dependent_variables[0];
-      if (exp_data.application == null) { 
+      if (exp_data.application == null) {
         exp_data.application = {};
       }
       if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
