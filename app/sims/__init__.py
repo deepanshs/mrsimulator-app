@@ -173,7 +173,7 @@ def one_time_simulation():
         for mth in sim.methods:
             mth.simulation = add_csdm_dvs(mth.simulation)
 
-    serialize = sim.json(units=True)
+    serialize = sim.json(include_methods=True, include_version=True)  # units=True)
     serialize["signal_processors"] = process_data
 
     layout = ctx.states["graph-view-layout.data"]
