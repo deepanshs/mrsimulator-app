@@ -263,7 +263,7 @@ def plot(*args):
     dim_axes = None
     plot_trace = []
     if experiment_data is not None:
-        dim_axes = made_dimensionless(experiment_data)
+        dim_axes = make_dimensionless(experiment_data)
         exp_data = cp.parse_dict(experiment_data).real
         plot_trace += get_plot_trace(
             exp_data,
@@ -319,7 +319,7 @@ def plot(*args):
     return [data_object, simulation_data]
 
 
-def made_dimensionless(exp):
+def make_dimensionless(exp):
     return [
         False
         if "origin_offset" not in item

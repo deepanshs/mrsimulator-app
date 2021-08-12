@@ -97,4 +97,6 @@ def parse_data(data):
 
     sim["params"] = params.dumps() if params is not None else None
 
+    print(sim.keys())
+
     return sim
