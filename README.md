@@ -7,6 +7,6 @@
 Mrsimulator-app is an interactive web app for fast and easy solid-state
 nuclear magnetic resonance (ssNMR) lineshape simulation. The app utilizes [plotly/dash](https://github.com/plotly/dash) for rendering the app interface and runs [mrsimulator](https://github.com/DeepanshS/mrsimulator) library to simulate ssNMR lineshapes.
 
-> :warning: The web-app is currently under development. We advice using with caution. Bug report are greatly appreciated.
+> :warning: The web-app is currently under development. We advise using with caution. Bug report are greatly appreciated.
 
 <!-- Contributors -->

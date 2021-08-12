@@ -147,13 +147,14 @@ def simulation(*args):
 
 def one_time_simulation():
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
+    n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
 
     if mrsim_data is None:
         raise PreventUpdate
 
     if len(mrsim_data["methods"]) == 0:
         mrsim_data["timestamp"] = datetime.datetime.now()
-        return [no_update, no_update, mrsim_data]
+        return [no_update, no_update, mrsim_data, no_update]
 
     try:
         sim = Simulator.parse_dict_with_units(mrsim_data)
@@ -162,11 +163,19 @@ def one_time_simulation():
         sim.run()
         sim.config.decompose_spectrum = decompose
     except Exception as e:
-        return [f"SimulationError: {e}", True, no_update]
+        return [f"SimulationError: {e}", True, no_update, no_update]
 
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
         processor = SignalProcessor.parse_dict_with_units(proc)
+
+        # Adjust baseline offset for multi-spin_system spectra
+        # Otherwise given baseline offset will be multiplied by number of spin_systems
+        # (future) need to adjust polynomial as well when implemented
+        for op in processor.operations:
+            if op.__class__.__name__ == "ConstantOffset":
+                op.offset = op.offset / n_sys
+
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
     if decompose == "none":

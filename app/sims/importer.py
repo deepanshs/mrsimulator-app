@@ -36,83 +36,77 @@ __email__ = "srivastava.89@osu.edu"
 # method
 # Import or update the spin-systems.
 @app.callback(
-    [
-        Output("alert-message-import", "children"),
-        Output("alert-message-import", "is_open"),
-        Output("local-mrsim-data", "data"),
-        Output("config", "data"),
-        # Output("trigger-table-update", "data"),
-        Output("spin-system-read-only", "children"),
-        Output("method-read-only", "children"),
-        Output("info-read-only", "children"),
-        Output("integration_density", "value"),
-        Output("integration_volume", "value"),
-        Output("number_of_sidebands", "value"),
-        Output("decompose", "n_click"),
-        Output("post_sim_child", "children"),
-    ],
-    [
-        # main page->drag and drop
-        Input("upload-spin-system-local", "contents"),
-        # from file->open
-        Input("open-mrsimulator-file", "contents"),
-        # spin-system->import+add
-        # Input("upload-and-add-spin-system-button", "contents"),
-        # method->add measurement
-        Input("import-measurement-for-method", "contents"),
-        Input("add-measurement-for-method", "contents"),
-        Input("upload-measurement-from-graph", "contents"),
-        # method->remove measurement
-        Input("remove-measurement-from-method", "n_clicks"),
-        # url search input
-        Input("url-search", "href"),
-        # when spin-system is modified
-        Input("new-spin-system", "modified_timestamp"),
-        # when method is modified
-        Input("new-method", "modified_timestamp"),
-        # spin-system->clear
-        Input("confirm-clear-spin-system", "submit_n_clicks"),
-        # method->clear
-        Input("confirm-clear-methods", "submit_n_clicks"),
-        # decompose into spin systems
-        Input("decompose", "active"),
-        # integration and sideband settings
-        Input("close_setting", "n_clicks"),
-        Input("save_info_modal", "n_clicks"),
-        # post simulation triggers
-        Input("submit-signal-processor-button", "n_clicks"),
-        Input("add-post_sim-scalar", "n_clicks"),
-        Input("add-post_sim-baseline", "n_clicks"),
-        Input("add-post_sim-convolution", "n_clicks"),
-        Input("select-method", "value"),
-        # Input("new-method", "modified_timestamp"),
-        Input("trigger-fit", "data"),
-        Input("trigger-sim", "data"),
-        Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
-    ],
-    [
-        # State("upload-spin-system-url", "value"),
-        State("local-mrsim-data", "data"),
-        State("new-spin-system", "data"),
-        State("new-method", "data"),
-        State("select-method", "value"),
-        State("decompose", "n_clicks"),
-        State("integration_density", "value"),
-        State("integration_volume", "value"),
-        State("number_of_sidebands", "value"),
-        State("info-name-edit", "value"),
-        State("info-description-edit", "value"),
-        # post_sim states
-        State({"function": "apodization", "args": "type", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "FWHM", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "dim_index", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "dv_index", "index": ALL}, "value"),
-        State({"function": "scale", "args": "factor", "index": ALL}, "value"),
-        State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
-        State("post_sim_child", "children"),
-        State("select-method", "options"),
-        State("params-data", "data"),
-    ],
+    Output("alert-message-import", "children"),
+    Output("alert-message-import", "is_open"),
+    Output("local-mrsim-data", "data"),
+    Output("config", "data"),
+    # Output("trigger-table-update", "data"),
+    Output("spin-system-read-only", "children"),
+    Output("method-read-only", "children"),
+    Output("info-read-only", "children"),
+    Output("integration_density", "value"),
+    Output("integration_volume", "value"),
+    Output("number_of_sidebands", "value"),
+    Output("decompose", "n_click"),
+    Output("post_sim_child", "children"),
+    # main page->drag and drop
+    Input("upload-spin-system-local", "contents"),
+    # from file->open
+    Input("open-mrsimulator-file", "contents"),
+    # spin-system->import+add
+    # Input("upload-and-add-spin-system-button", "contents"),
+    # method->add measurement
+    Input("import-measurement-for-method", "contents"),
+    Input("add-measurement-for-method", "contents"),
+    Input("upload-measurement-from-graph", "contents"),
+    # method->remove measurement
+    Input("remove-measurement-from-method", "n_clicks"),
+    # url search input
+    Input("url-search", "href"),
+    # when spin-system is modified
+    Input("new-spin-system", "modified_timestamp"),
+    # when method is modified
+    Input("new-method", "modified_timestamp"),
+    # spin-system->clear
+    Input("confirm-clear-spin-system", "submit_n_clicks"),
+    # method->clear
+    Input("confirm-clear-methods", "submit_n_clicks"),
+    # decompose into spin systems
+    Input("decompose", "active"),
+    # integration and sideband settings
+    Input("close_setting", "n_clicks"),
+    Input("save_info_modal", "n_clicks"),
+    # post simulation triggers
+    Input("submit-signal-processor-button", "n_clicks"),
+    Input("add-post_sim-scalar", "n_clicks"),
+    Input("add-post_sim-baseline", "n_clicks"),
+    Input("add-post_sim-convolution", "n_clicks"),
+    Input("select-method", "value"),
+    # Input("new-method", "modified_timestamp"),
+    Input("trigger-fit", "data"),
+    Input("trigger-sim", "data"),
+    Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
+    # State("upload-spin-system-url", "value"),
+    State("local-mrsim-data", "data"),
+    State("new-spin-system", "data"),
+    State("new-method", "data"),
+    State("select-method", "value"),
+    State("decompose", "n_clicks"),
+    State("integration_density", "value"),
+    State("integration_volume", "value"),
+    State("number_of_sidebands", "value"),
+    State("info-name-edit", "value"),
+    State("info-description-edit", "value"),
+    # post_sim states
+    State({"function": "apodization", "args": "type", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "FWHM", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "dim_index", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "dv_index", "index": ALL}, "value"),
+    State({"function": "scale", "args": "factor", "index": ALL}, "value"),
+    State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
+    State("post_sim_child", "children"),
+    State("select-method", "options"),
+    State("params-data", "data"),
     prevent_initial_call=True,
 )
 def update_simulator(*args):
@@ -440,6 +434,7 @@ def least_squares_fit():
             f"index(es) {check_for_exp} before performing the least-squares analysis."
         )
 
+    # Keep only the real part of the data
     for mth in sim.methods:
         mth.experiment = mth.experiment.real
 
