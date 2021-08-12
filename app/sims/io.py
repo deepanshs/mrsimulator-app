@@ -86,7 +86,7 @@ def parse_data(data):
     for item in sim.methods:
         item.simulation = None
 
-    sim = sim.json(include_methods=True, include_version=True)
+    sim = sim.json(include_methods=True, include_version=True)  # units=True)
 
     sim["signal_processors"] = [{"operations": []} for _ in sim["methods"]]
     if signal_processors is not None:
