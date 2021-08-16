@@ -15,8 +15,10 @@ from dash.exceptions import PreventUpdate
 from lmfit import Minimizer
 from lmfit import Parameters
 from lmfit.printfuncs import fitreport_html_table
+from mrsimulator import parse
 from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils import spectral_fitting as sf
+from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from . import home as home_UI
 from . import io as sim_IO
@@ -81,11 +83,13 @@ __email__ = "srivastava.89@osu.edu"
     Input("add-post_sim-scalar", "n_clicks"),
     Input("add-post_sim-baseline", "n_clicks"),
     Input("add-post_sim-convolution", "n_clicks"),
+    Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
     Input("select-method", "value"),
     # Input("new-method", "modified_timestamp"),
+    # Fitting/Feature triggers
     Input("trigger-fit", "data"),
     Input("trigger-sim", "data"),
-    Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
+    Input("make-lmfit-params", "n_clicks"),
     # State("upload-spin-system-url", "value"),
     State("local-mrsim-data", "data"),
     State("new-spin-system", "data"),
@@ -491,6 +495,27 @@ def least_squares_fit():
     return sim_utils.expand_output(out)
 
 
+def make_params():
+    """Makes lmfit params json from store data"""
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+
+    if mrsim_data is None:
+        raise PreventUpdate
+
+    sim, processor, _ = parse(mrsim_data)
+    params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+    mrsim_data["params"] = params_obj.dumps()
+
+    out = {
+        "alert": ["", False],
+        "mrsim": [mrsim_data, no_update],
+        "children": [no_update] * 3,
+        "mrsim_config": [no_update] * 4,
+        "processor": [no_update],
+    }
+    return sim_utils.expand_output(out)
+
+
 CALLBACKS = {
     "save_info_modal": save_info_modal,
     "decompose": on_decompose_click,
@@ -514,6 +539,7 @@ CALLBACKS = {
     "select-method": post_sim_UI.on_method_select,
     "trigger-sim": simulate_spectrum,
     "trigger-fit": least_squares_fit,
+    "make-lmfit-params": make_params,
 }
 
 
@@ -537,7 +563,7 @@ def update_list_of_methods(data):
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="onReload"),
-    Output("temp2", "children"),
+    Output("temp0", "children"),
     Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )

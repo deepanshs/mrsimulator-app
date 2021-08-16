@@ -276,3 +276,7 @@ div[data-home-table] ul[data-edit-tools] li:hover {
     display: block;
   }
 }
+
+.hidden {
+  display: none;
+}

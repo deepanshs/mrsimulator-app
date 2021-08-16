@@ -43,8 +43,8 @@ def download_session_ui():
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="downloadSession"),
         Output("download-session-link", "href"),
-        [Input("download-session-button", "n_clicks")],
-        [State("local-simulator-data", "data")],
+        Input("download-session-button", "n_clicks"),
+        State("local-simulator-data", "data"),
         prevent_initial_call=True,
     )
     return html.Div([session_link, session_button])

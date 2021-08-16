@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
-from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -316,23 +315,23 @@ app.clientside_callback(
         window.method.setIndex(n);
         throw window.dash_clientside.PreventUpdate;
     }""",
-    Output("temp6", "children"),
+    Output("temp2", "children"),
     Input("select-method", "value"),
     prevent_initial_call=True,
 )
 
-app.clientside_callback(
-    """function(n, value) {
-        let index = window.method.getIndex();
-        if (index == value) throw window.dash_clientside.PreventUpdate;
-        return index;
-    }""",
-    Output("select-method", "value"),
-    Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
-    # Input("select-method", "options"),
-    State("select-method", "value"),
-    prevent_initial_call=True,
-)
+# app.clientside_callback(
+#     """function(n, value) {
+#         let index = window.method.getIndex();
+#         if (index == value) throw window.dash_clientside.PreventUpdate;
+#         return index;
+#     }""",
+#     Output("select-method", "value"),
+#     Input("mth-feature-select", "value"),
+#     # Input("select-method", "options"),
+#     State("select-method", "value"),
+#     prevent_initial_call=True,
+# )
 
 app.clientside_callback(
     ClientsideFunction(namespace="method", function_name="updateMethodJson"),

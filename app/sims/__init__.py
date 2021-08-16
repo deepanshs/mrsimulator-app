@@ -18,7 +18,7 @@ from mrsimulator.signal_processing import SignalProcessor
 from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
-from .fit import fit_body
+from .features import features_body
 from .fit_report import fit_report_body
 from .graph import DEFAULT_FIGURE
 from .graph import plot_1D_trace
@@ -104,14 +104,14 @@ body_content = [
     home_body,
     spin_system_body,
     method_body,
-    fit_body,
+    features_body,
     fit_report_body,
     spectrum_body,
 ]
 main_body = html.Div(body_content, className="mobile-scroll")
 
 # temp items
-temp = [html.Div(id=f"temp{i}") for i in range(6)]
+temp = [html.Div(id=f"temp{i}") for i in range(10)]
 
 # content page
 content = html.Div([*temp, main_body, store_items, bottom_nav], className="app-1")
@@ -182,7 +182,7 @@ def one_time_simulation():
         for mth in sim.methods:
             mth.simulation = add_csdm_dvs(mth.simulation)
 
-    serialize = sim.json(units=True)
+    serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
 
     layout = ctx.states["graph-view-layout.data"]
