@@ -178,6 +178,9 @@ def clear(attribute):
     if "signal_processors" in existing_data:
         for proc in existing_data["signal_processors"]:
             proc["operations"] = []
+
+    add_params(existing_data)
+
     return sim_utils.assemble_data(existing_data)
 
 
@@ -215,6 +218,8 @@ def on_method_update():
     def generate_outputs(existing_data, n=None):
         home_overview = home_UI.refresh(existing_data)
         method_overview = method_UI.refresh(existing_data["methods"])
+
+        add_params(existing_data)
 
         out = {
             "alert": ["", False],
@@ -272,6 +277,8 @@ def on_spin_system_change():
     def generate_outputs(existing_data):
         home_overview = home_UI.refresh(existing_data)
         spin_system_overview = spin_system_UI.refresh(existing_data["spin_systems"])
+
+        add_params(existing_data)
 
         out = {
             "alert": ["", False],
@@ -496,24 +503,36 @@ def least_squares_fit():
 
 
 def make_params():
-    """Makes lmfit params json from store data"""
+    """Creates and adds params to local-mrsim-data leaving other outputs unchanged"""
     mrsim_data = ctx.states["local-mrsim-data.data"]
+    mrsim_data = add_params(mrsim_data)
 
+    out = {
+        "alert": ["", False],
+        "mrsim": [mrsim_data, no_update],
+        "children": [no_update, no_update, no_update],
+        "mrsim_config": [no_update] * 4,
+        "processor": [no_update],
+    }
+    return sim_utils.expand_output(out)
+
+
+def add_params(mrsim_data):
+    """Adds updates params to mrsim_dict"""
     if mrsim_data is None:
-        raise PreventUpdate
+        return mrsim_data
+
+    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+        return mrsim_data
+
+    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+        return mrsim_data
 
     sim, processor, _ = parse(mrsim_data)
     params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
     mrsim_data["params"] = params_obj.dumps()
 
-    out = {
-        "alert": ["", False],
-        "mrsim": [mrsim_data, no_update],
-        "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
-        "processor": [no_update],
-    }
-    return sim_utils.expand_output(out)
+    return mrsim_data
 
 
 CALLBACKS = {
@@ -550,6 +569,7 @@ CALLBACKS = {
     prevent_initial_call=True,
 )
 def update_list_of_methods(data):
+    """Updates the options for selecting a method in the methods tab"""
     if data is None:
         raise PreventUpdate
     if data["methods"] is None:

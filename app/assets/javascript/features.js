@@ -43,27 +43,32 @@ const mthPrefix = ["mth", "SP"];
  * Takes JSON representation of LMFIT Parameters object
  * and groups Parameter objects into spin_systems and methods.
  *
- * @param {String} mrsim_data JSON string of local-mrsim-data
- * @param {String} params_data JSON string of params-data
+ * @param {Number} _n1 button trigger (unused)
+ * @param {Object} _mrsim_data local-mrsim-data (unused)
  */
-var _reloadParamGroups = function (_n1, mrsim_data, params_data) {
+var _reloadParamGroups = function (_n1, _mrsim_data) {
     console.log("_reloadParamGroups");
-    const trig_id = ctxTriggerID()[0].split(".")[0];
 
-    let params = {};
-    if (trig_id == "local-mrsim-data") {
-        if (mrsim_data.params == null) {
-            // Click the hidden button to make lmfit params in python callback
-            document.getElementById("make-lmfit-params").click();
-            throw window.dash_clientside.PreventUpdate;
-        }
-        params_data = mrsim_data.params;
+    // Get stored json string
+    params_json = storeData.data.params;
+    if (params_json == null) {
+        // Clcik button to trigger a callback to create and add params to
+        // local-mrsim-data.
+        document.getElementById("make-lmfit-params").click();
+        throw window.dash_clientside.PreventUpdate;
     }
+
+    // Remove old stored params
+    paramGroups = {
+        spin_systems: [],
+        methods: [],
+    };
+
     // Clean 'NaN' and 'Infinity' out of JSON string.
-    params_data = params_data.replaceAll("NaN", null);
-    params_data = params_data.replaceAll("-Infinity", null);
-    params_data = params_data.replaceAll("Infinity", null);
-    params = JSON.parse(params_data).params;
+    params_json = params_json.replaceAll("NaN", null);
+    params_json = params_json.replaceAll("-Infinity", null);
+    params_json = params_json.replaceAll("Infinity", null);
+    params = JSON.parse(params_json).params;
 
     // Add dict elements to storage array
     let num_sys = storeData.data.spin_systems.length;
@@ -119,8 +124,10 @@ var _refreshTables = function (_n1, _n2, sys_idx, mth_idx) {
  * @param {String} old_json JSON of currently held Parameters obj
  * @returns {String} updated JSON
  */
-var _serializeParamGroups = function (old_json) {
+var _serializeParamGroups = function () {
     console.log("_serializeParamGroups");
+
+    old_json = storeData.data.params;
 
     // Make new str for parameters JSON
     let new_json = '"params":[';
@@ -169,21 +176,14 @@ var _serializeParamGroups = function (old_json) {
  * Serialize data in tables and trigger a simulation or fit
  *
  * @param {String} which flag for which to trigger ("sim" or "fit")
- * @param {Object} mrsim_data stored data in local-mrsim-data
- * @param {String} params_data JSON str of Parameters object
  * @returns
  */
-var _triggerSimOrFit = function (_trig, which, mrsim_data, params_data) {
+var _triggerSimOrFit = function (_trig, which) {
     console.log("_triggerSimOrFit");
     saveSys();
     saveMth();
 
-    let data = params_data;
-    if (data == null) {
-        data = mrsim_data.params;
-    }
-
-    let new_data = _serializeParamGroups(data);
+    let new_data = _serializeParamGroups();
     if (which == "sim") {
         return new_data, Date.now(), window.dash_clientside.no_update;
     }
@@ -204,6 +204,12 @@ var _triggerSimOrFit = function (_trig, which, mrsim_data, params_data) {
     // Remove currently stored rows
     while(rows.hasChildNodes()) {
         rows.removeChild(rows.lastChild);
+    }
+
+    // Check if rows is none
+    if (rows == null) {
+        console.log("Rows is undefined. Halting update");
+        throw window.dash_clientside.PreventUpdate;
     }
 
     // Iteerate through relevent stored parameters and update values
@@ -300,7 +306,7 @@ var saveSys = function (idx = null) {
 
 
 /**
- * Saves teh SJON serialization of Parameter objects at current method table.
+ * Saves the JSON serialization of Parameter objects at current method table.
  */
 var saveMth = function (idx = null) {
     console.log("saveMth");
@@ -334,10 +340,10 @@ window.dash_clientside.features = {
     triggerSimOrFit: _triggerSimOrFit,
     reloadParamGroups: _reloadParamGroups,
     refreshTables: _refreshTables,
-    serializeParamGroups: function (data) {
+    serializeParamGroups: function () {
         saveSys();
         saveMth();
-        return _serializeParamGroups(data);
+        return _serializeParamGroups();
     },
     selectNewSys: function (idx) {
         saveSys();

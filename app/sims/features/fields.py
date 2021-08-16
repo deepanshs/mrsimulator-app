@@ -81,7 +81,6 @@ app.clientside_callback(
     Output("temp3", "children"),
     Input("reload-param-groups", "n_clicks"),
     Input("local-mrsim-data", "data"),
-    Input("params-data", "data"),
     prevent_initial_call=True,
 )
 
@@ -92,7 +91,6 @@ app.clientside_callback(
     Output("temp4", "children"),
     Input("refresh-groups-and-tables", "n_clicks"),
     Input("view-features", "n_clicks"),
-    State("params-data", "data"),
     State("sys-feature-select", "value"),
     State("mth-feature-select", "value"),
     prevent_initial_call=True,
@@ -123,8 +121,6 @@ app.clientside_callback(
     Output("trigger-fit", "data"),  # flag (timestamp)
     Input("trigger-params-update", "data"),  # flag (timestamp)
     Input("which-workflow", "data"),  # flag ("fit" or "sim")
-    State("local-mrsim-data", "data"),
-    State("params-data", "data"),
     prevent_initial_call=True,
 )
 
