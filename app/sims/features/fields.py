@@ -29,7 +29,7 @@ def input_tables():
                     ]
                 )
             ),
-            html.Tbody(id="sys-feature-rows"),
+            html.Tbody(id="sys-feature-rows", className="feature-rows"),
         ],
         id="sys-feature-table",
     )
@@ -45,7 +45,7 @@ def input_tables():
                     ]
                 )
             ),
-            html.Tbody(id="mth-feature-rows"),
+            html.Tbody(id="mth-feature-rows", className="feature-rows"),
         ],
         id="mth-feature-table",
     )

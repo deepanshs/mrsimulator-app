@@ -217,13 +217,13 @@ var _triggerSimOrFit = function (_trig, which, mrsim_data, params_data) {
         new_row.insertCell().appendChild(checkbox);
 
         // Add name
-        let name = document.createElement("p");
+        let name = new_row.insertCell();
         name.innerText = key;
-        new_row.insertCell().appendChild(name)
 
         // Add value
         let val = document.createElement("input");
         val.type = "number";
+        val.step = "any";
         val.value = value[0];
         new_row.insertCell().appendChild(val);
 

@@ -9,44 +9,25 @@
   margin: 0.5em 0;
 }
 
-.fields-table {
-  margin-bottom: 1.5em;
-  display: none;
-}
-.fields-table.active {
-  display: table;
-}
-
 /* Checkbox */
-.fields-table thead th:first-child {
-  width: 2.2em;
+.fit-scroll table thead th:first-child {
+  width: 8%;
 }
 /* Options modal button */
-.fields-table thead th:last-child {
-  width: 2.7em;
+.fit-scroll table thead th:last-child {
+  width: 8%;
 }
 /* Name */
-.fields-table thead th:nth-child(2) {
-  width: 60%;
+.fit-scroll table thead th:nth-child(2) {
+  width: 53%;
 }
 /* Value */
-.fields-table thead th:nth-child(3) {
-  width: 40%;
+.fit-scroll table thead th:nth-child(3) {
+  width: 31%;
 }
 
-.fields-table thead tr td div {
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: small;
-}
-
-.fields-table input[type="checkbox"] {
-  align-items: center;
-}
-.fields-table input[type="number"],
-.fields-table input[type="text"] {
+.feature-rows input[type="number"],
+.feature-rows input[type="text"] {
   width: 100%;
   padding: 0.5em;
   margin: -0.5em;
@@ -54,8 +35,8 @@
   border: 1px solid var(--text-box-underline-color);
 }
 
-.fields-table input:focus,
-.fields-table:focus {
+.feature-rows input:focus,
+.feature-rows:focus {
   color: black;
   text-decoration: none;
   cursor: text;
