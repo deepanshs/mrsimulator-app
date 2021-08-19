@@ -9,6 +9,13 @@
   margin: 0.5em 0;
 }
 
+.fit-scroll {
+  min-height: calc(var(--content-min-height) - 6em);
+  height: calc(var(--content-max-height) - 6em);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
 /* Checkbox */
 .fit-scroll table thead th:first-child {
   width: 8%;
@@ -19,11 +26,11 @@
 }
 /* Name */
 .fit-scroll table thead th:nth-child(2) {
-  width: 53%;
+  width: 56%;
 }
 /* Value */
 .fit-scroll table thead th:nth-child(3) {
-  width: 31%;
+  width: 28%;
 }
 
 .feature-rows input[type="number"],
@@ -35,6 +42,7 @@
   border: 1px solid var(--text-box-underline-color);
 }
 
+/* Need to not apply border to last child in table */
 .feature-rows input:focus,
 .feature-rows:focus {
   color: black;
@@ -79,12 +87,6 @@
   content: none;
 }
 
-.fit-scroll {
-  min-height: calc(var(--content-min-height) - 6em);
-  height: calc(var(--content-max-height) - 6em);
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
 
 .feature-select {
   display: flex;
@@ -99,12 +101,20 @@
   margin: auto 0;
 }
 
-div.fit-modal {
-  padding-bottom: 0.5em;
-}
-.fit-expr-text {
-  width: 60%;
-}
-.fit-expr {
+#features-modal .modal-body div {
+  display: flex;
   justify-content: space-between;
+  padding: 0.5em;
+}
+
+#features-modal-min,
+#features-modal-max {
+  margin: -0.2em;
+  /* border-radius: 0.1em; */
+}
+
+#features-modal-expr {
+  border-color: #8f8f8f;
+  width: 60%;
+  margin: -0.2em;
 }

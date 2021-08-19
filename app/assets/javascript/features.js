@@ -32,6 +32,7 @@
  *  ]
  */
 var paramGroups = {
+    modal_name: null,
     spin_systems: [],
     methods: [],
 };
@@ -43,23 +44,26 @@ const mthPrefix = ["mth", "SP"];
  * Takes JSON representation of LMFIT Parameters object
  * and groups Parameter objects into spin_systems and methods.
  *
- * @param {Number} _n1 button trigger (unused)
  * @param {Object} _mrsim_data local-mrsim-data (unused)
  */
-var _reloadParamGroups = function (_n1, _mrsim_data) {
+var _reloadParamGroups = function (_mrsim_data) {
     console.log("_reloadParamGroups");
 
-    // Get stored json string
-    params_json = storeData.data.params;
-    if (params_json == null) {
-        // Clcik button to trigger a callback to create and add params to
-        // local-mrsim-data.
-        document.getElementById("make-lmfit-params").click();
+    // Logic for creating params JSON if not already present
+    if (!storeData.data.params) {  // true if 'null', 'undefined' or empty str
+        // Create params JSON if at least 1 spin_system and 1 method
+        if (storeData.data.methods.length && storeData.data.spin_systems.length) {
+            document.getElementById("make-lmfit-params").click();
+        }
         throw window.dash_clientside.PreventUpdate;
     }
 
+    // Get stored json string
+    params_json = storeData.data.params;
+
     // Remove old stored params
     paramGroups = {
+        modal_name: null,
         spin_systems: [],
         methods: [],
     };
@@ -76,7 +80,7 @@ var _reloadParamGroups = function (_n1, _mrsim_data) {
     for (num_sys; num_sys > 0; num_sys--) {
         paramGroups.spin_systems.push({});
     }
-    for(num_mth; num_mth > 0; num_mth--) {
+    for (num_mth; num_mth > 0; num_mth--) {
         paramGroups.methods.push({});
     }
 
@@ -129,8 +133,8 @@ var _serializeParamGroups = function () {
 
     old_json = storeData.data.params;
 
-    // Make new str for parameters JSON
-    let new_json = '"params":[';
+    // Make temporary array for parameters
+    let tmp_arr = [];
 
     // Iterate through spin_systems
     paramGroups.spin_systems.forEach(element => {
@@ -138,12 +142,12 @@ var _serializeParamGroups = function () {
             let tmp = [key].concat(value);
             // Replace null min/max with str to replace in json
             if (tmp[4] == null) {
-                tmp[4] = "~rep -inf~";
+                tmp[4] = -Infinity;
             }
             if (tmp[5] == null) {
-                tmp[5] = "~rep inf~";
+                tmp[5] = Infinity;
             }
-            new_json = new_json.concat(JSON.stringify(tmp));
+            tmp_arr.push(tmp);
         }
     });
 
@@ -151,24 +155,23 @@ var _serializeParamGroups = function () {
     paramGroups.methods.forEach(element => {
         for (const [key, value] of Object.entries(element)) {
             let tmp = [key].concat(value);
-            // Replace null min/max with str to replace in json
+            // Replace null min/max with +-Infinity
             if (tmp[4] == null) {
-                tmp[4] = "~rep -inf~";
+                tmp[4] = -Infinity;
             }
             if (tmp[5] == null) {
-                tmp[5] = "~rep inf~";
+                tmp[5] = Infinity;
             }
-            new_json = new_json.concat(JSON.stringify(tmp));
+            tmp_arr.push(tmp);
         }
     });
 
-    // Replace unbound min/max to comply with LMFIT serialization
-    new_json = new_json.replaceAll("~rep -inf~", "-Infinity");
-    new_json = new_json.replaceAll("~rep inf~", "Infinity");
+    let new_json = '"params":' + JSON.stringify(tmp_arr);
+
 
     // Replace "params" key in old data with new json
     old_json = old_json.substring(0, old_json.indexOf('"params":'));
-    return old_json.concat(new_json, ']');
+    return old_json + new_json + "}";
 };
 
 
@@ -183,14 +186,17 @@ var _triggerSimOrFit = function (_trig, which) {
     saveSys();
     saveMth();
 
+    console.log(which)
+
     let new_data = _serializeParamGroups();
     if (which == "sim") {
-        return new_data, Date.now(), window.dash_clientside.no_update;
+        return [new_data, Date.now(), window.dash_clientside.no_update];
     }
     if (which == "fit") {
-        return new_data, window.dash_clientside.no_update, Date.now();
+        return [new_data, window.dash_clientside.no_update, Date.now()];
     }
-    return window.dash_clientside.PreventUpdate;
+    console.log("which not recognized");
+    throw window.dash_clientside.PreventUpdate;
 }
 
 
@@ -200,15 +206,21 @@ var _triggerSimOrFit = function (_trig, which) {
  * @param {tbody} rows HTML tbody element to add param rows to
  * @param {Object} params
  */
- var updateRows = function (rows, params) {
+var updateRows = function (rows, params) {
     // Remove currently stored rows
-    while(rows.hasChildNodes()) {
+    while (rows.hasChildNodes()) {
         rows.removeChild(rows.lastChild);
     }
 
     // Check if rows is none
     if (rows == null) {
         console.log("Rows is undefined. Halting update");
+        throw window.dash_clientside.PreventUpdate;
+    }
+
+    // Check if params is none
+    if (params == null) {
+        console.log("Params is undefined. Halting update");
         throw window.dash_clientside.PreventUpdate;
     }
 
@@ -224,7 +236,7 @@ var _triggerSimOrFit = function (_trig, which) {
 
         // Add name
         let name = new_row.insertCell();
-        name.innerText = key;
+        name.textContent = key;
 
         // Add value
         let val = document.createElement("input");
@@ -234,8 +246,17 @@ var _triggerSimOrFit = function (_trig, which) {
         new_row.insertCell().appendChild(val);
 
         // More options button
-        let button = document.createElement("button");
-        button.innerText = "btn";
+        let button = document.createElement("span");
+        let icon = document.createElement("i");
+        icon.className = "fas fa-sliders-h";
+        button.appendChild(icon);
+        button.setAttribute("data-edit-fit", "");
+        button.onclick = function () {
+            paramGroups.modal_name = key;
+            document.getElementById("open-features-modal").click();
+        }
+        // button.id = `{'param':'${key}'}`  // NOTE: Single quotes here required
+
         new_row.insertCell().appendChild(button);
     }
 };
@@ -247,9 +268,9 @@ var _triggerSimOrFit = function (_trig, which) {
  * @param {number} idx index of spin_system table to load
  */
 var loadSys = function (idx) {
-    console.log("loadSys");
+    console.log(`loadSys ${idx}`);
 
-    document.getElementById("sys-feature-title").innerText = "Spin System " + idx;
+    document.getElementById("sys-feature-title").textContent = "Spin System " + idx;
     let rows = document.getElementById("sys-feature-rows");
     let params = paramGroups.spin_systems[idx];
     updateRows(rows, params);
@@ -262,9 +283,9 @@ var loadSys = function (idx) {
  * @param {number} idx index of method table to load
  */
 var loadMth = function (idx) {
-    console.log("loadMth");
+    console.log(`loadMth ${idx}`);
 
-    document.getElementById("mth-feature-title").innerText = "Method " + idx;
+    document.getElementById("mth-feature-title").textContent = "Method " + idx;
     let rows = document.getElementById("mth-feature-rows");
     let params = paramGroups.methods[idx];
     updateRows(rows, params);
@@ -282,7 +303,7 @@ var saveSys = function (idx = null) {
 
     // Set idx to current spin_system index of not specified
     if (idx == null) {
-        idx = document.getElementById("sys-feature-title").innerText.slice(-1);
+        idx = document.getElementById("sys-feature-title").textContent.slice(-1);
         idx = parseInt(idx);
     }
 
@@ -291,16 +312,13 @@ var saveSys = function (idx = null) {
     // const num_params = paramGroups.spin_systems[idx].length
     let rows = document.getElementById("sys-feature-rows");
     for (let i = 0; i < rows.length; i++) {
-        let name = rows[i].cells[1].childNodes[0].innerText;
+        let name = rows[i].cells[1].childNodes[0].textContent;
 
         // Update vary parameter
         group[name][1] = rows[i].cells[0].childNodes[0].checked;
 
         // Update value parameter
         group[name][0] = rows[i].cells[0].childNodes[0].value;
-
-        // Update modal parameters
-        // NEED TO IMPLEMENT
     }
 };
 
@@ -313,7 +331,7 @@ var saveMth = function (idx = null) {
 
     // Set idx to current method index of not specified
     if (idx == null) {
-        idx = document.getElementById("mth-feature-title").innerText.slice(-1);
+        idx = document.getElementById("mth-feature-title").textContent.slice(-1);
         idx = parseInt(idx);
     }
 
@@ -322,18 +340,66 @@ var saveMth = function (idx = null) {
     // const num_params = paramGroups.spin_systems[idx].length
     let rows = document.getElementById("mth-feature-rows");
     for (let i = 0; i < rows.length; i++) {
-        let name = rows[i].cells[1].childNodes[0].innerText;
+        let name = rows[i].cells[1].childNodes[0].textContent;
 
         // Update vary parameter
         group[name][1] = rows[i].cells[0].childNodes[0].checked;
 
         // Update value parameter
         group[name][0] = rows[i].cells[0].childNodes[0].value;
-
-        // Update modal parameters
-        // NEED TO IMPLEMENT
     }
 };
+
+
+/**
+ * Sets the fields of the features modal and opens the modal
+ */
+var _loadModal = function (param_name) {
+    console.log(`_loadModal ${param_name}`);
+    const prefix = param_name.split("_")[0];
+    let param_attrs = null;
+
+    // Determine if param is part of spin_systems or methods
+    if (sysPrefix.includes(prefix)) {
+        param_attrs = paramGroups.spin_systems[storeData.spin_system_index][param_name];
+    } else if (mthPrefix.includes(prefix)) {
+        param_attrs = paramGroups.methods[storeData.method_index][param_name];
+    }
+
+    console.log(document.getElementById("features-modal-subtitle"))
+
+    // Set modal fields from attributes
+    document.getElementById("features-modal-subtitle").textContent = param_name;
+    document.getElementById("features-modal-min").value = param_attrs[3];
+    document.getElementById("features-modal-max").value = param_attrs[4];
+    document.getElementById("features-modal-expr").value = param_attrs[2];
+
+    console.log("step 2")
+}
+
+
+/**
+ * Saves the fields from the features modal and closes the modal
+ */
+var _saveModal = function () {
+    console.log("_saveModal");
+    const param_name = paramGroups.modal_name;
+    console.log(param_name);
+    const prefix = param_name.split("_")[0];
+    let param_attrs = null;
+
+    // Determine if param is part of spin_systems or methods
+    if (sysPrefix.includes(prefix)) {
+        param_attrs = paramGroups.spin_systems[storeData.spin_system_index][param_name];
+    } else if (mthPrefix.includes(prefix)) {
+        param_attrs = paramGroups.methods[storeData.method_index][param_name];
+    }
+
+    // Grab attributes from inputs
+    param_attrs[3] = document.getElementById("features-modal-min").value;
+    param_attrs[4] = document.getElementById("features-modal-max").value;
+    param_attrs[2] = document.getElementById("features-modal-expr").value;
+}
 
 
 window.dash_clientside.features = {
@@ -357,4 +423,29 @@ window.dash_clientside.features = {
         window.method.setIndex(idx);
         return null;
     },
+    openOrCloseModal: function (_n1, _n2, _n3) {
+        const trig_id = ctxTriggerID()[0].split(".")[0];
+
+        // Open the modal
+        if (trig_id == "open-features-modal") { return true; }
+
+        // Close features modal
+        if (trig_id == "close-features-modal") {
+            paramGroups.modal_name = null;
+            return false;
+        }
+        // Save and close features modal
+        if (trig_id == "features-modal-save") {
+            _saveModal();
+            paramGroups.modal_name = null;
+            return false;
+        }
+    },
+    //, _sub, _min, _max, _expr
+    populateModalFields: function (is_open) {
+        // Fires on modal open
+        if (is_open) {
+            _loadModal(paramGroups.modal_name);
+        }
+    }
 }

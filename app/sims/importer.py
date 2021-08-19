@@ -411,8 +411,6 @@ def simulate_spectrum():
     sf.update_mrsim_obj_from_params(params, sim, processor)
     new_mrsim_data = mrsim.dict(sim, processor, saved_params)
     new_mrsim_data["params"] = params.dumps()
-    # Use this line? Or something else
-    # new_mrsim_data = mrsim.dict(sim, processor, params)
 
     out = {
         "alert": ["", False],

@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 
+from .fields import features_modal
 from .fields import fields
 from .fit_modal import fit_info_modal
 from app.custom_widgets import custom_button
@@ -51,7 +52,6 @@ def feature_select():
         labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
-        value=0,
     )
     mth_select_buttons = dbc.RadioItems(
         id="mth-feature-select",
@@ -59,7 +59,6 @@ def feature_select():
         labelClassName="btn btn-primary",
         labelCheckedClassName="active",
         labelStyle={"display": "inline-block"},
-        value=0,
     )
 
     sys_head = html.Div(
@@ -86,7 +85,14 @@ def features_header():
 
 def ui():
     page = html.Div(
-        [features_header(), feature_select(), fields, fit_info_modal, storage_div]
+        [
+            features_header(),
+            feature_select(),
+            fields,
+            fit_info_modal,
+            features_modal,
+            storage_div,
+        ]
     )
     return html.Div(className="left-card", children=page, id="features-body")
 
