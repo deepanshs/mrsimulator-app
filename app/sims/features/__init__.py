@@ -46,27 +46,31 @@ def buttons():
 
 def feature_select():
     """Radio buttons for selecting spin system and method tables"""
-    sys_select_buttons = dbc.RadioItems(
-        id="sys-feature-select",
-        className="table-select btn-group",
-        labelClassName="btn btn-primary",
-        labelCheckedClassName="active",
-        labelStyle={"display": "inline-block"},
+    sys_select_div = html.Div(id="sys-feature-select", className="feature-select")
+    mth_select_div = html.Div(id="mth-feature-select", className="feature-select")
+
+    sys_page_left = html.Span(
+        "<", id="page-sys-feature-left", className="btn-link hidden"
     )
-    mth_select_buttons = dbc.RadioItems(
-        id="mth-feature-select",
-        className="table-select btn-group",
-        labelClassName="btn btn-primary",
-        labelCheckedClassName="active",
-        labelStyle={"display": "inline-block"},
+    sys_page_right = html.Span(
+        ">", id="page-sys-feature-right", className="btn-link hidden"
+    )
+    mth_page_left = html.Span(
+        "<", id="page-mth-feature-left", className="btn-link hidden"
+    )
+    mth_page_right = html.Span(
+        ">", id="page-mth-feature-right", className="btn-link hidden"
     )
 
-    sys_head = html.Div(
-        [html.H6("Spin Systems"), sys_select_buttons], className="feature-select"
+    sys_btns = html.Div(
+        [sys_page_left, sys_select_div, sys_page_right], className="feature-buttons"
     )
-    mth_head = html.Div(
-        [html.H6("Methods"), mth_select_buttons], className="feature-select"
+    mth_btns = html.Div(
+        [mth_page_left, mth_select_div, mth_page_right], className="feature-buttons"
     )
+
+    sys_head = html.Div([html.H6("Spin Systems"), sys_btns], className="feature-select")
+    mth_head = html.Div([html.H6("Methods"), mth_btns], className="feature-select")
     return html.Div([sys_head, mth_head], id="feature-select-div")
 
 

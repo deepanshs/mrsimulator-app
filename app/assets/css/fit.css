@@ -42,6 +42,11 @@
   border: 1px solid var(--text-box-underline-color);
 }
 
+.feature-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* Need to not apply border to last child in table */
 .feature-rows input:focus,
 .feature-rows:focus {
@@ -53,49 +58,39 @@
   box-shadow: 0 0 2px 1px #48a3ff7c;
 }
 
-.custom-radio .btn-primary {
+.select-spot {
   width: 24px;
-  height: auto;
-  border-radius: 12px;
-  color: black;
-  background-color: white;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  background: white;
   border: 1px solid #dfdfdf;
+  border-radius: 100%;
+  margin: 0.15em;
+  cursor: pointer;
 }
 
-.custom-radio .btn-primary:hover {
+.select-spot:not(.active):hover {
   color: black;
   background-color: #cee3ff;
 }
 
-.custom-radio .btn-primary:not(:disabled):not(.disabled).active {
+.select-spot.active {
   color: white;
   background-color: var(--select-blue);
+  border-color: #005cbf;
 }
-
-.table-select .custom-control {
-  padding: 0 0.15em;
-}
-
-.table-select .custom-control-label {
-  padding: 0;
-}
-.table-select .custom-control-input ~ .custom-control-label::before,
-.table-select
-  .custom-radio
-  .custom-control-input
-  ~ .custom-control-label::after {
-  content: none;
-}
-
 
 .feature-select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1em;
+  padding: 0.1em 0.5em;
 }
 .feature-select .btn-link {
   padding: 3px 8px;
+  cursor: pointer;
 }
 .feature-select h6 {
   margin: auto 0;
@@ -117,4 +112,5 @@
   border-color: #8f8f8f;
   width: 60%;
   margin: -0.2em;
+  resize: none;
 }

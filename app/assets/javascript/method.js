@@ -106,7 +106,7 @@ var _setFields = function (index) {
   // noise standard deviation
   if (method.experiment != null) {
     let exp_data = method.experiment.csdm.dependent_variables[0];
-    if (exp_data.application == null) { 
+    if (exp_data.application == null) {
       exp_data.application = {};
     }
     if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
@@ -212,9 +212,15 @@ window.method = {
 
   setIndex: function (index) {
     storeData.method_index = index;
+    document.getElementById("force-refresh-method").click();
   },
 
   select: function (listomers, index) {
+    if (listomers == null) {
+      listomers = document.querySelectorAll(
+        "#method-read-only div.scrollable-list ul li"
+      );
+    }
     if (listomers.length > 0) {
       listomers[index].click();
     }
@@ -233,6 +239,9 @@ window.method = {
       tr.classList.remove("active");
     });
     overView[index + 1].classList.add("active");
+
+    // Select updates method in features tab
+    window.features.selectMethod(index);
   },
 
   setFields: _setFields,
@@ -245,7 +254,7 @@ window.method = {
     if (method.experiment != null) {
       temp = getValue('measurement-sigma');
       let exp_data = method.experiment.csdm.dependent_variables[0];
-      if (exp_data.application == null) { 
+      if (exp_data.application == null) {
         exp_data.application = {};
       }
       if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {

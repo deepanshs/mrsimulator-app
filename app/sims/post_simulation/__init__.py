@@ -94,12 +94,17 @@ def setup():
     if method_index is None:
         raise PreventUpdate
 
-    mth_options = ctx.states["select-method.options"]
-    print("method_options", mth_options)
-    mth_options = [1] or mth_options
+    # mth_options = ctx.states["select-method.options"]
+    # print("method_options", mth_options)
+    # mth_options = [1] or mth_options
+
+    # if existing_data["signal_processors"] is None:
+    #     existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
 
     if existing_data["signal_processors"] is None:
-        existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
+        n_mth = len(existing_data.methods)
+        existing_data["signal_processors"] = [{"operations": []} for _ in range(n_mth)]
+
     return existing_data, method_index
 
 

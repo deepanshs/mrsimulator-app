@@ -25,9 +25,10 @@ __email__ = "srivastava.89@osu.edu"
 
 
 def hidden_method_select_element():
-    """The element is used for update plots based on method selection."""
-    select_method = dcc.Dropdown(id="select-method", value=0)
-    return html.Div(select_method, style={"display": "none"})
+    """Hiddent element to hold method index for Python side and update plot."""
+    # select_method = dcc.Dropdown(id="select-method", value=0)
+    # return html.Div(select_method, style={"display": "none"})
+    return dcc.Input(id="select-method", value=0, type="number", className="hidden")
 
 
 def post_simulation_ui(n_dimensions):
@@ -310,15 +311,42 @@ def calculate_sigma(n1, fig):
     )
 
 
+# # callback might not be needed. updating select method in js
+# app.clientside_callback(
+#     """function(n) {
+#         window.method.setIndex(n);
+#         throw window.dash_clientside.PreventUpdate;
+#     }""",
+#     Output("temp2", "children"),
+#     Input("select-method", "value"),
+#     prevent_initial_call=True,
+# )
+
+
 app.clientside_callback(
-    """function(n) {
-        window.method.setIndex(n);
-        throw window.dash_clientside.PreventUpdate;
-    }""",
-    Output("temp2", "children"),
-    Input("select-method", "value"),
+    """function (n1, value) {
+        let index = window.method.getIndex();
+        if (index == value) throw window.dash_clientside.PreventUpdate;
+        return index;
+    }
+    """,
+    Output("select-method", "value"),
+    Input("force-refresh-method", "n_clicks"),
+    State("select-method", "value"),
     prevent_initial_call=True,
 )
+
+
+# app.clientside_callback(
+#     """funtion(value) {
+#         return parseInt(value);
+#     }
+#     """,
+#     Output("select-method", "value"),
+#     Input("method-select-hidden", "children"),
+#     prevent_initial_call=True,
+# )
+
 
 # app.clientside_callback(
 #     """function(n, value) {

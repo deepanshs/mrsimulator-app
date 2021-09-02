@@ -36,18 +36,23 @@ var paramGroups = {
     spin_systems: [],
     methods: [],
 };
+var doExternalIndexUpdate = true;
 const sysPrefix = ["sys"];
 const mthPrefix = ["mth", "SP"];
+const maxFeatureButtons = 8;
 
 
 /**
  * Takes JSON representation of LMFIT Parameters object
  * and groups Parameter objects into spin_systems and methods.
- *
- * @param {Object} _mrsim_data local-mrsim-data (unused)
  */
-var _reloadParamGroups = function (_mrsim_data) {
+var _reloadParamGroups = function () {
     console.log("_reloadParamGroups");
+
+    // If number of spin systems or methods is zero do not update
+    if (!(storeData.data.spin_systems.length && storeData.data.methods.length)) {
+        throw window.dash_clientside.PreventUpdate;
+    }
 
     // Logic for creating params JSON if not already present
     if (!storeData.data.params) {  // true if 'null', 'undefined' or empty str
@@ -106,26 +111,19 @@ var _reloadParamGroups = function (_mrsim_data) {
 
 /**
  * Refreshes held values of both tabels
- *
- * @param {Number} sys_idx index of current system table
- * @param {Number} mth_idx index of current method table
  */
-var _refreshTables = function (_n1, _n2, sys_idx, mth_idx) {
-    if (sys_idx == null) {
-        sys_idx = 0;
-    }
-    if (mth_idx == null) {
-        mth_idx = 0;
-    }
-    loadSys(sys_idx);
-    loadMth(mth_idx);
+var _refreshTables = function (_n1, _n2) {
+    sys_idx = storeData.spin_system_index;
+    mth_idx = storeData.method_index;
+    console.log(`_refreshTables: sys - ${sys_idx}, mth - ${mth_idx}`);
+    _loadSys(sys_idx);
+    _loadMth(mth_idx);
 }
 
 
 /**
  * Serializes paramGroups variable into LMFIT compliant JSON string
  *
- * @param {String} old_json JSON of currently held Parameters obj
  * @returns {String} updated JSON
  */
 var _serializeParamGroups = function () {
@@ -178,8 +176,7 @@ var _serializeParamGroups = function () {
 /**
  * Serialize data in tables and trigger a simulation or fit
  *
- * @param {String} which flag for which to trigger ("sim" or "fit")
- * @returns
+ * @param {String} which: flag for which to trigger ("sim" or "fit")
  */
 var _triggerSimOrFit = function (_trig, which) {
     console.log("_triggerSimOrFit");
@@ -203,10 +200,10 @@ var _triggerSimOrFit = function (_trig, which) {
 // Reduce resuded code by completing this method
 /**
  *
- * @param {tbody} rows HTML tbody element to add param rows to
+ * @param {tbody} rows: HTML tbody element to add param rows to
  * @param {Object} params
  */
-var updateRows = function (rows, params) {
+var _updateRows = function (rows, params) {
     // Remove currently stored rows
     while (rows.hasChildNodes()) {
         rows.removeChild(rows.lastChild);
@@ -215,13 +212,14 @@ var updateRows = function (rows, params) {
     // Check if rows is none
     if (rows == null) {
         console.log("Rows is undefined. Halting update");
-        throw window.dash_clientside.PreventUpdate;
+        return;
     }
 
     // Check if params is none
     if (params == null) {
         console.log("Params is undefined. Halting update");
-        throw window.dash_clientside.PreventUpdate;
+        document.getElementById("make-lmfit-params").click();
+        return;
     }
 
     // Iteerate through relevent stored parameters and update values
@@ -265,30 +263,30 @@ var updateRows = function (rows, params) {
 /**
  * Loads elements of method at idx into the features spin_system table
  *
- * @param {number} idx index of spin_system table to load
+ * @param {number} idx: index of spin_system table to load
  */
-var loadSys = function (idx) {
-    console.log(`loadSys ${idx}`);
+var _loadSys = function (idx) {
+    console.log(`_loadSys ${idx}`);
 
     document.getElementById("sys-feature-title").textContent = "Spin System " + idx;
     let rows = document.getElementById("sys-feature-rows");
     let params = paramGroups.spin_systems[idx];
-    updateRows(rows, params);
+    _updateRows(rows, params);
 };
 
 
 /**
  * Loads elements of method at idx into the features method table.
  *
- * @param {number} idx index of method table to load
+ * @param {number} idx: index of method table to load
  */
-var loadMth = function (idx) {
-    console.log(`loadMth ${idx}`);
+var _loadMth = function (idx) {
+    console.log(`_loadMth ${idx}`);
 
     document.getElementById("mth-feature-title").textContent = "Method " + idx;
     let rows = document.getElementById("mth-feature-rows");
     let params = paramGroups.methods[idx];
-    updateRows(rows, params);
+    _updateRows(rows, params);
 };
 
 
@@ -296,10 +294,11 @@ var loadMth = function (idx) {
  * Saves the JSON serialization of Parameter objects at current spin_system
  * table.
  *
- * @param {number} idx index of system to save
+ * @param {number} idx: system index to save. Calculates current index if not provided
+ * @returns {number} index of saved spin system
  */
-var saveSys = function (idx = null) {
-    console.log("saveSys");
+var _saveSys = function (idx = null) {
+    console.log("_saveSys");
 
     // Set idx to current spin_system index of not specified
     if (idx == null) {
@@ -320,14 +319,19 @@ var saveSys = function (idx = null) {
         // Update value parameter
         group[name][0] = rows[i].cells[0].childNodes[0].value;
     }
+
+    return idx;
 };
 
 
 /**
  * Saves the JSON serialization of Parameter objects at current method table.
+ *
+ * @param {Number} idx: index of method to save. Caluclates current index if not provided
+ * @returns {Number} index of saved method
  */
-var saveMth = function (idx = null) {
-    console.log("saveMth");
+var _saveMth = function (idx = null) {
+    console.log("_saveMth");
 
     // Set idx to current method index of not specified
     if (idx == null) {
@@ -402,28 +406,322 @@ var _saveModal = function () {
 }
 
 
+/**
+ * Reloads feature select buttons by updating number of buttons, button labels,
+ * updating EventLiseners and showing/hiding page buttons
+ */
+var _onFeaturesReload = function () {
+    console.log("_onFeaturesreload");
+
+    // Update paramGroups before updating options and tables
+    _reloadParamGroups();
+
+    let num_sys = storeData.data.spin_systems.length;
+    let num_mth = storeData.data.methods.length;
+    let sys_page_idx = document.getElementById("sys-feature-select").getAttribute("pageindex");
+    let mth_page_idx = document.getElementById("mth-feature-select").getAttribute("pageindex");
+    if (sys_page_idx) {
+        sys_page_idx = parseInt(sys_page_idx);
+    } else {
+        document.getElementById("sys-feature-select").setAttribute("pageindex", 0);
+        sys_page_idx = 0;
+    }
+    if (mth_page_idx) {
+        mth_page_idx = parseInt(mth_page_idx);
+    } else {
+        document.getElementById("mth-feature-select").setAttribute("pageindex", 0);
+        mth_page_idx = 0;
+    }
+
+    _reloadSysFeatureButtons(num_sys, sys_page_idx);
+    _reloadMthFeatureButtons(num_mth, mth_page_idx);
+
+    _setSysPageVisibility(num_sys);
+    _setMthPageVisibility(num_mth);
+
+    let sys_idx = storeData.spin_system_index;
+    let mth_idx = storeData.method_index;
+    if (document.getElementById(`sys-feature-${sys_idx}`)) {
+        document.getElementById(`sys-feature-${sys_idx}`).click();
+    }
+    if (document.getElementById(`mth-feature-${mth_idx}`)) {
+        document.getElementById(`mth-feature-${mth_idx}`).click();
+    }
+}
+
+
+/**
+ * Updates buttons on spin system feature select
+ *
+ * @param {Number} num_sys: Number of spin_systems
+ * @param {Number} sys_page_idx: Spin system feature select page index
+ */
+var _reloadSysFeatureButtons = function (num_sys, sys_page_idx) {
+    // Set sys_page_idx to 0 if null
+    if  (sys_page_idx == null) {
+        sys_page_idx = 0;
+    }
+
+    // Get and clear current system features
+    let sys_options = document.getElementById("sys-feature-select");
+    while (sys_options.firstChild) {
+        sys_options.removeChild(sys_options.firstChild);
+    }
+
+    // Reload all buttons for this page
+    min = sys_page_idx * maxFeatureButtons;
+    max = Math.min(num_sys, min + maxFeatureButtons)
+    for (let i = min; i < max; i++) {
+        sys_options.appendChild(_makeOption(i, "sys"));
+    }
+}
+
+
+/**
+ * Updates buttons on method feature select
+ *
+ * @param {Number} num_mth: Number of spin_systems
+ * @param {Number} mth_page_idx: Spin system feature select page index
+ */
+var _reloadMthFeatureButtons = function (num_mth, mth_page_idx) {
+    // Set sys_page_idx to 0 if null
+    if  (mth_page_idx == null) {
+        mth_page_idx = 0;
+    }
+
+    // Get and clear current system features
+    let mth_options = document.getElementById("mth-feature-select");
+    while (mth_options.firstChild) {
+        mth_options.removeChild(mth_options.firstChild);
+    }
+
+    // Reload all buttons for this page
+    min = mth_page_idx * maxFeatureButtons;
+    max = Math.min(num_mth, min + maxFeatureButtons)
+    for (let i = min; i < max; i++) {
+        mth_options.appendChild(_makeOption(i, "mth"));
+    }
+}
+
+
+/**
+ * Makes radio button option with event listener to save and update table index
+ *
+ * @param {Number} idx: index for button to display
+ * @param {String} which: "sys" or "mth"
+ * @returns {Element} new div with raido button and label
+ */
+var _makeOption = function (idx, which) {
+    let div = document.createElement("div");
+    div.id = `${which}-feature-${idx}`;
+    div.className = `select-spot ${which}`;
+    div.innerHTML = idx;
+    div.setAttribute("which", which);
+    div.onclick = function () {
+        let index = parseInt(this.innerText);
+        let which = this.getAttribute("which");
+
+        // Do nothing if already active
+        if (this.classList.contains("active")) {
+            return;
+        }
+
+        // Update active element for CSS
+        buttons = document.getElementsByClassName(`select-spot ${which}`)
+        for (btn of buttons) {
+            btn.classList.remove("active");
+        }
+        this.classList.add("active");
+
+        // Save and load new table
+        if (which == "sys") {
+            _saveSys();
+            _loadSys(index);
+            if (doExternalIndexUpdate) {
+                window.spinSystem.select(null, index);
+            }
+        }
+        if (which == "mth") {
+            _saveMth();
+            _loadMth(index);
+            if (doExternalIndexUpdate) {
+                window.method.select(null, index);
+            }
+        }
+
+    }
+
+    // let input = document.createElement("span");
+    // input.className = "select-text";
+    // input.innerText = idx;
+    // input.onclick = function () {
+    //     let index = parseInt(this.innerText);
+    //     let which = this.getAttribute("which");
+    //     console.log(index)
+    //     console.log(which)
+    // }
+
+
+    // let input = document.createElement("input");
+    // input.type = "radio";
+    // input.className = "btn-input";
+    // input.value = idx;
+    // input.id = `${which}-feature-${idx}`;
+    // input.name = `${which}-feature`;
+    // input.onchange = function () {
+    //     let which = this.name.split("-")[0];
+    //     let index = parseInt(this.value);
+
+    //     if (which == "sys") {
+    //         _saveSys();
+    //         _loadSys(index);
+    //         if (doExternalIndexUpdate) {
+    //             window.spinSystem.select(null, index)
+    //         }
+    //     }
+    //     if (which == "mth") {
+    //         _saveMth();
+    //         _loadMth(index);
+    //         if (doExternalIndexUpdate) {
+    //             window.method.select(null, index)
+    //         }
+    //     }
+    // };
+
+    // let label = document.createElement("label");
+    // label.className = "btn-primary";
+    // label.for = `${which}-feature-${idx}`;
+    // label.innerHTML = idx;
+
+    // div.appendChild(input);
+    // div.appendChild(label);
+
+    return div
+}
+
+
+/**
+ * Sets the visibility of spin system page buttons based on num_sys
+ *
+ * @param {Number} num_sys: Number of spin systems
+ */
+var _setSysPageVisibility = function (num_sys) {
+    if (num_sys > maxFeatureButtons) {
+        document.getElementById("page-sys-feature-left").classList.remove("hidden");
+        document.getElementById("page-sys-feature-right").classList.remove("hidden");
+    } else {
+        document.getElementById("page-sys-feature-left").classList.add("hidden");
+        document.getElementById("page-sys-feature-right").classList.add("hidden");
+    }
+}
+
+
+/**
+ * Sets the visibility of method page buttons based on num_mth
+ *
+ * @param {Number} num_mth: Number of methods
+ */
+ var _setMthPageVisibility = function (num_mth) {
+    if (num_mth > maxFeatureButtons) {
+        document.getElementById("page-mth-feature-left").className = "";
+        document.getElementById("page-mth-feature-right").className = "";
+    } else {
+        document.getElementById("page-mth-feature-left").className = "hidden";
+        document.getElementById("page-mth-feature-right").className = "hidden";
+    }
+}
+
+
+/**
+ * Pages spin_system feature select buttons to the left (decreases page index)
+ */
+var _pageSysLeft = function() {
+    console.log("_pageSysLeft");
+    let sys_features = document.getElementById("sys-feature-select");
+    let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
+    let num_sys = storeData.data.spin_systems.length;
+
+    // Already on leftmost page
+    if (sys_page_idx == 0) {
+        return;
+    }
+
+    _reloadSysFeatureButtons(num_sys, --sys_page_idx);
+    sys_features.setAttribute("pageindex", sys_page_idx);
+    document.getElementById(`sys-feature-${sys_page_idx * maxFeatureButtons}`).click();
+}
+
+
+/**
+ * Pages spin_system feature select buttons to the right (increases page index)
+ */
+ var _pageSysRight = function() {
+    console.log("_pageSysLeft");
+    let sys_features = document.getElementById("sys-feature-select");
+    let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
+    let num_sys = storeData.data.spin_systems.length;
+
+    // Already on rightmost page
+    if (sys_page_idx == Math.floor((num_sys - 1) / maxFeatureButtons)) {
+        return;
+    }
+
+    _reloadSysFeatureButtons(num_sys, ++sys_page_idx);
+    sys_features.setAttribute("pageindex", sys_page_idx);
+    document.getElementById(`sys-feature-${sys_page_idx * maxFeatureButtons}`).click();
+}
+
+
+/**
+ * Pages method feature select buttons to the left (decreases page index)
+ */
+ var _pageMthLeft = function() {
+    console.log("_pageMthLeft");
+    let mth_features = document.getElementById("mth-feature-select")
+    let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
+    let num_mth = storeData.data.spin_systems.length;
+
+    // Already on leftmost page
+    if (mth_page_idx == 0) {
+        return;
+    }
+
+    _reloadMthFeatureButtons(num_mth, --mth_page_idx);
+    mth_features.setAttribute("pageindex", mth_page_idx);
+    document.getElementById(`mth-feature-${mth_page_idx * maxFeatureButtons}`).click();
+}
+
+
+/**
+ * Pages method feature select buttons to the right (increases page index)
+ */
+ var _pageMthRight = function() {
+    console.log("_pageSysLeft");
+    let mth_features = document.getElementById("mth-feature-select")
+    let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
+    let num_mth = storeData.data.spin_systems.length;
+
+    // Already on rightmost page
+    if (mth_page_idx == Math.floor((num_mth - 1) / maxFeatureButtons)) {
+        return;
+    }
+
+    _reloadMthFeatureButtons(num_mth, ++mth_page_idx);
+    mth_features.setAttribute("pageindex", mth_page_idx);
+    document.getElementById(`mth-feature-${mth_page_idx * maxFeatureButtons}`).click();
+}
+
+
 window.dash_clientside.features = {
-    triggerSimOrFit: _triggerSimOrFit,
-    reloadParamGroups: _reloadParamGroups,
-    refreshTables: _refreshTables,
-    serializeParamGroups: function () {
+    reloadParamGroups: _reloadParamGroups,  // Unpacks JSON
+    serializeParamGroups: function () {  // Searilaizes paramGroups to JSON
         saveSys();
         saveMth();
         return _serializeParamGroups();
     },
-    selectNewSys: function (idx) {
-        saveSys();
-        loadSys(idx);
-        window.spinSystem.setIndex(idx);
-
-    },
-    selectNewMth: function (idx) {
-        saveMth();
-        loadMth(idx);
-        window.method.setIndex(idx);
-        return null;
-    },
-    openOrCloseModal: function (_n1, _n2, _n3) {
+    triggerSimOrFit: _triggerSimOrFit,  // Triggers simulation or fitting
+    refreshTables: _refreshTables,  // Refreshes both table fields
+    openOrCloseModal: function (_n1, _n2, _n3) {  // Opens the features modal
         const trig_id = ctxTriggerID()[0].split(".")[0];
 
         // Open the modal
@@ -441,11 +739,48 @@ window.dash_clientside.features = {
             return false;
         }
     },
-    //, _sub, _min, _max, _expr
-    populateModalFields: function (is_open) {
+    populateModalFields: function (is_open) {  // Update modal fields after wait
         // Fires on modal open
         if (is_open) {
             _loadModal(paramGroups.modal_name);
         }
+    },
+    pageFeatureSelect: function (_, _, _, _) { // Page sys/mth feature select
+        const trig_id = ctxTriggerID()[0].split(".")[0];
+
+        switch (trig_id) {
+            case "page-sys-feature-left":
+                // Page spin_system choices to the left
+                return _pageSysLeft();
+
+            case "page-sys-feature-right":
+                // Page spin_system choices to the right
+                return _pageSysRight();
+
+            case "page-mth-feature-left":
+                // Page method choices to the left
+                return _pageMthLeft();
+
+            case "page-mth-feature-right":
+                // Page method choices to the right
+                return _pageMthRight();
+
+            default:
+                return;
+
+        }
     }
+}
+
+window.features = {
+    selectSystem: function (idx) {
+        doExternalIndexUpdate = false;
+        document.getElementById(`sys-feature-${idx}`).click();
+        doExternalIndexUpdate = true;
+    },
+    selectMethod: function (idx) {
+        doExternalIndexUpdate = false;
+        document.getElementById(`mth-feature-${idx}`).click();
+        doExternalIndexUpdate = true;
+    },
 }

@@ -109,7 +109,7 @@ __email__ = "srivastava.89@osu.edu"
     State({"function": "scale", "args": "factor", "index": ALL}, "value"),
     State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
     State("post_sim_child", "children"),
-    State("select-method", "options"),
+    # State("select-method", "options"),
     State("params-data", "data"),
     prevent_initial_call=True,
 )
@@ -518,13 +518,13 @@ def make_params():
 def add_params(mrsim_data):
     """Adds updates params to mrsim_dict"""
     if mrsim_data is None:
-        return mrsim_data
+        return no_update
 
     if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
-        return mrsim_data
+        return no_update
 
     if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
-        return mrsim_data
+        return no_update
 
     sim, processor, _ = parse(mrsim_data)
     params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
@@ -560,23 +560,23 @@ CALLBACKS = {
 }
 
 
-# convert client-side function
-@app.callback(
-    Output("select-method", "options"),
-    Input("local-mrsim-data", "data"),
-    prevent_initial_call=True,
-)
-def update_list_of_methods(data):
-    """Updates the options for selecting a method in the methods tab"""
-    if data is None:
-        raise PreventUpdate
-    if data["methods"] is None:
-        raise PreventUpdate
-    options = [
-        {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
-        for i, k in enumerate(data["methods"])
-    ]
-    return options
+# # convert client-side function
+# @app.callback(
+#     Output("select-method", "options"),
+#     Input("local-mrsim-data", "data"),
+#     prevent_initial_call=True,
+# )
+# def update_list_of_methods(data):
+#     """Updates the options for selecting a method in the methods tab"""
+#     if data is None:
+#         raise PreventUpdate
+#     if data["methods"] is None:
+#         raise PreventUpdate
+#     options = [
+#         {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
+#         for i, k in enumerate(data["methods"])
+#     ]
+#     return options
 
 
 app.clientside_callback(
