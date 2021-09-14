@@ -9,7 +9,7 @@
   margin: 0.5em 0;
 }
 
-.fit-scroll {
+.features-scroll {
   min-height: calc(var(--content-min-height) - 6em);
   height: calc(var(--content-max-height) - 6em);
   overflow-y: auto;
@@ -17,19 +17,19 @@
 }
 
 /* Checkbox */
-.fit-scroll table thead th:first-child {
+.features-scroll table thead th:first-child {
   width: 8%;
 }
 /* Options modal button */
-.fit-scroll table thead th:last-child {
+.features-scroll table thead th:last-child {
   width: 8%;
 }
 /* Name */
-.fit-scroll table thead th:nth-child(2) {
+.features-scroll table thead th:nth-child(2) {
   width: 56%;
 }
 /* Value */
-.fit-scroll table thead th:nth-child(3) {
+.features-scroll table thead th:nth-child(3) {
   width: 28%;
 }
 
@@ -40,6 +40,11 @@
   margin: -0.5em;
   border-radius: 0.2em;
   border: 1px solid var(--text-box-underline-color);
+}
+
+#sim-button,
+#fit-button {
+  height: 38px;
 }
 
 .feature-buttons {
@@ -111,6 +116,7 @@
 #features-modal-expr {
   border-color: #8f8f8f;
   width: 60%;
+  height: 10em;
   margin: -0.2em;
   resize: none;
 }

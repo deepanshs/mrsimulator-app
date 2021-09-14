@@ -102,7 +102,7 @@ def ui():
     return html.Div(
         children=content,
         id="input-fields",
-        className="fit-scroll",
+        className="features-scroll",
     )
 
 
@@ -111,13 +111,6 @@ features_modal = more_settings_modal()
 
 
 # JavaScript Callbacks =================================================================
-# app.clientside_callback(
-#     ClientsideFunction(namespace="features", function_name="reloadParamGroups"),
-#     Output("temp3", "children"),
-#     Input("local-mrsim-data", "data"),
-#     prevent_initial_call=True,
-# )
-
 
 # NOTE: This callback may be unneeded
 # callback for refreshing data in both tables
@@ -126,8 +119,6 @@ app.clientside_callback(
     Output("temp4", "children"),
     Input("refresh-groups-and-tables", "n_clicks"),
     Input("view-features", "n_clicks"),
-    # State("sys-feature-select", "value"),
-    # State("mth-feature-select", "value"),
     prevent_initial_call=True,
 )
 

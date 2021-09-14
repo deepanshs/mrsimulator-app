@@ -503,6 +503,15 @@ def least_squares_fit():
 def make_params():
     """Creates and adds params to local-mrsim-data leaving other outputs unchanged"""
     mrsim_data = ctx.states["local-mrsim-data.data"]
+
+    # Don't add parameters if no spin_systems
+    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+        raise PreventUpdate
+
+    # Don't add parameters if no methods
+    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+        raise PreventUpdate
+
     mrsim_data = add_params(mrsim_data)
 
     out = {
@@ -516,7 +525,7 @@ def make_params():
 
 
 def add_params(mrsim_data):
-    """Adds updates params to mrsim_dict"""
+    """Adds updated params to mrsim_data"""
     if mrsim_data is None:
         return no_update
 

@@ -29,19 +29,21 @@ storage_div = html.Div(id="fitting-store", children=store)
 def buttons():
     """Static user interface buttons"""
     kwargs = {"outline": True, "color": "dark", "size": "md"}
-    simulate = custom_button(
+    sim = custom_button(
+        text="Simulate",
+        icon_classname="fac fa-spectrum fa-lg",
         id="sim-button",
-        icon_classname="far fa-chart-bar",
-        tooltip="Simulate a spectrum using the current values.",
-        **kwargs,
+        tooltip="Simulate spectrum with current parameters",
+        **kwargs
     )
     fit = custom_button(
+        text="Fit",
+        icon_classname="fac fa-chi-squared fa-lg",
         id="fit-button",
-        icon_classname="fas fa-compress-alt",
-        tooltip="Run least-squares minimization.",
-        **kwargs,
+        tooltip="Run a least-squared fitting analysis",
+        **kwargs
     )
-    return dbc.ButtonGroup([simulate, fit])
+    return dbc.ButtonGroup([sim, fit])
 
 
 def feature_select():
