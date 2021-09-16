@@ -212,9 +212,15 @@ window.method = {
 
   setIndex: function (index) {
     storeData.method_index = index;
+    document.getElementById("force-refresh-method").click();
   },
 
   select: function (listomers, index) {
+    if (listomers == null) {
+      listomers = document.querySelectorAll(
+        "#method-read-only div.scrollable-list ul li"
+      );
+    }
     if (listomers.length > 0) {
       listomers[index].click();
     }
@@ -233,6 +239,9 @@ window.method = {
       tr.classList.remove("active");
     });
     overView[index + 1].classList.add("active");
+
+    // Select updates method in features tab
+    window.features.selectMethod(index);
   },
 
   setFields: _setFields,

@@ -6,6 +6,9 @@ import dash_html_components as html
 from dash import callback_context as ctx
 from dash import no_update
 from dash.exceptions import PreventUpdate
+from mrsimulator import parse
+from mrsimulator import signal_processing as sp
+from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from . import baseline as Baseline
 from . import convolution as Convolution
@@ -94,12 +97,17 @@ def setup():
     if method_index is None:
         raise PreventUpdate
 
-    mth_options = ctx.states["select-method.options"]
-    print("method_options", mth_options)
-    mth_options = [1] or mth_options
+    # mth_options = ctx.states["select-method.options"]
+    # print("method_options", mth_options)
+    # mth_options = [1] or mth_options
+
+    # if existing_data["signal_processors"] is None:
+    #     existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
 
     if existing_data["signal_processors"] is None:
-        existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
+        n_mth = len(existing_data.methods)
+        existing_data["signal_processors"] = [{"operations": []} for _ in range(n_mth)]
+
     return existing_data, method_index
 
 
@@ -133,9 +141,18 @@ def on_submit_signal_processor_button():
     existing_process_data = existing_data["signal_processors"]
 
     n_dims = len(existing_data["methods"][method_index]["spectral_dimensions"])
-    processor = generate_signal_processor_dict(n_dims)
-    existing_process_data[method_index] = processor
+    processor_dict = generate_signal_processor_dict(n_dims)
+    existing_process_data[method_index] = processor_dict
     print("submit process_data", existing_process_data)
+
+    # refresh lmfit parameters for signal processor processor
+    sim, pd, _ = parse(existing_data)
+    processors = [
+        sp.SignalProcessor.parse_dict_with_units(mth_proc)
+        for mth_proc in existing_process_data
+    ]
+    params = make_LMFIT_params(sim, processors, include={"rotor_frequency"})
+    existing_data["params"] = params.dumps()
 
     out = {
         "alert": ["", False],
