@@ -198,7 +198,8 @@ table thead th:nth-child(2) {
   width: 30%;
 }
 table thead tr th,
-table thead tr td {
+table thead tr td,
+table tbody tr td {
   text-align: center;
   padding: 0.73em;
   border-right: 1px solid #dfdfdf;
@@ -209,7 +210,8 @@ table thead tr td {
 table thead tr td {
   cursor: pointer;
 }
-table thead {
+table thead,
+table tbody tr {
   border-bottom: 1px solid #dfdfdf;
 }
 table thead:not(:first-child):hover {
@@ -275,4 +277,8 @@ div[data-home-table] ul[data-edit-tools] li:hover {
   #spectrum-body.left-card.active {
     display: block;
   }
+}
+
+.hidden {
+  display: none;
 }

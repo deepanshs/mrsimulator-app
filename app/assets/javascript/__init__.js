@@ -48,8 +48,10 @@ window.dash_clientside.clientside = {
 
   onReload: function (data) {
     storeData.data = data;
+    _onFeaturesReload();
     _onSpinSystemsLoad();
     _onMethodsLoad();
+    _refreshTables();
   },
 
   downloadSession: function (n, data) {
