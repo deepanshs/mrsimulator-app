@@ -143,7 +143,7 @@ def system_overview_data(mrsim: dict):
         name = "" if "name" not in spin_system else spin_system["name"]
         abd = (
             ""
-            if spin_system["abundance"] is None
+            if "abundance" not in spin_system
             else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
         )
         n_site = len(spin_system["sites"])
