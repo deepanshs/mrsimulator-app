@@ -96,15 +96,20 @@ def mrsimulator_ui():
     )
     button = dbc.Button("Open App", href="/simulator", id="simulator-app")
 
-    children = [
-        # html.Section(search_engine()),
-        html.Section(
-            [
-                html.H1("Featured Examples"),
-                *examples_ui(mrsimulator_examples, "simulator"),
-            ]
-        ),
-    ]
+    examples = []
+    for subsection in mrsimulator_examples:
+        examples += [
+            html.Section(
+                [
+                    html.H2(subsection),
+                    *examples_ui(mrsimulator_examples[subsection], "simulator"),
+                ],
+                className="sub-section",
+            )
+        ]
+
+    children = [html.Section([html.H1("Featured Examples"), *examples])]
+
     return generic_ui(image, description, button, children)
 
 
