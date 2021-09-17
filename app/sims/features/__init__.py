@@ -5,7 +5,7 @@ import dash_html_components as html
 
 from .fields import features_modal
 from .fields import fields
-from .fit_modal import fit_info_modal
+from .info_modal import info_modal
 from app.custom_widgets import custom_button
 
 
@@ -80,7 +80,7 @@ def features_header():
     """Header for features tab"""
     help_button = html.Div(
         html.I(className="fas fa-question-circle pl-1 fa-lg"),
-        id="fit-info-modal-button",
+        id="features-info-modal-button",
         style={"cursor": "pointer"},
     )
     icon = html.I(className="fas fa-bullseye fa-lg")
@@ -95,7 +95,7 @@ def ui():
             features_header(),
             feature_select(),
             fields,
-            fit_info_modal,
+            info_modal,
             features_modal,
             storage_div,
         ]

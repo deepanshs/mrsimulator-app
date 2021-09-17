@@ -214,15 +214,26 @@ table thead,
 table tbody tr {
   border-bottom: 1px solid #dfdfdf;
 }
-table thead:not(:first-child):hover {
+table thead:not(:first-child):hover td {
   background-color: #cee3ff;
 }
 table thead.active,
-table thead.active:hover {
+table thead:hover {
+  background-color: transparent;
+}
+table thead.active td,
+table thead.active:hover td {
   background-color: var(--select-blue);
   color: white;
 }
-table thead:last-child {
+table thead:last-child td:first-child {
+  border-radius: 0 0 0 0.5em;
+}
+table thead:last-child td:last-child {
+  border-radius: 0 0 0.5em 0;
+}
+table thead:last-child,
+table tbody tr:last-child {
   border-bottom: none;
 }
 table th:last-child,
