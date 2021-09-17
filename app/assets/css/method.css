@@ -2,6 +2,7 @@
   min-height: calc(var(--content-min-height) - 15em);
   height: calc(var(--content-max-height) - 15em);
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
 }
 

@@ -1,0 +1,138 @@
+#fit-report-iframe {
+  width: 100%;
+  height: calc(var(--content-max-height) - 6.45rem);
+  display: flex;
+  align-items: stretch;
+  border: 1px solid silver;
+  border-radius: 0.5em;
+  background-color: white;
+  margin: 0.5em 0;
+}
+
+.features-scroll {
+  min-height: calc(var(--content-min-height) - 6em);
+  height: calc(var(--content-max-height) - 6em);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Checkbox */
+.features-scroll table thead th:first-child {
+  width: 8%;
+}
+/* Options modal button */
+.features-scroll table thead th:last-child {
+  width: 8%;
+}
+/* Name */
+.features-scroll table thead th:nth-child(2) {
+  width: 56%;
+}
+/* Value */
+.features-scroll table thead th:nth-child(3) {
+  width: 28%;
+}
+
+.feature-rows input[type="number"],
+.feature-rows input[type="text"] {
+  width: 100%;
+  padding: 0.5em;
+  margin: -0.5em;
+  border-radius: 0.2em;
+  border: 1px solid var(--text-box-underline-color);
+}
+
+#sim-button,
+#fit-button {
+  height: 38px;
+}
+
+.feature-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Need to not apply border to last child in table */
+.feature-rows input:focus,
+.feature-rows:focus {
+  color: black;
+  text-decoration: none;
+  cursor: text;
+  background-color: white;
+  border: 1px solid #48a3ff;
+  box-shadow: 0 0 2px 1px #48a3ff7c;
+}
+
+.select-spot {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  background: white;
+  border: 1px solid #dfdfdf;
+  border-radius: 100%;
+  margin: 0.15em;
+  cursor: pointer;
+}
+
+.select-spot:not(.active):hover {
+  color: black;
+  background-color: #cee3ff;
+}
+
+.select-spot.active {
+  color: white;
+  background-color: var(--select-blue);
+  border-color: #005cbf;
+}
+
+.feature-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.1em 0.5em;
+}
+.feature-select .btn-link {
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.feature-select h6 {
+  margin: auto 0;
+}
+
+#features-modal .modal-body div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5em;
+}
+
+#features-modal-min,
+#features-modal-max {
+  margin: -0.2em;
+  /* border-radius: 0.1em; */
+}
+
+#features-modal-expr {
+  border-color: #8f8f8f;
+  width: 60%;
+  height: 10em;
+  margin: -0.2em;
+  resize: none;
+}
+
+.features-btn-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.features-btn-info>div {
+  flex-direction: row;
+  justify-content: space-between;
+  display: flex;
+  padding-bottom: 1.5em;
+}
+
+.features-btn-info>div div {
+  padding-left: 2.5em;
+}
