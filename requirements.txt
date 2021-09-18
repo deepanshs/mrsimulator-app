@@ -10,6 +10,8 @@ redis==3.5.3
 celery[redis]==5.0.5
 mrinversion>=0.1
 matplotlib>=3.4
+beautifulsoup4==4.10.0
+requests==2.26.0
 
 # development packages
 pytest-runner>=5.0

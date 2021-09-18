@@ -10,7 +10,7 @@ from dash.dependencies import Output
 
 from app import app
 
-with open("app/examples/example_link.json", "r") as f:
+with open("app/example_link.json", "r") as f:
     mrsimulator_examples = json.load(f)
 
 
@@ -32,7 +32,7 @@ def card(item, app_name):
         img_src = item["img"]
     img = dbc.CardImg(src=img_src, top=True)
     title = html.H4(item["label"])
-    des = "This is description" if "description" not in item else item["description"]
+    des = "This is a description" if "description" not in item else item["description"]
     body = dbc.CardBody([title, html.P(des)])
     card_ = dbc.Card([img, body])
     a = html.A(card_, href=f"./{app_name}?a=" + item["value"])
