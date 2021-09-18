@@ -308,6 +308,7 @@ if __name__ == "__main__":
 
     with open(json_file, "w+") as f:
         json.dump(examples_dict, f, indent=4)
+        f.write("\n")  # add missing newline
 
     print()
     print(f"Updated examples have been written to {json_file}")

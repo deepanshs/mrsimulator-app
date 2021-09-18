@@ -19,6 +19,12 @@
             "description": "119Sn MAS of SnO"
         },
         {
+            "label": "Nasicon",
+            "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Nasicon.mrsim",
+            "img": null,
+            "description": "23Na MAS of Nasicon"
+        },
+        {
             "label": "Na2PO4",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Na2PO4.mrsim",
             "img": null,
@@ -41,6 +47,12 @@
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/cuspidine.mrsim",
             "img": null,
             "description": "29Si MAS of Cuspidine"
+        },
+        {
+            "label": "Coesite",
+            "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Coesite.mrsim",
+            "img": null,
+            "description": "17O MAS of Coesite"
         },
         {
             "label": "Methionine",
