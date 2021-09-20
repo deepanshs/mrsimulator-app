@@ -112,6 +112,15 @@ features_modal = more_settings_modal()
 
 # JavaScript Callbacks =================================================================
 
+# callabck for clearing feature tables on new session load
+app.clientside_callback(
+    ClientsideFunction(namespace="features", function_name="clearTables"),
+    Output("temp3", "children"),  # dummy
+    Input("url-search", "href"),
+    prevent_initial_call=True,
+)
+
+
 # NOTE: This callback may be unneeded
 # callback for refreshing data in both tables
 app.clientside_callback(
