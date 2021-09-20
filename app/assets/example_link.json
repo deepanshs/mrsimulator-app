@@ -3,55 +3,55 @@
         {
             "label": "YAG",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/YAG.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/YAG.png",
             "description": "Quad MAS of YAG"
         },
         {
             "label": "Wollastonite, (Ca2Si3O9)",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/wollastonite.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/wollastonite.png",
             "description": "29Si MAS of Wollastonite"
         },
         {
             "label": "Tin(II) Oxide (SnO)",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/SnO.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/SnO.png",
             "description": "119Sn MAS of SnO"
         },
         {
             "label": "Nasicon",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Nasicon.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/Nasicon.png",
             "description": "23Na MAS of Nasicon"
         },
         {
             "label": "Na2PO4",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Na2PO4.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/Na2PO4.png",
             "description": "31P MAS of crystalline Na2PO4"
         },
         {
             "label": "Lithium Orthoborate",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/lithium_orthoborate.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/lithium_orthoborate.png",
             "description": "11B MAS of crystalline Lithium Orthoborate"
         },
         {
             "label": "Glycine",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/glycine.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/glycine.png",
             "description": "13C MAS of Glycine"
         },
         {
             "label": "Cuspidine (Ca\u2084Si\u2082O\u2087F\u2082)",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/cuspidine.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/cuspidine.png",
             "description": "29Si MAS of Cuspidine"
         },
         {
             "label": "Coesite",
             "value": "http://www.ssnmr.org/sites/default/files/mrsimulator/Coesite.mrsim",
-            "img": null,
+            "img": "http://www.ssnmr.org/sites/default/files/mrsimulator/Coesite.png",
             "description": "17O MAS of Coesite"
         },
         {
