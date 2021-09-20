@@ -39,6 +39,9 @@ window.dash_clientside.clientside = {
     // clear session storage on refresh
     if (window.sessionStorage) window.sessionStorage.clear();
 
+    storeData.spin_system_index = 0;
+    storeData.method_index = 0;
+
     init();
     activateMethodTools();
     activateSystemTools();
