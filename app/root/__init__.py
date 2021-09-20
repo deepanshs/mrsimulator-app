@@ -10,7 +10,7 @@ from dash.dependencies import Output
 
 from app import app
 
-with open("app/example_link.json", "r") as f:
+with open("app/assets/example_link.json", "r") as f:
     mrsimulator_examples = json.load(f)
 
 
