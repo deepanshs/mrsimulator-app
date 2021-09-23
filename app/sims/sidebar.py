@@ -39,7 +39,7 @@ def method():
 
 def features():
     """Features tab."""
-    icon = html.I(className="fas fa-bullseye fa-lg", title="Features")
+    icon = html.I(className="fac fa-chi-squared fa-lg", title="Features")
     return html.Li(html.Span(icon), id="view-features")
 
 

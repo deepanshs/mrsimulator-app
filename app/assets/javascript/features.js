@@ -47,7 +47,7 @@ const maxFeatureButtons = 8;
  * and groups Parameter objects into spin_systems and methods.
  */
 var _reloadParamGroups = function () {
-    console.log("_reloadParamGroups");
+    // console.log("_reloadParamGroups");
 
     // If number of spin systems or methods is zero do not update
     if (!(storeData.data.spin_systems.length && storeData.data.methods.length)) {
@@ -61,7 +61,7 @@ var _reloadParamGroups = function () {
     }
 
     // Get stored json string
-    params_json = storeData.data.params;
+    let params_json = storeData.data.params;
 
     // Remove old stored params
     paramGroups = {
@@ -74,7 +74,7 @@ var _reloadParamGroups = function () {
     params_json = params_json.replaceAll("NaN", null);
     params_json = params_json.replaceAll("-Infinity", null);
     params_json = params_json.replaceAll("Infinity", null);
-    params = JSON.parse(params_json).params;
+    let params = JSON.parse(params_json).params;
 
     // Add dict elements to storage array
     let num_sys = storeData.data.spin_systems.length;
@@ -110,9 +110,9 @@ var _reloadParamGroups = function () {
  * Refreshes held values of both tabels
  */
 var _refreshTables = function (_n1, _n2) {
-    sys_idx = storeData.spin_system_index;
-    mth_idx = storeData.method_index;
-    console.log(`_refreshTables: sys - ${sys_idx}, mth - ${mth_idx}`);
+    let sys_idx = storeData.spin_system_index;
+    let mth_idx = storeData.method_index;
+    // console.log(`_refreshTables: sys - ${sys_idx}, mth - ${mth_idx}`);
     _loadSys(sys_idx);
     _loadMth(mth_idx);
 }
@@ -124,11 +124,11 @@ var _refreshTables = function (_n1, _n2) {
  * @returns {String} updated JSON
  */
 var _serializeParamGroups = function () {
-    console.log("_serializeParamGroups");
+    // console.log("_serializeParamGroups");
 
-    console.log(paramGroups);
+    // console.log(paramGroups);
 
-    old_json = storeData.data.params;
+    let old_json = storeData.data.params;
 
     // Make temporary array for parameters
     let tmp_arr = [];
@@ -165,11 +165,11 @@ var _serializeParamGroups = function () {
  * @param {String} which: flag for which to trigger ("sim" or "fit")
  */
 var _triggerSimOrFit = function (_trig, which) {
-    console.log("_triggerSimOrFit");
+    // console.log("_triggerSimOrFit");
     _saveSys();
     _saveMth();
 
-    console.log(which)
+    // console.log(which)
 
     let new_data = _serializeParamGroups();
     if (which == "sim") {
@@ -252,7 +252,7 @@ var _updateRows = function (rows, params) {
  * @param {number} idx: index of spin_system table to load
  */
 var _loadSys = function (idx) {
-    console.log(`_loadSys ${idx}`);
+    // console.log(`_loadSys ${idx}`);
 
     document.getElementById("sys-feature-title").textContent = "Spin System " + idx;
     let rows = document.getElementById("sys-feature-rows");
@@ -267,7 +267,7 @@ var _loadSys = function (idx) {
  * @param {number} idx: index of method table to load
  */
 var _loadMth = function (idx) {
-    console.log(`_loadMth ${idx}`);
+    // console.log(`_loadMth ${idx}`);
 
     document.getElementById("mth-feature-title").textContent = "Method " + idx;
     let rows = document.getElementById("mth-feature-rows");
@@ -284,7 +284,7 @@ var _loadMth = function (idx) {
  * @returns {number} index of saved spin system
  */
 var _saveSys = function (idx = null) {
-    console.log("_saveSys");
+    // console.log("_saveSys");
 
     // Set idx to current spin_system index of not specified
     if (idx == null) {
@@ -320,7 +320,7 @@ var _saveSys = function (idx = null) {
  * @returns {Number} index of saved method
  */
 var _saveMth = function (idx = null) {
-    console.log("_saveMth");
+    // console.log("_saveMth");
 
     // Set idx to current method index of not specified
     if (idx == null) {
@@ -357,7 +357,7 @@ var _saveMth = function (idx = null) {
  * @param {String} param_name: name of parameter to load
  */
 var _loadModal = function (param_name) {
-    console.log(`_loadModal ${param_name}`);
+    // console.log(`_loadModal ${param_name}`);
     const prefix = param_name.split("_")[0];
     let param_attrs = null;
 
@@ -381,7 +381,7 @@ var _loadModal = function (param_name) {
  */
 var _saveModal = function () {
     const param_name = paramGroups.modal_name;
-    console.log(`_saveModal: ${param_name}`);
+    // console.log(`_saveModal: ${param_name}`);
     const prefix = param_name.split("_")[0];
     let param_attrs = null;
 
@@ -404,7 +404,7 @@ var _saveModal = function () {
  * updating EventLiseners and showing/hiding page buttons
  */
 var _onFeaturesReload = function () {
-    console.log("_onFeaturesreload");
+    // console.log("_onFeaturesreload");
 
     // Update paramGroups before updating options and tables
     _reloadParamGroups();
@@ -458,8 +458,8 @@ var _reloadSysFeatureButtons = function (num_sys, sys_page_idx) {
     }
 
     // Reload all buttons for this page
-    min = sys_page_idx * maxFeatureButtons;
-    max = Math.min(num_sys, min + maxFeatureButtons)
+    let min = sys_page_idx * maxFeatureButtons;
+    let max = Math.min(num_sys, min + maxFeatureButtons)
     for (let i = min; i < max; i++) {
         sys_options.appendChild(_makeOption(i, "sys"));
     }
@@ -485,8 +485,8 @@ var _reloadMthFeatureButtons = function (num_mth, mth_page_idx) {
     }
 
     // Reload all buttons for this page
-    min = mth_page_idx * maxFeatureButtons;
-    max = Math.min(num_mth, min + maxFeatureButtons)
+    let min = mth_page_idx * maxFeatureButtons;
+    let max = Math.min(num_mth, min + maxFeatureButtons)
     for (let i = min; i < max; i++) {
         mth_options.appendChild(_makeOption(i, "mth"));
     }
@@ -516,8 +516,8 @@ var _makeOption = function (idx, which) {
         }
 
         // Update active element for CSS
-        buttons = document.getElementsByClassName(`select-spot ${which}`)
-        for (btn of buttons) {
+        let buttons = document.getElementsByClassName(`select-spot ${which}`)
+        for (let btn of buttons) {
             btn.classList.remove("active");
         }
         this.classList.add("active");
@@ -580,7 +580,7 @@ var _setSysPageVisibility = function (num_sys) {
  * Pages spin_system feature select buttons to the left (decreases page index)
  */
 var _pageSysLeft = function() {
-    console.log("_pageSysLeft");
+    // console.log("_pageSysLeft");
     let sys_features = document.getElementById("sys-feature-select");
     let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
     let num_sys = storeData.data.spin_systems.length;
@@ -600,7 +600,7 @@ var _pageSysLeft = function() {
  * Pages spin_system feature select buttons to the right (increases page index)
  */
  var _pageSysRight = function() {
-    console.log("_pageSysLeft");
+    // console.log("_pageSysLeft");
     let sys_features = document.getElementById("sys-feature-select");
     let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
     let num_sys = storeData.data.spin_systems.length;
@@ -620,7 +620,7 @@ var _pageSysLeft = function() {
  * Pages method feature select buttons to the left (decreases page index)
  */
  var _pageMthLeft = function() {
-    console.log("_pageMthLeft");
+    // console.log("_pageMthLeft");
     let mth_features = document.getElementById("mth-feature-select")
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
     let num_mth = storeData.data.spin_systems.length;
@@ -640,7 +640,7 @@ var _pageSysLeft = function() {
  * Pages method feature select buttons to the right (increases page index)
  */
  var _pageMthRight = function() {
-    console.log("_pageSysLeft");
+    // console.log("_pageSysLeft");
     let mth_features = document.getElementById("mth-feature-select")
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
     let num_mth = storeData.data.spin_systems.length;
@@ -689,7 +689,7 @@ window.dash_clientside.features = {
             _loadModal(paramGroups.modal_name);
         }
     },
-    pageFeatureSelect: function (_, _, _, _) { // Page sys/mth feature select
+    pageFeatureSelect: function (_1, _2, _3, _4) { //Page sys/mth feature select
         const trig_id = ctxTriggerID()[0].split(".")[0];
 
         switch (trig_id) {
