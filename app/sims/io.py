@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+from urllib.parse import unquote
 from urllib.request import urlopen
 
 import mrsimulator as mrsim
@@ -39,7 +40,11 @@ def import_file_from_url():
     print("url_search", url_search)
     if url_search in [None, ""]:
         raise PreventUpdate
-    return load_file_from_url(url_search[3:])
+
+    # decode url
+    url = unquote(url_search[3:])
+
+    return load_file_from_url(url)
 
 
 def import_mrsim_file():
