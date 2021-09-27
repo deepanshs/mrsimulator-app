@@ -10,7 +10,7 @@ from dash.dependencies import Output
 
 from app import app
 
-with open("app/examples/example_link.json", "r") as f:
+with open("app/assets/example_link.json", "r") as f:
     mrsimulator_examples = json.load(f)
 
 
@@ -32,7 +32,7 @@ def card(item, app_name):
         img_src = item["img"]
     img = dbc.CardImg(src=img_src, top=True)
     title = html.H4(item["label"])
-    des = "This is description" if "description" not in item else item["description"]
+    des = "This is a description" if "description" not in item else item["description"]
     body = dbc.CardBody([title, html.P(des)])
     card_ = dbc.Card([img, body])
     a = html.A(card_, href=f"./{app_name}?a=" + item["value"])
@@ -96,15 +96,20 @@ def mrsimulator_ui():
     )
     button = dbc.Button("Open App", href="/simulator", id="simulator-app")
 
-    children = [
-        # html.Section(search_engine()),
-        html.Section(
-            [
-                html.H1("Featured Examples"),
-                *examples_ui(mrsimulator_examples, "simulator"),
-            ]
-        ),
-    ]
+    examples = []
+    for subsection in mrsimulator_examples:
+        examples += [
+            html.Section(
+                [
+                    html.H2(subsection),
+                    *examples_ui(mrsimulator_examples[subsection], "simulator"),
+                ],
+                className="sub-section",
+            )
+        ]
+
+    children = [html.Section([html.H1("Featured Examples"), *examples])]
+
     return generic_ui(image, description, button, children)
 
 

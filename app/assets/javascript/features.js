@@ -51,13 +51,13 @@ var _reloadParamGroups = function () {
 
     // If number of spin systems or methods is zero do not update
     if (!(storeData.data.spin_systems.length && storeData.data.methods.length)) {
-        throw window.dash_clientside.PreventUpdate;
+        return;
     }
 
     // Logic for creating params JSON if not already present
     if (!storeData.data.params) {  // true if 'null', 'undefined' or empty str
         document.getElementById("make-lmfit-params").click();
-        throw window.dash_clientside.PreventUpdate;
+        return;
     }
 
     // Get stored json string
@@ -115,6 +115,34 @@ var _refreshTables = function (_n1, _n2) {
     // console.log(`_refreshTables: sys - ${sys_idx}, mth - ${mth_idx}`);
     _loadSys(sys_idx);
     _loadMth(mth_idx);
+}
+
+
+/**
+ * Clears the rows of both tables and buttons of feature select
+ */
+var _clearParamGroupsAndTables = function () {
+    paramGroups = {
+        modal_name: null,
+        spin_systems: [],
+        methods: [],
+    };
+
+    // Clear table rows
+    let sys_rows = document.getElementById("sys-feature-rows");
+    sys_rows.innerHTML = "";
+    while (sys_rows.hasChildNodes()) {
+        sys_rows.removeChild(sys_rows.lastChild);
+    }
+
+    let mth_rows = document.getElementById("mth-feature-rows");
+    while (mth_rows.hasChildNodes()) {
+        mth_rows.removeChild(mth_rows.lastChild);
+    }
+
+    // Set table titles to Spin System and Methods (no numbers)
+    document.getElementById("sys-feature-title").textContent = "Spin System"
+    document.getElementById("mth-feature-title").textContent = "Method"
 }
 
 
@@ -657,6 +685,7 @@ var _pageSysLeft = function() {
 
 
 window.dash_clientside.features = {
+    clearTables: _clearParamGroupsAndTables,
     reloadParamGroups: _reloadParamGroups,  // Unpacks JSON
     serializeParamGroups: function () {  // Searilaizes paramGroups to JSON
         _saveSys();

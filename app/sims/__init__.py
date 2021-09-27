@@ -147,7 +147,7 @@ def simulation(*args):
 
 def one_time_simulation():
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
-    n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
+    # n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
 
     if mrsim_data is None:
         raise PreventUpdate
@@ -172,9 +172,13 @@ def one_time_simulation():
         # Adjust baseline offset for multi-spin_system spectra
         # Otherwise given baseline offset will be multiplied by number of spin_systems
         # (future) need to adjust polynomial as well when implemented
-        for op in processor.operations:
-            if op.__class__.__name__ == "ConstantOffset":
-                op.offset = op.offset / n_sys
+        # NOTE: This is a deeper discussion point within the mrsimulator library.
+        # Processing is applied to each dv (dependent variable) dimension independently
+        # so to make this consistent would mean a reapproach to how signal processing is
+        # done
+        # for op in processor.operations:
+        #     if op.__class__.__name__ == "ConstantOffset":
+        #         op.offset = op.offset / n_sys
 
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
