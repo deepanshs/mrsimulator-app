@@ -1,0 +1,88 @@
+#fit_report-body.left-card.active {
+    width: 100%;
+}
+
+#fit-report-table-div {
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 0.5em;
+    margin: 1em;
+    height: calc(var(--content-min-height) + 10em);
+    min-height: calc(var(--content-min-height) + 10em);
+}
+
+/* First table */
+#fit-report-table-div > table:nth-child(2) {
+    max-width: 30em;
+}
+/* First table first column */
+#fit-report-table-div > table:nth-child(2) td:nth-child(1) {
+    width: 25%;
+}
+/* First table second column */
+#fit-report-table-div > table:nth-child(2) td:nth-child(2) {
+    width: 25%;
+    border-right: none;
+}
+/* First table third column (hide) */
+#fit-report-table-div > table:nth-child(2) td:nth-child(3) {
+    display: none;
+}
+
+
+/* Second table */
+#fit-report-table-div > table:nth-child(4) th {
+    white-space: normal;
+}
+
+/* Second table first column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(1) {
+    width: 25%;
+}
+
+/* Second table second column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(2) {
+    width: 10%;
+}
+
+/* Second table third column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(3) {
+    width: 10%;
+}
+
+/* Second table fourth column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(4) {
+    width: 8%;
+}
+
+/* Second table fifth column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(5) {
+    width: 10%;
+}
+
+/* Second table sixth column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(6) {
+    width: 8%;
+}
+
+/* Second table seventh column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(7) {
+    width: 8%;
+}
+
+/* Second table eighth column */
+#fit-report-table-div > table:nth-child(4) th:nth-child(8) {
+    width: 8%;
+}
+
+
+/* Third table */
+#fit-report-table-div > table:nth-child(6) {
+    max-width: 50em;
+}
+
+/* Third table third row */
+#fit-report-table-div > table:nth-child(6) td:nth-child(3) {
+    width: 10%;
+    max-width: 4.5em;
+}

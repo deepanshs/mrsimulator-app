@@ -73,6 +73,16 @@ app.clientside_callback(
             target.push((trig_id === item) ? 'left-card active' : 'left-card');
             tab.push((trig_id === item) ? 'active' : null);
         }}
+
+        // Hide the spectrum view if view-fit_report cliked, otherwise reshow
+        if (trig_id == 'fit_report') {{
+            console.log("here");
+            target[target.length - 1] = "left-card inactive";
+        }} else {{
+            document.getElementById('view-spectrum').classList.remove('inactive');
+        }}
+        console.log(target);
+
         return target.concat(tab);
     }}""",
     *[Output(f"{item}-body", "className") for item in SIDEBAR_TAB_NAME],
