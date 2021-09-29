@@ -194,7 +194,7 @@ def advanced_settings_modal():
     ]
 
     modal_ui = dbc.Modal(
-        modal, id="modal_setting", role="document", className="modal-dialog"
+        modal, id="modal_setting", role="document", className="modal-dialogue"
     )
 
     # callback for toggling modal window visibility

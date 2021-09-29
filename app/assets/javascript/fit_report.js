@@ -14,9 +14,9 @@ var _updateFitReport = function () {
     console.log("_updateFitReport");
 
     // Check to make sure report string present
-    report_str = storeData.data.report;
+    let report_str = storeData.data.report;
     if (report_str) {
-        body = document.getElementById("fit-report-table-div");
+        let body = document.getElementById("fit-report-table-div");
         body.innerHTML = report_str;
     }
 

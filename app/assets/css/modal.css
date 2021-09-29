@@ -2,3 +2,22 @@
 .modal-body table tr td {
     padding: 5px;
 }
+
+.spectra-download-type:not(:last-child) {
+    padding-bottom: 2em;
+}
+
+.spectra-download-type {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em;
+}
+
+.spectra-download-type button {
+    width: 85px;
+}
+
+.spectra-download-type div {
+    padding-left: 3em;
+    margin: auto;
+}

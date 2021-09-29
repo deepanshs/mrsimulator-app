@@ -176,6 +176,7 @@ def custom_collapsible(
     if is_open:
         collapse_classname += " show"
 
+    # make this a animation between chevron left and down?
     class_name = "d-flex justify-content-between align-items-center"
     chevron_icon = html.I(className="icon-action fas fa-chevron-down", title=tooltip)
     btn_text = html.Div([text, chevron_icon], className=class_name)
@@ -220,7 +221,8 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     # id_field_callable = id_field
     id_icon = f"{id_}-collapse-icon"
 
-    icon = html.I(className="fas fa-chevron-left", title=message, id=id_icon)
+    # make this a animation between chevron left and down?
+    icon = html.I(className="fas fa-chevron-down", title=message, id=id_icon)
     vis = {"visibility": "hidden"} if hidden is None else {"visibility": "visible"}
 
     chevron_btn = html.Label(
@@ -246,17 +248,6 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     content = custom_card(
         text=html.Div(text),
         children=html.Div(featured, className="container"),
-    )
-
-    # TODO: Chevron cahnge on click, but cannot change icon classname for some reason
-    #   return [!is_open, 'fa-chevron-right'];
-    app.clientside_callback(
-        """function (n, is_open) { return !is_open; }""",
-        Output(id_field, "is_open"),
-        # Output(id_icon, "class"),
-        Input(id_button, "n_clicks"),
-        State(id_field, "is_open"),
-        prevent_initial_call=True,
     )
 
     if not outer:

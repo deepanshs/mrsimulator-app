@@ -53,21 +53,7 @@ fit_report_body = ui()
 
 
 # Callbacks ============================================================================
-# @app.callback(
-#     Output("fit-report-iframe", "srcDoc"),  # html string
-#     Output("fit-report-iframe", "hidden"),  # bool
-#     Input("view-fit_report", "n_clicks"),
-#     State("local-mrsim-data", "data"),
-# )
-# def populate_fit_report(n1, data):
-#     # TODO: Is this callback needed?
-#     # TODO: Better formatting on report display in app?
-#     # TODO: Display fit report on load of file with report
-#     return ["", True] if "report" not in data else [data["report"], False]
-
-
 # clientside callback for updating info
-# May need to trigger from local-processed data if local-mrsim-data does not work
 app.clientside_callback(
     ClientsideFunction(namespace="report", function_name="updateFitReport"),
     Output("temp9", "children"),
@@ -118,8 +104,7 @@ def make_pdf():
         # display error no report
         raise PreventUpdate
 
-    # Construct html string from report and spectra
-    # TODO: Add spectra html
+    # Construct html string from report
     html_str = mrsim_data["report"]
     html_str = '<div id="report-output-div">' + html_str + "</div>"
 
