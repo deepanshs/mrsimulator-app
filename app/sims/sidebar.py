@@ -76,12 +76,10 @@ app.clientside_callback(
 
         // Hide the spectrum view if view-fit_report cliked, otherwise reshow
         if (trig_id == 'fit_report') {{
-            console.log("here");
             target[target.length - 1] = "left-card inactive";
         }} else {{
             document.getElementById('view-spectrum').classList.remove('inactive');
         }}
-        console.log(target);
 
         return target.concat(tab);
     }}""",

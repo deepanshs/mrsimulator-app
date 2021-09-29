@@ -17,8 +17,9 @@ var _updateFitReport = function () {
     report_str = storeData.data.report;
     if (report_str) {
         body = document.getElementById("fit-report-table-div");
-        body.innerHTML = report_str
+        body.innerHTML = report_str;
     }
+
     return;
 }
 
@@ -26,8 +27,3 @@ var _updateFitReport = function () {
 window.dash_clientside.report = {
     updateFitReport: _updateFitReport
 }
-
-
-// window.report = {
-//     updateFitReport: _updateFitReport
-// }

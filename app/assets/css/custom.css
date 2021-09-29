@@ -200,6 +200,7 @@ table thead th:last-child {
 table thead th:nth-child(2) {
   width: 30%;
 }
+/* try :not(:last-child) */
 table thead tr th,
 table thead tr td,
 table tbody tr th,

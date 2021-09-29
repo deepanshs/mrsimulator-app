@@ -7,6 +7,7 @@
     overflow-y: auto;
     padding: 0.5em;
     margin: 1em;
+    /* TODO: Better scroll for dynamically sized content */
     height: calc(var(--content-min-height) + 10em);
     min-height: calc(var(--content-min-height) + 10em);
 }

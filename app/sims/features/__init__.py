@@ -30,7 +30,7 @@ def buttons():
     """Static user interface buttons"""
     kwargs = {"outline": True, "color": "dark", "size": "md"}
     sim = custom_button(
-        text="Simulate",
+        text="Sim",
         icon_classname="fac fa-spectrum fa-lg",
         id="sim-button",
         tooltip="Simulate spectrum with current parameters",
