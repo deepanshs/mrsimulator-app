@@ -146,7 +146,7 @@ def on_decompose_click():
     existing_data = ctx.states["local-mrsim-data.data"]
     print(ctx.inputs["decompose.active"], ctx.states["decompose.n_clicks"])
     decompose = "spin_system" if ctx.inputs["decompose.active"] else "none"
-    existing_data["trigger"] = {"simulate": True, "method_index": None}
+    existing_data["trigger"] = {"simulate": True, "method_index": False}
     existing_data["config"]["decompose_spectrum"] = decompose
     return prep_valid_data_for_simulation(existing_data)
 
@@ -199,7 +199,7 @@ def save_info_modal():
     existing_data = ctx.states["local-mrsim-data.data"]
     existing_data["name"] = ctx.states["info-name-edit.value"]
     existing_data["description"] = ctx.states["info-description-edit.value"]
-    existing_data["trigger"] = {"simulate": False, "method_index": None}
+    existing_data["trigger"] = {"simulate": False, "method_index": False}
     # Update home overview with the title and description
     home_overview = home_UI.refresh(existing_data)
     out = {
@@ -260,14 +260,14 @@ def on_method_update():
     if new_method["operation"] == "duplicate":
         existing_data["methods"] += [method_data]
         existing_data["signal_processors"] += [{"operations": []}]
-        existing_data["trigger"] = {"simulate": False, "method_index": None}
+        existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data)
 
     # Delete a method
     if new_method["operation"] == "delete":
         del existing_data["methods"][index]
         del existing_data["signal_processors"][index]
-        existing_data["trigger"] = {"simulate": False, "method_index": None}
+        existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data, n=0)
 
 
@@ -295,7 +295,7 @@ def on_spin_system_change():
     if new_spin_system is None:
         raise PreventUpdate
 
-    existing_data["trigger"] = {"simulation": True, "method_index": None}
+    existing_data["trigger"] = {"simulation": True, "method_index": False}
     index = new_spin_system["index"]
     spin_system_data = new_spin_system["data"]
     print("new_spin_system type", new_spin_system["operation"])

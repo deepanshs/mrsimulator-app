@@ -192,7 +192,7 @@ def generate_sidepanel(method, index):
         [html.H6(index), html.Div(a_tag)],
         # draggable="true",
         className="list-group-item",
-        id={"type": "select-method-index", "index": index},
+        # id={"type": "select-method-index", "index": index},
     )
 
 
