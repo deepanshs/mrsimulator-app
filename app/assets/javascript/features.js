@@ -472,24 +472,29 @@ var _onFeaturesReload = function () {
  *
  * @param {Number} num_sys: Number of spin_systems
  * @param {Number} sys_page_idx: Spin system feature select page index
+ * @param {boolean} ignore_page: default true, do not skip if same page
  */
-var _reloadSysFeatureButtons = function (num_sys, sys_page_idx) {
+var _reloadSysFeatureButtons = function (num_sys, sys_page_idx, ignore_page=true) {
     // Set sys_page_idx to 0 if null
     if  (sys_page_idx == null) {
         sys_page_idx = 0;
     }
 
-    // Get and clear current system features
-    let sys_options = document.getElementById("sys-feature-select");
-    while (sys_options.firstChild) {
-        sys_options.removeChild(sys_options.firstChild);
-    }
+    // Check if already on page
+    let current_page_idx = parseInt(document.getElementById("sys-feature-select").getAttribute("pageindex"));
+    if (ignore_page || sys_page_idx != current_page_idx) {
+        // Get and clear current system features
+        let sys_options = document.getElementById("sys-feature-select");
+        while (sys_options.firstChild) {
+            sys_options.removeChild(sys_options.firstChild);
+        }
 
-    // Reload all buttons for this page
-    let min = sys_page_idx * maxFeatureButtons;
-    let max = Math.min(num_sys, min + maxFeatureButtons)
-    for (let i = min; i < max; i++) {
-        sys_options.appendChild(_makeOption(i, "sys"));
+        // Reload all buttons for this page
+        let min = sys_page_idx * maxFeatureButtons;
+        let max = Math.min(num_sys, min + maxFeatureButtons)
+        for (let i = min; i < max; i++) {
+            sys_options.appendChild(_makeOption(i, "sys"));
+        }
     }
 }
 
@@ -499,24 +504,29 @@ var _reloadSysFeatureButtons = function (num_sys, sys_page_idx) {
  *
  * @param {Number} num_mth: Number of spin_systems
  * @param {Number} mth_page_idx: Spin system feature select page index
+ * @param {boolean} ignore_page: default true, do not skip if same page
  */
-var _reloadMthFeatureButtons = function (num_mth, mth_page_idx) {
+var _reloadMthFeatureButtons = function (num_mth, mth_page_idx, ignore_page=true) {
     // Set sys_page_idx to 0 if null
     if  (mth_page_idx == null) {
         mth_page_idx = 0;
     }
 
-    // Get and clear current system features
-    let mth_options = document.getElementById("mth-feature-select");
-    while (mth_options.firstChild) {
-        mth_options.removeChild(mth_options.firstChild);
-    }
+    // Check if already on page
+    let current_page_idx = parseInt(document.getElementById("mth-feature-select").getAttribute("pageindex"));
+    if (ignore_page || mth_page_idx != current_page_idx) {
+        // Get and clear current system features
+        let mth_options = document.getElementById("mth-feature-select");
+        while (mth_options.firstChild) {
+            mth_options.removeChild(mth_options.firstChild);
+        }
 
-    // Reload all buttons for this page
-    let min = mth_page_idx * maxFeatureButtons;
-    let max = Math.min(num_mth, min + maxFeatureButtons)
-    for (let i = min; i < max; i++) {
-        mth_options.appendChild(_makeOption(i, "mth"));
+        // Reload all buttons for this page
+        let min = mth_page_idx * maxFeatureButtons;
+        let max = Math.min(num_mth, min + maxFeatureButtons)
+        for (let i = min; i < max; i++) {
+            mth_options.appendChild(_makeOption(i, "mth"));
+        }
     }
 }
 
@@ -557,6 +567,7 @@ var _makeOption = function (idx, which) {
             if (doExternalIndexUpdate) {
                 window.spinSystem.select(null, index);
             }
+            storeData.spin_system_index = index;
         }
         if (which == "mth") {
             _saveMth();
@@ -564,6 +575,7 @@ var _makeOption = function (idx, which) {
             if (doExternalIndexUpdate) {
                 window.method.select(null, index);
             }
+            storeData.method_index = index;
         }
 
     }
@@ -747,11 +759,19 @@ window.dash_clientside.features = {
 
 window.features = {
     selectSystem: function (idx) {
+        // update options if index not on current page
+        page_idx = Math.floor(idx / maxFeatureButtons);
+        _reloadSysFeatureButtons(storeData.data.spin_systems.length, page_idx, false);
+
         doExternalIndexUpdate = false;
         document.getElementById(`sys-feature-${idx}`).click();
         doExternalIndexUpdate = true;
     },
     selectMethod: function (idx) {
+        // update options if index not on current page
+        page_idx = Math.floor(idx / maxFeatureButtons);
+        _reloadMthFeatureButtons(storeData.data.methods.length, page_idx, false);
+
         doExternalIndexUpdate = false;
         document.getElementById(`mth-feature-${idx}`).click();
         doExternalIndexUpdate = true;
