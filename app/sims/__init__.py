@@ -49,7 +49,7 @@ store = [
     # memory for storing local simulator data.
     dcc.Store(id="local-simulator-data", storage_type="memory"),
     # store graph view data.
-    dcc.Store(id="graph-view-layout", storage_type="memory", data=[]),
+    # dcc.Store(id="graph-view-layout", storage_type="memory", data=[]),
     # memory for storing the experimental data
     # dcc.Store(id="local-exp-external-data", storage_type="memory"),
     # memory for storing the local computed data.
@@ -58,7 +58,7 @@ store = [
     # computed data is less computationally expensive.
     dcc.Store(id="local-processed-data", storage_type="memory"),
     # memory for holding the method data
-    dcc.Store(id="local-method-data", storage_type="memory"),
+    # dcc.Store(id="local-method-data", storage_type="memory"),
     dcc.Store(id="new-spin-system", storage_type="memory"),
     dcc.Store(id="new-method", storage_type="memory"),
     # store a bool indicating if the data is from an external file
@@ -66,7 +66,6 @@ store = [
     # method-template data
     dcc.Store(id="add-method-from-template", storage_type="memory"),
     dcc.Store(id="user-config", storage_type="local"),
-    # signal processor
 ]
 store_items = html.Div(store)
 
@@ -130,9 +129,9 @@ mrsimulator_app = html.Div(
     Output("alert-message-simulation", "is_open"),
     # Output("local-computed-data", "data"),
     Output("local-simulator-data", "data"),
-    Output("graph-view-layout", "data"),
+    # Output("graph-view-layout", "data"),
     Input("local-mrsim-data", "data"),
-    State("graph-view-layout", "data"),
+    # State("graph-view-layout", "data"),
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -154,7 +153,7 @@ def one_time_simulation():
 
     if len(mrsim_data["methods"]) == 0:
         mrsim_data["timestamp"] = datetime.datetime.now()
-        return [no_update, no_update, mrsim_data, no_update]
+        return [no_update, no_update, mrsim_data]
 
     try:
         sim = Simulator.parse_dict_with_units(mrsim_data)
@@ -163,7 +162,7 @@ def one_time_simulation():
         sim.run()
         sim.config.decompose_spectrum = decompose
     except Exception as e:
-        return [f"SimulationError: {e}", True, no_update, no_update]
+        return [f"SimulationError: {e}", True, no_update]
 
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
@@ -193,7 +192,7 @@ def one_time_simulation():
     if "params" in mrsim_data:
         serialize["params"] = mrsim_data["params"]
 
-    layout = ctx.states["graph-view-layout.data"]
+    # layout = ctx.states["graph-view-layout.data"]
     # for _ in range(len(sim.methods)-len(layout)):
     #     layout.append(None)
 
@@ -207,12 +206,13 @@ def one_time_simulation():
     #                 'yaxis': {"range": [y.min(), y.max()]}
     #             }
 
-    return ["", False, serialize, layout]
+    return ["", False, serialize]
 
 
 @app.callback(
     Output("nmr_spectrum", "figure"),
     Output("local-processed-data", "data"),
+    # Output("last-method-index", "data"),
     # Input("local-computed-data", "modified_timestamp"),
     Input("local-simulator-data", "data"),
     Input("normalize_amp", "n_clicks"),
@@ -220,7 +220,8 @@ def one_time_simulation():
     State("normalize_amp", "active"),
     # State("local-computed-data", "data"),
     State("nmr_spectrum", "figure"),
-    State("graph-view-layout", "data"),
+    # State("graph-view-layout", "data"),
+    State("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )
 def plot(*args):
@@ -308,8 +309,15 @@ def plot(*args):
     # layout_graph = ctx.states['graph-view-layout.data'][method_index]
     # layout.update(layout_graph)
 
-    layout["xaxis"]["autorange"] = "reversed"
-    layout["yaxis"]["autorange"] = True
+    # Let graph resize ranges if new method has been selected
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    trigger = mrsim_data["trigger"] if "trigger" in mrsim_data else None
+    if (trigger and trigger["method_index"] is None) or trigger_id == "select-method":
+        layout["xaxis"]["autorange"] = "reversed"
+        layout["yaxis"]["autorange"] = True
+    else:
+        layout["xaxis"]["autorange"] = False
+        layout["yaxis"]["autorange"] = False
 
     data_object = {"data": plot_trace, "layout": go.Layout(**layout)}
 
