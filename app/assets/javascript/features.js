@@ -760,7 +760,7 @@ window.dash_clientside.features = {
 window.features = {
     selectSystem: function (idx) {
         // update options if index not on current page
-        page_idx = Math.floor(idx / maxFeatureButtons);
+        let page_idx = Math.floor(idx / maxFeatureButtons);
         _reloadSysFeatureButtons(storeData.data.spin_systems.length, page_idx, false);
 
         doExternalIndexUpdate = false;
@@ -769,7 +769,7 @@ window.features = {
     },
     selectMethod: function (idx) {
         // update options if index not on current page
-        page_idx = Math.floor(idx / maxFeatureButtons);
+        let page_idx = Math.floor(idx / maxFeatureButtons);
         _reloadMthFeatureButtons(storeData.data.methods.length, page_idx, false);
 
         doExternalIndexUpdate = false;
