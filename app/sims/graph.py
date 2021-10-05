@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_extensions as de
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import ClientsideFunction
@@ -82,9 +83,9 @@ default_fig_config = {
     ],
     "modeBarButtonsToAdd": [
         "drawline",
-        "drawopenpath",
-        "drawclosedpath",
-        "drawcircle",
+        # "drawopenpath",
+        # "drawclosedpath",
+        # "drawcircle",
         "drawrect",
         "eraseshape",
     ],
@@ -189,15 +190,6 @@ def tools():
             style={"zIndex": 0},
         )
 
-        # # Make this a animation in JS between locked and unlocked
-        # lock_view_button = custom_switch(
-        #     # text="Lock",
-        #     icon_classname="fas fa-lock",
-        #     id="lock-spectrum-view",
-        #     tooltip="Lock current bounds of spectrum",
-        #     **kwargs,
-        # )
-
         decompose_button = custom_switch(
             # text="Decompose",
             icon_classname="fac fa-decompose",
@@ -234,8 +226,13 @@ def header():
     return html.Div([head, tools()], className="card-header")
 
 
+def download_element():
+    """Dash extentions download element for downloading the plot"""
+    return de.Download(id="download-spectrum")
+
+
 def layout():
-    return [header(), graph_ui(), simulation_help, download_modal]
+    return [header(), graph_ui(), simulation_help, download_modal, download_element()]
 
 
 def ui():

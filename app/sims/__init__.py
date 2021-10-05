@@ -54,6 +54,7 @@ store = [
     # dcc.Store(id="local-exp-external-data", storage_type="memory"),
     # memory for storing the local computed data.
     # dcc.Store(id="local-computed-data", storage_type="memory"),
+    # Serialization of csdmpy object holding sim, exp, and resid spectrum
     # memory for holding the computed + processed data. Processing over the
     # computed data is less computationally expensive.
     dcc.Store(id="local-processed-data", storage_type="memory"),
@@ -322,9 +323,12 @@ def plot(*args):
     if simulation_data is None:
         return [data_object, no_update]
 
-    # simulation_data = simulation_data.to_dict()
-    # print(simulation_data)
-    return [data_object, simulation_data]
+    csdm_obj = sim_data.copy()
+    if experiment_data is not None:
+        csdm_obj.dependent_variables += exp_data.dependent_variables
+        csdm_obj.dependent_variables += residue.dependent_variables
+
+    return [data_object, csdm_obj.dict()]
 
 
 def made_dimensionless(exp):

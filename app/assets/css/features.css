@@ -120,19 +120,3 @@
   margin: -0.2em;
   resize: none;
 }
-
-.features-btn-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.features-btn-info>div {
-  flex-direction: row;
-  justify-content: space-between;
-  display: flex;
-  padding-bottom: 1.5em;
-}
-
-.features-btn-info>div div {
-  padding-left: 2.5em;
-}

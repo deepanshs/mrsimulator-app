@@ -160,30 +160,30 @@ var _setFields = function (index) {
 window.dash_clientside.method = {
   updateMethodJson: _updateMethodJson,
   onMethodsLoad: _onMethodsLoad,
-  export_simulation_from_selected_method: function (n, data) {
-    if (n === null) {
-      alert("No method found. Try adding a method first.");
-      return "";
-    }
-    if (data === null) {
-      alert("No simulation data available for the method.");
-      return "";
-    }
+  // export_simulation_from_selected_method: function (n, data) {
+  //   if (n === null) {
+  //     alert("No method found. Try adding a method first.");
+  //     return "";
+  //   }
+  //   if (data === null) {
+  //     alert("No simulation data available for the method.");
+  //     return "";
+  //   }
 
-    // prepare the download.
-    let dataStr = "data:text/json;charset=utf-8,";
-    dataStr += encodeURIComponent(JSON.stringify(data));
+  //   // prepare the download.
+  //   let dataStr = "data:text/json;charset=utf-8,";
+  //   dataStr += encodeURIComponent(JSON.stringify(data));
 
-    let dlAnchorElem = document.getElementById(
-      "export-simulation-from-method-link"
-    );
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "simulation.csdf");
-    dlAnchorElem.click();
+  //   let dlAnchorElem = document.getElementById(
+  //     "export-simulation-from-method-link"
+  //   );
+  //   dlAnchorElem.setAttribute("href", dataStr);
+  //   dlAnchorElem.setAttribute("download", "simulation.csdf");
+  //   dlAnchorElem.click();
 
-    dataStr = ndlAnchorElem = null;
-    return "";
-  },
+  //   dataStr = ndlAnchorElem = null;
+  //   return "";
+  // },
 };
 
 var decodeFromBase64 = function (encodedString) {

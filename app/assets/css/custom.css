@@ -295,6 +295,14 @@ div[data-home-table] ul[data-edit-tools] li:hover {
   }
 }
 
+/* A div where text is vertically centered */
+div.center-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+
 .hidden {
   display: none;
 }
