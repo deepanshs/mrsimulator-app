@@ -256,9 +256,9 @@ def download_image():
 
 def get_plotly_dimensions():
     """Calculates Plotly widht, height, and scale dimensions"""
-    width = ctx.states["download-image-width.value"]
-    height = ctx.states["download-image-height.value"]
-    dpi = ctx.states["download-image-dpi.value"]
+    width = ctx.states["image-width.value"]
+    height = ctx.states["image-height.value"]
+    dpi = ctx.states["image-dpi.value"]
     cm_or_in = ctx.states["image-units.value"]
 
     # convert to inches if in centimeters
