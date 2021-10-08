@@ -31,8 +31,8 @@ from .spin_system import spin_system_body
 from app import app
 from app.utils import slogger
 
-__author__ = "Deepansh J. Srivastava"
-__email__ = "srivastava.89@osu.edu"
+__author__ = ["Deepansh J. Srivastava", "Matthew D. Giammar"]
+__email__ = ["srivastava.89@osu.edu", "giammar.7@osu.edu"]
 
 DEFAULT_MRSIM_DATA = {
     "name": "",
@@ -169,17 +169,6 @@ def one_time_simulation():
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
         processor = SignalProcessor.parse_dict_with_units(proc)
-
-        # Adjust baseline offset for multi-spin_system spectra
-        # Otherwise given baseline offset will be multiplied by number of spin_systems
-        # (future) need to adjust polynomial as well when implemented
-        # NOTE: This is a deeper discussion point within the mrsimulator library.
-        # Processing is applied to each dv (dependent variable) dimension independently
-        # so to make this consistent would mean a reapproach to how signal processing is
-        # done
-        # for op in processor.operations:
-        #     if op.__class__.__name__ == "ConstantOffset":
-        #         op.offset = op.offset / n_sys
 
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
@@ -323,12 +312,38 @@ def plot(*args):
     if simulation_data is None:
         return [data_object, no_update]
 
-    csdm_obj = sim_data.copy()
-    if experiment_data is not None:
-        csdm_obj.dependent_variables += exp_data.dependent_variables
-        csdm_obj.dependent_variables += residue.dependent_variables
+    args = (sim_data,) if experiment_data is None else (sim_data, exp_data, residue)
+    csdm_obj = construct_csdm_object(*args)
 
     return [data_object, csdm_obj.dict()]
+
+
+def construct_csdm_object(sim, exp=None, residual=None):
+    """Makes sure the increment of the passed csdm object is negative"""
+
+    def add_dv(parrent, to_add):
+        y = to_add.y[0].components
+        index = [-i - 1 for i, x in enumerate(to_add.x) if x.increment.value < 0]
+        parrent.add_y(
+            cp.DependentVariable(
+                type="internal",
+                components=y if index == [] else np.flip(y, axis=tuple(index)),
+                quantity_name="dimensionless",
+                quantity_type="scalar",
+            )
+        )
+
+    csdm_obj = sim.copy()
+
+    # Add experimental data if present
+    if exp is not None:
+        add_dv(csdm_obj, exp)
+
+    # Add residual data if present
+    if residual is not None:
+        add_dv(csdm_obj, residual)
+
+    return csdm_obj
 
 
 def made_dimensionless(exp):

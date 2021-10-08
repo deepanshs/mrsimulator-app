@@ -2,6 +2,7 @@
 import os.path as path
 
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_extensions as de
 import dash_html_components as html
 import pdfkit
@@ -13,7 +14,9 @@ from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 from dash_extensions.snippets import send_bytes
 from lmfit import Parameters
+from mrsimulator import __version__ as mrsim_v
 
+from app import __version__ as mrapp_v
 from app import app
 from app.custom_widgets import custom_button
 
@@ -21,12 +24,15 @@ from app.custom_widgets import custom_button
 __author__ = "Matthew D. Giammar"
 __email__ = "giammar.7@osu.edu"
 
-# TODO: Adjust css scaling for large tables (scroll in different browsers, min width)
+
+def homepage_html_store():
+    """Store element for homepage info"""
+    return dcc.Store(id="homepage-html", storage_type="memory")
 
 
 def header():
     """Report title"""
-    kwargs = {"outline": True, "color": "dark", "size": "md", "disabled": True}
+    kwargs = {"outline": True, "color": "dark", "size": "md"}
     report_btn = custom_button(
         text="Full Report",
         icon_classname="fas fa-file-pdf fa-lg",
@@ -64,7 +70,7 @@ def download_components():
 
 
 def ui():
-    page = html.Div([header(), report(), *download_components()])
+    page = html.Div([header(), report(), *download_components(), homepage_html_store()])
     return html.Div(className="left-card", children=page, id="fit_report-body")
 
 
@@ -72,24 +78,20 @@ fit_report_body = ui()
 
 
 # Callbacks ============================================================================
+app.clientside_callback(
+    ClientsideFunction(namespace="report", function_name="get_fit_report_html"),
+    Output("homepage-html", "data"),
+    Input("download-fit-report-btn", "n_clicks"),
+    prevent_initial_callback=True,
+)
+
+
 # clientside callback for updating info
 app.clientside_callback(
     ClientsideFunction(namespace="report", function_name="updateFitReport"),
     Output("temp9", "children"),
     Input("local-simulator-data", "data"),
-    # Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
-)
-
-
-# Enable both download buttons after a fit
-# TODO: find better input componenet which only updates after a sucessful input
-app.clientside_callback(
-    """function (n1) { return [false, false]; }""",
-    Output("download-fit-report-btn", "disabled"),
-    Output("download-fit-values-btn", "disabled"),
-    Input("fit-button", "n_clicks"),
-    revent_initial_call=True,
 )
 
 
@@ -112,19 +114,19 @@ def download_values_dict(*args):
         raise PreventUpdate
 
     params = Parameters().loads(params_data)
-    print(params.valuesdict())
-
-    print("here")
 
     return dict(content=str(params.valuesdict()), filename="values.json")
 
 
 # callback for downloading full report
-# TODO: add functionality to send custom error message to importer / display message
 @app.callback(
     Output("download-fit-report", "data"),
-    Input("download-fit-report-btn", "n_clicks"),
+    Input("homepage-html", "modified_timestamp"),
+    State("homepage-html", "modified_timestamp"),
+    State("download-fit-report-btn", "n_clicks_timestamp"),
+    State("homepage-html", "data"),
     State("local-mrsim-data", "data"),
+    # State("info-read-only", "children"),
     prevent_initial_call=True,
 )
 def download_report(*args):
@@ -142,24 +144,30 @@ def download_report(*args):
 def make_pdf():
     """Makes a pdf of fit report"""
     mrsim_data = ctx.states["local-mrsim-data.data"]
+    button_timestamp = ctx.states["download-fit-report-btn.n_clicks_timestamp"]
+    report_timestamp = ctx.states["homepage-html.modified_timestamp"]
 
-    if mrsim_data is None:
-        # display error no mrsim data found
-        raise PreventUpdate
-
+    # No report present
     if "report" not in mrsim_data or mrsim_data["report"] is None:
-        # display error no report
         raise PreventUpdate
 
-    # Construct html string from report
-    html_str = mrsim_data["report"]
-    html_str = '<div id="report-output-div">' + html_str + "</div>"
+    # Button has not been clicked yet
+    if button_timestamp is None or button_timestamp == -1:
+        raise PreventUpdate
+
+    # report_timestamp is older than button_timestamp
+    if report_timestamp is None or report_timestamp < button_timestamp:
+        raise PreventUpdate
+
+    # Get html string and remove click number from end
+    report_html = ctx.states["homepage-html.data"]
+    report_html = report_html[: report_html.rindex(">") + 1]  # remove click number
 
     # Get css files for pdfkit
     css = path.join(path.dirname(__file__), "../..", "assets", "report.css")
 
     # Set options for pdfkit
-    # TODO: Add Headders and footers?
+    # Headder includes timestamp, title, version of app and mrsimulator
     # For complete list of options see https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
     options = {
         "page-size": "Letter",
@@ -169,6 +177,11 @@ def make_pdf():
         "margin-bottom": "0.75in",
         "margin-left": "0.75in",
         "encoding": "UTF-8",
+        "header-left": f"mrsimulator-app {mrapp_v}      mrsimulator {mrsim_v}",
+        "header-font-name": "Helvetica",
+        "header-font-size": 9,
+        "header-right": "[date] [time]",
+        "header-spacing": 4,
     }
 
-    return pdfkit.from_string(html_str, output_path=None, options=options, css=css)
+    return pdfkit.from_string(report_html, output_path=None, options=options, css=css)

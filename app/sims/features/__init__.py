@@ -83,9 +83,9 @@ def features_header():
         id="features-info-modal-button",
         style={"cursor": "pointer"},
     )
-    icon = html.I(className="fas fa-bullseye fa-lg")
+    # icon = html.I(className="fas fa-bullseye fa-lg")
     text = html.H4("Features", className="hide-label-sm")
-    title = html.Div([icon, text, help_button])
+    title = html.Div([text, help_button])
     return html.Div([title, buttons()], className="card-header")
 
 

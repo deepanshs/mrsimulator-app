@@ -17,10 +17,6 @@ from app.custom_widgets import custom_button
 __author__ = "Matthew D. Giammar"
 __email__ = "giammar.7@osu.edu"
 
-# TODO: Figure out how to get plotly static image export binaries onto server (kaleido)
-# TODO: Figure out how to get wptohtml onto heroku server
-# TODO: Correct x-axis on downloaded csdf files
-
 
 def download_as_csdf_pack():
     """Div with info and buttons for downloading data as csdf file"""
@@ -64,32 +60,52 @@ def download_as_html_pack():
 
 def download_image_dimensions():
     """Inputs to adjust width and height of downloaded image"""
-    return html.Div(
+    dimensions = html.Div(
         [
             html.Div(
                 [
                     html.Div("Width", className="center-text left-align"),
-                    dbc.Input(value=750, type="Number", id="download-image-width"),
+                    dbc.Input(value=20.32, type="Number", id="image-width", step="any"),
                 ]
             ),
             html.Div(
                 [
                     html.Div("Height", className="center-text left-align"),
-                    dbc.Input(value=400, type="Number", id="download-image-height"),
+                    dbc.Input(value=12.7, type="Number", id="image-height", step="any"),
+                ]
+            ),
+        ],
+        className="modal-body-item",
+    )
+    resolution = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        "dots per in",
+                        id="dpi-label",
+                        className="center-text left-align",
+                    ),
+                    dbc.Input(value=254, type="Number", id="image-dpi", step="any"),
                 ]
             ),
             html.Div(
                 [
-                    html.Div("Scale", className="center-text left-align"),
-                    dbc.Input(value=2, type="Number", id="download-image-scale"),
-                    html.Div(
-                        "larger values mean higher resolution", className="center-text"
+                    html.Div("Units", className="center-text left-align"),
+                    dbc.Select(
+                        options=[
+                            {"label": "in", "value": "in"},
+                            {"label": "cm", "value": "cm"},
+                        ],
+                        value="in",
+                        id="image-units",
                     ),
                 ]
             ),
         ],
         className="modal-body-item",
     )
+    return html.Div([dimensions, resolution], className="modal-block")
 
 
 def download_img_buttons():
@@ -152,6 +168,36 @@ download_modal = ui()
 
 # Callbacks ============================================================================
 
+# Update values on units change
+app.clientside_callback(
+    """function (val, width, height, dpi) {
+        if (val == 'cm') {      // in to cm
+            width *= 2.54;
+            height *= 2.54;
+            dpi *= 2.54;
+        } else {                // cm to in
+            width /= 2.54;
+            height /= 2.54;
+            dpi /= 2.54;
+        }
+        // Round values to 3 decimal places
+        width = parseFloat(width.toFixed(3));
+        height = parseFloat(height.toFixed(3));
+        dpi = parseFloat(dpi.toFixed(3));
+        return [`dots per ${val}`, width, height, dpi];
+    }
+    """,
+    Output("dpi-label", "children"),
+    Output("image-width", "value"),
+    Output("image-height", "value"),
+    Output("image-dpi", "value"),
+    Input("image-units", "value"),
+    State("image-width", "value"),
+    State("image-height", "value"),
+    State("image-dpi", "value"),
+    prevent_inital_call=True,
+)
+
 
 @app.callback(
     Output("download-spectrum", "data"),
@@ -160,12 +206,12 @@ download_modal = ui()
     Input("download-spectra-pdf", "n_clicks"),
     Input("download-spectra-svg", "n_clicks"),
     Input("download-spectra-png", "n_clicks"),
-    # State("local-mrsim-data", "data"),  # maybe need states for csdf download
     State("local-processed-data", "data"),
     State("nmr_spectrum", "figure"),
-    State("download-image-width", "value"),
-    State("download-image-height", "value"),
-    State("download-image-scale", "value"),
+    State("image-width", "value"),
+    State("image-height", "value"),
+    State("image-dpi", "value"),
+    State("image-units", "value"),
     prevent_initial_call=True,
 )
 def plot_download(*args):
@@ -196,18 +242,37 @@ def download_html():
 def download_image():
     """Download the spectrum as an image"""
     fmt = ctx.triggered[0]["prop_id"].split(".")[0].split("-")[-1]
-    width = ctx.states["download-image-width.value"]
-    height = ctx.states["download-image-height.value"]
-    scale = ctx.states["download-image-scale.value"]
     fig_dict = ctx.states["nmr_spectrum.figure"]
     fig_json = json.dumps(fig_dict)
 
     def write_bytes(bytes_io):
         fig = plotly.io.from_json(str(fig_json))
+        width, height, scale = get_plotly_dimensions()
         img_bytes = fig.to_image(format=fmt, width=width, height=height, scale=scale)
         bytes_io.write(img_bytes)
 
     return send_bytes(write_bytes, f"plot.{fmt}")
+
+
+def get_plotly_dimensions():
+    """Calculates Plotly widht, height, and scale dimensions"""
+    width = ctx.states["download-image-width.value"]
+    height = ctx.states["download-image-height.value"]
+    dpi = ctx.states["download-image-dpi.value"]
+    cm_or_in = ctx.states["image-units.value"]
+
+    # convert to inches if in centimeters
+    if cm_or_in == "cm":
+        width = width / 2.54
+        height = height / 2.54
+        dpi = dpi / 2.54
+
+    # Ploly default dpi (scale 1) is 72
+    width = width * 72
+    height = height * 72
+    scale = dpi / 72
+
+    return width, height, scale
 
 
 CALLBACKS = {

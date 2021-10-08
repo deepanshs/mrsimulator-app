@@ -65,6 +65,10 @@ input[type="search"]:focus {
 .card-header .btn-group {
   padding: 0;
 }
+#upload-measurement-from-graph .btn-group {
+  padding: 0.5em;
+}
+
 .card-header input {
   min-width: 5rem;
   border-radius: 0.35rem;

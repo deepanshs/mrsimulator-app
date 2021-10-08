@@ -32,7 +32,7 @@
 
 .modal-block {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     padding: 1em;
 }
 
@@ -54,11 +54,11 @@
 }
 
 .modal-body-item>div div.left-align {
-    padding-left: 0.5em;
-    width: 3em;
+    width: 6em;
 }
 
-.modal-body-item input {
+.modal-body-item input,
+.modal-body-item select {
     width: 6em;
     margin-left: 1.5em;
 }

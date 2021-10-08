@@ -126,31 +126,6 @@ def graph_ui():
 
 
 def tools():
-    # def csdm_download_pack():
-    #     """CSDM download per method and associated callback"""
-    #     download_btn = custom_button(
-    #         icon_classname="fas fa-download fa-lg",
-    #         tooltip="Download Simulation from selected method.",
-    #         id="export-simulation-from-method",
-    #         className="icon-button",
-    #         module="html",
-    #     )
-    #     download_link = html.A(
-    #         id="export-simulation-from-method-link", style={"display": "none"}
-    #     )
-
-    #     app.clientside_callback(
-    #         ClientsideFunction(
-    #             namespace="method",
-    #             function_name="export_simulation_from_selected_method",
-    #         ),
-    #         Output("export-simulation-from-method-link", "href"),
-    #         [Input("export-simulation-from-method", "n_clicks")],
-    #         [State("local-processed-data", "data")],
-    #         prevent_initial_call=True,
-    #     )
-    #     return html.Div([download_btn, download_link])
-
     def download_spectra():
         """Button for opening spectra downloads modal"""
         kwargs = {"outline": True, "color": "dark", "size": "md"}
@@ -178,6 +153,7 @@ def tools():
             outline=True,
             color="dark",
             style={"zIndex": 0},
+            size="md",
         )
         normalize_button = custom_switch(
             # text="Normalize",
@@ -185,9 +161,7 @@ def tools():
             id="normalize_amp",
             # size="sm",
             tooltip="Scale maximum amplitude to one.",
-            outline=True,
-            color="dark",
-            style={"zIndex": 0},
+            **kwargs,
         )
 
         decompose_button = custom_switch(
