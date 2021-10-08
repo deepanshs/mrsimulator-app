@@ -37,7 +37,7 @@ var _updateFitReport = function () {
         let title = overview_div.appendChild(document.createElement("H2"));
         title.innerText = document.querySelector("#info-read-only > div > div:nth-child(1) > h4").innerText.slice(0, -36);
         let about = overview_div.appendChild(document.createElement("div"));
-        about.innerHTML = document.querySelector("#info-read-only > div > div.card > div").innerText;
+        about.innerText = document.querySelector("#info-read-only > div > div.card > div").innerText;
         about.classList.add("card")
         // add spin system table
         let sys_info = overview_div.appendChild(document.createElement("H4"));
@@ -72,7 +72,7 @@ var _get_fit_report_html = function (n1) {
     // console.log("_get_fit_report_html");
     let report = document.createElement("div");
     report.id = "report-output-div";
-    temp_div = report.appendChild(document.createElement("div"));
+    let temp_div = report.appendChild(document.createElement("div"));
     temp_div.outerHTML = document.getElementById("fit-report-table-div").outerHTML;
     let report_html_str = report.outerHTML;
     report.remove();
