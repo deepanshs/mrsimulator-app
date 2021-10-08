@@ -73,6 +73,14 @@ app.clientside_callback(
             target.push((trig_id === item) ? 'left-card active' : 'left-card');
             tab.push((trig_id === item) ? 'active' : null);
         }}
+
+        // Hide the spectrum view if view-fit_report cliked, otherwise reshow
+        if (trig_id == 'fit_report') {{
+            target[target.length - 1] = "left-card inactive";
+        }} else {{
+            document.getElementById('view-spectrum').classList.remove('inactive');
+        }}
+
         return target.concat(tab);
     }}""",
     *[Output(f"{item}-body", "className") for item in SIDEBAR_TAB_NAME],
@@ -186,7 +194,7 @@ def advanced_settings_modal():
     ]
 
     modal_ui = dbc.Modal(
-        modal, id="modal_setting", role="document", className="modal-dialog"
+        modal, id="modal_setting", role="document", className="modal-dialogue"
     )
 
     # callback for toggling modal window visibility

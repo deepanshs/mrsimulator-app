@@ -1,4 +1,4 @@
-#fit-report-iframe {
+/* #fit-report-iframe {
   width: 100%;
   height: calc(var(--content-max-height) - 6.45rem);
   display: flex;
@@ -7,11 +7,11 @@
   border-radius: 0.5em;
   background-color: white;
   margin: 0.5em 0;
-}
+} */
 
 .features-scroll {
-  min-height: calc(var(--content-min-height) - 6em);
-  height: calc(var(--content-max-height) - 6em);
+  min-height: calc(var(--content-min-height) - 11em);
+  height: calc(var(--content-max-height) - 11em);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -121,20 +121,4 @@
   height: 10em;
   margin: -0.2em;
   resize: none;
-}
-
-.features-btn-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.features-btn-info>div {
-  flex-direction: row;
-  justify-content: space-between;
-  display: flex;
-  padding-bottom: 1.5em;
-}
-
-.features-btn-info>div div {
-  padding-left: 2.5em;
 }

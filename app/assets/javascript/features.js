@@ -162,7 +162,6 @@ var _serializeParamGroups = function () {
     let tmp_arr = [];
 
     // Iterate through spin_systems
-    // TODO: Clean up for loop code
     paramGroups.spin_systems.forEach(element => {
         for (const [key, value] of Object.entries(element)) {
             let tmp = [key].concat(value);

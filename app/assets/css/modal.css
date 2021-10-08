@@ -2,3 +2,63 @@
 .modal-body table tr td {
     padding: 5px;
 }
+
+.modal-body button {
+    margin: 0.5em;
+}
+
+.modal-body p {
+    margin-bottom: 0;
+}
+
+.spectra-download-type:not(:last-child) {
+    padding-bottom: 2em;
+}
+
+.spectra-download-type {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em;
+}
+
+.spectra-download-type button {
+    width: 85px;
+}
+
+.spectra-download-type div {
+    padding-left: 3em;
+    margin: auto;
+}
+
+.modal-block {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1em;
+}
+
+.modal-body-item {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+}
+
+.modal-body-item>div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.75em;
+}
+
+.modal-body-item>div div {
+    padding-left: 2.5em;
+}
+
+.modal-body-item>div div.left-align {
+    width: 6em;
+}
+
+.modal-body-item input,
+.modal-body-item select {
+    width: 6em;
+    margin-left: 1.5em;
+}

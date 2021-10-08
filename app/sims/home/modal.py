@@ -59,7 +59,7 @@ def ui():
         id="info-modal-editor",
         is_open=False,
         role="document",
-        className="modal-dialog",
+        className="modal-dialogue",
         backdrop="static",
     )
 

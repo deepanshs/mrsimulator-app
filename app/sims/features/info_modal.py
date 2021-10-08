@@ -84,7 +84,7 @@ def info_body():
     btn_title = html.B("Button Functions")
     btn_info = html.Div(
         children=[get_info_row(k, v) for k, v in BUTTONS.items()],
-        className="features-btn-info",
+        className="modal-body-item",
     )
     return dbc.ModalBody([message1, btn_title, btn_info])
 

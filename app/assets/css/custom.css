@@ -30,6 +30,9 @@ input[type="search"]:focus {
   min-width: 45vw;
   width: 100%;
 }
+#spectrum-body.left-card.inactive {
+  display: none;
+}
 #upload-measurement-from-graph {
   display: block;
   box-shadow: 0 0 10px 0 silver;
@@ -62,6 +65,10 @@ input[type="search"]:focus {
 .card-header .btn-group {
   padding: 0;
 }
+#upload-measurement-from-graph .btn-group {
+  padding: 0.5em;
+}
+
 .card-header input {
   min-width: 5rem;
   border-radius: 0.35rem;
@@ -197,8 +204,10 @@ table thead th:last-child {
 table thead th:nth-child(2) {
   width: 30%;
 }
+/* try :not(:last-child) */
 table thead tr th,
 table thead tr td,
+table tbody tr th,
 table tbody tr td {
   text-align: center;
   padding: 0.73em;
@@ -289,6 +298,14 @@ div[data-home-table] ul[data-edit-tools] li:hover {
     display: block;
   }
 }
+
+/* A div where text is vertically centered */
+div.center-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 
 .hidden {
   display: none;
