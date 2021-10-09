@@ -70,6 +70,9 @@ docs/_build/
 target/
 node_modules/
 
+# Ruby stuff
+.bundle
+
 # Jupyter Notebook
 .ipynb_checkpoints
 

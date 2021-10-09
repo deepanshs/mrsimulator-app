@@ -1,7 +1,3 @@
-group :production do
-    gem 'wkhtmltopdf-heroku'
-end
+source 'https://rubygems.org'
 
-group :development do
-    gem 'wkhtmltopdf-binary-edge'
-end
+gem 'wkhtmltopdf-heroku'
