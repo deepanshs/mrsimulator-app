@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os.path as path
+import json
+import os
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -115,7 +116,7 @@ def download_values_dict(*args):
 
     params = Parameters().loads(params_data)
 
-    return dict(content=str(params.valuesdict()), filename="values.json")
+    return dict(content=json.dumps(params.valuesdict()), filename="values.json")
 
 
 # callback for downloading full report
@@ -159,15 +160,24 @@ def make_pdf():
     if report_timestamp is None or report_timestamp < button_timestamp:
         raise PreventUpdate
 
+    # setup config for wkhtmltopdf binary
+    if "WKHTMLTOPDF_PATH" not in os.environ:
+        raise OSError(
+            "Path to wkthmltopdf binary needs to be explictly specified."
+            "Run `export WKHTMLTOPDF_PATH=<path>` if on MacOS or run"
+            "`heroku config:set WKHTMLTOPDF_PATH=<path>` if deploying for heroku"
+        )
+    wk_path = os.environ["WKHTMLTOPDF_PATH"]
+    config = pdfkit.configuration(wkhtmltopdf=wk_path)
+
     # Get html string and remove click number from end
     report_html = ctx.states["homepage-html.data"]
     report_html = report_html[: report_html.rindex(">") + 1]  # remove click number
 
     # Get css files for pdfkit
-    css = path.join(path.dirname(__file__), "../..", "assets", "report.css")
+    css = os.path.join(os.path.dirname(__file__), "../..", "assets", "report.css")
 
     # Set options for pdfkit
-    # Headder includes timestamp, title, version of app and mrsimulator
     # For complete list of options see https://wkhtmltopdf.org/usage/wkhtmltopdf.txt
     options = {
         "page-size": "Letter",
@@ -184,4 +194,6 @@ def make_pdf():
         "header-spacing": 4,
     }
 
-    return pdfkit.from_string(report_html, output_path=None, options=options, css=css)
+    return pdfkit.from_string(
+        report_html, output_path=None, options=options, css=css, configuration=config
+    )
