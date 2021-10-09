@@ -198,7 +198,7 @@ var decodeFromBase64 = function (encodedString) {
 };
 
 /* Initiate a click event for the li.
- * @param listomer: A list of li, each summarizing a method.
+ * @param listomers: A list of li, each summarizing a method.
  * @param index: The index of li to initiate the click.
  */
 

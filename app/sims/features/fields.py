@@ -18,7 +18,7 @@ __email__ = "giammar.7@osu.edu"
 
 
 def input_tables():
-    """Returns spinum_system and method tables"""
+    """Returns spin_system and method tables"""
     sys_table = html.Table(
         [
             html.Thead(
@@ -112,7 +112,7 @@ features_modal = more_settings_modal()
 
 # JavaScript Callbacks =================================================================
 
-# callabck for clearing feature tables on new session load
+# callback for clearing feature tables on new session load
 app.clientside_callback(
     ClientsideFunction(namespace="features", function_name="clearTables"),
     Output("temp3", "children"),  # dummy

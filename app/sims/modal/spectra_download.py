@@ -195,7 +195,7 @@ app.clientside_callback(
     State("image-width", "value"),
     State("image-height", "value"),
     State("image-dpi", "value"),
-    prevent_inital_call=True,
+    prevent_initial_call=True,
 )
 
 
@@ -255,7 +255,7 @@ def download_image():
 
 
 def get_plotly_dimensions():
-    """Calculates Plotly widht, height, and scale dimensions"""
+    """Calculates Plotly width, height, and scale dimensions"""
     width = ctx.states["image-width.value"]
     height = ctx.states["image-height.value"]
     dpi = ctx.states["image-dpi.value"]
@@ -267,7 +267,7 @@ def get_plotly_dimensions():
         height = height / 2.54
         dpi = dpi / 2.54
 
-    # Ploly default dpi (scale 1) is 72
+    # Plotly default dpi (scale 1) is 72
     width = width * 72
     height = height * 72
     scale = dpi / 72

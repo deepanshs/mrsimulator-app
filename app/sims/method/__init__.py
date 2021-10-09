@@ -338,7 +338,7 @@ app.clientside_callback(
 
 
 # app.clientside_callback(
-#     """funtion(value) {
+#     """function(value) {
 #         return parseInt(value);
 #     }
 #     """,

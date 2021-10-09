@@ -51,7 +51,7 @@
 #report-output-div tr:not(:last-child) th,
 #report-output-div tr:not(:last-child) td,
 #report-output-div thead:not(:last-child) th,
-#report-output-div thead:not(:last-child) td  {
+#report-output-div thead:not(:last-child) td {
   border-bottom: 1px solid #dfdfdf;
 }
 
@@ -59,7 +59,6 @@
 #report-output-div td:not(:last-child) {
   border-right: 1px solid #dfdfdf;
 }
-
 
 #report-output-div .flex-row {
   display: flex;

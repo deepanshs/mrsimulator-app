@@ -107,7 +107,7 @@ var _reloadParamGroups = function () {
 
 
 /**
- * Refreshes held values of both tabels
+ * Refreshes held values of both tables
  */
 var _refreshTables = function (_n1, _n2) {
     let sys_idx = storeData.spin_system_index;
@@ -115,7 +115,7 @@ var _refreshTables = function (_n1, _n2) {
     // console.log(`_refreshTables: sys - ${sys_idx}, mth - ${mth_idx}`);
     _loadSys(sys_idx);
     _loadMth(mth_idx);
-}
+};
 
 
 /**
@@ -141,9 +141,9 @@ var _clearParamGroupsAndTables = function () {
     }
 
     // Set table titles to Spin System and Methods (no numbers)
-    document.getElementById("sys-feature-title").textContent = "Spin System"
-    document.getElementById("mth-feature-title").textContent = "Method"
-}
+    document.getElementById("sys-feature-title").textContent = "Spin System";
+    document.getElementById("mth-feature-title").textContent = "Method";
+};
 
 
 /**
@@ -207,10 +207,10 @@ var _triggerSimOrFit = function (_trig, which) {
     }
     console.log("which not recognized");
     throw window.dash_clientside.PreventUpdate;
-}
+};
 
 
-// Reduce resuded code by completing this method
+// Reduce reused code by completing this method
 /**
  *
  * @param {tbody} rows: HTML tbody element to add param rows to
@@ -235,7 +235,7 @@ var _updateRows = function (rows, params) {
         return;
     }
 
-    // Iteerate through relevent stored parameters and update values
+    // Iterate through relevant stored parameters and update values
     for (const [key, value] of Object.entries(params)) {
         let new_row = rows.insertRow();
 
@@ -265,7 +265,7 @@ var _updateRows = function (rows, params) {
         button.onclick = function () {
             paramGroups.modal_name = key;
             document.getElementById("open-features-modal").click();
-        }
+        };
         // button.id = `{'param':'${key}'}`  // NOTE: Single quotes here required
 
         new_row.insertCell().appendChild(button);
@@ -400,7 +400,7 @@ var _loadModal = function (param_name) {
     document.getElementById("features-modal-min").value = param_attrs[3];
     document.getElementById("features-modal-max").value = param_attrs[4];
     document.getElementById("features-modal-expr").value = param_attrs[2];
-}
+};
 
 
 /**
@@ -423,12 +423,12 @@ var _saveModal = function () {
     param_attrs[3] = parseFloat(document.getElementById("features-modal-min").value);
     param_attrs[4] = parseFloat(document.getElementById("features-modal-max").value);
     param_attrs[2] = document.getElementById("features-modal-expr").value;
-}
+};
 
 
 /**
  * Reloads feature select buttons by updating number of buttons, button labels,
- * updating EventLiseners and showing/hiding page buttons
+ * updating EventListeners and showing/hiding page buttons
  */
 var _onFeaturesReload = function () {
     // console.log("_onFeaturesreload");
@@ -461,9 +461,9 @@ var _onFeaturesReload = function () {
 
     let sys_idx = storeData.spin_system_index;
     let mth_idx = storeData.method_index;
-    _loadSys(sys_idx)
-    _loadMth(mth_idx)
-}
+    _loadSys(sys_idx);
+    _loadMth(mth_idx);
+};
 
 
 /**
@@ -490,12 +490,12 @@ var _reloadSysFeatureButtons = function (num_sys, sys_page_idx, ignore_page=true
 
         // Reload all buttons for this page
         let min = sys_page_idx * maxFeatureButtons;
-        let max = Math.min(num_sys, min + maxFeatureButtons)
+        let max = Math.min(num_sys, min + maxFeatureButtons);
         for (let i = min; i < max; i++) {
             sys_options.appendChild(_makeOption(i, "sys"));
         }
     }
-}
+};
 
 
 /**
@@ -522,12 +522,12 @@ var _reloadMthFeatureButtons = function (num_mth, mth_page_idx, ignore_page=true
 
         // Reload all buttons for this page
         let min = mth_page_idx * maxFeatureButtons;
-        let max = Math.min(num_mth, min + maxFeatureButtons)
+        let max = Math.min(num_mth, min + maxFeatureButtons);
         for (let i = min; i < max; i++) {
             mth_options.appendChild(_makeOption(i, "mth"));
         }
     }
-}
+};
 
 
 /**
@@ -535,7 +535,7 @@ var _reloadMthFeatureButtons = function (num_mth, mth_page_idx, ignore_page=true
  *
  * @param {Number} idx: index for button to display
  * @param {String} which: "sys" or "mth"
- * @returns {Element} new div with raido button and label
+ * @returns {Element} new div with radio button and label
  */
 var _makeOption = function (idx, which) {
     let div = document.createElement("div");
@@ -553,7 +553,7 @@ var _makeOption = function (idx, which) {
         }
 
         // Update active element for CSS
-        let buttons = document.getElementsByClassName(`select-spot ${which}`)
+        let buttons = document.getElementsByClassName(`select-spot ${which}`);
         for (let btn of buttons) {
             btn.classList.remove("active");
         }
@@ -576,11 +576,10 @@ var _makeOption = function (idx, which) {
             }
             storeData.method_index = index;
         }
+    };
 
-    }
-
-    return div
-}
+    return div;
+};
 
 
 /**
@@ -596,7 +595,7 @@ var _setSysPageVisibility = function (num_sys) {
         document.getElementById("page-sys-feature-left").classList.add("hidden");
         document.getElementById("page-sys-feature-right").classList.add("hidden");
     }
-}
+};
 
 
 /**
@@ -612,7 +611,7 @@ var _setSysPageVisibility = function (num_sys) {
         document.getElementById("page-mth-feature-left").className = "hidden";
         document.getElementById("page-mth-feature-right").className = "hidden";
     }
-}
+};
 
 
 /**
@@ -632,7 +631,7 @@ var _pageSysLeft = function() {
     _reloadSysFeatureButtons(num_sys, --sys_page_idx);
     sys_features.setAttribute("pageindex", sys_page_idx);
     document.getElementById(`sys-feature-${sys_page_idx * maxFeatureButtons}`).click();
-}
+};
 
 
 /**
@@ -652,7 +651,7 @@ var _pageSysLeft = function() {
     _reloadSysFeatureButtons(num_sys, ++sys_page_idx);
     sys_features.setAttribute("pageindex", sys_page_idx);
     document.getElementById(`sys-feature-${sys_page_idx * maxFeatureButtons}`).click();
-}
+};
 
 
 /**
@@ -660,7 +659,7 @@ var _pageSysLeft = function() {
  */
  var _pageMthLeft = function() {
     // console.log("_pageMthLeft");
-    let mth_features = document.getElementById("mth-feature-select")
+    let mth_features = document.getElementById("mth-feature-select");
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
     let num_mth = storeData.data.spin_systems.length;
 
@@ -672,7 +671,7 @@ var _pageSysLeft = function() {
     _reloadMthFeatureButtons(num_mth, --mth_page_idx);
     mth_features.setAttribute("pageindex", mth_page_idx);
     document.getElementById(`mth-feature-${mth_page_idx * maxFeatureButtons}`).click();
-}
+};
 
 
 /**
@@ -680,7 +679,7 @@ var _pageSysLeft = function() {
  */
  var _pageMthRight = function() {
     // console.log("_pageSysLeft");
-    let mth_features = document.getElementById("mth-feature-select")
+    let mth_features = document.getElementById("mth-feature-select");
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
     let num_mth = storeData.data.spin_systems.length;
 
@@ -692,13 +691,13 @@ var _pageSysLeft = function() {
     _reloadMthFeatureButtons(num_mth, ++mth_page_idx);
     mth_features.setAttribute("pageindex", mth_page_idx);
     document.getElementById(`mth-feature-${mth_page_idx * maxFeatureButtons}`).click();
-}
+};
 
 
 window.dash_clientside.features = {
     clearTables: _clearParamGroupsAndTables,
     reloadParamGroups: _reloadParamGroups,  // Unpacks JSON
-    serializeParamGroups: function () {  // Searilaizes paramGroups to JSON
+    serializeParamGroups: function () {  // Serializes paramGroups to JSON
         _saveSys();
         _saveMth();
         return _serializeParamGroups();
@@ -754,7 +753,7 @@ window.dash_clientside.features = {
 
         }
     }
-}
+};
 
 window.features = {
     selectSystem: function (idx) {
@@ -775,4 +774,4 @@ window.features = {
         document.getElementById(`mth-feature-${idx}`).click();
         doExternalIndexUpdate = true;
     },
-}
+};

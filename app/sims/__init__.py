@@ -54,7 +54,7 @@ store = [
     # dcc.Store(id="local-exp-external-data", storage_type="memory"),
     # memory for storing the local computed data.
     # dcc.Store(id="local-computed-data", storage_type="memory"),
-    # Serialization of csdmpy object holding sim, exp, and resid spectrum
+    # Serialization of csdmpy object holding sim, exp, and residue spectrum
     # memory for holding the computed + processed data. Processing over the
     # computed data is less computationally expensive.
     dcc.Store(id="local-processed-data", storage_type="memory"),
