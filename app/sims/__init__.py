@@ -178,7 +178,7 @@ def one_time_simulation():
     serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
 
-    # add parameters to seralization if present
+    # add parameters to serialization if present
     if "params" in mrsim_data:
         serialize["params"] = mrsim_data["params"]
 
