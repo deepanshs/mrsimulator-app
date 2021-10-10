@@ -74,7 +74,7 @@ app.clientside_callback(
             tab.push((trig_id === item) ? 'active' : null);
         }}
 
-        // Hide the spectrum view if view-fit_report cliked, otherwise reshow
+        // Hide the spectrum view if view-fit_report clicked, otherwise reshow
         if (trig_id == 'fit_report') {{
             target[target.length - 1] = "left-card inactive";
         }} else {{

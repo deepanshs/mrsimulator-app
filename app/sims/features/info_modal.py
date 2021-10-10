@@ -19,7 +19,7 @@ BUTTONS = {
     "fac fa-chi-squared fa-lg": (
         "Fits simulated spectra to the experimental data and updates parameter values. "
         "Initial values will be those present in the feature tables. "
-        "The algorithm used is non-linear least sqaures fit from the LMFIT library."
+        "The algorithm used is non-linear least squares fit from the LMFIT library."
     ),
     # More Settings
     "fas fa-sliders-h": (
@@ -30,7 +30,7 @@ BUTTONS = {
     ),
     # Checkbox
     "fas fa-check-square": (
-        "When unchecked, the paraeter will remain constant or be evaluated based on "
+        "When unchecked, the parameter will remain constant or be evaluated based on "
         "its given expression under more settings during the fit. "
         "Otherwise the value will vary freely between min and max."
     ),

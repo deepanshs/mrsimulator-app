@@ -105,7 +105,7 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 def download_values_dict(*args):
-    """Downloads a dictonary of param names and values as json file"""
+    """Downloads a dictionary of param names and values as json file"""
     print("download fit values")
     mrsim_data = ctx.states["local-mrsim-data.data"]
     params_data = ctx.states["params-data.data"]
@@ -163,7 +163,7 @@ def make_pdf():
     # setup config for wkhtmltopdf binary
     if "WKHTMLTOPDF_PATH" not in os.environ:
         raise OSError(
-            "Path to wkthmltopdf binary needs to be explictly specified."
+            "Path to wkthmltopdf binary needs to be explicitly specified."
             "Run `export WKHTMLTOPDF_PATH=<path>` if on MacOS or run"
             "`heroku config:set WKHTMLTOPDF_PATH=<path>` if deploying for heroku"
         )
