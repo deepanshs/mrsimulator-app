@@ -153,6 +153,7 @@ def on_submit_signal_processor_button():
     ]
     params = make_LMFIT_params(sim, processors, include={"rotor_frequency"})
     existing_data["params"] = params.dumps()
+    existing_data["trigger"] = {"simulation": True, "method_index": False}
 
     out = {
         "alert": ["", False],
