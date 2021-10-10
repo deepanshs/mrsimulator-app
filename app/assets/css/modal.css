@@ -3,31 +3,13 @@
     padding: 5px;
 }
 
-.modal-body button {
-    margin: 0.5em;
-}
-
 .modal-body p {
     margin-bottom: 0;
 }
 
-.spectra-download-type:not(:last-child) {
-    padding-bottom: 2em;
-}
-
-.spectra-download-type {
+.modal-footer {
     display: flex;
     justify-content: space-between;
-    padding: 0.5em;
-}
-
-.spectra-download-type button {
-    width: 85px;
-}
-
-.spectra-download-type div {
-    padding-left: 3em;
-    margin: auto;
 }
 
 .modal-block {
@@ -42,23 +24,46 @@
     align-items: baseline;
 }
 
-.modal-body-item>div {
+.modal-body-item>div,
+#img-options-div > div {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0.75em;
+    padding: 0.5em;
 }
 
 .modal-body-item>div div {
     padding-left: 2.5em;
 }
 
-.modal-body-item>div div.left-align {
-    width: 6em;
+.modal-body .center {
+    display: flex;
+    justify-content: center;
 }
 
-.modal-body-item input,
+#download-description {
+    padding: 0.75em;
+}
+
+/* #img-options-div > div > div {
+    width: 15em;
+    justify-content: space-around;
+} */
+
+#img-options-div .dash-dropdown {
+    width: 5em;
+}
+
+#img-options-div input {
+    width: 7em;
+}
+
+/* .modal-body-item>div div.left-align {
+    width: 6em;
+} */
+
+/* .modal-body-item input,
 .modal-body-item select {
     width: 6em;
     margin-left: 1.5em;
-}
+} */
