@@ -39,13 +39,13 @@ def method():
 
 def features():
     """Features tab."""
-    icon = html.I(className="fac fa-chi-squared fa-lg", title="Features")
+    icon = html.I(className="fas fa-stream fa-lg", title="Features")
     return html.Li(html.Span(icon), id="view-features")
 
 
 def fit_report():
     """Fitting report tab."""
-    icon = html.I(className="fas fa-stream", title="Fit Report")
+    icon = html.I(className="fac fa-chi-squared fa-lg", title="Fit Report")
     return html.Li(html.Span(icon), id="view-fit_report")
 
 

@@ -37,6 +37,7 @@ var _change_download_type = function (_n1, _n2, _n3) {
         document.getElementById("img-options-div").classList.add("hidden");
     } else if (trig_id == "download-html") {
         arr = [false, false, true];
+        document.getElementById("img-options-div").classList.add("hidden");
         descr_div.innerHTML = download_descriptions["download-html"];
     }
 
