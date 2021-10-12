@@ -20,7 +20,7 @@ var _updateFitReport = function () {
         body.innerHTML = report_str;
 
         // Get the stats header and table to wrap in a div
-        let stats_headder = body.removeChild(body.childNodes[0]);
+        let stats_header = body.removeChild(body.childNodes[0]);
         let stats_table = body.removeChild(body.childNodes[0]);
         // Remove last column of table (unused)
         for (const row of stats_table.rows) {
@@ -38,10 +38,10 @@ var _updateFitReport = function () {
         title.innerText = document.querySelector("#info-read-only > div > div:nth-child(1) > h4").innerText.slice(0, -36);
         let about = overview_div.appendChild(document.createElement("div"));
         about.innerText = document.querySelector("#info-read-only > div > div.card > div").innerText;
-        about.classList.add("card")
+        about.classList.add("card");
         // add spin system table
         let sys_info = overview_div.appendChild(document.createElement("H4"));
-        sys_info.innerText = "Spin System Overview"
+        sys_info.innerText = "Spin System Overview";
         let system_table = overview_div.appendChild(document.createElement("table"));
         system_table.innerHTML = document.getElementById("system-table").innerHTML;
         for (const row of system_table.rows) {
@@ -49,7 +49,7 @@ var _updateFitReport = function () {
           }
         // add method table
         let mth_info = overview_div.appendChild(document.createElement("H4"));
-        mth_info.innerText = "Method Overview"
+        mth_info.innerText = "Method Overview";
         let method_table = overview_div.appendChild(document.createElement("table"));
         method_table.innerHTML = document.getElementById("method-table").innerHTML;
         // remove last two columns (spinning speed and edit)
@@ -58,14 +58,14 @@ var _updateFitReport = function () {
             row.deleteCell(-1);
           }
 
-        // Readd stats headder and table wrapped in div
+        // Readd stats header and table wrapped in div
         let stats_div = info_div.appendChild(document.createElement("div"));
-        stats_div.appendChild(stats_headder);
+        stats_div.appendChild(stats_header);
         stats_div.appendChild(stats_table);
     }
 
     return;
-}
+};
 
 
 var _get_fit_report_html = function (n1) {
@@ -77,10 +77,10 @@ var _get_fit_report_html = function (n1) {
     let report_html_str = report.outerHTML;
     report.remove();
     return report_html_str + n1;
-}
+};
 
 
 window.dash_clientside.report = {
     updateFitReport: _updateFitReport,
     get_fit_report_html: _get_fit_report_html
-}
+};

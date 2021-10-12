@@ -140,9 +140,9 @@ root_app = html.Div(
     [
         html.Section(
             [
-                html.H1("Apps"),
-                mrsim_btn,
-                mrinv_btn,
+                # html.H1("Apps"),
+                # mrsim_btn,
+                # mrinv_btn,
                 # html.Hr(),
                 dcc.Loading(html.Div(children=mrsimulator_ui(), id="empty-main-div")),
             ]

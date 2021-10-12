@@ -245,7 +245,7 @@ def get_plotly_dimensions():
         height = height / 2.54
         dpi = dpi / 2.54
 
-    # Ploly default dpi (scale 1) is 72
+    # Plotly default dpi (scale 1) is 72
     width = width * 72
     height = height * 72
     scale = dpi / 72

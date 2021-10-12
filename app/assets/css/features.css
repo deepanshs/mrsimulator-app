@@ -64,10 +64,12 @@
 }
 
 .select-spot {
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
+  width: 26px;
+  height: 26px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   font-size: 13.5px;
   background: white;
   border: 1px solid #dfdfdf;
