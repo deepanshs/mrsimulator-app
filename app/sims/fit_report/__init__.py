@@ -163,7 +163,7 @@ def make_pdf():
     # setup config for wkhtmltopdf binary
     if "WKHTMLTOPDF_PATH" not in os.environ:
         raise OSError(
-            "Path to wkthmltopdf binary needs to be explicitly specified."
+            "Path to wkhtmltopdf binary needs to be explicitly specified."
             "Run `export WKHTMLTOPDF_PATH=<path>` if on MacOS or run"
             "`heroku config:set WKHTMLTOPDF_PATH=<path>` if deploying for heroku"
         )

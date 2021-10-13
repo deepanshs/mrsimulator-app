@@ -24,7 +24,7 @@ def download_btn_pack():
     """Button group for selecting type of download"""
     kwargs = {"outline": True, "color": "dark", "size": "lg"}
     img_btn = custom_button(
-        text="imgage",
+        text="image",
         icon_classname="far fa-file-image fa-lg",
         tooltip="Download csdf of all spectra lines",
         id="download-img",
@@ -108,7 +108,7 @@ def ui():
             ),
             dbc.ModalFooter(
                 [
-                    dbc.Button("Download", id="download-sepctrum-btn"),
+                    dbc.Button("Download", id="download-spectrum-btn"),
                     dbc.Button("Close", id="close-download-spectra-modal"),
                 ]
             ),
@@ -171,7 +171,7 @@ app.clientside_callback(
 
 @app.callback(
     Output("download-spectrum", "data"),
-    Input("download-sepctrum-btn", "n_clicks"),
+    Input("download-spectrum-btn", "n_clicks"),
     State("download-img", "active"),
     State("download-csdf", "active"),
     State("download-html", "active"),
@@ -233,7 +233,7 @@ def download_csdf():
 
 
 def get_plotly_dimensions():
-    """Calculates Plotly widht, height, and scale dimensions"""
+    """Calculates Plotly width, height, and scale dimensions"""
     width = float(ctx.states["image-width.value"])
     height = float(ctx.states["image-height.value"])
     dpi = float(ctx.states["image-dpi.value"])
