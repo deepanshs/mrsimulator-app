@@ -90,7 +90,7 @@ def generic_ui(image, description, button, children=[]):
 def mrsimulator_ui():
     image = html.Img(src="/assets/images/mrsimulator.svg", alt="Mrsimulator")
     description = (
-        "Build with plotly-dash, Mrsimulator app brings a convenient user "
+        "Built with plotly-dash, Mrsimulator app brings a convenient user "
         "interface for fast solid-state NMR spectum simulation and "
         "least-squares analysis."
     )

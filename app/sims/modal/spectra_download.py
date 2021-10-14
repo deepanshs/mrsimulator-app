@@ -2,9 +2,11 @@
 import json
 
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 from dash import callback_context as ctx
+from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -18,129 +20,78 @@ __author__ = "Matthew D. Giammar"
 __email__ = "giammar.7@osu.edu"
 
 
-def download_as_csdf_pack():
-    """Div with info and buttons for downloading data as csdf file"""
+def download_btn_pack():
+    """Button group for selecting type of download"""
     kwargs = {"outline": True, "color": "dark", "size": "lg"}
-    headder = html.Div(html.B("Download spectrum data as csdf file"))
-    doc_link = html.P(
-        [
-            "See the ",
-            html.A(
-                " csdf documentation page",
-                href="https://csdmpy.readthedocs.io/en/v0.4.1/index.html",
-            ),
-            " for more info.",
-        ]
+    img_btn = custom_button(
+        text="image",
+        icon_classname="far fa-file-image fa-lg",
+        tooltip="Download csdf of all spectra lines",
+        id="download-img",
+        active=True,
+        **kwargs,
     )
     csdf_btn = custom_button(
         text="csdf",
         icon_classname="far fa-file-archive fa-lg",
         tooltip="Download csdf of all spectra lines",
-        id="download-spectra-csdf",
+        id="download-csdf",
         **kwargs,
     )
-
-    return html.Div([headder, doc_link, csdf_btn])
-
-
-def download_as_html_pack():
-    """Div with info and buttons for dowloading graph as interactive html file"""
-    kwargs = {"outline": True, "color": "dark", "size": "lg"}
-    headder = html.Div(html.B("Download spectrum as as interactive Plotly html"))
     html_btn = custom_button(
         text="html",
         icon_classname="far fa-file-code fa-lg",
         tooltip="Download plot as interactive html file",
-        id="download-spectra-html",
+        id="download-html",
         **kwargs,
     )
 
-    return html.Div([headder, html_btn])
+    return html.Div(dbc.ButtonGroup([img_btn, csdf_btn, html_btn]), className="center")
 
 
-def download_image_dimensions():
-    """Inputs to adjust width and height of downloaded image"""
-    dimensions = html.Div(
-        [
-            html.Div(
-                [
-                    html.Div("Width", className="center-text left-align"),
-                    dbc.Input(value=20.32, type="Number", id="image-width", step="any"),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div("Height", className="center-text left-align"),
-                    dbc.Input(value=12.7, type="Number", id="image-height", step="any"),
-                ]
-            ),
+def image_options_div():
+    """User inputs for type, size, and quality of image"""
+
+    # callback for showing div when img button clicked, hiding otherwise
+    img_type = dcc.Dropdown(
+        options=[
+            {"label": "png", "value": "png"},
+            {"label": "svg", "value": "svg"},
+            {"label": "pdf", "value": "pdf"},
         ],
-        className="modal-body-item",
+        value="png",
+        id="image-type",
+        clearable=False,
     )
-    resolution = html.Div(
-        [
-            html.Div(
-                [
-                    html.Div(
-                        "dots per in",
-                        id="dpi-label",
-                        className="center-text left-align",
-                    ),
-                    dbc.Input(value=254, type="Number", id="image-dpi", step="any"),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Div("Units", className="center-text left-align"),
-                    dbc.Select(
-                        options=[
-                            {"label": "in", "value": "in"},
-                            {"label": "cm", "value": "cm"},
-                        ],
-                        value="in",
-                        id="image-units",
-                    ),
-                ]
-            ),
+    img_units = dcc.Dropdown(
+        options=[
+            {"label": "in", "value": "in"},
+            {"label": "cm", "value": "cm"},
         ],
-        className="modal-body-item",
+        value="in",
+        id="image-units",
+        clearable=False,
     )
-    return html.Div([dimensions, resolution], className="modal-block")
+    img_dpi = dbc.Input(value=100, type="Number", id="image-dpi", step="any")
+    img_width = dbc.Input(value=8, type="Number", id="image-width", step="any")
+    img_height = dbc.Input(value=5, type="Number", id="image-height", step="any")
 
+    type_div = html.Div(["Type", img_type], className="center-text")
+    units_div = html.Div(["Units", img_units], className="center-text")
+    dpi_div = html.Div(
+        [html.Div("Dots / in", id="dpi-label"), img_dpi], className="center-text"
+    )
+    width_div = html.Div(["Width", img_width], className="center-text")
+    height_div = html.Div(["Height", img_height], className="center-text")
 
-def download_img_buttons():
-    """Buttons for downloading graph image"""
-    kwargs = {"outline": True, "color": "dark", "size": "lg"}
-    pdf = custom_button(
-        text="pdf",
-        icon_classname="far fa-file-pdf fa-lg",
-        tooltip="Download spectra as a pdf file",
-        id="download-spectra-pdf",
-        **kwargs,
-    )
-    svg = custom_button(
-        text="svg",
-        icon_classname="far fa-file-image fa-lg",
-        tooltip="Download spectra as an svg image",
-        id="download-spectra-svg",
-        **kwargs,
-    )
-    png = custom_button(
-        text="png",
-        icon_classname="far fa-file-image fa-lg",
-        tooltip="Download csdf of all spectra lines",
-        id="download-spectra-png",
-        **kwargs,
+    return html.Div(
+        [type_div, units_div, dpi_div, width_div, height_div], id="img-options-div"
     )
 
-    return html.Div([pdf, svg, png], className="modal-block")
 
-
-def download_as_img_pack():
-    """Div holding fields for downloading spectrum as image"""
-    headder = html.Div(html.B("Download the spectrum as an image"))
-
-    return html.Div([headder, download_image_dimensions(), download_img_buttons()])
+def description_div():
+    """Div for explaining what will be dowloaded"""
+    return html.Div("Download an image of the spectrum", id="download-description")
 
 
 def ui():
@@ -150,15 +101,20 @@ def ui():
             dbc.ModalHeader("Spectrum Plot Download Options"),
             dbc.ModalBody(
                 [
-                    download_as_csdf_pack(),
-                    download_as_html_pack(),
-                    download_as_img_pack(),
+                    download_btn_pack(),
+                    description_div(),
+                    image_options_div(),
                 ]
             ),
-            dbc.ModalFooter(dbc.Button("Close", id="close-download-spectra-modal")),
+            dbc.ModalFooter(
+                [
+                    dbc.Button("Download", id="download-spectrum-btn"),
+                    dbc.Button("Close", id="close-download-spectra-modal"),
+                ]
+            ),
         ],
         id="download-spectra-modal",
-        size="md",
+        size="sm",
         className="modal-dialogue",
     )
 
@@ -167,6 +123,20 @@ download_modal = ui()
 
 
 # Callbacks ============================================================================
+
+# Only allow one button to be active at a time
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="download_spectrum", function_name="change_download_type"
+    ),
+    Output("download-img", "active"),
+    Output("download-csdf", "active"),
+    Output("download-html", "active"),
+    Input("download-img", "n_clicks"),
+    Input("download-csdf", "n_clicks"),
+    Input("download-html", "n_clicks"),
+    prevent_initial_call=True,
+)
 
 # Update values on units change
 app.clientside_callback(
@@ -184,7 +154,7 @@ app.clientside_callback(
         width = parseFloat(width.toFixed(3));
         height = parseFloat(height.toFixed(3));
         dpi = parseFloat(dpi.toFixed(3));
-        return [`dots per ${val}`, width, height, dpi];
+        return [`Dots / ${val}`, width, height, dpi];
     }
     """,
     Output("dpi-label", "children"),
@@ -201,13 +171,13 @@ app.clientside_callback(
 
 @app.callback(
     Output("download-spectrum", "data"),
-    Input("download-spectra-csdf", "n_clicks"),
-    Input("download-spectra-html", "n_clicks"),
-    Input("download-spectra-pdf", "n_clicks"),
-    Input("download-spectra-svg", "n_clicks"),
-    Input("download-spectra-png", "n_clicks"),
+    Input("download-spectrum-btn", "n_clicks"),
+    State("download-img", "active"),
+    State("download-csdf", "active"),
+    State("download-html", "active"),
     State("local-processed-data", "data"),
     State("nmr_spectrum", "figure"),
+    State("image-type", "value"),
     State("image-width", "value"),
     State("image-height", "value"),
     State("image-dpi", "value"),
@@ -216,32 +186,23 @@ app.clientside_callback(
 )
 def plot_download(*args):
     """Callback for downloading plot logic"""
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    print("download plot", trigger_id)
+    # trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    print("download plot")
 
-    return CALLBACKS[trigger_id]()
+    if ctx.states["download-img.active"]:
+        return download_image()
 
+    if ctx.states["download-html.active"]:
+        return download_html()
 
-def download_csdf():
-    """Download spectrum data as csdf file"""
-    csdf_dict = ctx.states["local-processed-data.data"]
-
-    return dict(content=json.dumps(csdf_dict), filename="spectrum.csdf")
-
-
-def download_html():
-    """Download spectrum as html file"""
-    fig_dict = ctx.states["nmr_spectrum.figure"]
-    fig_json = json.dumps(fig_dict)
-    fig = plotly.io.from_json(str(fig_json))
-    html_str = fig.to_html(fig)
-
-    return dict(content=html_str, filename="plot.html")
+    if ctx.states["download-csdf.active"]:
+        return download_csdf()
 
 
 def download_image():
     """Download the spectrum as an image"""
-    fmt = ctx.triggered[0]["prop_id"].split(".")[0].split("-")[-1]
+    # fmt = ctx.triggered[0]["prop_id"].split(".")[0].split("-")[-1]
+    fmt = ctx.states["image-type.value"]
     fig_dict = ctx.states["nmr_spectrum.figure"]
     fig_json = json.dumps(fig_dict)
 
@@ -254,11 +215,28 @@ def download_image():
     return send_bytes(write_bytes, f"plot.{fmt}")
 
 
+def download_html():
+    """Download spectrum as html file"""
+    fig_dict = ctx.states["nmr_spectrum.figure"]
+    fig_json = json.dumps(fig_dict)
+    fig = plotly.io.from_json(str(fig_json))
+    html_str = fig.to_html(fig)
+
+    return dict(content=html_str, filename="plot.html")
+
+
+def download_csdf():
+    """Download spectrum data as csdf file"""
+    csdf_dict = ctx.states["local-processed-data.data"]
+
+    return dict(content=json.dumps(csdf_dict), filename="spectrum.csdf")
+
+
 def get_plotly_dimensions():
     """Calculates Plotly width, height, and scale dimensions"""
-    width = ctx.states["image-width.value"]
-    height = ctx.states["image-height.value"]
-    dpi = ctx.states["image-dpi.value"]
+    width = float(ctx.states["image-width.value"])
+    height = float(ctx.states["image-height.value"])
+    dpi = float(ctx.states["image-dpi.value"])
     cm_or_in = ctx.states["image-units.value"]
 
     # convert to inches if in centimeters

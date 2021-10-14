@@ -3,7 +3,7 @@
  * Email = "giammar.7@osu.edu"
  */
 
-/* jshint esversion: 6 */
+/* jshint version: 6 */
 
 
 /**

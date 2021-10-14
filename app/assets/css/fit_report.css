@@ -2,6 +2,10 @@
     width: 100%;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 #fit-report-table-div {
     display: flex;
     flex-grow: 1;
@@ -10,6 +14,7 @@
     padding: 0.5em;
     margin: 0.5em;
     height: calc(var(--content-max-height) - 6rem);
+    scrollbar-width: none;
 }
 
 
