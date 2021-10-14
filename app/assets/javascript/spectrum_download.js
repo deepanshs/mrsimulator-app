@@ -30,7 +30,7 @@ var _change_download_type = function (_n1, _n2, _n3) {
     } else if (trig_id == "download-csdf") {
         arr = [false, true, false];
         descr_div.innerHTML = download_descriptions["download-csdf"];
-        doc_link = document.createElement("a");
+        let doc_link = document.createElement("a");
         doc_link.href = "https://csdmpy.readthedocs.io/en/v0.4.1/index.html"
         doc_link.innerText = "csdmpy documentation"
         descr_div.appendChild(doc_link);
