@@ -1,21 +1,16 @@
 
 flask==2.0.1
 uuid==1.30
+dash-extensions==0.0.60
 plotly==5.1.0
 dash==1.21.0
 dash_bootstrap_components==0.13.0
 gunicorn==20.1.0
-mrsimulator>=0.6.0rc5
+mrsimulator==0.6.0
+lmfit==1.0.3
 redis==3.5.3
 celery[redis]==5.1.2
 mrinversion>=0.1
 matplotlib>=3.4
-
-# development packages
-pytest-runner>=5.0
-pytest>=5.3
-black
-pre-commit>=1.16.1
-coverage>=4.5.3
-pytest-cov
-codecov
+pdfkit==0.6.1
+kaleido==0.2.1

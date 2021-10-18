@@ -18,7 +18,7 @@ from mrsimulator.signal_processing import SignalProcessor
 from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
-from .fit import fit_body
+from .features import features_body
 from .fit_report import fit_report_body
 from .graph import DEFAULT_FIGURE
 from .graph import plot_1D_trace
@@ -31,8 +31,8 @@ from .spin_system import spin_system_body
 from app import app
 from app.utils import slogger
 
-__author__ = "Deepansh J. Srivastava"
-__email__ = "srivastava.89@osu.edu"
+__author__ = ["Deepansh J. Srivastava", "Matthew D. Giammar"]
+__email__ = ["srivastava.89@osu.edu", "giammar.7@osu.edu"]
 
 DEFAULT_MRSIM_DATA = {
     "name": "",
@@ -49,16 +49,17 @@ store = [
     # memory for storing local simulator data.
     dcc.Store(id="local-simulator-data", storage_type="memory"),
     # store graph view data.
-    dcc.Store(id="graph-view-layout", storage_type="memory", data=[]),
+    # dcc.Store(id="graph-view-layout", storage_type="memory", data=[]),
     # memory for storing the experimental data
     # dcc.Store(id="local-exp-external-data", storage_type="memory"),
     # memory for storing the local computed data.
     # dcc.Store(id="local-computed-data", storage_type="memory"),
+    # Serialization of csdmpy object holding sim, exp, and residue spectrum
     # memory for holding the computed + processed data. Processing over the
     # computed data is less computationally expensive.
     dcc.Store(id="local-processed-data", storage_type="memory"),
     # memory for holding the method data
-    dcc.Store(id="local-method-data", storage_type="memory"),
+    # dcc.Store(id="local-method-data", storage_type="memory"),
     dcc.Store(id="new-spin-system", storage_type="memory"),
     dcc.Store(id="new-method", storage_type="memory"),
     # store a bool indicating if the data is from an external file
@@ -66,7 +67,6 @@ store = [
     # method-template data
     dcc.Store(id="add-method-from-template", storage_type="memory"),
     dcc.Store(id="user-config", storage_type="local"),
-    # signal processor
 ]
 store_items = html.Div(store)
 
@@ -104,14 +104,14 @@ body_content = [
     home_body,
     spin_system_body,
     method_body,
-    fit_body,
+    features_body,
     fit_report_body,
     spectrum_body,
 ]
 main_body = html.Div(body_content, className="mobile-scroll")
 
 # temp items
-temp = [html.Div(id=f"temp{i}") for i in range(6)]
+temp = [html.Div(id=f"temp{i}") for i in range(10)]
 
 # content page
 content = html.Div([*temp, main_body, store_items, bottom_nav], className="app-1")
@@ -130,9 +130,9 @@ mrsimulator_app = html.Div(
     Output("alert-message-simulation", "is_open"),
     # Output("local-computed-data", "data"),
     Output("local-simulator-data", "data"),
-    Output("graph-view-layout", "data"),
+    # Output("graph-view-layout", "data"),
     Input("local-mrsim-data", "data"),
-    State("graph-view-layout", "data"),
+    # State("graph-view-layout", "data"),
     prevent_initial_call=True,
 )
 def simulation(*args):
@@ -147,6 +147,7 @@ def simulation(*args):
 
 def one_time_simulation():
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
+    # n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
 
     if mrsim_data is None:
         raise PreventUpdate
@@ -167,6 +168,7 @@ def one_time_simulation():
     process_data = mrsim_data["signal_processors"]
     for proc, mth in zip(process_data, sim.methods):
         processor = SignalProcessor.parse_dict_with_units(proc)
+
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
     if decompose == "none":
@@ -176,7 +178,11 @@ def one_time_simulation():
     serialize = sim.json(include_methods=True, include_version=True)
     serialize["signal_processors"] = process_data
 
-    layout = ctx.states["graph-view-layout.data"]
+    # add parameters to serialization if present
+    if "params" in mrsim_data:
+        serialize["params"] = mrsim_data["params"]
+
+    # layout = ctx.states["graph-view-layout.data"]
     # for _ in range(len(sim.methods)-len(layout)):
     #     layout.append(None)
 
@@ -190,12 +196,13 @@ def one_time_simulation():
     #                 'yaxis': {"range": [y.min(), y.max()]}
     #             }
 
-    return ["", False, serialize, layout]
+    return ["", False, serialize]
 
 
 @app.callback(
     Output("nmr_spectrum", "figure"),
     Output("local-processed-data", "data"),
+    # Output("last-method-index", "data"),
     # Input("local-computed-data", "modified_timestamp"),
     Input("local-simulator-data", "data"),
     Input("normalize_amp", "n_clicks"),
@@ -203,7 +210,8 @@ def one_time_simulation():
     State("normalize_amp", "active"),
     # State("local-computed-data", "data"),
     State("nmr_spectrum", "figure"),
-    State("graph-view-layout", "data"),
+    # State("graph-view-layout", "data"),
+    State("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )
 def plot(*args):
@@ -291,8 +299,15 @@ def plot(*args):
     # layout_graph = ctx.states['graph-view-layout.data'][method_index]
     # layout.update(layout_graph)
 
-    layout["xaxis"]["autorange"] = "reversed"
-    layout["yaxis"]["autorange"] = True
+    # Let graph resize ranges if new method has been selected
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+    trigger = mrsim_data["trigger"] if "trigger" in mrsim_data else None
+    if (trigger and trigger["method_index"] is None) or trigger_id == "select-method":
+        layout["xaxis"]["autorange"] = "reversed"
+        layout["yaxis"]["autorange"] = True
+    else:
+        layout["xaxis"]["autorange"] = False
+        layout["yaxis"]["autorange"] = False
 
     data_object = {"data": plot_trace, "layout": go.Layout(**layout)}
 
@@ -305,9 +320,38 @@ def plot(*args):
     if simulation_data is None:
         return [data_object, no_update]
 
-    # simulation_data = simulation_data.to_dict()
-    # print(simulation_data)
-    return [data_object, simulation_data]
+    args = (sim_data,) if experiment_data is None else (sim_data, exp_data, residue)
+    csdm_obj = construct_csdm_object(*args)
+
+    return [data_object, csdm_obj.dict()]
+
+
+def construct_csdm_object(sim, exp=None, residual=None):
+    """Makes sure the increment of the passed csdm object is negative"""
+
+    def add_dv(parrent, to_add):
+        y = to_add.y[0].components
+        index = [-i - 1 for i, x in enumerate(to_add.x) if x.increment.value < 0]
+        parrent.add_y(
+            cp.DependentVariable(
+                type="internal",
+                components=y if index == [] else np.flip(y, axis=tuple(index)),
+                quantity_name="dimensionless",
+                quantity_type="scalar",
+            )
+        )
+
+    csdm_obj = sim.copy()
+
+    # Add experimental data if present
+    if exp is not None:
+        add_dv(csdm_obj, exp)
+
+    # Add residual data if present
+    if residual is not None:
+        add_dv(csdm_obj, residual)
+
+    return csdm_obj
 
 
 def made_dimensionless(exp):

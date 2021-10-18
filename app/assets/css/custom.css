@@ -30,6 +30,9 @@ input[type="search"]:focus {
   min-width: 45vw;
   width: 100%;
 }
+#spectrum-body.left-card.inactive {
+  display: none;
+}
 #upload-measurement-from-graph {
   display: block;
   box-shadow: 0 0 10px 0 silver;
@@ -62,6 +65,10 @@ input[type="search"]:focus {
 .card-header .btn-group {
   padding: 0;
 }
+#upload-measurement-from-graph .btn-group {
+  padding: 0.5em;
+}
+
 .card-header input {
   min-width: 5rem;
   border-radius: 0.35rem;
@@ -197,8 +204,11 @@ table thead th:last-child {
 table thead th:nth-child(2) {
   width: 30%;
 }
+/* try :not(:last-child) */
 table thead tr th,
-table thead tr td {
+table thead tr td,
+table tbody tr th,
+table tbody tr td {
   text-align: center;
   padding: 0.73em;
   border-right: 1px solid #dfdfdf;
@@ -209,18 +219,30 @@ table thead tr td {
 table thead tr td {
   cursor: pointer;
 }
-table thead {
+table thead,
+table tbody tr {
   border-bottom: 1px solid #dfdfdf;
 }
-table thead:not(:first-child):hover {
+table thead:not(:first-child):hover td {
   background-color: #cee3ff;
 }
 table thead.active,
-table thead.active:hover {
+table thead:hover {
+  background-color: transparent;
+}
+table thead.active td,
+table thead.active:hover td {
   background-color: var(--select-blue);
   color: white;
 }
-table thead:last-child {
+table thead:last-child td:first-child {
+  border-radius: 0 0 0 0.5em;
+}
+table thead:last-child td:last-child {
+  border-radius: 0 0 0.5em 0;
+}
+table thead:last-child,
+table tbody tr:last-child {
   border-bottom: none;
 }
 table th:last-child,
@@ -275,4 +297,16 @@ div[data-home-table] ul[data-edit-tools] li:hover {
   #spectrum-body.left-card.active {
     display: block;
   }
+}
+
+/* A div where text is vertically centered */
+div.center-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+
+.hidden {
+  display: none;
 }

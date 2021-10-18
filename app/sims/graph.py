@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_extensions as de
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import ClientsideFunction
@@ -9,6 +10,7 @@ from dash.dependencies import Output
 from dash.dependencies import State
 
 from .modal.help import simulation_help
+from .modal.spectra_download import download_modal
 from app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_switch
@@ -81,9 +83,9 @@ default_fig_config = {
     ],
     "modeBarButtonsToAdd": [
         "drawline",
-        "drawopenpath",
-        "drawclosedpath",
-        "drawcircle",
+        # "drawopenpath",
+        # "drawclosedpath",
+        # "drawcircle",
         "drawrect",
         "eraseshape",
     ],
@@ -124,42 +126,42 @@ def graph_ui():
 
 
 def tools():
-    def csdm_download_pack():
-        """CSDM download per method and associated callback"""
+    def download_spectra():
+        """Button for opening spectra downloads modal"""
+        kwargs = {"outline": True, "color": "dark", "size": "md"}
         download_btn = custom_button(
             icon_classname="fas fa-download fa-lg",
             tooltip="Download Simulation from selected method.",
-            id="export-simulation-from-method",
-            className="icon-button",
-            module="html",
-        )
-        download_link = html.A(
-            id="export-simulation-from-method-link", style={"display": "none"}
+            id="open-download-spectra-modal",
+            **kwargs,
         )
 
         app.clientside_callback(
-            ClientsideFunction(
-                namespace="method",
-                function_name="export_simulation_from_selected_method",
-            ),
-            Output("export-simulation-from-method-link", "href"),
-            [Input("export-simulation-from-method", "n_clicks")],
-            [State("local-processed-data", "data")],
+            """function (n1, n2, is_open) { return !is_open; }""",
+            Output("download-spectra-modal", "is_open"),
+            Input("open-download-spectra-modal", "n_clicks"),
+            Input("close-download-spectra-modal", "n_clicks"),
+            State("download-spectra-modal", "is_open"),
             prevent_initial_call=True,
         )
-        return html.Div([download_btn, download_link])
+
+        return download_btn
 
     def graph_tool_pack():
         """Normalize to one and spectral decompose buttons"""
-        scale_amplitude_button = custom_switch(
+        kwargs = dict(
+            outline=True,
+            color="dark",
+            style={"zIndex": 0},
+            size="md",
+        )
+        normalize_button = custom_switch(
             # text="Normalize",
             icon_classname="fas fa-arrows-alt-v",
             id="normalize_amp",
             # size="sm",
             tooltip="Scale maximum amplitude to one.",
-            outline=True,
-            color="dark",
-            style={"zIndex": 0},
+            **kwargs,
         )
 
         decompose_button = custom_switch(
@@ -168,13 +170,11 @@ def tools():
             id="decompose",
             # size="sm",
             tooltip="Decompose spectrum from individual spin systems.",
-            outline=True,
-            color="dark",
-            style={"zIndex": 0},
+            **kwargs,
         )
-        return dbc.ButtonGroup([scale_amplitude_button, decompose_button])
+        return dbc.ButtonGroup([normalize_button, decompose_button])
 
-    return html.Div([graph_tool_pack(), csdm_download_pack()])
+    return html.Div([graph_tool_pack(), download_spectra()])
 
 
 def header():
@@ -200,8 +200,13 @@ def header():
     return html.Div([head, tools()], className="card-header")
 
 
+def download_element():
+    """Dash extentions download element for downloading the plot"""
+    return de.Download(id="download-spectrum")
+
+
 def layout():
-    return [header(), graph_ui(), simulation_help]
+    return [header(), graph_ui(), simulation_help, download_modal, download_element()]
 
 
 def ui():

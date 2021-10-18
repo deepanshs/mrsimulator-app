@@ -105,14 +105,16 @@ var _setFields = function (index) {
 
   // noise standard deviation
   if (method.experiment != null) {
-    let application = method.experiment.csdm.dependent_variables[0].application;
-    if (application == null) { application = {}; }
-    if (application['com.github.DeepanshS.mrsimulator'] == null) {
-      application['com.github.DeepanshS.mrsimulator'] = {
+    let exp_data = method.experiment.csdm.dependent_variables[0];
+    if (exp_data.application == null) {
+      exp_data.application = {};
+    }
+    if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
+      exp_data.application['com.github.DeepanshS.mrsimulator'] = {
         'sigma': 1
       };
     }
-    let sigma = application['com.github.DeepanshS.mrsimulator'].sigma;
+    let sigma = exp_data.application['com.github.DeepanshS.mrsimulator'].sigma;
 
     // array.push(sigma);
     setValue("measurement-sigma", sigma);
@@ -158,30 +160,30 @@ var _setFields = function (index) {
 window.dash_clientside.method = {
   updateMethodJson: _updateMethodJson,
   onMethodsLoad: _onMethodsLoad,
-  export_simulation_from_selected_method: function (n, data) {
-    if (n === null) {
-      alert("No method found. Try adding a method first.");
-      return "";
-    }
-    if (data === null) {
-      alert("No simulation data available for the method.");
-      return "";
-    }
+  // export_simulation_from_selected_method: function (n, data) {
+  //   if (n === null) {
+  //     alert("No method found. Try adding a method first.");
+  //     return "";
+  //   }
+  //   if (data === null) {
+  //     alert("No simulation data available for the method.");
+  //     return "";
+  //   }
 
-    // prepare the download.
-    let dataStr = "data:text/json;charset=utf-8,";
-    dataStr += encodeURIComponent(JSON.stringify(data));
+  //   // prepare the download.
+  //   let dataStr = "data:text/json;charset=utf-8,";
+  //   dataStr += encodeURIComponent(JSON.stringify(data));
 
-    let dlAnchorElem = document.getElementById(
-      "export-simulation-from-method-link"
-    );
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "simulation.csdf");
-    dlAnchorElem.click();
+  //   let dlAnchorElem = document.getElementById(
+  //     "export-simulation-from-method-link"
+  //   );
+  //   dlAnchorElem.setAttribute("href", dataStr);
+  //   dlAnchorElem.setAttribute("download", "simulation.csdf");
+  //   dlAnchorElem.click();
 
-    dataStr = ndlAnchorElem = null;
-    return "";
-  },
+  //   dataStr = ndlAnchorElem = null;
+  //   return "";
+  // },
 };
 
 var decodeFromBase64 = function (encodedString) {
@@ -196,7 +198,7 @@ var decodeFromBase64 = function (encodedString) {
 };
 
 /* Initiate a click event for the li.
- * @param listomer: A list of li, each summarizing a method.
+ * @param listomers: A list of li, each summarizing a method.
  * @param index: The index of li to initiate the click.
  */
 
@@ -210,9 +212,15 @@ window.method = {
 
   setIndex: function (index) {
     storeData.method_index = index;
+    document.getElementById("force-refresh-method").click();
   },
 
   select: function (listomers, index) {
+    if (listomers == null) {
+      listomers = document.querySelectorAll(
+        "#method-read-only div.scrollable-list ul li"
+      );
+    }
     if (listomers.length > 0) {
       listomers[index].click();
     }
@@ -231,6 +239,9 @@ window.method = {
       tr.classList.remove("active");
     });
     overView[index + 1].classList.add("active");
+
+    // Select updates method in features tab
+    window.features.selectMethod(index);
   },
 
   setFields: _setFields,
@@ -242,12 +253,14 @@ window.method = {
     // noise standard deviation
     if (method.experiment != null) {
       temp = getValue('measurement-sigma');
-      let application = method.experiment.csdm.dependent_variables[0].application;
-      if (application == null) { application = {}; }
-      if (application['com.github.DeepanshS.mrsimulator'] == null) {
-        application['com.github.DeepanshS.mrsimulator'] = {};
+      let exp_data = method.experiment.csdm.dependent_variables[0];
+      if (exp_data.application == null) {
+        exp_data.application = {};
       }
-      application['com.github.DeepanshS.mrsimulator'].sigma = temp;
+      if (exp_data.application['com.github.DeepanshS.mrsimulator'] == null) {
+        exp_data.application['com.github.DeepanshS.mrsimulator'] = {};
+      }
+      exp_data.application['com.github.DeepanshS.mrsimulator'].sigma = temp;
     }
 
     temp = getValue('magnetic_flux_density');

@@ -10,7 +10,7 @@ from dash.dependencies import Output
 
 from app import app
 
-with open("app/examples/example_link.json", "r") as f:
+with open("app/assets/example_link.json", "r") as f:
     mrsimulator_examples = json.load(f)
 
 
@@ -27,10 +27,12 @@ mrinversion_examples = [
 
 
 def card(item, app_name):
-    img_src = "/assets/fit.png" if "img" not in item else item["img"]
+    img_src = "/assets/images/fit.png"
+    if "img" in item and item["img"] is not None:
+        img_src = item["img"]
     img = dbc.CardImg(src=img_src, top=True)
     title = html.H4(item["label"])
-    des = "This is description" if "description" not in item else item["description"]
+    des = "This is a description" if "description" not in item else item["description"]
     body = dbc.CardBody([title, html.P(des)])
     card_ = dbc.Card([img, body])
     a = html.A(card_, href=f"./{app_name}?a=" + item["value"])
@@ -88,21 +90,26 @@ def generic_ui(image, description, button, children=[]):
 def mrsimulator_ui():
     image = html.Img(src="/assets/images/mrsimulator.svg", alt="Mrsimulator")
     description = (
-        "Build with plotly-dash, Mrsimulator app brings a convenient user "
+        "Built with plotly-dash, Mrsimulator app brings a convenient user "
         "interface for fast solid-state NMR spectum simulation and "
         "least-squares analysis."
     )
     button = dbc.Button("Open App", href="/simulator", id="simulator-app")
 
-    children = [
-        # html.Section(search_engine()),
-        html.Section(
-            [
-                html.H1("Featured Examples"),
-                *examples_ui(mrsimulator_examples, "simulator"),
-            ]
-        ),
-    ]
+    examples = []
+    for subsection in mrsimulator_examples:
+        examples += [
+            html.Section(
+                [
+                    html.H2(subsection),
+                    *examples_ui(mrsimulator_examples[subsection], "simulator"),
+                ],
+                className="sub-section",
+            )
+        ]
+
+    children = [html.Section([html.H1("Featured Examples"), *examples])]
+
     return generic_ui(image, description, button, children)
 
 
@@ -123,7 +130,7 @@ def mrinversion_ui():
 
 
 mrsim_btn = html.Button(
-    html.Img(src="assets/fit.png"),
+    html.Img(src="assets/images/fit.png"),
     id="mrsim-app-selection-button",
     # color="light",
     # active=True,
@@ -133,9 +140,9 @@ root_app = html.Div(
     [
         html.Section(
             [
-                html.H1("Apps"),
-                mrsim_btn,
-                mrinv_btn,
+                # html.H1("Apps"),
+                # mrsim_btn,
+                # mrinv_btn,
                 # html.Hr(),
                 dcc.Loading(html.Div(children=mrsimulator_ui(), id="empty-main-div")),
             ]
@@ -146,21 +153,17 @@ root_app = html.Div(
 
 
 @app.callback(
-    [
-        Output("empty-main-div", "children"),
-        # Output("mrsim-app-selection-button", "active"),
-        # Output("mrinv-app-selection-button", "active"),
-    ],
-    [
-        Input("mrsim-app-selection-button", "n_clicks"),
-        Input("mrinv-app-selection-button", "n_clicks"),
-    ],
+    Output("empty-main-div", "children"),
+    # Output("mrsim-app-selection-button", "active"),
+    # Output("mrinv-app-selection-button", "active"),
+    Input("mrsim-app-selection-button", "n_clicks"),
+    Input("mrinv-app-selection-button", "n_clicks"),
     prevent_initial_call=True,
 )
 def update_main_page(*args):
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == "mrsim-app-selection-button.n_clicks":
-        return [mrsimulator_ui()]  # , True, False]
+        return mrsimulator_ui()  # , True, False]
     if trigger == "mrinv-app-selection-button.n_clicks":
-        return [mrinversion_ui()]  # , False, True]
-    return [mrsimulator_ui()]  # , True, False]
+        return mrinversion_ui()  # , False, True]
+    return mrsimulator_ui()  # , True, False]

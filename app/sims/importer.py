@@ -15,8 +15,10 @@ from dash.exceptions import PreventUpdate
 from lmfit import Minimizer
 from lmfit import Parameters
 from lmfit.printfuncs import fitreport_html_table
+from mrsimulator import parse
 from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils import spectral_fitting as sf
+from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from . import home as home_UI
 from . import io as sim_IO
@@ -36,83 +38,79 @@ __email__ = "srivastava.89@osu.edu"
 # method
 # Import or update the spin-systems.
 @app.callback(
-    [
-        Output("alert-message-import", "children"),
-        Output("alert-message-import", "is_open"),
-        Output("local-mrsim-data", "data"),
-        Output("config", "data"),
-        # Output("trigger-table-update", "data"),
-        Output("spin-system-read-only", "children"),
-        Output("method-read-only", "children"),
-        Output("info-read-only", "children"),
-        Output("integration_density", "value"),
-        Output("integration_volume", "value"),
-        Output("number_of_sidebands", "value"),
-        Output("decompose", "n_click"),
-        Output("post_sim_child", "children"),
-    ],
-    [
-        # main page->drag and drop
-        Input("upload-spin-system-local", "contents"),
-        # from file->open
-        Input("open-mrsimulator-file", "contents"),
-        # spin-system->import+add
-        # Input("upload-and-add-spin-system-button", "contents"),
-        # method->add measurement
-        Input("import-measurement-for-method", "contents"),
-        Input("add-measurement-for-method", "contents"),
-        Input("upload-measurement-from-graph", "contents"),
-        # method->remove measurement
-        Input("remove-measurement-from-method", "n_clicks"),
-        # url search input
-        Input("url-search", "href"),
-        # when spin-system is modified
-        Input("new-spin-system", "modified_timestamp"),
-        # when method is modified
-        Input("new-method", "modified_timestamp"),
-        # spin-system->clear
-        Input("confirm-clear-spin-system", "submit_n_clicks"),
-        # method->clear
-        Input("confirm-clear-methods", "submit_n_clicks"),
-        # decompose into spin systems
-        Input("decompose", "active"),
-        # integration and sideband settings
-        Input("close_setting", "n_clicks"),
-        Input("save_info_modal", "n_clicks"),
-        # post simulation triggers
-        Input("submit-signal-processor-button", "n_clicks"),
-        Input("add-post_sim-scalar", "n_clicks"),
-        Input("add-post_sim-baseline", "n_clicks"),
-        Input("add-post_sim-convolution", "n_clicks"),
-        Input("select-method", "value"),
-        # Input("new-method", "modified_timestamp"),
-        Input("trigger-fit", "data"),
-        Input("trigger-sim", "data"),
-        Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
-    ],
-    [
-        # State("upload-spin-system-url", "value"),
-        State("local-mrsim-data", "data"),
-        State("new-spin-system", "data"),
-        State("new-method", "data"),
-        State("select-method", "value"),
-        State("decompose", "n_clicks"),
-        State("integration_density", "value"),
-        State("integration_volume", "value"),
-        State("number_of_sidebands", "value"),
-        State("info-name-edit", "value"),
-        State("info-description-edit", "value"),
-        # post_sim states
-        State({"function": "apodization", "args": "type", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "FWHM", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "dim_index", "index": ALL}, "value"),
-        State({"function": "apodization", "args": "dv_index", "index": ALL}, "value"),
-        State({"function": "scale", "args": "factor", "index": ALL}, "value"),
-        State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
-        State("post_sim_child", "children"),
-        State("select-method", "options"),
-        State("params-data", "data"),
-    ],
+    Output("alert-message-import", "children"),
+    Output("alert-message-import", "is_open"),
+    Output("local-mrsim-data", "data"),
+    Output("config", "data"),
+    # Output("trigger-table-update", "data"),
+    Output("spin-system-read-only", "children"),
+    Output("method-read-only", "children"),
+    Output("info-read-only", "children"),
+    Output("integration_density", "value"),
+    Output("integration_volume", "value"),
+    Output("number_of_sidebands", "value"),
+    Output("decompose", "n_click"),
+    Output("post_sim_child", "children"),
+    # main page->drag and drop
+    Input("upload-spin-system-local", "contents"),
+    # from file->open
+    Input("open-mrsimulator-file", "contents"),
+    # spin-system->import+add
+    # Input("upload-and-add-spin-system-button", "contents"),
+    # method->add measurement
+    Input("import-measurement-for-method", "contents"),
+    Input("add-measurement-for-method", "contents"),
+    Input("upload-measurement-from-graph", "contents"),
+    # method->remove measurement
+    Input("remove-measurement-from-method", "n_clicks"),
+    # url search input
+    Input("url-search", "href"),
+    # when spin-system is modified
+    Input("new-spin-system", "modified_timestamp"),
+    # when method is modified
+    Input("new-method", "modified_timestamp"),
+    # spin-system->clear
+    Input("confirm-clear-spin-system", "submit_n_clicks"),
+    # method->clear
+    Input("confirm-clear-methods", "submit_n_clicks"),
+    # decompose into spin systems
+    Input("decompose", "active"),
+    # integration and sideband settings
+    Input("close_setting", "n_clicks"),
+    Input("save_info_modal", "n_clicks"),
+    # post simulation triggers
+    Input("submit-signal-processor-button", "n_clicks"),
+    Input("add-post_sim-scalar", "n_clicks"),
+    Input("add-post_sim-baseline", "n_clicks"),
+    Input("add-post_sim-convolution", "n_clicks"),
+    Input({"type": "remove-post_sim-functions", "index": ALL}, "n_clicks"),
+    Input("select-method", "value"),
+    # Input("new-method", "modified_timestamp"),
+    # Fitting/Feature triggers
+    Input("trigger-fit", "data"),
+    Input("trigger-sim", "data"),
+    Input("make-lmfit-params", "n_clicks"),
+    # State("upload-spin-system-url", "value"),
+    State("local-mrsim-data", "data"),
+    State("new-spin-system", "data"),
+    State("new-method", "data"),
+    State("select-method", "value"),
+    State("decompose", "n_clicks"),
+    State("integration_density", "value"),
+    State("integration_volume", "value"),
+    State("number_of_sidebands", "value"),
+    State("info-name-edit", "value"),
+    State("info-description-edit", "value"),
+    # post_sim states
+    State({"function": "apodization", "args": "type", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "FWHM", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "dim_index", "index": ALL}, "value"),
+    State({"function": "apodization", "args": "dv_index", "index": ALL}, "value"),
+    State({"function": "scale", "args": "factor", "index": ALL}, "value"),
+    State({"function": "baseline", "args": "offset", "index": ALL}, "value"),
+    State("post_sim_child", "children"),
+    # State("select-method", "options"),
+    State("params-data", "data"),
     prevent_initial_call=True,
 )
 def update_simulator(*args):
@@ -148,7 +146,7 @@ def on_decompose_click():
     existing_data = ctx.states["local-mrsim-data.data"]
     print(ctx.inputs["decompose.active"], ctx.states["decompose.n_clicks"])
     decompose = "spin_system" if ctx.inputs["decompose.active"] else "none"
-    existing_data["trigger"] = {"simulate": True, "method_index": None}
+    existing_data["trigger"] = {"simulate": True, "method_index": False}
     existing_data["config"]["decompose_spectrum"] = decompose
     return prep_valid_data_for_simulation(existing_data)
 
@@ -180,6 +178,9 @@ def clear(attribute):
     if "signal_processors" in existing_data:
         for proc in existing_data["signal_processors"]:
             proc["operations"] = []
+
+    add_params(existing_data)
+
     return sim_utils.assemble_data(existing_data)
 
 
@@ -198,7 +199,7 @@ def save_info_modal():
     existing_data = ctx.states["local-mrsim-data.data"]
     existing_data["name"] = ctx.states["info-name-edit.value"]
     existing_data["description"] = ctx.states["info-description-edit.value"]
-    existing_data["trigger"] = {"simulate": False, "method_index": None}
+    existing_data["trigger"] = {"simulate": False, "method_index": False}
     # Update home overview with the title and description
     home_overview = home_UI.refresh(existing_data)
     out = {
@@ -217,6 +218,8 @@ def on_method_update():
     def generate_outputs(existing_data, n=None):
         home_overview = home_UI.refresh(existing_data)
         method_overview = method_UI.refresh(existing_data["methods"])
+
+        add_params(existing_data)
 
         out = {
             "alert": ["", False],
@@ -257,14 +260,14 @@ def on_method_update():
     if new_method["operation"] == "duplicate":
         existing_data["methods"] += [method_data]
         existing_data["signal_processors"] += [{"operations": []}]
-        existing_data["trigger"] = {"simulate": False, "method_index": None}
+        existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data)
 
     # Delete a method
     if new_method["operation"] == "delete":
         del existing_data["methods"][index]
         del existing_data["signal_processors"][index]
-        existing_data["trigger"] = {"simulate": False, "method_index": None}
+        existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data, n=0)
 
 
@@ -274,6 +277,8 @@ def on_spin_system_change():
     def generate_outputs(existing_data):
         home_overview = home_UI.refresh(existing_data)
         spin_system_overview = spin_system_UI.refresh(existing_data["spin_systems"])
+
+        add_params(existing_data)
 
         out = {
             "alert": ["", False],
@@ -290,7 +295,7 @@ def on_spin_system_change():
     if new_spin_system is None:
         raise PreventUpdate
 
-    existing_data["trigger"] = {"simulation": True, "method_index": None}
+    existing_data["trigger"] = {"simulation": True, "method_index": False}
     index = new_spin_system["index"]
     spin_system_data = new_spin_system["data"]
     print("new_spin_system type", new_spin_system["operation"])
@@ -406,8 +411,6 @@ def simulate_spectrum():
     sf.update_mrsim_obj_from_params(params, sim, processor)
     new_mrsim_data = mrsim.dict(sim, processor, saved_params)
     new_mrsim_data["params"] = params.dumps()
-    # Use this line? Or something else
-    # new_mrsim_data = mrsim.dict(sim, processor, params)
 
     out = {
         "alert": ["", False],
@@ -440,6 +443,7 @@ def least_squares_fit():
             f"index(es) {check_for_exp} before performing the least-squares analysis."
         )
 
+    # Keep only the real part of the data
     for mth in sim.methods:
         mth.experiment = mth.experiment.real
 
@@ -496,6 +500,48 @@ def least_squares_fit():
     return sim_utils.expand_output(out)
 
 
+def make_params():
+    """Creates and adds params to local-mrsim-data leaving other outputs unchanged"""
+    mrsim_data = ctx.states["local-mrsim-data.data"]
+
+    # Don't add parameters if no spin_systems
+    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+        raise PreventUpdate
+
+    # Don't add parameters if no methods
+    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+        raise PreventUpdate
+
+    mrsim_data = add_params(mrsim_data)
+
+    out = {
+        "alert": ["", False],
+        "mrsim": [mrsim_data, no_update],
+        "children": [no_update, no_update, no_update],
+        "mrsim_config": [no_update] * 4,
+        "processor": [no_update],
+    }
+    return sim_utils.expand_output(out)
+
+
+def add_params(mrsim_data):
+    """Adds updated params to mrsim_data"""
+    if mrsim_data is None:
+        return no_update
+
+    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+        return no_update
+
+    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+        return no_update
+
+    sim, processor, _ = parse(mrsim_data)
+    params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
+    mrsim_data["params"] = params_obj.dumps()
+
+    return mrsim_data
+
+
 CALLBACKS = {
     "save_info_modal": save_info_modal,
     "decompose": on_decompose_click,
@@ -519,30 +565,32 @@ CALLBACKS = {
     "select-method": post_sim_UI.on_method_select,
     "trigger-sim": simulate_spectrum,
     "trigger-fit": least_squares_fit,
+    "make-lmfit-params": make_params,
 }
 
 
-# convert client-side function
-@app.callback(
-    Output("select-method", "options"),
-    Input("local-mrsim-data", "data"),
-    prevent_initial_call=True,
-)
-def update_list_of_methods(data):
-    if data is None:
-        raise PreventUpdate
-    if data["methods"] is None:
-        raise PreventUpdate
-    options = [
-        {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
-        for i, k in enumerate(data["methods"])
-    ]
-    return options
+# # convert client-side function
+# @app.callback(
+#     Output("select-method", "options"),
+#     Input("local-mrsim-data", "data"),
+#     prevent_initial_call=True,
+# )
+# def update_list_of_methods(data):
+#     """Updates the options for selecting a method in the methods tab"""
+#     if data is None:
+#         raise PreventUpdate
+#     if data["methods"] is None:
+#         raise PreventUpdate
+#     options = [
+#         {"label": f'Method-{i} (Channel-{", ".join(k["channels"])})', "value": i}
+#         for i, k in enumerate(data["methods"])
+#     ]
+#     return options
 
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="onReload"),
-    Output("temp2", "children"),
+    Output("temp0", "children"),
     Input("local-mrsim-data", "data"),
     prevent_initial_call=True,
 )

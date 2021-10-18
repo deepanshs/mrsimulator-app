@@ -1,0 +1,128 @@
+#fit_report-body.left-card.active {
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+#fit-report-table-div {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    overflow: auto;
+    padding: 0.5em;
+    margin: 0.5em;
+    height: calc(var(--content-max-height) - 6rem);
+    scrollbar-width: none;
+}
+
+
+/* First table */
+.flex-row {
+    display: flex;
+    justify-content: baseline;
+}
+
+.flex-row .card {
+    padding: 0.5em;
+    margin-bottom: 1em;
+}
+
+.flex-row div:nth-child(1) {
+    padding-right: 2em;
+}
+
+#fit-report-table-div > .flex-row > div:nth-child(1) {
+    max-width: 40em;
+}
+#fit-report-table-div > .flex-row > div:nth-child(2) {
+    max-width: 40em;
+}
+
+/* First table first column */
+#fit-report-table-div > .flex-row > div:nth-child(2) > table:nth-child(2) > td:nth-child(1) {
+    width: 25%;
+}
+/* First table second column */
+#fit-report-table-div > .flex-row > div:nth-child(2) > table:nth-child(2) > td:nth-child(2) {
+    width: 25%;
+    border-right: none;
+}
+
+.flex-row > div:nth-child(1) > table thead.active td,
+.flex-row > div:nth-child(1) > table thead:hover td {
+    color: black;
+    background-color: white;
+    cursor: auto;
+}
+
+/* Spin System info table */
+.flex-row > div:nth-child(1) > table:nth-child(4) th:nth-child(1) {
+    width: 10%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(4) th:nth-child(2) {
+    width: 30%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(4) th:nth-child(3) {
+    width: 20%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(4) th:nth-child(4) {
+    width: 15%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(4) th:nth-child(5) {
+    width: 25%;
+}
+
+/* Method info table */
+.flex-row > div:nth-child(1) > table:nth-child(6) th:nth-child(1) {
+    width: 10%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(6) th:nth-child(2) {
+    width: 40%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(6) th:nth-child(3) {
+    width: 30%;
+}
+.flex-row > div:nth-child(1) > table:nth-child(6) th:nth-child(4) {
+    width: 20%;
+}
+
+
+/* Second table */
+#fit-report-table-div > table:nth-child(3) th {
+    white-space: normal;
+    min-width: 47em;
+}
+
+/* Second table first column */
+#fit-report-table-div > table:nth-child(3) th:nth-child(1) {
+    width: 25%;
+}
+
+/* Second table fifth column */
+#fit-report-table-div > table:nth-child(3) th:nth-child(2),
+#fit-report-table-div > table:nth-child(3) th:nth-child(3),
+#fit-report-table-div > table:nth-child(3) th:nth-child(5) {
+    width: 10%;
+}
+
+/* Second table seventh column */
+#fit-report-table-div > table:nth-child(3) th:nth-child(4),
+#fit-report-table-div > table:nth-child(3) th:nth-child(6),
+#fit-report-table-div > table:nth-child(3) th:nth-child(7),
+#fit-report-table-div > table:nth-child(3) th:nth-child(8) {
+    width: 8%;
+}
+
+
+/* Third table */
+#fit-report-table-div > table:nth-child(5) {
+    max-width: 50em;
+}
+
+/* Third table third row */
+#fit-report-table-div > table:nth-child(5) td:nth-child(3) {
+    width: 10%;
+    max-width: 4.5em;
+}

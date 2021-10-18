@@ -1,0 +1,14 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    wkhtmltopdf-heroku (2.12.6.0)
+
+PLATFORMS
+  universal-darwin-20
+  x86_64-linux
+
+DEPENDENCIES
+  wkhtmltopdf-heroku
+
+BUNDLED WITH
+   2.2.29

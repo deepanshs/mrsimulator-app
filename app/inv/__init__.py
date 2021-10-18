@@ -70,13 +70,13 @@ mrinv = html.Div(
 
 
 @app.callback(
-    [Output("INV-spectrum", "figure"), Output("INV-input-data", "data")],
-    [
-        Input("INV-upload-from-graph", "contents"),
-        Input("INV-transpose", "n_clicks"),
-        Input("url-search", "href"),
-    ],
-    [State("INV-spectrum", "figure"), State("INV-input-data", "data")],
+    Output("INV-spectrum", "figure"),
+    Output("INV-input-data", "data"),
+    Input("INV-upload-from-graph", "contents"),
+    Input("INV-transpose", "n_clicks"),
+    Input("url-search", "href"),
+    State("INV-spectrum", "figure"),
+    State("INV-input-data", "data"),
     prevent_initial_call=True,
 )
 def update_input_graph(contents, tr_val, url, figure, data):
@@ -140,8 +140,8 @@ def pre_figure(exp_data, figure):
 
 @app.callback(
     Output("INV-data-range", "data"),
-    [Input("INV-spectrum", "relayoutData")],
-    [State("INV-spectrum", "figure")],
+    Input("INV-spectrum", "relayoutData"),
+    State("INV-spectrum", "figure"),
     prevent_initial_call=True,
 )
 def display_relayout_data(relayoutData, fig):
@@ -182,7 +182,7 @@ def display_relayout_data(relayoutData, fig):
 
 @app.callback(
     Output("INV-kernel-rotor_angle", "value"),
-    [Input("INV-kernel-type", "value")],
+    Input("INV-kernel-type", "value"),
     prevent_initial_call=True,
 )
 def update_number_of_sidebands(k_typ):
@@ -194,20 +194,18 @@ def update_number_of_sidebands(k_typ):
 
 @app.callback(
     Output("INV-kernel", "data"),
-    [Input("INV-generate-kernel", "n_clicks")],
-    [
-        State("INV-input-data", "data"),
-        State("INV-dimension-0-count", "value"),
-        State("INV-dimension-0-increment", "value"),
-        State("INV-dimension-1-count", "value"),
-        State("INV-dimension-1-increment", "value"),
-        State("INV-kernel-channel", "value"),
-        State("INV-kernel-flux", "value"),
-        State("INV-kernel-rotor_angle", "value"),
-        State("INV-supersampling", "value"),
-        State("INV-data-range", "data"),
-        State("INV-kernel-type", "value"),
-    ],
+    Input("INV-generate-kernel", "n_clicks"),
+    State("INV-input-data", "data"),
+    State("INV-dimension-0-count", "value"),
+    State("INV-dimension-0-increment", "value"),
+    State("INV-dimension-1-count", "value"),
+    State("INV-dimension-1-increment", "value"),
+    State("INV-kernel-channel", "value"),
+    State("INV-kernel-flux", "value"),
+    State("INV-kernel-rotor_angle", "value"),
+    State("INV-supersampling", "value"),
+    State("INV-data-range", "data"),
+    State("INV-kernel-type", "value"),
     prevent_initial_call=True,
 )
 def generate_kernel(
@@ -264,15 +262,13 @@ def generate_kernel(
 
 @app.callback(
     Output("task-id", "children"),
-    [Input("INV-solve", "n_clicks")],
-    [
-        State("task-id", "children"),  # <--- task-id must always be first
-        # State("year_menu", "value"),
-        State("INV-l1", "value"),
-        State("INV-l2", "value"),
-        State("INV-kernel", "data"),
-        # State("INV-output", "figure"),
-    ],
+    Input("INV-solve", "n_clicks"),
+    State("task-id", "children"),  # <--- task-id must always be first in States
+    # State("year_menu", "value"),
+    State("INV-l1", "value"),
+    State("INV-l2", "value"),
+    State("INV-kernel", "data"),
+    # State("INV-output", "figure"),
     prevent_initial_call=True,
 )
 def start_task_callback(n_clicks, task_id, l1, l2, data):
@@ -312,7 +308,8 @@ def start_task_callback(n_clicks, task_id, l1, l2, data):
 # Don't touch this:
 @app.callback(
     Output("task-interval", "interval"),
-    [Input("task-id", "children"), Input("task-status", "children")],
+    Input("task-id", "children"),
+    Input("task-status", "children"),
 )
 def toggle_interval_speed(task_id, task_status):
     """This callback is triggered by changes in task-id and task-status divs. It
@@ -339,7 +336,8 @@ def toggle_interval_speed(task_id, task_status):
 # Don't touch this:
 @app.callback(
     Output("spinner", "style"),
-    [Input("task-interval", "n_intervals"), Input("task-status", "children")],
+    Input("task-interval", "n_intervals"),
+    Input("task-status", "children"),
 )
 def show_hide_spinner(n_intervals, task_status):
     """This callback is triggered by then Interval clock and checks the task progress
@@ -359,7 +357,8 @@ def show_hide_spinner(n_intervals, task_status):
 # Don't touch this:
 @app.callback(
     Output("task-status", "children"),
-    [Input("task-interval", "n_intervals"), Input("task-id", "children")],
+    Input("task-interval", "n_intervals"),
+    Input("task-id", "children"),
     update_initial_call=False,
 )
 def update_task_status(n_intervals, task_id):
@@ -369,13 +368,11 @@ def update_task_status(n_intervals, task_id):
 
 
 @app.callback(
-    [
-        Output("INV-output-data", "data"),
-        Output("INV-l1", "value"),
-        Output("INV-l2", "value"),
-    ],
-    [Input("task-status", "children")],
-    [State("task-id", "children")],
+    Output("INV-output-data", "data"),
+    Output("INV-l1", "value"),
+    Output("INV-l2", "value"),
+    Input("task-status", "children"),
+    State("task-id", "children"),
 )
 def get_results(task_status, task_id):
     """This callback is triggered by task-status. It checks the task status, and if the

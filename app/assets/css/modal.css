@@ -2,3 +2,68 @@
 .modal-body table tr td {
     padding: 5px;
 }
+
+.modal-body p {
+    margin-bottom: 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-block {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1em;
+}
+
+.modal-body-item {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+}
+
+.modal-body-item>div,
+#img-options-div > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.5em;
+}
+
+.modal-body-item>div div {
+    padding-left: 2.5em;
+}
+
+.modal-body .center {
+    display: flex;
+    justify-content: center;
+}
+
+#download-description {
+    padding: 0.75em;
+}
+
+/* #img-options-div > div > div {
+    width: 15em;
+    justify-content: space-around;
+} */
+
+#img-options-div .dash-dropdown {
+    width: 5em;
+}
+
+#img-options-div input {
+    width: 7em;
+}
+
+/* .modal-body-item>div div.left-align {
+    width: 6em;
+} */
+
+/* .modal-body-item input,
+.modal-body-item select {
+    width: 6em;
+    margin-left: 1.5em;
+} */

@@ -9,7 +9,14 @@ from dash.dependencies import State
 from app import app
 
 
-SIDEBAR_TAB_NAME = ["info", "spin_systems", "methods", "fit", "fit_report", "spectrum"]
+SIDEBAR_TAB_NAME = [
+    "info",
+    "spin_systems",
+    "methods",
+    "features",
+    "fit_report",
+    "spectrum",
+]
 
 
 def home():
@@ -30,15 +37,15 @@ def method():
     return html.Li(html.Span(icon), id="view-methods")
 
 
-def fit():
-    """Fit tab."""
-    icon = html.I(className="fas fa-bullseye fa-lg", title="Fit")
-    return html.Li(html.Span(icon), id="view-fit")
+def features():
+    """Features tab."""
+    icon = html.I(className="fas fa-stream fa-lg", title="Features")
+    return html.Li(html.Span(icon), id="view-features")
 
 
 def fit_report():
     """Fitting report tab."""
-    icon = html.I(className="fas fa-stream", title="Fit Report")
+    icon = html.I(className="fac fa-chi-squared fa-lg", title="Fit Report")
     return html.Li(html.Span(icon), id="view-fit_report")
 
 
@@ -66,6 +73,14 @@ app.clientside_callback(
             target.push((trig_id === item) ? 'left-card active' : 'left-card');
             tab.push((trig_id === item) ? 'active' : null);
         }}
+
+        // Hide the spectrum view if view-fit_report clicked, otherwise reshow
+        if (trig_id == 'fit_report') {{
+            target[target.length - 1] = "left-card inactive";
+        }} else {{
+            document.getElementById('view-spectrum').classList.remove('inactive');
+        }}
+
         return target.concat(tab);
     }}""",
     *[Output(f"{item}-body", "className") for item in SIDEBAR_TAB_NAME],
@@ -97,11 +112,11 @@ def sidebar_tabs():
     1. Home
     2. Spin system
     3. Method
-    4. Fit
+    4. Features
     5. Fit report
     6. Spectrum
     """
-    content = [home(), method(), spin_system(), fit(), fit_report(), spectrum()]
+    content = [home(), method(), spin_system(), features(), fit_report(), spectrum()]
     return html.Ul(content, className="sidebar")
 
 
@@ -179,7 +194,7 @@ def advanced_settings_modal():
     ]
 
     modal_ui = dbc.Modal(
-        modal, id="modal_setting", role="document", className="modal-dialog"
+        modal, id="modal_setting", role="document", className="modal-dialogue"
     )
 
     # callback for toggling modal window visibility

@@ -80,6 +80,11 @@ window.spinSystem = {
     storeData.spin_system_index = index;
   },
   select: function (listomers, index) {
+    if (listomers == null) {
+      listomers = document.querySelectorAll(
+        "#spin-system-read-only div.scrollable-list ul li"
+      );
+    }
     if (listomers.length > 0) {
       listomers[index].click();
     }
@@ -288,6 +293,9 @@ var spinSystemOnClick = function (index) {
     tr.classList.remove("active");
   });
   overView[index + 1].classList.add("active");
+
+  // Select updated spin system on features tab
+  window.features.selectSystem(index);
 };
 
 var activateSystemTools = function () {

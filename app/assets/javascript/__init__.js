@@ -29,6 +29,7 @@ var storeData = {
     methods: [],
   },
 };
+var hasInitialized = false;
 
 if (!window.dash_clientside) {
   window.dash_clientside = {};
@@ -39,6 +40,12 @@ window.dash_clientside.clientside = {
     // clear session storage on refresh
     if (window.sessionStorage) window.sessionStorage.clear();
 
+    if (!hasInitialized) {
+      storeData.spin_system_index = 0;
+      storeData.method_index = 0;
+      hasInitialized = true;
+    }
+
     init();
     activateMethodTools();
     activateSystemTools();
@@ -48,8 +55,10 @@ window.dash_clientside.clientside = {
 
   onReload: function (data) {
     storeData.data = data;
+    _onFeaturesReload();
     _onSpinSystemsLoad();
     _onMethodsLoad();
+    _refreshTables();
   },
 
   downloadSession: function (n, data) {

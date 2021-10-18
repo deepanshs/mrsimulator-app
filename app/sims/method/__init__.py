@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
-from dash.dependencies import ALL
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -26,9 +25,10 @@ __email__ = "srivastava.89@osu.edu"
 
 
 def hidden_method_select_element():
-    """The element is used for update plots based on method selection."""
-    select_method = dcc.Dropdown(id="select-method", value=0)
-    return html.Div(select_method, style={"display": "none"})
+    """Hiddent element to hold method index for Python side and update plot."""
+    # select_method = dcc.Dropdown(id="select-method", value=0)
+    # return html.Div(select_method, style={"display": "none"})
+    return dcc.Input(id="select-method", value=0, type="number", className="hidden")
 
 
 def post_simulation_ui(n_dimensions):
@@ -192,7 +192,7 @@ def generate_sidepanel(method, index):
         [html.H6(index), html.Div(a_tag)],
         # draggable="true",
         className="list-group-item",
-        id={"type": "select-method-index", "index": index},
+        # id={"type": "select-method-index", "index": index},
     )
 
 
@@ -311,28 +311,55 @@ def calculate_sigma(n1, fig):
     )
 
 
-app.clientside_callback(
-    """function(n) {
-        window.method.setIndex(n);
-        throw window.dash_clientside.PreventUpdate;
-    }""",
-    Output("temp6", "children"),
-    Input("select-method", "value"),
-    prevent_initial_call=True,
-)
+# # callback might not be needed. updating select method in js
+# app.clientside_callback(
+#     """function(n) {
+#         window.method.setIndex(n);
+#         throw window.dash_clientside.PreventUpdate;
+#     }""",
+#     Output("temp2", "children"),
+#     Input("select-method", "value"),
+#     prevent_initial_call=True,
+# )
+
 
 app.clientside_callback(
-    """function(n, value) {
+    """function (n1, value) {
         let index = window.method.getIndex();
         if (index == value) throw window.dash_clientside.PreventUpdate;
         return index;
-    }""",
+    }
+    """,
     Output("select-method", "value"),
-    Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
-    # Input("select-method", "options"),
+    Input("force-refresh-method", "n_clicks"),
     State("select-method", "value"),
     prevent_initial_call=True,
 )
+
+
+# app.clientside_callback(
+#     """function(value) {
+#         return parseInt(value);
+#     }
+#     """,
+#     Output("select-method", "value"),
+#     Input("method-select-hidden", "children"),
+#     prevent_initial_call=True,
+# )
+
+
+# app.clientside_callback(
+#     """function(n, value) {
+#         let index = window.method.getIndex();
+#         if (index == value) throw window.dash_clientside.PreventUpdate;
+#         return index;
+#     }""",
+#     Output("select-method", "value"),
+#     Input("mth-feature-select", "value"),
+#     # Input("select-method", "options"),
+#     State("select-method", "value"),
+#     prevent_initial_call=True,
+# )
 
 app.clientside_callback(
     ClientsideFunction(namespace="method", function_name="updateMethodJson"),

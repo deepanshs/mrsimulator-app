@@ -19,6 +19,9 @@ help_message = html.Table(
         get_icon_with_description(
             "fac fa-decompose", "Show spectrum from individual spin systems."
         ),
+        get_icon_with_description(
+            "fas fa-download", "Open spectrum download dialogue."
+        ),
     ]
 )
 
