@@ -2,9 +2,9 @@
 import json
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 from dash import callback_context as ctx
+from dash import dcc
+from dash import html
 from dash.dependencies import Input
 from dash.dependencies import Output
 
@@ -53,7 +53,8 @@ def card(item, app_name):
 #                   addon_type="prepend"
 #             ),
 #             dbc.Input(id="input-group-search", placeholder="Search on site"),
-#             dbc.InputGroupAddon(search_button, addon_type="append"),
+#             # dbc.InputGroupAddon(search_button, addon_type="append"),
+#             dbc.InputGroupText(search_button)
 #         ],
 #         size="lg",
 #     )
