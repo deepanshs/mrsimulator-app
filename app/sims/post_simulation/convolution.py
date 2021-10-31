@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 from dash import callback_context as ctx
+from dash import dcc
 
 from app.custom_widgets import container
 from app.custom_widgets import custom_button
@@ -14,7 +14,8 @@ __email__ = "srivastava.89@osu.edu"
 
 def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
     def function_type(index):
-        type_label = dbc.InputGroupAddon("Type", addon_type="prepend")
+        # type_label = dbc.InputGroupAddon("Type", addon_type="prepend")
+        type_label = dbc.InputGroupText("Type")
         val = "Exponential" if data is None else data["type"]
         type_select = dbc.Select(
             options=[
@@ -38,7 +39,8 @@ def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
         )
 
     def dimension_index(index):
-        input_ = dbc.InputGroupAddon("Spectral dimension indexes", addon_type="prepend")
+        # input_=dbc.InputGroupAddon("Spectral dimension indexes", addon_type="prepend")
+        input_ = dbc.InputGroupText("Spectral dimension indexes")
 
         value = [0]
         if data is not None:
@@ -53,7 +55,8 @@ def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
         return dbc.InputGroup([input_, dim_index], className="input-form")
 
     def dependent_variable_index(index):
-        input_ = dbc.InputGroupAddon("Spin System indexes", addon_type="prepend")
+        # input_ = dbc.InputGroupAddon("Spin System indexes", addon_type="prepend")
+        input_ = dbc.InputGroupText("Spin System indexes")
         options = [{"label": f"{i}", "value": i} for i in range(n_dv)]
         options += [{"label": "ALL", "value": "None"}]
 

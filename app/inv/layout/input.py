@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 
 from app.custom_widgets import custom_input_group
 from app.sims.graph import generate_graph_instance
@@ -82,7 +82,8 @@ def inverse_dimensions():
 
 # Kernel
 def kernel_type():
-    label = dbc.InputGroupAddon("Type", addon_type="prepend")
+    # label = dbc.InputGroupAddon("Type", addon_type="prepend")
+    label = dbc.InputGroupText("Type")
     kernel_options = [
         {"label": "MAF", "value": "MAF"},
         {"label": "Sideband correlation", "value": "sideband-correlation"},
@@ -94,7 +95,8 @@ def kernel_type():
 
 
 def channel():
-    label = dbc.InputGroupAddon("Channel", addon_type="prepend")
+    # label = dbc.InputGroupAddon("Channel", addon_type="prepend")
+    label = dbc.InputGroupText("Channel")
     selection = dbc.Select(
         options=isotope_options_list, value="29Si", id="INV-kernel-channel"
     )

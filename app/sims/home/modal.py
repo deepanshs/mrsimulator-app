@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Modal window for updating simulator title and description"""
 import dash_bootstrap_components as dbc
+from dash import html
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -29,7 +30,7 @@ def description():
 
 
 def body():
-    return dbc.FormGroup([*title(), *description()])
+    return html.Div([*title(), *description()])
 
 
 def footer():
