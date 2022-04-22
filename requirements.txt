@@ -13,4 +13,4 @@ celery[redis]==5.1.2
 mrinversion>=0.1
 matplotlib>=3.4
 pdfkit==0.6.1
-kaleido==0.2.1
+kaleido==0.2.1.post1

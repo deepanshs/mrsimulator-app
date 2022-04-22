@@ -14,7 +14,7 @@ mrinversion>=0.1
 beautifulsoup4==4.10.0
 requests==2.26.0
 pdfkit==0.6.1
-kaleido==0.2.1
+kaleido==0.2.1.post1
 
 # development packages
 pytest-runner>=5.0
