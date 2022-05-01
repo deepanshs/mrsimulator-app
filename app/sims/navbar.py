@@ -20,7 +20,7 @@ def brand():
         ),
         href="/",
     )
-    return dbc.NavbarBrand(icon, className="logo")
+    return dbc.NavbarBrand(icon, class_name="logo")
 
 
 def navbar_top_ui():
@@ -34,7 +34,7 @@ def navbar_top_ui():
 def navbar_bottom_ui():
     content = html.Div([dbc.Label(f"@mrsimulator, 2019-{year}", color="light")])
     return dbc.Navbar(
-        dbc.Container([content]), color=None, dark=None, className="bottom-navbar"
+        dbc.Container([content]), color=None, dark=None, class_name="bottom-navbar"
     )
 
 

@@ -11,7 +11,7 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from . import fields as mrfields
+from . import fields as mrf
 from .modal import METHOD_DIMENSIONS
 from .modal import METHOD_LIST
 from .modal import method_selection_modal
@@ -40,23 +40,21 @@ def post_simulation_ui(n_dimensions):
 
 def dimensions_ui():
     """Supports two dimensions."""
-    return [mrfields.spectral_dimension_ui(i) for i in range(2)]
+    return [mrf.spectral_dimension_ui(i) for i in range(2)]
 
 
 def method_property_tab_ui():
-    contents = [
-        mrfields.experiment_ui(),
-        mrfields.global_environment(),
-        *dimensions_ui(),
-    ]
-    return dbc.Tab(label="Properties", children=contents, className="tab-scroll method")
+    contents = [mrf.experiment_ui(), mrf.global_environment(), *dimensions_ui()]
+    return dbc.Tab(
+        label="Properties", children=contents, class_name="tab-scroll method"
+    )
 
 
 def signal_processing_tab_ui():
     return dbc.Tab(
         label="Signal Processing",
         children=post_simulation_ui(1),
-        className="tab-scroll method",
+        class_name="tab-scroll method",
     )
 
 
@@ -215,12 +213,6 @@ method_body = ui()
     Input("close-method-selection", "n_clicks"),
     State("method-type", "value"),
     State("channel", "value"),
-    # State("modal-rotor_angle", "value"),
-    # State("modal-rotor_frequency", "value"),
-    # State("modal-magnetic_flux_density", "value"),
-    # State("modal-count", "value"),
-    # State("modal-spectral_width", "value"),
-    # State("modal-reference_offset", "value"),
     prevent_initial_call=True,
 )
 def get_method_json(n, value, isotope):
@@ -311,18 +303,6 @@ def calculate_sigma(n1, fig):
     )
 
 
-# # callback might not be needed. updating select method in js
-# app.clientside_callback(
-#     """function(n) {
-#         window.method.setIndex(n);
-#         throw window.dash_clientside.PreventUpdate;
-#     }""",
-#     Output("temp2", "children"),
-#     Input("select-method", "value"),
-#     prevent_initial_call=True,
-# )
-
-
 app.clientside_callback(
     """function (n1, value) {
         let index = window.method.getIndex();
@@ -336,31 +316,6 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-
-# app.clientside_callback(
-#     """function(value) {
-#         return parseInt(value);
-#     }
-#     """,
-#     Output("select-method", "value"),
-#     Input("method-select-hidden", "children"),
-#     prevent_initial_call=True,
-# )
-
-
-# app.clientside_callback(
-#     """function(n, value) {
-#         let index = window.method.getIndex();
-#         if (index == value) throw window.dash_clientside.PreventUpdate;
-#         return index;
-#     }""",
-#     Output("select-method", "value"),
-#     Input("mth-feature-select", "value"),
-#     # Input("select-method", "options"),
-#     State("select-method", "value"),
-#     prevent_initial_call=True,
-# )
-
 app.clientside_callback(
     ClientsideFunction(namespace="method", function_name="updateMethodJson"),
     Output("new-method", "data"),
@@ -368,34 +323,6 @@ app.clientside_callback(
     Input("add-method-from-template", "modified_timestamp"),
     Input("duplicate-method-button", "n_clicks"),
     Input("remove-method-button", "n_clicks"),
-    # Input("magnetic_flux_density-0", "value"),
-    # Input("rotor_angle-0", "value"),
-    # Input("rotor_frequency-0", "value"),
-    # *[Input(f"count-{i}", "value") for i in range(2)],
-    # *[Input(f"spectral_width-{i}", "value") for i in range(2)],
-    # *[Input(f"reference_offset-{i}", "value") for i in range(2)],
     State("add-method-from-template", "data"),
     prevent_initial_call=True,
 )
-
-
-# app.clientside_callback(
-#     ClientsideFunction(
-#         namespace="method",
-#         function_name="setFields",
-#     ),
-#     [
-#         Output("measurement-sigma", "value"),
-#         Output("magnetic_flux_density", "value"),
-#         Output("rotor_frequency", "value"),
-#         Output("rotor_angle", "value"),
-#         Output("count-0", "value"),
-#         Output("spectral_width-0", "value"),
-#         Output("reference_offset-0", "value"),
-#         Output("count-1", "value"),
-#         Output("spectral_width-1", "value"),
-#         Output("reference_offset-1", "value"),
-#     ],
-#     Input({"type": "select-method-index", "index": ALL}, "n_clicks"),
-#     prevent_initial_call=True,
-# )

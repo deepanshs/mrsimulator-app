@@ -24,7 +24,7 @@ def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
             value=val,
             id={"function": "apodization", "args": "type", "index": index},
         )
-        return dbc.InputGroup([type_label, type_select], className="input-form")
+        return dbc.InputGroup([type_label, type_select], class_name="input-form")
 
     def arguments(index):
         return custom_input_group(
@@ -50,7 +50,7 @@ def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
             multi=True,
             id={"function": "apodization", "args": "dim_index", "index": index},
         )
-        return dbc.InputGroup([input_, dim_index], className="input-form")
+        return dbc.InputGroup([input_, dim_index], class_name="input-form")
 
     def dependent_variable_index(index):
         input_ = dbc.InputGroupText("Spin System indexes")
@@ -68,7 +68,7 @@ def ui(index, data=None, n_dim=1, n_dv=1, **kwargs):
             multi=True,
             id={"function": "apodization", "args": "dv_index", "index": index},
         )
-        return dbc.InputGroup([input_, dv_index], className="input-form")
+        return dbc.InputGroup([input_, dv_index], class_name="input-form")
 
     featured = [function_type(index), arguments(index)]
     hidden = [dimension_index(index), dependent_variable_index(index)]

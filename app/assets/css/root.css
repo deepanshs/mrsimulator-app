@@ -63,18 +63,18 @@ section {
 .mrsim-page .sidebar {
   display: flex;
   flex-direction: column;
-  /* width: 52px; */
-  /* transition: all 0.15s ease-in-out; */
+  margin: 0;
+  padding: 0;
 }
 
 /* .mrsim-page .sidebar:hover {
   width: 150px;
   transition: all 0.15s ease-in-out;
 } */
-.mrsim-page .sidebar.button:hover {
+/* .mrsim-page .sidebar.button:hover {
   background-color: #e7e7e7;
   border-radius: 2em;
-}
+} */
 
 .mrsim-page .app-1 {
   border-left: 1px solid silver;

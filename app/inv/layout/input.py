@@ -90,7 +90,7 @@ def kernel_type():
     selection = dbc.Select(
         options=kernel_options, value="sideband-correlation", id="INV-kernel-type"
     )
-    return dbc.InputGroup([label, selection], className="input-form")
+    return dbc.InputGroup([label, selection], class_name="input-form")
 
 
 def channel():
@@ -98,7 +98,7 @@ def channel():
     selection = dbc.Select(
         options=isotope_options_list, value="29Si", id="INV-kernel-channel"
     )
-    return dbc.InputGroup([label, selection], className="input-form")
+    return dbc.InputGroup([label, selection], class_name="input-form")
 
 
 def magnetic_flux_density():

@@ -17,7 +17,7 @@ __email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
 
 
 def site_tab_ui():
-    return dbc.Tab(label="Site", children=site_ui, className="tab-scroll")
+    return dbc.Tab(label="Site", children=site_ui, class_name="tab-scroll")
 
 
 def metadata_tab_ui():
@@ -172,7 +172,6 @@ def generate_sidepanel(spin_system, index):
     # number of sites
     n_sites = len(spin_system["sites"])
     n_sites = html.Div(f"Sites: {n_sites}")
-
     a_tag = html.A([title, name, abundance, n_sites])
 
     # The H6(index) only shows for smaller screen sizes.
@@ -202,21 +201,5 @@ app.clientside_callback(
     Input("add-spin-system-button", "n_clicks"),
     Input("duplicate-spin-system-button", "n_clicks"),
     Input("remove-spin-system-button", "n_clicks"),
-    # Input("spin-system-name", "value"),
-    # Input("spin-system-description", "value"),
-    # Input("spin-system-abundance", "value"),
-    # Input("isotope", "value"),
-    # Input("isotropic_chemical_shift", "value"),
-    # Input("shielding_symmetric-zeta", "value"),
-    # Input("shielding_symmetric-eta", "value"),
-    # Input("shielding_symmetric-alpha", "value"),
-    # Input("shielding_symmetric-beta", "value"),
-    # Input("shielding_symmetric-gamma", "value"),
-    # Input("quadrupolar-Cq", "value"),
-    # Input("quadrupolar-eta", "value"),
-    # Input("quadrupolar-alpha", "value"),
-    # Input("quadrupolar-beta", "value"),
-    # Input("quadrupolar-gamma", "value"),
-    # [State('live-update', 'value')]
     prevent_initial_call=True,
 )

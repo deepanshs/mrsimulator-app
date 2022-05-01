@@ -37,7 +37,7 @@ def footer():
         "Save",
         id="save_info_modal",
         color="dark",
-        className="ml-auto",
+        class_name="ml-auto",
         outline=True,
     )
     return dbc.ModalFooter(save_button)
@@ -59,7 +59,7 @@ def ui():
         id="info-modal-editor",
         is_open=False,
         role="document",
-        className="modal-dialogue",
+        class_name="modal-dialogue",
         backdrop="static",
     )
 

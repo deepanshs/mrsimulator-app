@@ -184,7 +184,11 @@ def advanced_settings_modal():
     def footer():
         """Modal footer is a close button"""
         return dbc.Button(
-            "Close", id="close_setting", color="dark", className="ml-auto", outline=True
+            "Close",
+            id="close_setting",
+            color="dark",
+            class_name="ml-auto",
+            outline=True,
         )
 
     modal = [
@@ -194,7 +198,7 @@ def advanced_settings_modal():
     ]
 
     modal_ui = dbc.Modal(
-        modal, id="modal_setting", role="document", className="modal-dialogue"
+        modal, id="modal_setting", role="document", class_name="modal-dialogue"
     )
 
     # callback for toggling modal window visibility
@@ -215,7 +219,7 @@ def utility_tabs():
     1. [Home, Spin System, Method]
     2. Settings
     """
-    return html.Ul([settings(), advanced_settings_modal()], className="sidebar button")
+    return html.Ul([settings(), advanced_settings_modal()], className="sidebar")
 
 
 def ui():

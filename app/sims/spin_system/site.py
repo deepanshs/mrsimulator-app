@@ -20,17 +20,14 @@ def isotope_and_shift_ui():
 
         # callback to hide the quadrupolar fields when isotope is I=1/2
         app.clientside_callback(
-            """
-            function (isotope) {
+            """function (isotope) {
                 hideQuad();
                 throw window.dash_clientside.PreventUpdate;
-            }
-            """,
+            }""",
             Output("isotope", "value"),
             [Input("isotope", "value")],
         )
-
-        return dbc.InputGroup([label, select], className="input-form")
+        return dbc.InputGroup([label, select], class_name="input-form")
 
     # isotropic chemical shift
     isotropic_chemical_shift_ui = custom_input_group(
@@ -55,7 +52,7 @@ def shielding_symmetric_ui():
     )
 
     # asymmetry and Euler angles
-    return collapsable_card_ui(zeta_ui, "shielding_symmetric")
+    return collapsable_card_ui_with_eta_and_angle(zeta_ui, "shielding_symmetric")
 
 
 def quadrupolar_ui():
@@ -67,10 +64,10 @@ def quadrupolar_ui():
     )
 
     # asymmetry and Euler angles
-    return collapsable_card_ui(Cq_ui, "quadrupolar", True)
+    return collapsable_card_ui_with_eta_and_angle(Cq_ui, "quadrupolar", True)
 
 
-def collapsable_card_ui(item, prefix, outer_collapse=False):
+def collapsable_card_ui_with_eta_and_angle(item, prefix, outer_collapse=False):
     eta_ui = custom_input_group(
         prepend_label="Asymmetry (η)",
         append_label="",

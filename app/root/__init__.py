@@ -82,7 +82,7 @@ def examples_ui(examples, app_name):
 def generic_ui(image, description, button, children=[]):
     body = dbc.Row(
         [dbc.Col(image, sm=12, md=8), dbc.Col([html.P(description), button])],
-        className="header",
+        class_name="header",
     )
     return [body, *children]
 
