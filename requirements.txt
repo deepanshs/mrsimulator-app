@@ -12,5 +12,7 @@ redis==3.5.3
 celery[redis]==5.1.2
 mrinversion>=0.1
 matplotlib>=3.4
+beautifulsoup4==4.10.0
+requests==2.26.0
 pdfkit==1.0.0
 kaleido==0.2.1
