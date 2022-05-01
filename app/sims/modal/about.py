@@ -65,7 +65,7 @@ def about():
         size="lg",
         id="modal-about",
         role="document",
-        className="modal-dialogue",
+        class_name="modal-dialogue",
     )
 
     app.clientside_callback(
@@ -106,7 +106,7 @@ for item in about_.keys():
             size="lg",
             id=f"modal-{item}",
             role="document",
-            className="modal-dialogue",
+            class_name="modal-dialogue",
         )
     )
 

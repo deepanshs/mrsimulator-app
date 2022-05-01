@@ -121,7 +121,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            dcc.Slider(**kwargs, className="slider-custom"),
+            dcc.Slider(**kwargs, class_name="slider-custom"),
         ]
     )
 
@@ -244,6 +244,17 @@ def collapsable_card(text, id_, featured, hidden=None, message=None, outer=False
     # collapsed fields
     if hidden is not None:
         featured += [dbc.Collapse(hidden, id=id_field, is_open=False)]
+
+        app.clientside_callback(
+            """function (n, is_open) {
+                if (is_open) return false;
+                return true;
+            }""",
+            Output(f"{id_field}", "is_open"),
+            Input(f"{id_button}", "n_clicks"),
+            State(f"{id_field}", "is_open"),
+            prevent_initial_call=True,
+        )
 
     content = custom_card(
         text=html.Div(text),

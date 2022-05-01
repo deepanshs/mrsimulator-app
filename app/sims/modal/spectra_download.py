@@ -114,7 +114,7 @@ def ui():
         ],
         id="download-spectra-modal",
         size="sm",
-        className="modal-dialogue",
+        class_name="modal-dialogue",
     )
 
 

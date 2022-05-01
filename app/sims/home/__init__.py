@@ -187,10 +187,12 @@ def method_overview_data(mrsim: dict):
 
 
 def overview_page(mrsim):
-    title = mrsim["simulator"]["name"] if "name" in mrsim["simulator"] else "Sample"
+    title = mrsim["simulator"]["name"] if "name" in mrsim["simulator"] else ""
+    title = title if title != "" else "Title"
     description = (
         mrsim["simulator"]["description"] if "description" in mrsim["simulator"] else ""
     )
+    description = description if description != "" else "Sample description"
 
     sample_overview = sample_overview_layout(title, description)
     method_overview = method_overview_layout(mrsim)

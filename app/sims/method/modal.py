@@ -35,14 +35,14 @@ method_selection = dcc.Dropdown(id="method-type", options=METHOD_OPTIONS, value=
 # Channel selection
 ch_label = dbc.InputGroupText("Channel")
 ch_selection = dbc.Select(options=isotope_options_list, value="1H", id="channel")
-channel_ui = dbc.InputGroup([ch_label, ch_selection], className="container")
+channel_ui = dbc.InputGroup([ch_label, ch_selection], class_name="container")
 
 # select button
 button = dbc.Button(
     "Select",
     id="close-method-selection",
     color="dark",
-    className="ml-auto",
+    class_name="ml-auto",
     outline=True,
 )
 

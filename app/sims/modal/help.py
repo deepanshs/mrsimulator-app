@@ -44,5 +44,5 @@ simulation_help = dbc.Modal(
     ],
     id="modal-simulation-help",
     role="document",
-    className="modal-dialog",
+    class_name="modal-dialog",
 )
