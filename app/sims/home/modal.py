@@ -29,7 +29,7 @@ def description():
 
 
 def body():
-    return dbc.FormGroup([*title(), *description()])
+    return dbc.Form([*title(), *description()])
 
 
 def footer():

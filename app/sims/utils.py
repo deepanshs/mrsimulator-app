@@ -30,7 +30,7 @@ def update_processor_ui(processor):
 
 
 def assemble_data(data):
-    data["trigger"] = {"simulation": True, "method_index": None}
+    # data["trigger"] = {"simulation": True, "method_index": None}
 
     fields = [
         "integration_density",
@@ -38,13 +38,15 @@ def assemble_data(data):
         "number_of_sidebands",
         "decompose_spectrum",
     ]
-    mrsim_config = [data["config"][item] for item in fields]
+    mrsim_config = [data["simulator"]["config"][item] for item in fields]
     mrsim_config[-1] = no_update
 
-    spin_system_overview = spin_system_UI.refresh(data["spin_systems"])
-    method_overview = method_UI.refresh(data["methods"])
+    spin_system_overview = spin_system_UI.refresh(data["simulator"]["spin_systems"])
+    method_overview = method_UI.refresh(data["simulator"]["methods"])
     home_overview = home_UI.refresh(data)
-    post_sim_overview = post_sim_UI.refresh(data) if data["methods"] != [] else []
+    post_sim_overview = (
+        post_sim_UI.refresh(data) if data["simulator"]["methods"] != [] else []
+    )
 
     out = {
         "alert": ["", False],

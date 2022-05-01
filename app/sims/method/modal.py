@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Modal window for method selection"""
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import mrsimulator.methods as mt
+import mrsimulator.method.lib as mt
+from dash import dcc
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -33,7 +33,7 @@ head = dbc.ModalHeader("Select a method")
 method_selection = dcc.Dropdown(id="method-type", options=METHOD_OPTIONS, value=0)
 
 # Channel selection
-ch_label = dbc.InputGroupAddon("Channel", addon_type="prepend")
+ch_label = dbc.InputGroupText("Channel")
 ch_selection = dbc.Select(options=isotope_options_list, value="1H", id="channel")
 channel_ui = dbc.InputGroup([ch_label, ch_selection], className="container")
 

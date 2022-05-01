@@ -5,12 +5,12 @@ from urllib.request import urlopen
 
 import csdmpy as cp
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
 from celery.result import AsyncResult
 from dash import callback_context as ctx
+from dash import dcc
+from dash import html
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
@@ -44,11 +44,14 @@ from app.utils import slogger
 mrinv = html.Div(
     [
         dbc.Navbar(
-            html.Div(
-                dcc.Link(
-                    dbc.NavbarBrand("MRInversion", style={"color": "#d6d6d6"}), href="/"
-                ),
-                className="nav-burger",
+            dbc.Container(
+                html.Div(
+                    dcc.Link(
+                        dbc.NavbarBrand("MRInversion", style={"color": "#d6d6d6"}),
+                        href="/",
+                    ),
+                    className="nav-burger",
+                )
             ),
             color=None,
             dark=None,

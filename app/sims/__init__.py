@@ -3,18 +3,17 @@ import datetime
 
 import csdmpy as cp
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
 import plotly.graph_objs as go
 from dash import callback_context as ctx
+from dash import dcc
+from dash import html
 from dash import no_update
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from mrsimulator import Simulator
-from mrsimulator.signal_processing import SignalProcessor
+from mrsimulator import Mrsimulator
 from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
 from . import navbar
@@ -35,11 +34,15 @@ __author__ = ["Deepansh J. Srivastava", "Matthew D. Giammar"]
 __email__ = ["srivastava.89@osu.edu", "giammar.7@osu.edu"]
 
 DEFAULT_MRSIM_DATA = {
-    "name": "",
-    "description": "",
-    "spin_systems": [],
-    "methods": [],
-    "config": {},
+    "simulator": {
+        "name": "",
+        "description": "",
+        "spin_systems": [],
+        "methods": [],
+        "config": {},
+    },
+    "signal_processors": [],
+    "application": {},
 }
 
 # storage data
@@ -152,35 +155,36 @@ def one_time_simulation():
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0:
-        mrsim_data["timestamp"] = datetime.datetime.now()
+    if len(mrsim_data["simulator"]["methods"]) == 0:
+        mrsim_data["application"]["timestamp"] = datetime.datetime.now()
         return [no_update, no_update, mrsim_data]
 
-    try:
-        sim = Simulator.parse_dict_with_units(mrsim_data)
-        decompose = sim.config.decompose_spectrum[:]
-        sim.config.decompose_spectrum = "spin_system"
-        sim.run()
-        sim.config.decompose_spectrum = decompose
-    except Exception as e:
-        return [f"SimulationError: {e}", True, no_update]
+    # try:
+    mrsim = Mrsimulator.parse(mrsim_data)
+    # except Exception as e:
+    #     return [f"SimulationError: {e}", True, no_update]
 
-    process_data = mrsim_data["signal_processors"]
-    for proc, mth in zip(process_data, sim.methods):
-        processor = SignalProcessor.parse_dict_with_units(proc)
+    sim, processor, _ = mrsim.simulator, mrsim.signal_processors, mrsim.application
 
+    decompose = sim.config.decompose_spectrum[:]
+    sim.config.decompose_spectrum = "spin_system"
+    sim.run()
+    sim.config.decompose_spectrum = decompose
+
+    for processor, mth in zip(processor, sim.methods):
         mth.simulation = processor.apply_operations(data=mth.simulation).real
 
     if decompose == "none":
         for mth in sim.methods:
             mth.simulation = add_csdm_dvs(mth.simulation)
 
-    serialize = sim.json(include_methods=True, include_version=True)
-    serialize["signal_processors"] = process_data
+    serialize = mrsim.json()
+    # serialize = sim.json()
+    # serialize["signal_processors"] = process_data
 
-    # add parameters to serialization if present
-    if "params" in mrsim_data:
-        serialize["params"] = mrsim_data["params"]
+    # # add parameters to serialization if present
+    # if "params" in mrsim_data:
+    #     serialize["params"] = mrsim_data["params"]
 
     # layout = ctx.states["graph-view-layout.data"]
     # for _ in range(len(sim.methods)-len(layout)):
@@ -225,7 +229,7 @@ def plot(*args):
     if sim_data is None:
         return [DEFAULT_FIGURE, no_update]
 
-    if sim_data["methods"] == []:
+    if sim_data["simulator"]["methods"] == []:
         return [DEFAULT_FIGURE, no_update]
 
     method_index = ctx.inputs["select-method.value"]
@@ -236,7 +240,7 @@ def plot(*args):
     normalized = ctx.states["normalize_amp.active"]
     figure = ctx.states["nmr_spectrum.figure"]
 
-    mth = sim_data["methods"][method_index]
+    mth = sim_data["simulator"]["methods"][method_index]
     simulation_data = None if "simulation" not in mth else mth["simulation"]
     experiment_data = None if "experiment" not in mth else mth["experiment"]
 
@@ -254,8 +258,10 @@ def plot(*args):
         normalized = not normalized
 
     decompose = False
-    if "decompose_spectrum" in sim_data["config"]:
-        decompose = sim_data["config"]["decompose_spectrum"] == "spin_system"
+    if "decompose_spectrum" in sim_data["simulator"]["config"]:
+        decompose = (
+            sim_data["simulator"]["config"]["decompose_spectrum"] == "spin_system"
+        )
 
     print("plot trigger, trigger id", trigger, trigger_id)
 
@@ -300,14 +306,14 @@ def plot(*args):
     # layout.update(layout_graph)
 
     # Let graph resize ranges if new method has been selected
-    mrsim_data = ctx.states["local-mrsim-data.data"]
-    trigger = mrsim_data["trigger"] if "trigger" in mrsim_data else None
-    if (trigger and trigger["method_index"] is None) or trigger_id == "select-method":
-        layout["xaxis"]["autorange"] = "reversed"
-        layout["yaxis"]["autorange"] = True
-    else:
-        layout["xaxis"]["autorange"] = False
-        layout["yaxis"]["autorange"] = False
+    # mrsim_data = ctx.states["local-mrsim-data.data"]
+    # trigger = mrsim_data["trigger"] if "trigger" in mrsim_data else None
+    # if (trigger and trigger["method_index"] is None) or trigger_id == "select-method":
+    #     layout["xaxis"]["autorange"] = "reversed"
+    #     layout["yaxis"]["autorange"] = True
+    # else:
+    layout["xaxis"]["autorange"] = False
+    layout["yaxis"]["autorange"] = False
 
     data_object = {"data": plot_trace, "layout": go.Layout(**layout)}
 

@@ -3,17 +3,15 @@ import json
 import os
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_extensions as de
-import dash_html_components as html
 import pdfkit
 from dash import callback_context as ctx
+from dash import dcc
+from dash import html
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
-from dash_extensions.snippets import send_bytes
 from lmfit import Parameters
 from mrsimulator import __version__ as mrsim_v
 
@@ -65,8 +63,8 @@ def report():
 def download_components():
     """Dash extention compoenets to download fit data"""
     return [
-        de.Download(id="download-fit-report"),
-        de.Download(id="download-fit-values"),
+        dcc.Download(id="download-fit-report"),
+        dcc.Download(id="download-fit-values"),
     ]
 
 
@@ -139,7 +137,7 @@ def download_report(*args):
 
     print("download fit report")
 
-    return send_bytes(write_pdf, "report.pdf")
+    return dcc.send_bytes(write_pdf, "report.pdf")
 
 
 def make_pdf():

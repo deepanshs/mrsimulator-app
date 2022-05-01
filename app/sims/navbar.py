@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 
 from .menubar import master_menubar
 from app import year
@@ -28,12 +28,14 @@ def navbar_top_ui():
         brand(),
         master_menubar,
     ]
-    return dbc.Navbar(bar, color=None, dark=None, expand="md")
+    return dbc.Navbar(dbc.Container(bar), color=None, dark=None, expand="md")
 
 
 def navbar_bottom_ui():
     content = html.Div([dbc.Label(f"@mrsimulator, 2019-{year}", color="light")])
-    return dbc.Navbar(content, color=None, dark=None, className="bottom-navbar")
+    return dbc.Navbar(
+        dbc.Container([content]), color=None, dark=None, className="bottom-navbar"
+    )
 
 
 navbar_top = navbar_top_ui()
