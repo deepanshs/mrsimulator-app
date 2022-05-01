@@ -15,7 +15,7 @@ from dash.exceptions import PreventUpdate
 from lmfit import Minimizer
 from lmfit import Parameters
 from lmfit.printfuncs import fitreport_html_table
-from mrsimulator import parse
+from mrsimulator import Mrsimulator
 from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils import spectral_fitting as sf
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
@@ -146,8 +146,8 @@ def on_decompose_click():
     existing_data = ctx.states["local-mrsim-data.data"]
     print(ctx.inputs["decompose.active"], ctx.states["decompose.n_clicks"])
     decompose = "spin_system" if ctx.inputs["decompose.active"] else "none"
-    existing_data["trigger"] = {"simulate": True, "method_index": False}
-    existing_data["config"]["decompose_spectrum"] = decompose
+    # existing_data["trigger"] = {"simulate": True, "method_index": False}
+    existing_data["simulator"]["config"]["decompose_spectrum"] = decompose
     return prep_valid_data_for_simulation(existing_data)
 
 
@@ -157,11 +157,11 @@ def on_mrsim_config_change():
     fields = ["integration_density", "integration_volume", "number_of_sidebands"]
 
     # if existing_data is not None:
-    print(existing_data["config"])
-    existing_data["trigger"] = {"simulate": True, "method_index": None}
+    print(existing_data["simulator"]["config"])
+    # existing_data["trigger"] = {"simulate": True, "method_index": None}
 
     for item in fields:
-        existing_data["config"][item] = ctx.states[f"{item}.value"]
+        existing_data["simulator"]["config"][item] = ctx.states[f"{item}.value"]
 
     return prep_valid_data_for_simulation(existing_data)
 
@@ -173,8 +173,8 @@ def clear(attribute):
         attribute: Enumeration literals---`spin_systems` or `methods`
     """
     existing_data = ctx.states["local-mrsim-data.data"]
-    existing_data[attribute] = []
-    existing_data["trigger"] = {"simulate": True, "method_index": None}
+    existing_data["simulator"][attribute] = []
+    # existing_data["trigger"] = {"simulate": True, "method_index": None}
     if "signal_processors" in existing_data:
         for proc in existing_data["signal_processors"]:
             proc["operations"] = []
@@ -197,9 +197,11 @@ def clear_methods():
 def save_info_modal():
     """Save the title and description of mrsim data."""
     existing_data = ctx.states["local-mrsim-data.data"]
-    existing_data["name"] = ctx.states["info-name-edit.value"]
-    existing_data["description"] = ctx.states["info-description-edit.value"]
-    existing_data["trigger"] = {"simulate": False, "method_index": False}
+    existing_data["simulator"]["name"] = ctx.states["info-name-edit.value"]
+    existing_data["simulator"]["description"] = ctx.states[
+        "info-description-edit.value"
+    ]
+    # existing_data["trigger"] = {"simulate": False, "method_index": False}
     # Update home overview with the title and description
     home_overview = home_UI.refresh(existing_data)
     out = {
@@ -217,7 +219,7 @@ def on_method_update():
 
     def generate_outputs(existing_data, n=None):
         home_overview = home_UI.refresh(existing_data)
-        method_overview = method_UI.refresh(existing_data["methods"])
+        method_overview = method_UI.refresh(existing_data["simulator"]["methods"])
 
         add_params(existing_data)
 
@@ -226,7 +228,9 @@ def on_method_update():
             "mrsim": [existing_data, no_update],
             "children": [no_update, method_overview, home_overview],
             "mrsim_config": [no_update] * 4,
-            "processor": [[]] if len(existing_data["methods"]) == n else [no_update],
+            "processor": [[]]
+            if len(existing_data["simulator"]["methods"]) == n
+            else [no_update],
         }
         return sim_utils.expand_output(out)
 
@@ -235,15 +239,15 @@ def on_method_update():
     if new_method is None:
         raise PreventUpdate
 
-    existing_data["trigger"] = {"simulate": False}
+    # existing_data["trigger"] = {"simulate": False}
     index = new_method["index"]
     method_data = new_method["data"]
     print("method_data type", new_method["operation"])
 
     # Add a new method
     if new_method["operation"] == "add":
-        existing_data["methods"] += [method_data]
-        existing_data["trigger"]["method_index"] = [-1]
+        existing_data["simulator"]["methods"] += [method_data]
+        # existing_data["trigger"]["method_index"] = [-1]
         if "signal_processors" not in existing_data:
             existing_data["signal_processors"] = []
         existing_data["signal_processors"] += [{"operations": []}]
@@ -251,23 +255,23 @@ def on_method_update():
 
     # Modify a method
     if new_method["operation"] == "modify":
-        existing_data["methods"][index].update(method_data)
-        existing_data["methods"][index]["simulation"] = None
-        existing_data["trigger"]["method_index"] = [index]
+        existing_data["simulator"]["methods"][index].update(method_data)
+        existing_data["simulator"]["methods"][index]["simulation"] = None
+        # existing_data["trigger"]["method_index"] = [index]
         return generate_outputs(existing_data)
 
     # Duplicate an existing method
     if new_method["operation"] == "duplicate":
-        existing_data["methods"] += [method_data]
+        existing_data["simulator"]["methods"] += [method_data]
         existing_data["signal_processors"] += [{"operations": []}]
-        existing_data["trigger"] = {"simulate": False, "method_index": False}
+        # existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data)
 
     # Delete a method
     if new_method["operation"] == "delete":
-        del existing_data["methods"][index]
+        del existing_data["simulator"]["methods"][index]
         del existing_data["signal_processors"][index]
-        existing_data["trigger"] = {"simulate": False, "method_index": False}
+        # existing_data["trigger"] = {"simulate": False, "method_index": False}
         return generate_outputs(existing_data, n=0)
 
 
@@ -276,7 +280,9 @@ def on_spin_system_change():
 
     def generate_outputs(existing_data):
         home_overview = home_UI.refresh(existing_data)
-        spin_system_overview = spin_system_UI.refresh(existing_data["spin_systems"])
+        spin_system_overview = spin_system_UI.refresh(
+            existing_data["simulator"]["spin_systems"]
+        )
 
         add_params(existing_data)
 
@@ -295,39 +301,39 @@ def on_spin_system_change():
     if new_spin_system is None:
         raise PreventUpdate
 
-    existing_data["trigger"] = {"simulation": True, "method_index": False}
+    # existing_data["trigger"] = {"simulation": True, "method_index": False}
     index = new_spin_system["index"]
     spin_system_data = new_spin_system["data"]
     print("new_spin_system type", new_spin_system["operation"])
 
     # Add a new spin system
     if new_spin_system["operation"] == "add":
-        existing_data["spin_systems"] += [spin_system_data]
+        existing_data["simulator"]["spin_systems"] += [spin_system_data]
         return generate_outputs(existing_data)
 
     # Modify a spin-system
     if new_spin_system["operation"] == "modify":
-        existing_data["spin_systems"][index] = spin_system_data
+        existing_data["simulator"]["spin_systems"][index] = spin_system_data
         return generate_outputs(existing_data)
 
     # Duplicate an existing spin-system
     if new_spin_system["operation"] == "duplicate":
-        existing_data["spin_systems"] += [spin_system_data]
+        existing_data["simulator"]["spin_systems"] += [spin_system_data]
         return generate_outputs(existing_data)
 
     # Delete a spin-system
     if new_spin_system["operation"] == "delete":
-        del existing_data["spin_systems"][index]
+        del existing_data["simulator"]["spin_systems"][index]
         return generate_outputs(existing_data)
 
 
 def add_measurement_to_a_method():
     """Add a measurement to the selected method."""
     existing_data = ctx.states["local-mrsim-data.data"]
-    existing_data["trigger"] = {
-        "simulation": False,
-        "internal_processor": False,
-    }
+    # existing_data["trigger"] = {
+    #     "simulation": False,
+    #     "internal_processor": False,
+    # }
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     contents = ctx.inputs[f"{trigger_id}.contents"]
@@ -339,7 +345,7 @@ def add_measurement_to_a_method():
         return sim_utils.on_fail_message(f"FileLoadError: {error_message}")
 
     index = ctx.states["select-method.value"]
-    method = existing_data["methods"][index]
+    method = existing_data["simulator"]["methods"][index]
     method["experiment"] = exp_data.to_dict()
     spectral_dim = method["spectral_dimensions"]
 
@@ -348,7 +354,7 @@ def add_measurement_to_a_method():
     for i, dim in enumerate(mrsim_spectral_dims):
         spectral_dim[i].update(dim)
 
-    method_overview = method_UI.refresh(existing_data["methods"])
+    method_overview = method_UI.refresh(existing_data["simulator"]["methods"])
 
     post_sim_overview = no_update
     if existing_data["signal_processors"][index] in [None, {"operations": []}]:
@@ -381,12 +387,12 @@ def add_measurement_to_a_method():
 def remove_measurement_from_a_method():
     """Remove measurement from the selected method."""
     existing_data = ctx.states["local-mrsim-data.data"]
-    existing_data["trigger"] = {
-        "simulation": False,
-        "internal_processor": False,
-    }
+    # existing_data["trigger"] = {
+    #     "simulation": False,
+    #     "internal_processor": False,
+    # }
     index = ctx.states["select-method.value"]
-    method = existing_data["methods"][index]
+    method = existing_data["simulator"]["methods"][index]
     method["experiment"] = None
     return prep_valid_data_for_simulation(existing_data)
 
@@ -402,15 +408,19 @@ def simulate_spectrum():
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+    sim_data = mrsim_data["simulator"]
+    if len(sim_data["methods"]) == 0 or len(sim_data["spin_systems"]) == 0:
         raise PreventUpdate
 
-    sim, processor, saved_params = mrsim.parse(mrsim_data)
+    sim, processor, app = mrsim.parse(mrsim_data)
     params = Parameters().loads(params_data)
 
     sf.update_mrsim_obj_from_params(params, sim, processor)
-    new_mrsim_data = mrsim.dict(sim, processor, saved_params)
-    new_mrsim_data["params"] = params.dumps()
+    app["params"] = params.dumps()
+    obj = Mrsimulator(simulator=sim, signal_processors=processor, application=app)
+    new_mrsim_data = obj.json()
+    # new_mrsim_data = Mrsimulator.json(sim, processor, saved_params)
+    # new_mrsim_data["params"] = params.dumps()
 
     out = {
         "alert": ["", False],
@@ -429,7 +439,8 @@ def least_squares_fit():
     if mrsim_data is None:
         raise PreventUpdate
 
-    if len(mrsim_data["methods"]) == 0 or len(mrsim_data["spin_systems"]) == 0:
+    sim_data = mrsim_data["simulator"]
+    if len(sim_data["methods"]) == 0 or len(sim_data["spin_systems"]) == 0:
         raise PreventUpdate
 
     # try:
@@ -482,13 +493,13 @@ def least_squares_fit():
 
     fit_data = mrsim.dict(sim, processor, result.params)
 
-    fit_data["report"] = fitreport_html_table(result)
+    fit_data["application"]["report"] = fitreport_html_table(result)
 
-    spin_system_overview = spin_system_UI.refresh(fit_data["spin_systems"])
-    method_overview = method_UI.refresh(fit_data["methods"])
+    spin_system_overview = spin_system_UI.refresh(fit_data["simulator"]["spin_systems"])
+    method_overview = method_UI.refresh(fit_data["simulator"]["methods"])
     home_overview = home_UI.refresh(fit_data)
     post_sim_overview = (
-        post_sim_UI.refresh(fit_data) if fit_data["methods"] != [] else []
+        post_sim_UI.refresh(fit_data) if fit_data["simulator"]["methods"] != [] else []
     )
     out = {
         "alert": ["", False],
@@ -505,11 +516,12 @@ def make_params():
     mrsim_data = ctx.states["local-mrsim-data.data"]
 
     # Don't add parameters if no spin_systems
-    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+    sim_data = mrsim_data["simulator"]
+    if sim_data["spin_systems"] is None or len(sim_data["spin_systems"]) == 0:
         raise PreventUpdate
 
     # Don't add parameters if no methods
-    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+    if sim_data["methods"] is None or len(sim_data["methods"]) == 0:
         raise PreventUpdate
 
     mrsim_data = add_params(mrsim_data)
@@ -529,15 +541,16 @@ def add_params(mrsim_data):
     if mrsim_data is None:
         return no_update
 
-    if mrsim_data["spin_systems"] is None or len(mrsim_data["spin_systems"]) == 0:
+    sim = mrsim_data["simulator"]
+    if sim["spin_systems"] is None or len(sim["spin_systems"]) == 0:
         return no_update
 
-    if mrsim_data["methods"] is None or len(mrsim_data["methods"]) == 0:
+    if sim["methods"] is None or len(sim["methods"]) == 0:
         return no_update
 
-    sim, processor, _ = parse(mrsim_data)
+    sim, processor, _ = mrsim.parse(mrsim_data)
     params_obj = make_LMFIT_params(sim, processor, include={"rotor_frequency"})
-    mrsim_data["params"] = params_obj.dumps()
+    mrsim_data["application"]["params"] = params_obj.dumps()
 
     return mrsim_data
 

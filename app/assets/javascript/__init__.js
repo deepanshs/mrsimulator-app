@@ -23,10 +23,12 @@ var storeData = {
   spin_system_index: 0,
   method_index: 0,
   data: {
-    name: "",
-    description: [],
-    spin_systems: [],
-    methods: [],
+    simulator: {
+      name: "",
+      description: [],
+      spin_systems: [],
+      methods: [],
+    },
   },
 };
 var hasInitialized = false;

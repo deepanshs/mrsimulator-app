@@ -2,15 +2,14 @@
 import json
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import plotly
 from dash import callback_context as ctx
+from dash import dcc
+from dash import html
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
-from dash_extensions.snippets import send_bytes
 
 from app import app
 from app.custom_widgets import custom_button
@@ -212,7 +211,7 @@ def download_image():
         img_bytes = fig.to_image(format=fmt, width=width, height=height, scale=scale)
         bytes_io.write(img_bytes)
 
-    return send_bytes(write_bytes, f"plot.{fmt}")
+    return dcc.send_bytes(write_bytes, f"plot.{fmt}")
 
 
 def download_html():

@@ -41,7 +41,7 @@ var addMethod = function (method_template, l) {
 var copyMethod = function (data, l) {
   let result = {};
   checkForEmptyListBeforeOperation("copy", "method", l);
-  result.data = data.methods[window.method.getIndex()];
+  result.data = data.simulator.methods[window.method.getIndex()];
   result.index = l;
   result.operation = "duplicate";
   data = l = null;
@@ -64,7 +64,7 @@ var _updateMethodJson = function () {
   const trig_id = ctxTriggerID()[0].split(".")[0].split("-")[0];
   const method_template = ctxTriggerStates()["add-method-from-template.data"];
   const data = storeData.data;
-  const l = data.methods.length;
+  const l = data.simulator.methods.length;
   if (trig_id === "apply") return updateMethod();
   if (trig_id === "add") return addMethod(method_template, l);
   if (trig_id === "duplicate") return copyMethod(data, l);
@@ -99,7 +99,7 @@ var _onMethodsLoad = function () {
 
 var _setFields = function (index) {
   let data = storeData.data;
-  let method = data.methods[index];
+  let method = data.simulator.methods[index];
   let sd, i, temp; //, array = [];
   document.getElementById("method-title").innerHTML = method.name;
 
@@ -248,7 +248,7 @@ window.method = {
 
   updateFields: function () {
     let sd, i, temp;
-    let method = storeData.data.methods[window.method.getIndex()];
+    let method = storeData.data.simulator.methods[window.method.getIndex()];
 
     // noise standard deviation
     if (method.experiment != null) {

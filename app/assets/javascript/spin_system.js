@@ -164,7 +164,7 @@ var set_site_attributes = function (site) {
  */
 var update_field_from_spin_system_at_index = function (index) {
   let data = storeData.data;
-  let spin_system = data.spin_systems[index];
+  let spin_system = data.simulator.spin_systems[index];
 
   // name, description, and abundance of the spin_system
   let name = spin_system.name;
@@ -194,7 +194,7 @@ var extract_site_object_from_fields = function () {
   }
   // Extract the current spin-system index, and get the respective spin-system.
   let index = window.spinSystem.getIndex();
-  let spin_system = data.spin_systems[index];
+  let spin_system = data.simulator.spin_systems[index];
 
   let site_index = 0;
   let old_site = spin_system.sites[site_index];
@@ -342,7 +342,7 @@ var addSystem = function (l) {
 var copySystem = function (data, l) {
   let result = {};
   checkForEmptyListBeforeOperation("copy", "spin system", l);
-  result.data = data.spin_systems[window.spinSystem.getIndex()];
+  result.data = data.simulator.spin_systems[window.spinSystem.getIndex()];
   result.index = l;
   result.operation = "duplicate";
   data = l = null;
@@ -364,7 +364,7 @@ var delSystem = function (l) {
 var _updateSpinSystemJson = function () {
   const trig_id = ctxTriggerID()[0].split(".")[0].split("-")[0];
   const data = storeData.data;
-  const l = data.spin_systems.length;
+  const l = data.simulator.spin_systems.length;
   if (trig_id === "apply") return updateSystem();
   if (trig_id === "add") return addSystem(l);
   if (trig_id === "duplicate") return copySystem(data, l);

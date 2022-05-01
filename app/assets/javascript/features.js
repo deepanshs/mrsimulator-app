@@ -50,18 +50,18 @@ var _reloadParamGroups = function () {
     // console.log("_reloadParamGroups");
 
     // If number of spin systems or methods is zero do not update
-    if (!(storeData.data.spin_systems.length && storeData.data.methods.length)) {
+    if (!(storeData.data.simulator.spin_systems.length && storeData.data.simulator.methods.length)) {
         return;
     }
 
     // Logic for creating params JSON if not already present
-    if (!storeData.data.params) {  // true if 'null', 'undefined' or empty str
+    if (!storeData.data.application.params) {  // true if 'null', 'undefined' or empty str
         document.getElementById("make-lmfit-params").click();
         return;
     }
 
     // Get stored json string
-    let params_json = storeData.data.params;
+    let params_json = storeData.data.application.params;
 
     // Remove old stored params
     paramGroups = {
@@ -77,8 +77,8 @@ var _reloadParamGroups = function () {
     let params = JSON.parse(params_json).params;
 
     // Add dict elements to storage array
-    let num_sys = storeData.data.spin_systems.length;
-    let num_mth = storeData.data.methods.length;
+    let num_sys = storeData.data.simulator.spin_systems.length;
+    let num_mth = storeData.data.simulator.methods.length;
     for (num_sys; num_sys > 0; num_sys--) {
         paramGroups.spin_systems.push({});
     }
@@ -156,7 +156,7 @@ var _serializeParamGroups = function () {
 
     // console.log(paramGroups);
 
-    let old_json = storeData.data.params;
+    let old_json = storeData.data.application.params;
 
     // Make temporary array for parameters
     let tmp_arr = [];
@@ -436,8 +436,8 @@ var _onFeaturesReload = function () {
     // Update paramGroups before updating options and tables
     _reloadParamGroups();
 
-    let num_sys = storeData.data.spin_systems.length;
-    let num_mth = storeData.data.methods.length;
+    let num_sys = storeData.data.simulator.spin_systems.length;
+    let num_mth = storeData.data.simulator.methods.length;
     let sys_page_idx = document.getElementById("sys-feature-select").getAttribute("pageindex");
     let mth_page_idx = document.getElementById("mth-feature-select").getAttribute("pageindex");
     if (sys_page_idx) {
@@ -621,7 +621,7 @@ var _pageSysLeft = function() {
     // console.log("_pageSysLeft");
     let sys_features = document.getElementById("sys-feature-select");
     let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
-    let num_sys = storeData.data.spin_systems.length;
+    let num_sys = storeData.data.simulator.spin_systems.length;
 
     // Already on leftmost page
     if (sys_page_idx == 0) {
@@ -641,7 +641,7 @@ var _pageSysLeft = function() {
     // console.log("_pageSysLeft");
     let sys_features = document.getElementById("sys-feature-select");
     let sys_page_idx = parseInt(sys_features.getAttribute("pageindex"));
-    let num_sys = storeData.data.spin_systems.length;
+    let num_sys = storeData.data.simulator.spin_systems.length;
 
     // Already on rightmost page
     if (sys_page_idx == Math.floor((num_sys - 1) / maxFeatureButtons)) {
@@ -661,7 +661,7 @@ var _pageSysLeft = function() {
     // console.log("_pageMthLeft");
     let mth_features = document.getElementById("mth-feature-select");
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
-    let num_mth = storeData.data.spin_systems.length;
+    let num_mth = storeData.data.simulator.spin_systems.length;
 
     // Already on leftmost page
     if (mth_page_idx == 0) {
@@ -681,7 +681,7 @@ var _pageSysLeft = function() {
     // console.log("_pageSysLeft");
     let mth_features = document.getElementById("mth-feature-select");
     let mth_page_idx = parseInt(mth_features.getAttribute("pageindex"));
-    let num_mth = storeData.data.spin_systems.length;
+    let num_mth = storeData.data.simulator.spin_systems.length;
 
     // Already on rightmost page
     if (mth_page_idx == Math.floor((num_mth - 1) / maxFeatureButtons)) {
@@ -759,7 +759,7 @@ window.features = {
     selectSystem: function (idx) {
         // update options if index not on current page
         let page_idx = Math.floor(idx / maxFeatureButtons);
-        _reloadSysFeatureButtons(storeData.data.spin_systems.length, page_idx, false);
+        _reloadSysFeatureButtons(storeData.data.simulator.spin_systems.length, page_idx, false);
 
         doExternalIndexUpdate = false;
         document.getElementById(`sys-feature-${idx}`).click();
@@ -768,7 +768,7 @@ window.features = {
     selectMethod: function (idx) {
         // update options if index not on current page
         let page_idx = Math.floor(idx / maxFeatureButtons);
-        _reloadMthFeatureButtons(storeData.data.methods.length, page_idx, false);
+        _reloadMthFeatureButtons(storeData.data.simulator.methods.length, page_idx, false);
 
         doExternalIndexUpdate = false;
         document.getElementById(`mth-feature-${idx}`).click();

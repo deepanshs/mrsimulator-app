@@ -2,8 +2,8 @@
 import json
 
 import dash_bootstrap_components as dbc
-import dash_html_components as html
 from dash import callback_context as ctx
+from dash import html
 from dash import no_update
 from dash.exceptions import PreventUpdate
 from mrsimulator import parse
@@ -37,8 +37,8 @@ def refresh(data):
     """
     method_index = ctx.inputs["select-method.value"]
 
-    mth = data["methods"]
-    sys = data["spin_systems"]
+    mth = data["simulator"]["methods"]
+    sys = data["simulator"]["spin_systems"]
     post = data["signal_processors"]
 
     method_index = method_index if len(mth) > method_index else 0
@@ -140,7 +140,9 @@ def on_submit_signal_processor_button():
     existing_data, method_index = setup()
     existing_process_data = existing_data["signal_processors"]
 
-    n_dims = len(existing_data["methods"][method_index]["spectral_dimensions"])
+    n_dims = len(
+        existing_data["simulator"]["methods"][method_index]["spectral_dimensions"]
+    )
     processor_dict = generate_signal_processor_dict(n_dims)
     existing_process_data[method_index] = processor_dict
     print("submit process_data", existing_process_data)
@@ -152,8 +154,8 @@ def on_submit_signal_processor_button():
         for mth_proc in existing_process_data
     ]
     params = make_LMFIT_params(sim, processors, include={"rotor_frequency"})
-    existing_data["params"] = params.dumps()
-    existing_data["trigger"] = {"simulation": True, "method_index": False}
+    existing_data["application"]["params"] = params.dumps()
+    # existing_data["trigger"] = {"simulation": True, "method_index": False}
 
     out = {
         "alert": ["", False],

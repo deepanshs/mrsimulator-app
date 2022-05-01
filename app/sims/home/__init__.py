@@ -5,9 +5,9 @@
 - Spin system overview
 """
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
+from dash import dcc
+from dash import html
 from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -108,7 +108,7 @@ def spin_system_overview_layout(mrsim: dict):
 
 def get_method_overview_table(mrsim: dict):
     # number of methods
-    n_methods = 0 if "methods" not in mrsim else len(mrsim["methods"])
+    n_methods = 0 if "methods" not in mrsim else len(mrsim["simulator"]["methods"])
     mth_brief = html.Div([f"Number of methods: {n_methods}"])
 
     # method table rows
@@ -120,7 +120,11 @@ def get_method_overview_table(mrsim: dict):
 
 def get_spin_system_overview_table(mrsim: dict):
     # number of spin systems
-    n_sys = 0 if "spin_systems" not in mrsim else len(mrsim["spin_systems"])
+    n_sys = (
+        0
+        if "spin_systems" not in mrsim["simulator"]
+        else len(mrsim["simulator"]["spin_systems"])
+    )
     sys_brief = html.Div([f"Number of spin systems: {n_sys}"])
 
     # spin system table rows
@@ -134,12 +138,12 @@ def system_overview_data(mrsim: dict):
     sys_header = ["", "Name", "%", "# Sites", "Isotopes", ""]
     sys_row = [html.Thead(html.Tr([html.Th(html.B(item)) for item in sys_header]))]
 
-    if "spin_systems" not in mrsim:
+    if "spin_systems" not in mrsim["simulator"]:
         return sys_row
 
     icon = html.I(className="fas fa-pencil-alt", title="Edit spin system")
     icon_span = html.Span(icon, **{"data-edit-sys": ""})
-    for i, spin_system in enumerate(mrsim["spin_systems"]):
+    for i, spin_system in enumerate(mrsim["simulator"]["spin_systems"]):
         name = "" if "name" not in spin_system else spin_system["name"]
         abd = (
             ""
@@ -158,12 +162,12 @@ def method_overview_data(mrsim: dict):
     mth_header = ["", "Name", "Channels", "B0 / T", "vr / kHz", ""]
     method_row = [html.Thead(html.Tr([html.Th(html.B(item)) for item in mth_header]))]
 
-    if "methods" not in mrsim:
+    if "methods" not in mrsim["simulator"]:
         return method_row
 
     icon = html.I(className="fas fa-pencil-alt", title="Edit method")
     icon_span = html.Span(icon, **{"data-edit-mth": ""})
-    for i, method in enumerate(mrsim["methods"]):
+    for i, method in enumerate(mrsim["simulator"]["methods"]):
         name = "" if "name" not in method.keys() else method["name"]
         channels = "-".join(method["channels"])
         Bo = (
@@ -183,9 +187,10 @@ def method_overview_data(mrsim: dict):
 
 
 def overview_page(mrsim):
-    title = mrsim["name"]
-    title = "Sample" if title == "" else title
-    description = mrsim["description"]
+    title = mrsim["simulator"]["name"] if "name" in mrsim["simulator"] else "Sample"
+    description = (
+        mrsim["simulator"]["description"] if "description" in mrsim["simulator"] else ""
+    )
 
     sample_overview = sample_overview_layout(title, description)
     method_overview = method_overview_layout(mrsim)
@@ -201,7 +206,9 @@ def refresh(json_data):
 
 
 def ui():
-    page = refresh({"name": "Title", "description": "Sample description"})
+    page = refresh(
+        {"simulator": {"name": "Title", "description": "Sample description"}}
+    )
     loading = dcc.Loading(html.Div(page, id="info-read-only"))
     upload_mrsim = dcc.Upload(
         loading,

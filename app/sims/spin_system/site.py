@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+from dash import html
 from dash.dependencies import Input
 from dash.dependencies import Output
 from mrsimulator.spin_system.isotope import ISOTOPE_DATA
@@ -15,7 +15,7 @@ isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.key
 def isotope_and_shift_ui():
     def isotope_ui():
         """Isotope"""
-        label = dbc.InputGroupAddon("Isotope", addon_type="prepend")
+        label = dbc.InputGroupText("Isotope")
         select = dbc.Select(options=isotope_options_list, value="1H", id="isotope")
 
         # callback to hide the quadrupolar fields when isotope is I=1/2
