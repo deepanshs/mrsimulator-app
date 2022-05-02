@@ -93,7 +93,7 @@ def description_div():
     return html.Div("Download an image of the spectrum", id="download-description")
 
 
-def ui():
+def user_interface():
     """The UI holding the modal and all info"""
     return dbc.Modal(
         [
@@ -118,7 +118,7 @@ def ui():
     )
 
 
-download_modal = ui()
+download_modal = user_interface()
 
 
 # Callbacks ============================================================================

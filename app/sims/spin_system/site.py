@@ -13,6 +13,8 @@ isotope_options_list = [{"label": key, "value": key} for key in ISOTOPE_DATA.key
 
 
 def isotope_and_shift_ui():
+    """isotope and isotropic shift ui"""
+
     def isotope_ui():
         """Isotope"""
         label = dbc.InputGroupText("Isotope")
@@ -44,6 +46,7 @@ def isotope_and_shift_ui():
 
 
 def shielding_symmetric_ui():
+    """shielding ui"""
     zeta_ui = custom_input_group(
         prepend_label="Anisotropy (ζ)",
         append_label="ppm",
@@ -56,7 +59,8 @@ def shielding_symmetric_ui():
 
 
 def quadrupolar_ui():
-    Cq_ui = custom_input_group(
+    """quad ui"""
+    cq_ui = custom_input_group(
         prepend_label="Coupling constant (Cq)",
         append_label="MHz",
         id="quadrupolar-Cq",
@@ -64,10 +68,11 @@ def quadrupolar_ui():
     )
 
     # asymmetry and Euler angles
-    return collapsable_card_ui_with_eta_and_angle(Cq_ui, "quadrupolar", True)
+    return collapsable_card_ui_with_eta_and_angle(cq_ui, "quadrupolar", True)
 
 
 def collapsable_card_ui_with_eta_and_angle(item, prefix, outer_collapse=False):
+    """eta, alpha, beta, and gamma ui"""
     eta_ui = custom_input_group(
         prepend_label="Asymmetry (η)",
         append_label="",
@@ -99,11 +104,12 @@ def collapsable_card_ui_with_eta_and_angle(item, prefix, outer_collapse=False):
     )
 
 
-def ui():
+def user_interface():
+    """interface"""
     isotope_and_shift = isotope_and_shift_ui()
     shielding_symmetric = shielding_symmetric_ui()
     quadrupolar = quadrupolar_ui()
     return [isotope_and_shift, shielding_symmetric, quadrupolar]
 
 
-site_ui = ui()
+site_ui = user_interface()

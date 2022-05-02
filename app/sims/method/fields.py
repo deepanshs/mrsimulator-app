@@ -10,14 +10,13 @@ from app.custom_widgets import container
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
 
-# from dash.dependencies import State
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
 
 
 def experiment_ui():
-
+    """upload options for experiment csdf file"""
     # upload experiment dataset
     tooltip = (
         "Click to attach a measurement file to the selected method. "
@@ -27,13 +26,10 @@ def experiment_ui():
     clip_btn = html.Button(icon, className="icon-button")
     upload = dcc.Upload(clip_btn, id="import-measurement-for-method")
 
-    # label = dbc.InputGroupText("Measurement data")
-    # upload_ui = dbc.InputGroup([label, upload], className="input-form")
-
     # standard deviation
     calc_tooltip = (
-        "Click to calculate the noise standard deviation from the selected region of ∂"
-        "the experiment spectrum."
+        "Click to calculate the noise standard deviation from the selected region of "
+        "the experiment spectrum. Use the 'Draw rectangle' button to select the region."
     )
     calc_icon = html.I(className="fas fa-calculator", title=calc_tooltip)
     calc_btn = html.Button(calc_icon, id="calc-sigma-button", className="icon-button")
@@ -46,34 +42,7 @@ def experiment_ui():
         debounce=True,
     )
 
-    return container(
-        text=["Experiment", upload],
-        featured=[sigma],
-    )
-
-
-# app.clientside_callback(
-#     """
-#     function(index, data) {
-#         console.log(data);
-#         sim = data.simulator;
-#         if (data == null) { throw window.dash_clientside.PreventUpdate; }
-#         if (sim.methods[index] == null){throw window.dash_clientside.PreventUpdate;}
-#         if (sim.methods[index].experiment == null) {
-#             return [false, false, false, false, false, false];
-#         }
-#         else { return [true, true, true, true, true, true]; }
-#     }
-#     """,
-#     [
-#         *[Output(f"count-{i}", "disabled") for i in range(2)],
-#         *[Output(f"spectral_width-{i}", "disabled") for i in range(2)],
-#         *[Output(f"reference_offset-{i}", "disabled") for i in range(2)],
-#     ],
-#     Input("select-method", "value"),
-#     Input("local-mrsim-data", "data"),
-#     prevent_initial_call=True,
-# )
+    return container(text=["Experiment", upload], featured=[sigma])
 
 
 def spectral_dimension_ui(i):
@@ -122,7 +91,7 @@ def spectral_dimension_ui(i):
     #     debounce=True,
     # )
 
-    # origin offset
+    # label
     label = custom_input_group(
         prepend_label="Label",
         append_label="",

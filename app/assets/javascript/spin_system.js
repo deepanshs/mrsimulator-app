@@ -175,7 +175,9 @@ var update_field_from_spin_system_at_index = function (index) {
   // let description = spin_system.description;
   // description = description == null ? "" : description;
   // setValue("spin-system-description", description);
-  setValue("spin-system-abundance", parseQuantityValue(spin_system.abundance));
+  let abundance = parseQuantityValue(spin_system.abundance);
+  if (abundance == null) abundance = 100;
+  setValue("spin-system-abundance", abundance);
 
   // extract site information
   let site = spin_system.sites[0];

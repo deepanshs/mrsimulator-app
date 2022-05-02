@@ -201,6 +201,7 @@ def custom_collapsible(
 
 
 def container(text, featured, **kwargs):
+    """Create a custom container with test=title and featured=children components."""
     children = html.Div(featured, className="container")
     return custom_card(text=html.Div(text), children=children, **kwargs)
 

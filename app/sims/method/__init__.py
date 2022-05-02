@@ -11,39 +11,40 @@ from dash.dependencies import Output
 from dash.dependencies import State
 from dash.exceptions import PreventUpdate
 
-from . import fields as mrf
-from .modal import METHOD_DIMENSIONS
-from .modal import METHOD_LIST
-from .modal import method_selection_modal
 from app import app
 from app.custom_widgets import custom_button
 from app.sims import post_simulation as ps
+from app.sims.method import fields as mrf
+from app.sims.method.modal import METHOD_DIMENSIONS
+from app.sims.method.modal import METHOD_LIST
+from app.sims.method.modal import method_selection_modal
 
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = "srivastava.89@osu.edu"
+N_DIMS = 2
 
 
 def hidden_method_select_element():
     """Hiddent element to hold method index for Python side and update plot."""
-    # select_method = dcc.Dropdown(id="select-method", value=0)
-    # return html.Div(select_method, style={"display": "none"})
     return dcc.Input(id="select-method", value=0, type="number", className="hidden")
 
 
-def post_simulation_ui(n_dimensions):
-    tools = html.Div(ps.tools())
+def post_simulation_ui():
+    """post simulation signal processing user interface"""
+    proc_tools = html.Div(ps.tools())
     page_content = [ps.scale.page, ps.convolution.page]
     page = html.Div(page_content, id="post_sim_child", className="method-scroll")
-    return html.Div([tools, page])
+    return html.Div([proc_tools, page])
 
 
 def dimensions_ui():
-    """Supports two dimensions."""
-    return [mrf.spectral_dimension_ui(i) for i in range(2)]
+    """dimensions user interface"""
+    return [mrf.spectral_dimension_ui(i) for i in range(N_DIMS)]
 
 
 def method_property_tab_ui():
+    """method property interface as tab"""
     contents = [mrf.experiment_ui(), mrf.global_environment(), *dimensions_ui()]
     return dbc.Tab(
         label="Properties", children=contents, class_name="tab-scroll method"
@@ -51,9 +52,10 @@ def method_property_tab_ui():
 
 
 def signal_processing_tab_ui():
+    """signal processing interface as tab"""
     return dbc.Tab(
         label="Signal Processing",
-        children=post_simulation_ui(1),
+        children=post_simulation_ui(),
         class_name="tab-scroll method",
     )
 
@@ -70,7 +72,8 @@ app.clientside_callback(
 )
 
 
-def display():
+def default_display():
+    """Default display when no method object is present"""
     comment = html.H5("Load methods or start creating")
     icon = html.I(className="fas fa-cube fa-4x")
     sub_text = html.H6("Add a method")
@@ -79,7 +82,8 @@ def display():
 
 
 def scrollable():
-    default = display()
+    """Scrollable left panel for method info"""
+    default = default_display()
     app.clientside_callback(
         """function(n) {
             document.getElementById("add-method-button").click();
@@ -103,6 +107,7 @@ def tools():
 
 
 def header():
+    """Method section header"""
     icon = html.I(className="fas fa-cube fa-lg")
     text = html.H4("Methods", className="hide-label-sm")
     title = html.Div([icon, text])
@@ -113,6 +118,7 @@ def header():
 
 
 def layout():
+    """Method layout"""
     label = html.Label(id="method-title")
     title = html.Div(label, className="ui_title")
 
@@ -153,7 +159,8 @@ def layout():
     )
 
 
-def ui():
+def user_interface():
+    """method user interface"""
     head = header()
     body = html.Div(
         [scrollable(), layout(), tools(), hidden_method_select_element()],
@@ -198,13 +205,13 @@ def refresh(methods):
     """Return a html for rendering the display in the read-only spin-system section."""
     output = [generate_sidepanel(mth, i) for i, mth in enumerate(methods)]
     if output == []:
-        return display()
+        return default_display()
     return html.Div(
         [html.Ul(output, className="list-group")], className="scrollable-list"
     )
 
 
-method_body = ui()
+method_body = user_interface()
 
 
 # callback code section =======================================================
@@ -215,14 +222,15 @@ method_body = ui()
     State("channel", "value"),
     prevent_initial_call=True,
 )
-def get_method_json(n, value, isotope):
-    if n is None:
+def get_method_json(n_clicks, value, isotope):
+    """callback for default method template"""
+    if n_clicks is None:
         raise PreventUpdate
-    d0 = {"count": 512, "spectral_width": 25000}
+    d_0 = {"count": 512, "spectral_width": 25000}
     return {
         "method": METHOD_LIST[value](
             channels=[isotope],
-            spectral_dimensions=[d0] * METHOD_DIMENSIONS[value],
+            spectral_dimensions=[d_0] * METHOD_DIMENSIONS[value],
         ).json(),
         "time": int(datetime.now().timestamp() * 1000),
     }

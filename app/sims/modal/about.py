@@ -39,16 +39,13 @@ LINK_MRSIMULATOR_APP = "https://github.com/DeepanshS/mrsimulator-app"
 
 
 def about():
+    """about mrsimulator app"""
     title = dbc.ModalHeader("About")
 
     def make_row_element(name, link=None, version="", element="td"):
         link = html.A(name, href=link, target="blank_") if link is not None else name
-        if element == "td":
-            contents = [
-                html.Td(item) if element == "td" else html.Th(item)
-                for item in [link, version]
-            ]
-
+        element_fn = html.Td if element == "td" else html.Th
+        contents = [element_fn(item) for item in [link, version]]
         return html.Thead(html.Tr(contents))
 
     table = html.Table(
@@ -59,9 +56,9 @@ def about():
         ]
     )
 
-    content = [ABOUT_CONTENT, table]
+    content_temp = [ABOUT_CONTENT, table]
     modal = dbc.Modal(
-        [title, dbc.ModalBody(content)],
+        [title, dbc.ModalBody(content_temp)],
         size="lg",
         id="modal-about",
         role="document",
@@ -83,17 +80,18 @@ def about():
 div = []
 
 
-def get_contents(content):
-    if not isinstance(content, (list, dict)):
-        return [dcc.Markdown(content)]
+def get_contents(data):
+    """generate components from data"""
+    if not isinstance(data, (list, dict)):
+        return [dcc.Markdown(data)]
 
-    if isinstance(content, list):
-        return [html.Ul([html.Li(item) for item in content])]
+    if isinstance(data, list):
+        return [html.Ul([html.Li(item) for item in data])]
 
     return dbc.Row(
         [
-            dbc.Col([html.H6(item), html.Div(get_contents(content[item]))], md=12, lg=6)
-            for item in content.keys()
+            dbc.Col([html.H6(item), html.Div(get_contents(data[item]))], md=12, lg=6)
+            for item in data.keys()
         ]
     )
 

@@ -9,7 +9,6 @@ import mrsimulator as mrsim
 from csdmpy.dependent_variable.download import get_absolute_url_path
 from dash import callback_context as ctx
 from dash.exceptions import PreventUpdate
-from mrsimulator import Mrsimulator
 
 from .utils import assemble_data
 
@@ -25,7 +24,7 @@ def load_file_from_url(url):
     url_path = get_absolute_url_path(url, PATH)
     response = urlopen(url_path)
     contents = json.loads(response.read())
-    return parse_file_contents(contents, url_path.endswith(".mrsys"))
+    return parse_file_contents(contents, spin_sys=url_path.endswith(".mrsys"))
 
 
 def load_local_file(contents):
@@ -59,11 +58,12 @@ def import_mrsim_file():
 
 
 def parse_file_contents(content, spin_sys=False):
-    # content = {"spin_systems": content} if spin_sys else content
+    """parse .mrsim, .mrsys files"""
+    content = {"simulator": {"spin_systems": content}} if spin_sys else content
 
     # try:
     # print(content)
-    mrs = Mrsimulator.parse(content)
+    mrs = mrsim.Mrsimulator.parse(content)
     # print(mrs.json())
     return assemble_data(mrs.json())
     # data = fix_missing_keys(content)
