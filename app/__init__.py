@@ -13,7 +13,7 @@ from .utils import slogger
 
 __author__ = "Deepansh J. Srivastava"
 __email__ = "srivastava.89@osu.edu"
-__version__ = "v0.3.0a0"
+__version__ = "v0.4.0dev1"
 
 now = datetime.datetime.now()
 year = now.year

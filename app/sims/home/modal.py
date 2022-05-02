@@ -10,14 +10,14 @@ from app.custom_widgets import custom_button
 
 
 def title():
-    """Sample Title"""
+    """Edit field for sample title"""
     label = dbc.FormText("Title")
     field = dbc.Input(type="text", placeholder="Add title", id="info-name-edit")
     return [label, field]
 
 
 def description():
-    """Sample Description"""
+    """Edit field for sample description"""
     label = dbc.FormText("Description")
     field = dbc.Textarea(
         value="",
@@ -29,10 +29,12 @@ def description():
 
 
 def body():
+    """modal body"""
     return dbc.Form([*title(), *description()])
 
 
 def footer():
+    """modal footer"""
     save_button = dbc.Button(
         "Save",
         id="save_info_modal",
@@ -43,7 +45,7 @@ def footer():
     return dbc.ModalFooter(save_button)
 
 
-def ui():
+def user_interface():
     """Modal body with form  and close button"""
     close_button = custom_button(
         icon_classname="fas fa-times 2x",
@@ -64,7 +66,7 @@ def ui():
     )
 
 
-modal = ui()
+modal = user_interface()
 
 
 app.clientside_callback(

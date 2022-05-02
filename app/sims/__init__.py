@@ -16,18 +16,18 @@ from dash.exceptions import PreventUpdate
 from mrsimulator import Mrsimulator
 from mrsimulator.utils.spectral_fitting import add_csdm_dvs
 
-from . import navbar
-from .features import features_body
-from .fit_report import fit_report_body
-from .graph import DEFAULT_FIGURE
-from .graph import plot_1D_trace
-from .graph import plot_2D_trace
-from .graph import spectrum_body
-from .home import home_body
-from .method import method_body
-from .sidebar import sidebar
-from .spin_system import spin_system_body
 from app import app
+from app.sims import navbar
+from app.sims.features import features_body
+from app.sims.fit_report import fit_report_body
+from app.sims.graph import DEFAULT_FIGURE
+from app.sims.graph import plot_1D_trace
+from app.sims.graph import plot_2D_trace
+from app.sims.graph import spectrum_body
+from app.sims.home import home_body
+from app.sims.method import method_body
+from app.sims.sidebar import sidebar
+from app.sims.spin_system import spin_system_body
 from app.utils import slogger
 
 __author__ = ["Deepansh J. Srivastava", "Matthew D. Giammar"]
@@ -149,6 +149,7 @@ def simulation(*args):
 
 
 def one_time_simulation():
+    """simulation"""
     mrsim_data = ctx.inputs["local-mrsim-data.data"]
     # n_sys = 1 if "spin_systems" not in mrsim_data else len(mrsim_data["spin_systems"])
 

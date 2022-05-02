@@ -13,12 +13,26 @@ from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
 
-from .modal import modal
 from app import app
 from app.custom_widgets import custom_button
+from app.sims.home.modal import modal
+
+
+DEFAULT_MRSIM_DATA = {
+    "simulator": {
+        "name": "",
+        "description": "",
+        "spin_systems": [],
+        "methods": [],
+        "config": {},
+    },
+    "signal_processors": [],
+    "application": {},
+}
 
 
 def edit_sample_info_button_ui():
+    """Pencil button to toggle tile and description modal window"""
     return custom_button(
         icon_classname="fas fa-pencil-alt",
         tooltip="Click to edit title and description.",
@@ -29,7 +43,7 @@ def edit_sample_info_button_ui():
 
 
 def download_session_ui():
-    """Download session"""
+    """Download the current session as .mrsim files"""
     session_link = html.A(id="download-session-link", style={"display": "none"})
     session_button = custom_button(
         icon_classname="fas fa-file-download fa-lg",
@@ -62,6 +76,7 @@ def tools():
     )
 
 
+# pre-define the components to avoid defining multiple components with same id.
 preset = {
     "edit_sample_info_button": edit_sample_info_button_ui(),
     "download_session": download_session_ui(),
@@ -80,12 +95,14 @@ def sample_header(title):
 
 
 def method_header():
+    """Method info header"""
     return html.Div(
         [html.H5("Method Overview"), preset["tools"]], **{"data-table-header-mth": ""}
     )
 
 
 def spin_system_header():
+    """Spin system info header"""
     return html.Div(
         [html.H5("Spin system Overview"), preset["tools"]],
         **{"data-table-header-sys": ""},
@@ -93,20 +110,24 @@ def spin_system_header():
 
 
 def sample_overview_layout(title, description):
+    """Update sample info layout"""
     return [sample_header(title), dbc.Card(dbc.CardBody(description))]
 
 
 def method_overview_layout(mrsim: dict):
+    """Update method info layout"""
     method_table = get_method_overview_table(mrsim)
     return [method_header(), method_table]
 
 
 def spin_system_overview_layout(mrsim: dict):
+    """Update spin system info layout"""
     spin_system_table = get_spin_system_overview_table(mrsim)
     return [spin_system_header(), spin_system_table]
 
 
 def get_method_overview_table(mrsim: dict):
+    """Update method info table data"""
     # number of methods
     n_methods = 0 if "methods" not in mrsim else len(mrsim["simulator"]["methods"])
     mth_brief = html.Div([f"Number of methods: {n_methods}"])
@@ -119,12 +140,10 @@ def get_method_overview_table(mrsim: dict):
 
 
 def get_spin_system_overview_table(mrsim: dict):
+    """Update spin system info table data"""
     # number of spin systems
-    n_sys = (
-        0
-        if "spin_systems" not in mrsim["simulator"]
-        else len(mrsim["simulator"]["spin_systems"])
-    )
+    sim = mrsim["simulator"]
+    n_sys = 0 if "spin_systems" not in sim else len(sim["spin_systems"])
     sys_brief = html.Div([f"Number of spin systems: {n_sys}"])
 
     # spin system table rows
@@ -135,6 +154,7 @@ def get_spin_system_overview_table(mrsim: dict):
 
 
 def system_overview_data(mrsim: dict):
+    """Update spin system overview data"""
     sys_header = ["", "Name", "%", "# Sites", "Isotopes", ""]
     sys_row = [html.Thead(html.Tr([html.Th(html.B(item)) for item in sys_header]))]
 
@@ -146,7 +166,7 @@ def system_overview_data(mrsim: dict):
     for i, spin_system in enumerate(mrsim["simulator"]["spin_systems"]):
         name = "" if "name" not in spin_system else spin_system["name"]
         abd = (
-            ""
+            "100"
             if "abundance" not in spin_system
             else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
         )
@@ -159,6 +179,7 @@ def system_overview_data(mrsim: dict):
 
 
 def method_overview_data(mrsim: dict):
+    """Update method over data"""
     mth_header = ["", "Name", "Channels", "B0 / T", "vr / kHz", ""]
     method_row = [html.Thead(html.Tr([html.Th(html.B(item)) for item in mth_header]))]
 
@@ -168,30 +189,31 @@ def method_overview_data(mrsim: dict):
     icon = html.I(className="fas fa-pencil-alt", title="Edit method")
     icon_span = html.Span(icon, **{"data-edit-mth": ""})
     for i, method in enumerate(mrsim["simulator"]["methods"]):
-        name = "" if "name" not in method.keys() else method["name"]
+        name = f"Method-{i}" if "name" not in method.keys() else method["name"]
         channels = "-".join(method["channels"])
-        Bo = (
-            ""
-            if method["magnetic_flux_density"] is None
-            else method["magnetic_flux_density"].split(" ")[0]
-        )
-        vr = (
-            ""
-            if method["rotor_frequency"] is None
-            else float(method["rotor_frequency"].split(" ")[0]) / 1e3
-        )
-        pack = [i, name, channels, Bo, vr, icon_span]
+
+        # magnetic flux density
+        b_0 = method["magnetic_flux_density"]
+        b_0 = "" if b_0 is None else b_0.split(" ")[0]
+
+        # rotor frequency
+        v_r = method["rotor_frequency"]
+        v_r = "" if v_r is None else float(v_r.split(" ")[0]) / 1e3
+
+        pack = [i, name, channels, b_0, v_r, icon_span]
         method_row += [html.Thead(html.Tr([html.Td(item) for item in pack]))]
 
     return method_row
 
 
-def overview_page(mrsim):
-    title = mrsim["simulator"]["name"] if "name" in mrsim["simulator"] else ""
+def refresh(mrsim):
+    """Refresh and update the info ui"""
+    sim = mrsim["simulator"]
+
+    title = sim["name"] if "name" in sim else ""
     title = title if title != "" else "Title"
-    description = (
-        mrsim["simulator"]["description"] if "description" in mrsim["simulator"] else ""
-    )
+
+    description = sim["description"] if "description" in sim else ""
     description = description if description != "" else "Sample description"
 
     sample_overview = sample_overview_layout(title, description)
@@ -203,14 +225,9 @@ def overview_page(mrsim):
     )
 
 
-def refresh(json_data):
-    return overview_page(json_data)
-
-
-def ui():
-    page = refresh(
-        {"simulator": {"name": "Title", "description": "Sample description"}}
-    )
+def user_interface():
+    """Generate info user interface"""
+    page = refresh(DEFAULT_MRSIM_DATA)
     loading = dcc.Loading(html.Div(page, id="info-read-only"))
     upload_mrsim = dcc.Upload(
         loading,
@@ -231,4 +248,4 @@ def ui():
     )
 
 
-home_body = ui()
+home_body = user_interface()

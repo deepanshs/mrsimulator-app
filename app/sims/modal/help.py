@@ -4,6 +4,7 @@ from dash import html
 
 
 def get_icon_with_description(icon, description):
+    """create components for description"""
     return html.Tr([html.Td(html.I(className=icon)), html.Td(description)])
 
 

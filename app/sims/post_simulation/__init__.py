@@ -10,15 +10,34 @@ from mrsimulator import parse
 from mrsimulator import signal_processing as sp
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
-from . import baseline as Baseline
-from . import convolution as Convolution
-from . import scale as Scale
+from app.sims.post_simulation import baseline as Baseline
+from app.sims.post_simulation import convolution as Convolution
+from app.sims.post_simulation import scale as Scale
 from app.sims.utils import expand_output
 from app.sims.utils import update_processor_ui
 
 
+CALLBACKS = {
+    "scalar": Scale.refresh,
+    "baseline": Baseline.refresh,
+    "convolution": Convolution.refresh,
+}
+
+FUNCTION_DICT = {
+    "scale": Scale.get_dict,
+    "baseline": Baseline.get_dict,
+    "apodization": Convolution.get_dict,
+}
+
+FUNCTION_UI_REFRESH = {
+    "Scale": Scale.ui,
+    "baseline": Baseline.ui,
+    "apodization": Convolution.ui,
+}
+
+
 def tools():
-    """Add, duplicate, or remove methods"""
+    """dropsown options for signal processing"""
     items = [
         dbc.DropdownMenuItem("Amplitude Scalar", id="add-post_sim-scalar"),
         dbc.DropdownMenuItem("Baseline Offset", id="add-post_sim-baseline"),
@@ -43,7 +62,6 @@ def refresh(data):
 
     method_index = method_index if len(mth) > method_index else 0
     n_dim, n_dv = len(mth[method_index]["spectral_dimensions"]), len(sys)
-    print("py_dict", post[method_index])
 
     obj, i = [], 0
     for item in post[method_index]["operations"]:
@@ -62,10 +80,10 @@ def function_to_id_index_map():
     dict_map = {}
     for k in keys:
         info = json.loads(k.split(".")[0])
-        fn, index = info["function"], info["index"]
-        if fn not in dict_map:
-            dict_map[fn] = []
-        dict_map[fn].append(index)
+        f_n, index = info["function"], info["index"]
+        if f_n not in dict_map:
+            dict_map[f_n] = []
+        dict_map[f_n].append(index)
     return dict_map
 
 
@@ -77,10 +95,10 @@ def generate_signal_processor_dict(n_dims):
     """
     dict_map = function_to_id_index_map()
 
-    dims = [i for i in range(n_dims)]
+    dims = list(range(n_dims))
     apodize = [{"dim_index": dims, "function": "IFFT"}]
     other = []
-    [
+    _ = [
         [apodize.append(FUNCTION_DICT[k](index)) for index in set(v)]
         if k == "apodization"
         else [other.append(FUNCTION_DICT[k](index)) for index in set(v)]
@@ -91,6 +109,7 @@ def generate_signal_processor_dict(n_dims):
 
 
 def setup():
+    """setup"""
     method_index = ctx.inputs["select-method.value"]
     existing_data = ctx.states["local-mrsim-data.data"]
 
@@ -105,7 +124,7 @@ def setup():
     #     existing_data["signal_processors"] = [{"operations": []} for _ in mth_options]
 
     if existing_data["signal_processors"] is None:
-        n_mth = len(existing_data.methods)
+        n_mth = len(existing_data["simulator"]["methods"])
         existing_data["signal_processors"] = [{"operations": []} for _ in range(n_mth)]
 
     return existing_data, method_index
@@ -166,22 +185,3 @@ def on_submit_signal_processor_button():
     }
 
     return expand_output(out)
-
-
-CALLBACKS = {
-    "scalar": Scale.refresh,
-    "baseline": Baseline.refresh,
-    "convolution": Convolution.refresh,
-}
-
-FUNCTION_DICT = {
-    "scale": Scale.get_dict,
-    "baseline": Baseline.get_dict,
-    "apodization": Convolution.get_dict,
-}
-
-FUNCTION_UI_REFRESH = {
-    "Scale": Scale.ui,
-    "baseline": Baseline.ui,
-    "apodization": Convolution.ui,
-}

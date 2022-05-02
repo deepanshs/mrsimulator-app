@@ -7,10 +7,10 @@ from dash.dependencies import ClientsideFunction
 from dash.dependencies import Input
 from dash.dependencies import Output
 
-from .site import site_ui
 from app import app
 from app.custom_widgets import custom_button
 from app.custom_widgets import custom_input_group
+from app.sims.spin_system.site import site_ui
 
 __author__ = ["Deepansh J. Srivastava", "Maxwell C. Venetos"]
 __email__ = ["srivastava.89@osu.edu", "venetos.5@buckeyemail.osu.edu"]
@@ -103,6 +103,7 @@ def header():
 
 
 def layout():
+    """layout"""
     # abundance
     abundance_group = custom_input_group(
         append_label="%",
@@ -139,7 +140,7 @@ def layout():
     )
 
 
-def ui():
+def user_interface():
     head = header()
     body = html.Div(
         [scrollable(), layout(), tools()], id="iso-slide", className="slide-offset"
@@ -163,7 +164,7 @@ def generate_sidepanel(spin_system, index):
 
     # spin system abundance
     abundance = (
-        ""
+        "100"
         if "abundance" not in spin_system
         else np.around(float(spin_system["abundance"].split(" ")[0]), decimals=3)
     )
@@ -192,7 +193,7 @@ def refresh(systems):
     )
 
 
-spin_system_body = ui()
+spin_system_body = user_interface()
 
 app.clientside_callback(
     ClientsideFunction(namespace="spin_system", function_name="updateSpinSystemJson"),
