@@ -1,5 +1,5 @@
 
-flask==2.0.1
+flask==2.2.3
 uuid==1.30
 dash-extensions==0.0.60
 plotly==5.1.0
