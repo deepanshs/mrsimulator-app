@@ -2,61 +2,61 @@
     "All Examples": [
         {
             "label": "Coesite",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/Coesite_3.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/Coesite_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Coesite.svg",
             "description": "O17 MAS of Coesite"
         },
         {
             "label": "Nasicon",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/Nasicon_2.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/Nasicon_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Nasicon.svg",
             "description": "Nasicon"
         },
         {
             "label": "Cuspidine",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/cuspidine_3.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/cuspidine_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Cuspidine.svg",
             "description": "Si29 MAS of Cuspidine"
         },
         {
             "label": "Glycine",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/glycine_2.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/glycine_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Glycine.svg",
             "description": "C13 MAS of Glycine (CSA)"
         },
         {
             "label": "Lithium Orthoborate",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/lithium_orthoborate_1.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/lithium_orthoborate_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Lithium%20Orthoborate.svg",
             "description": "11B MAS of a Lithium Orthoborate Crystal"
         },
         {
             "label": "Methionine",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/methionine_1.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/methionine_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Methionine.svg",
             "description": "2H MAS of Deuterated Methionine"
         },
         {
             "label": "Sodium Phosphate",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/Na2PO4_2.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/Na2PO4_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Na2HPO4.svg",
             "description": "31P MAS of crystalline Na2PO4 (CSA)"
         },
         {
             "label": "Tin (II) Oxide",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/SnO_2.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/SnO_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Tin%28II%29%20Oxide.svg",
             "description": "119Sn MAS of Tin (II) Oxide"
         },
         {
             "label": "Wollastonite",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/wollastonite_1.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/wollastonite_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/Wollastonite.svg",
             "description": "29Si MAS of Wollastonite"
         },
         {
             "label": "Yttrium Aluminium Garnet",
-            "value": "https://www.ssnmr.org/sites/default/files/mrsimulator/YAG_1.mrsim",
+            "value": "http://ssnmr.org/sites/default/files/mrsimulator/YAG_v07_compliant_0.mrsim",
             "img": "https://www.ssnmr.org/sites/default/files/mrsimulator/YAG.svg",
             "description": "27Al 1st and 2nd order Quad MAS NMR of YAG"
         }
