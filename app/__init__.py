@@ -19,7 +19,7 @@ now = datetime.datetime.now()
 year = now.year
 
 
-redis_url = os.environ["REDIS_URL"]
+redis_url = os.environ.get("REDIS_URL", "")
 slogger("tasks.py", f"declare celery_app: redis_url={redis_url}")
 celery_app = Celery("query", backend=redis_url, broker=redis_url)
 slogger("tasks.py", "celery_app declared successfully")
