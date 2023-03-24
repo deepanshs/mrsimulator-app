@@ -339,7 +339,7 @@ def construct_csdm_object(sim, exp=None, residual=None):
     def add_dv(parrent, to_add):
         y = to_add.y[0].components
         index = [-i - 1 for i, x in enumerate(to_add.x) if x.increment.value < 0]
-        parrent.add_y(
+        parrent.dependent_variables.append(
             cp.DependentVariable(
                 type="internal",
                 components=y if index == [] else np.flip(y, axis=tuple(index)),
