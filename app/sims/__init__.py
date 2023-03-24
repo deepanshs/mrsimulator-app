@@ -173,7 +173,7 @@ def one_time_simulation():
     sim.config.decompose_spectrum = decompose
 
     for processor, mth in zip(processor, sim.methods):
-        mth.simulation = processor.apply_operations(data=mth.simulation).real
+        mth.simulation = processor.apply_operations(dataset=mth.simulation).real
 
     if decompose == "none":
         for mth in sim.methods:

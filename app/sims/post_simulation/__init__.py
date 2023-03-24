@@ -7,7 +7,7 @@ from dash import html
 from dash import no_update
 from dash.exceptions import PreventUpdate
 from mrsimulator import parse
-from mrsimulator import signal_processing as sp
+from mrsimulator import signal_processor as sp
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
 from app.sims.post_simulation import baseline as Baseline
