@@ -27,7 +27,7 @@ def menu_item(children=None, **kwargs):
 
 
 def create_submenu(**kwargs):
-    return dbc.DropdownMenu(caret=False, in_navbar=True, nav=True, **kwargs)
+    return dbc.DropdownMenu(caret=False, in_navbar=False, nav=True, **kwargs)
 
 
 def file_menu():
@@ -112,7 +112,7 @@ def spin_system_menu():
         prevent_initial_call=True,
     )
 
-    return create_submenu(label="Spin System", children=spin_system_items, right=True)
+    return create_submenu(label="Spin System", children=spin_system_items)
 
 
 def method_menu():
@@ -174,7 +174,7 @@ def method_menu():
         prevent_initial_call=True,
     )
 
-    return create_submenu(label="Method", children=method_items, right=False)
+    return create_submenu(label="Method", children=method_items)
 
 
 # View menu ----------------------------------------------------------------- #
@@ -241,7 +241,7 @@ def help_menu():
         about_modals,
     ]
 
-    return create_submenu(label="Help", children=help_items, right=True)
+    return create_submenu(label="Help", children=help_items)
 
 
 def layout():
@@ -250,7 +250,7 @@ def layout():
 
 def ui():
     return html.Div(
-        html.Ul(layout(), className="menu"), className="master-toolbar nav-composite"
+        dbc.Nav(layout(), className="menu"), className="master-toolbar nav-composite"
     )
 
 
