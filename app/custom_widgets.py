@@ -23,7 +23,7 @@ def label_with_help_button(label="", help_text="", id=None):
         help_text: A string message displayed as help message.
         id: The id for the label.
     """
-    label = dbc.Label(label, className="formtext pr-1")
+    label = dbc.Label(label, class_name="formtext pr-1")
     help_ = custom_hover_help(message=help_text, id=f"upload-{id}-url-help")
     className = "d-flex justify-content-start align-items-center"
     return html.Div([label, help_], className=className)
