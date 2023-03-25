@@ -121,7 +121,7 @@ def custom_slider(label="", return_function=None, **kwargs):
                 [label, dbc.FormText(id=id_label)],
                 className="d-flex justify-content-between",
             ),
-            dcc.Slider(**kwargs, class_name="slider-custom"),
+            dcc.Slider(**kwargs, className="slider-custom"),
         ]
     )
 
