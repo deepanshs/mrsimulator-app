@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from dash import no_update
 
-from . import home as home_UI
-from . import method as method_UI
-from . import post_simulation as post_sim_UI
-from . import spin_system as spin_system_UI
+from app.sims import home as home_UI
+from app.sims import method as method_UI
+from app.sims import post_simulation as post_sim_UI
+from app.sims import spin_system as spin_system_UI
+from app.sims.sidebar import N_ACTIVE_CONFIGS
 
 
 def expand_output(out):
@@ -23,7 +24,7 @@ def update_processor_ui(processor):
         "alert": ["", False],
         "mrsim": [no_update, no_update],
         "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [processor],
     }
     return expand_output(out)
@@ -32,14 +33,17 @@ def update_processor_ui(processor):
 def assemble_data(data):
     # data["trigger"] = {"simulation": True, "method_index": None}
 
-    fields = [
-        "integration_density",
-        "integration_volume",
-        "number_of_sidebands",
-        "decompose_spectrum",
+    fields = {
+        "integration_density": 70,
+        "integration_volume": "Octant",
+        "number_of_sidebands": 64,
+        "isotropic_interpolation": "linear",
+        # "number_of_gamma_angles": 1,
+    }
+    mrsim_config = [
+        data["simulator"]["config"].get(key, value) for key, value in fields.items()
     ]
-    mrsim_config = [data["simulator"]["config"][item] for item in fields]
-    mrsim_config[-1] = no_update
+    # mrsim_config[-1] = no_update
 
     spin_system_overview = spin_system_UI.refresh(data["simulator"]["spin_systems"])
     method_overview = method_UI.refresh(data["simulator"]["methods"])
@@ -68,7 +72,7 @@ def on_fail_message(message):
         "alert": [message, True],
         "mrsim": [no_update, no_update],
         "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [no_update],
     }
     return expand_output(out)
