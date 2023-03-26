@@ -15,7 +15,7 @@ def brand():
     icon = dcc.Link(
         html.Img(
             src="/assets/mrsimulator-logo-dark.svg",
-            height="40px",
+            height="35px",
             alt="Mrsimulator",
         ),
         href="/",
@@ -34,7 +34,7 @@ def navbar_top_ui():
 def navbar_bottom_ui():
     content = html.Div([dbc.Label(f"@mrsimulator, 2019-{year}", color="light")])
     return dbc.Navbar(
-        dbc.Container([content]), color=None, dark=None, class_name="bottom-navbar"
+        dbc.Container([content]), color=None, dark=None, class_name="bottom-navbar", fixed="bottom"
     )
 
 
