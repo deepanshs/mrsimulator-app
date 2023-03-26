@@ -28,7 +28,7 @@ def navbar_top_ui():
         brand(),
         master_menubar,
     ]
-    return dbc.Navbar(dbc.Container(bar), color=None, dark=None, expand="md")
+    return dbc.Navbar(dbc.Container(bar), color=None, dark=None, expand=True)
 
 
 def navbar_bottom_ui():
