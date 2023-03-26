@@ -18,6 +18,15 @@ SIDEBAR_TAB_NAME = [
     "spectrum",
 ]
 
+ACTIVE_CONFIGS = {
+    "integration_density": "value",
+    "integration_volume": "value",
+    "number_of_sidebands": "value",
+    "isotropic_interpolation": "value",
+    # "number_of_gamma_angles": "value",
+}
+N_ACTIVE_CONFIGS = len(ACTIVE_CONFIGS.keys())
+
 
 def home():
     """Home tab."""
@@ -155,6 +164,30 @@ def advanced_settings_modal():
         )
         return dbc.Row([dbc.Col(title), dbc.Col(field)])
 
+    def number_of_gamma_angles():
+        """Number of gamma angles: label [Input]"""
+        title = dbc.Label("Number of gamma angles")
+        field = dbc.Input(
+            type="number", value=1, min=1, max=4096, step=1, id="number_of_gamma_angles"
+        )
+        return dbc.Row([dbc.Col(title), dbc.Col(field)])
+
+    def isotropic_interpolation():
+        """Isotropic interpolation: label [Dropdown]"""
+        title = dbc.Label("Isotropic interpolation method")
+        options = [
+            {"label": "Linear", "value": "linear"},
+            {"label": "Gaussian", "value": "gaussian"},
+        ]
+        field = dcc.Dropdown(
+            id="isotropic_interpolation",
+            options=options,
+            value="linear",
+            clearable=False,
+            searchable=False,
+        )
+        return dbc.Row([dbc.Col(title), dbc.Col(field)])
+
     def integration_info():
         """Text field displaying number of crystallite orientations."""
         app.clientside_callback(
@@ -178,6 +211,8 @@ def advanced_settings_modal():
             integration_volume(),
             integration_info(),
             number_of_sidebands(),
+            isotropic_interpolation(),
+            # number_of_gamma_angles(),
         ]
         return dbc.Form(form)
 

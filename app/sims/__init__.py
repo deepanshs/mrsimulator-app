@@ -127,6 +127,7 @@ mrsimulator_app = html.Div(
 
 # ==================================================================================== #
 
+
 # Main function. Evaluates the spectrum and update the plot.
 @app.callback(
     Output("alert-message-simulation", "children"),
@@ -167,15 +168,15 @@ def one_time_simulation():
 
     sim, processor, _ = mrsim.simulator, mrsim.signal_processors, mrsim.application
 
-    decompose = sim.config.decompose_spectrum[:]
+    decompose_spectrum = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
     sim.run()
-    sim.config.decompose_spectrum = decompose
+    sim.config.decompose_spectrum = decompose_spectrum
 
     for processor, mth in zip(processor, sim.methods):
         mth.simulation = processor.apply_operations(dataset=mth.simulation).real
 
-    if decompose == "none":
+    if decompose_spectrum == "none":
         for mth in sim.methods:
             mth.simulation = add_csdm_dvs(mth.simulation)
 

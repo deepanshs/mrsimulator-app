@@ -84,6 +84,8 @@ def fix_missing_keys(json_data):
             "integration_density": 70,
             "integration_volume": "octant",
             "number_of_sidebands": 64,
+            # "number_of_gamma_angles": 1,
+            "isotropic_interpolation": "linear",
             "decompose_spectrum": "none",
         },
     }

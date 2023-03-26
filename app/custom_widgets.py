@@ -71,7 +71,7 @@ def custom_button(
 
 
 def custom_switch(text="", icon_classname="", id=None, tooltip=None, **kwargs):
-    """A custom dash bootstrap component boolean button with added tooltip and icon option.
+    """A custom dash bootstrap component button with added tooltip and icon option.
 
     Args:
         text: A string text displayed on the button.

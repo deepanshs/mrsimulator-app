@@ -15,10 +15,8 @@ from app import app
 from app.custom_widgets import custom_button
 from app.sims import post_simulation as ps
 from app.sims.method import fields as mrf
-from app.sims.method.modal import METHOD_DIMENSIONS
-from app.sims.method.modal import METHOD_LIST
 from app.sims.method.modal import method_selection_modal
-
+from app.sims.method.modal import SUPPORTED_METHODS
 
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = "srivastava.89@osu.edu"
@@ -226,11 +224,13 @@ def get_method_json(n_clicks, value, isotope):
     """callback for default method template"""
     if n_clicks is None:
         raise PreventUpdate
-    d_0 = {"count": 512, "spectral_width": 25000}
+
+    selected_method = SUPPORTED_METHODS[value]
+
     return {
-        "method": METHOD_LIST[value](
+        "method": selected_method["function"](
             channels=[isotope],
-            spectral_dimensions=[d_0] * METHOD_DIMENSIONS[value],
+            spectral_dimensions=selected_method["spectral_dimensions"],
         ).json(),
         "time": int(datetime.now().timestamp() * 1000),
     }

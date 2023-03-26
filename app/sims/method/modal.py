@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """Modal window for method selection"""
 import dash_bootstrap_components as dbc
-import mrsimulator.method.lib as mt
 from dash import dcc
 from dash.dependencies import Input
 from dash.dependencies import Output
 from dash.dependencies import State
+from mrsimulator.method import lib as mr_lib
+from mrsimulator.method import SpectralDimension
 
 from app import app
 from app.sims.spin_system.site import isotope_options_list
@@ -13,17 +14,31 @@ from app.sims.spin_system.site import isotope_options_list
 __author__ = ["Deepansh J. Srivastava"]
 __email__ = "srivastava.89@osu.edu"
 
-METHOD_LIST = [
-    mt.BlochDecaySpectrum,
-    mt.BlochDecayCTSpectrum,
-    # mt.ThreeQ_VAS,
-]
-METHOD_DIMENSIONS = [item.ndim for item in METHOD_LIST]
+
+SUPPORTED_METHODS = {
+    0: {
+        "label": "Bloch Decay Spectrum",
+        "function": mr_lib.BlochDecaySpectrum,
+        "spectral_dimensions": [SpectralDimension(count=512, spectral_width=25000)],
+    },
+    1: {
+        "label": "Bloch Decay Central Transition Spectrum",
+        "function": mr_lib.BlochDecayCTSpectrum,
+        "spectral_dimensions": [SpectralDimension(count=512, spectral_width=25000)],
+    },
+    2: {
+        "label": "Triple-quantum variable-angle spinning",
+        "function": mr_lib.ThreeQ_VAS,
+        "spectral_dimensions": [
+            SpectralDimension(count=128, spectral_width=25000),
+            SpectralDimension(count=512, spectral_width=25000),
+        ],
+    },
+}
+
+
 METHOD_OPTIONS = [
-    {"label": "Bloch Decay Spectrum", "value": 0},
-    {"label": "Bloch Decay Central Transition Spectrum", "value": 1},
-    # {"label": "Triple-quantum variable-angle spinning", "value": 2},
-    # {"label": "Custom 2D method", "value": "Custom2D"},
+    {"label": value["label"], "value": key} for key, value in SUPPORTED_METHODS.items()
 ]
 
 # title

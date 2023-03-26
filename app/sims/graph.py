@@ -163,15 +163,15 @@ def tools():
             **kwargs,
         )
 
-        decompose_button = custom_switch(
+        decompose_spectrum_button = custom_switch(
             # text="Decompose",
             icon_classname="fac fa-decompose",
-            id="decompose",
+            id="decompose_spectrum",
             # size="sm",
             tooltip="Decompose spectrum from individual spin systems.",
             **kwargs,
         )
-        return dbc.ButtonGroup([normalize_button, decompose_button])
+        return dbc.ButtonGroup([normalize_button, decompose_spectrum_button])
 
     return html.Div([graph_tool_pack(), download_spectra()])
 

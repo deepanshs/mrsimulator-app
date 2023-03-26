@@ -20,13 +20,15 @@ from mrsimulator.utils import get_spectral_dimensions
 from mrsimulator.utils import spectral_fitting as sf
 from mrsimulator.utils.spectral_fitting import make_LMFIT_params
 
-from . import home as home_UI
-from . import io as sim_IO
-from . import method as method_UI
-from . import post_simulation as post_sim_UI
-from . import spin_system as spin_system_UI
-from . import utils as sim_utils
 from app import app
+from app.sims import home as home_UI
+from app.sims import io as sim_IO
+from app.sims import method as method_UI
+from app.sims import post_simulation as post_sim_UI
+from app.sims import spin_system as spin_system_UI
+from app.sims import utils as sim_utils
+from app.sims.sidebar import ACTIVE_CONFIGS
+from app.sims.sidebar import N_ACTIVE_CONFIGS
 from app.utils import load_csdm
 
 # from lmfit import fit_report
@@ -46,10 +48,7 @@ __email__ = "srivastava.89@osu.edu"
     Output("spin-system-read-only", "children"),
     Output("method-read-only", "children"),
     Output("info-read-only", "children"),
-    Output("integration_density", "value"),
-    Output("integration_volume", "value"),
-    Output("number_of_sidebands", "value"),
-    Output("decompose", "n_click"),
+    *[Output(config, prop) for config, prop in ACTIVE_CONFIGS.items()],
     Output("post_sim_child", "children"),
     # main page->drag and drop
     Input("upload-spin-system-local", "contents"),
@@ -74,7 +73,7 @@ __email__ = "srivastava.89@osu.edu"
     # method->clear
     Input("confirm-clear-methods", "submit_n_clicks"),
     # decompose into spin systems
-    Input("decompose", "active"),
+    Input("decompose_spectrum", "active"),
     # integration and sideband settings
     Input("close_setting", "n_clicks"),
     Input("save_info_modal", "n_clicks"),
@@ -95,10 +94,8 @@ __email__ = "srivastava.89@osu.edu"
     State("new-spin-system", "data"),
     State("new-method", "data"),
     State("select-method", "value"),
-    State("decompose", "n_clicks"),
-    State("integration_density", "value"),
-    State("integration_volume", "value"),
-    State("number_of_sidebands", "value"),
+    *[State(config, prop) for config, prop in ACTIVE_CONFIGS.items()],
+    State("decompose_spectrum", "n_clicks"),
     State("info-name-edit", "value"),
     State("info-description-edit", "value"),
     # post_sim states
@@ -135,33 +132,34 @@ def prep_valid_data_for_simulation(valid_data):
         "alert": ["", False],
         "mrsim": [valid_data, no_update],
         "children": [no_update] * 3,
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [no_update],
     }
     return sim_utils.expand_output(out)
 
 
-def on_decompose_click():
+def on_decompose_spectrum_click():
     """Toggle mrsim.config.decompose_spectrum between `spin_system` and `none`"""
     existing_data = ctx.states["local-mrsim-data.data"]
-    print(ctx.inputs["decompose.active"], ctx.states["decompose.n_clicks"])
-    decompose = "spin_system" if ctx.inputs["decompose.active"] else "none"
+    decompose_spectrum = (
+        "spin_system" if ctx.inputs["decompose_spectrum.active"] else "none"
+    )
     # existing_data["trigger"] = {"simulate": True, "method_index": False}
-    existing_data["simulator"]["config"]["decompose_spectrum"] = decompose
+    existing_data["simulator"]["config"]["decompose_spectrum"] = decompose_spectrum
     return prep_valid_data_for_simulation(existing_data)
 
 
 def on_mrsim_config_change():
     """Update the mrsim.config dict. Only includes density, volume, and #sidebands"""
     existing_data = ctx.states["local-mrsim-data.data"]
-    fields = ["integration_density", "integration_volume", "number_of_sidebands"]
 
     # if existing_data is not None:
     print(existing_data["simulator"]["config"])
     # existing_data["trigger"] = {"simulate": True, "method_index": None}
 
-    for item in fields:
-        existing_data["simulator"]["config"][item] = ctx.states[f"{item}.value"]
+    for item, val in ACTIVE_CONFIGS.items():
+        if val == "value":
+            existing_data["simulator"]["config"][item] = ctx.states[f"{item}.value"]
 
     return prep_valid_data_for_simulation(existing_data)
 
@@ -208,7 +206,7 @@ def save_info_modal():
         "alert": ["", False],
         "mrsim": [existing_data, no_update],
         "children": [no_update, no_update, home_overview],
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [no_update],
     }
     return sim_utils.expand_output(out)
@@ -227,7 +225,7 @@ def on_method_update():
             "alert": ["", False],
             "mrsim": [existing_data, no_update],
             "children": [no_update, method_overview, home_overview],
-            "mrsim_config": [no_update] * 4,
+            "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
             "processor": [[]]
             if len(existing_data["simulator"]["methods"]) == n
             else [no_update],
@@ -290,7 +288,7 @@ def on_spin_system_change():
             "alert": ["", False],
             "mrsim": [existing_data, no_update],
             "children": [spin_system_overview, no_update, home_overview],
-            "mrsim_config": [no_update] * 4,
+            "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
             "processor": [no_update],
         }
         return sim_utils.expand_output(out)
@@ -378,7 +376,7 @@ def add_measurement_to_a_method():
         "alert": ["", False],
         "mrsim": [existing_data, no_update],
         "children": [no_update, method_overview, no_update],
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [post_sim_overview],
     }
     return sim_utils.expand_output(out)
@@ -425,8 +423,8 @@ def simulate_spectrum():
     out = {
         "alert": ["", False],
         "mrsim": [new_mrsim_data, no_update],
-        "children": [no_update, no_update, no_update],
-        "mrsim_config": [no_update, no_update, no_update, no_update],
+        "children": [no_update] * 3,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [no_update],
     }
     return sim_utils.expand_output(out)
@@ -474,7 +472,7 @@ def least_squares_fit():
         )
     # print("sigma", sigma)
 
-    decompose = sim.config.decompose_spectrum[:]
+    decompose_spectrum = sim.config.decompose_spectrum[:]
     sim.config.decompose_spectrum = "spin_system"
 
     params = Parameters().loads(params_data)
@@ -483,11 +481,11 @@ def least_squares_fit():
     result = minner.minimize()
     # print(fit_report(result))
 
-    sim.config.decompose_spectrum = decompose
+    sim.config.decompose_spectrum = decompose_spectrum
     for sys in sim.spin_systems:
         sys.transition_pathways = None
 
-    if decompose == "none":
+    if decompose_spectrum == "none":
         for mth in sim.methods:
             mth.simulation = sf.add_csdm_dvs(mth.simulation)
 
@@ -505,7 +503,7 @@ def least_squares_fit():
         "alert": ["", False],
         "mrsim": [fit_data, no_update],
         "children": [spin_system_overview, method_overview, home_overview],
-        "mrsim_config": [no_update] * 4,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [post_sim_overview],
     }
     return sim_utils.expand_output(out)
@@ -529,8 +527,8 @@ def make_params():
     out = {
         "alert": ["", False],
         "mrsim": [mrsim_data, no_update],
-        "children": [no_update, no_update, no_update],
-        "mrsim_config": [no_update] * 4,
+        "children": [no_update] * 3,
+        "mrsim_config": [no_update] * N_ACTIVE_CONFIGS,
         "processor": [no_update],
     }
     return sim_utils.expand_output(out)
@@ -557,7 +555,7 @@ def add_params(mrsim_data):
 
 CALLBACKS = {
     "save_info_modal": save_info_modal,
-    "decompose": on_decompose_click,
+    "decompose_spectrum": on_decompose_spectrum_click,
     "close_setting": on_mrsim_config_change,
     "new-spin-system": on_spin_system_change,
     "new-method": on_method_update,
