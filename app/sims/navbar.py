@@ -34,7 +34,11 @@ def navbar_top_ui():
 def navbar_bottom_ui():
     content = html.Div([dbc.Label(f"@mrsimulator, 2019-{year}", color="light")])
     return dbc.Navbar(
-        dbc.Container([content]), color=None, dark=None, class_name="bottom-navbar", fixed="bottom"
+        dbc.Container([content]),
+        color=None,
+        dark=None,
+        class_name="bottom-navbar",
+        fixed="bottom",
     )
 
 
