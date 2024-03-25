@@ -24,6 +24,7 @@ slogger("tasks.py", f"declare celery_app: redis_url={redis_url}")
 celery_app = Celery("query", backend=redis_url, broker=redis_url)
 slogger("tasks.py", "celery_app declared successfully")
 
+print("NAME", __name__)
 
 # Initialize dash app
 app = Dash(

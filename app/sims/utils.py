@@ -62,7 +62,7 @@ def on_fail_message(message):
     """Message to display on failure
 
     Args:
-        ste message: The fail message.
+        str message: The fail message.
     """
     out = {
         "alert": [message, True],
